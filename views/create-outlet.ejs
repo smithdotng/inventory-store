@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Store View</title>
-  <link rel="stylesheet" href="/css/consult.css"> <!-- Assuming the stylesheet is in public/css/consult.css -->
+  <title>Create Outlet</title>
+  <link rel="stylesheet" href="/css/consult.css">
   <style>
     /* Centralized layout styles */
     body {
@@ -61,69 +61,52 @@
       max-height: 100px;
       margin-bottom: 20px;
     }
-    h1 {
+    h2 {
       font-size: 24px;
-      font-weight: bold;
+      text-align: center;
       margin-bottom: 20px;
     }
-    /* Form and table styles */
-    .table-section {
+    /* Form styles */
+    .form-section {
       background-color: white;
       padding: 20px;
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
     }
-    .form-group {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
+    .error {
+      color: red;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 10px;
       margin-bottom: 15px;
-    }
-    input[type="number"] {
-      padding: 8px;
       border: 1px solid #ccc;
       border-radius: 4px;
-      width: 100px;
+      box-sizing: border-box;
     }
     button {
-      padding: 8px 15px;
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
       border: none;
       border-radius: 4px;
       cursor: pointer;
-      color: white;
     }
-    .dispense-btn {
-      background-color: #4CAF50;
-    }
-    .dispense-btn:hover {
+    button:hover {
       background-color: #45a049;
-    }
-    .dispense-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 0 auto;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #e0e0e0;
-    }
-    tr {
-      border-bottom: 1px solid #ddd;
     }
     /* Link styles */
     a {
       color: #0066cc;
       text-decoration: none;
       display: block;
-      margin-top: 20px;
+      margin-top: 15px;
     }
     a:hover {
       text-decoration: underline;
@@ -151,43 +134,21 @@
       <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo">
     </div>
 
-    <h1>Store Inventory <span class="icon-shopping-cart" style="margin-left: 10px;"></span></h1>
-
-    <!-- Inventory Table with Dispense Form -->
-    <div class="table-section">
-      <table>
-        <thead>
-          <tr class="bg-gray-200">
-            <th>Product <span class="icon-consumer-behavior"></span></th>
-            <th>Stock <span class="icon-analysis"></span></th>
-            <th>Dispense Quantity <span class="icon-point-of-sale"></span></th>
-            <th>Action <span class="icon-strategy"></span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% inventory.forEach(item => { %>
-            <tr class="border-b">
-              <td><%= item.name %></td>
-              <td><%= item.stock %></td>
-              <td>
-                <form action="/dispense" method="POST" class="form-group">
-                  <input type="hidden" name="id" value="<%= item.id %>">
-                  <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required>
-                </form>
-              </td>
-              <td>
-                <form action="/dispense" method="POST" class="form-group">
-                  <input type="hidden" name="id" value="<%= item.id %>">
-                  <button type="submit" class="dispense-btn <%= item.stock === 0 ? 'disabled' : '' %>" <%= item.stock === 0 ? 'disabled' : '' %>>Dispense <span class="icon-right-arrow"></span></button>
-                </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
+    <div class="form-section">
+      <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
+      <% if (error) { %>
+        <div class="error"><%= error %></div>
+      <% } %>
+      <form action="/create-outlet" method="POST">
+        <input type="text" name="name" placeholder="Outlet Name" required>
+        <input type="text" name="location" placeholder="Location/Address" required>
+        <input type="text" name="mobile" placeholder="Mobile Number" required>
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
+      </form>
+      <a href="/home">Back to Home <span class="icon-right-arrow"></span></a>
     </div>
-
-    <a href="/update-stock">Go to Update Stock <span class="icon-right-arrow"></span></a>
   </div>
 </body>
 </html>

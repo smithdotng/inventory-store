@@ -4,58 +4,219 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Update Stock</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/consult.css"> <!-- Assuming the stylesheet is in public/css/consult.css -->
+  <style>
+    /* Centralized layout styles */
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 60px;
+    }
+    .container {
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+      padding: 20px;
+    }
+    /* Header styles */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      padding: 10px 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    .logo-container img {
+      max-height: 50px;
+      vertical-align: middle;
+    }
+    .menu {
+      display: flex;
+      gap: 15px;
+    }
+    .menu a {
+      color: #0066cc;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .menu a:hover {
+      background-color: #e0e0e0;
+      text-decoration: none;
+    }
+    /* Logo and heading styles */
+    .content-logo-container img {
+      max-height: 100px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    /* Form and table styles */
+    .form-section, .table-section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+    .form-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    input[type="text"], input[type="number"] {
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 200px;
+    }
+    input[type="number"].small {
+      width: 100px;
+    }
+    button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+    }
+    .reset-btn {
+      background-color: #ff4444;
+    }
+    .reset-btn:hover {
+      background-color: #cc0000;
+    }
+    .add-btn {
+      background-color: #4CAF50;
+    }
+    .add-btn:hover {
+      background-color: #45a049;
+    }
+    .update-btn {
+      background-color: #008CBA;
+    }
+    .update-btn:hover {
+      background-color: #007B9A;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0 auto;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+    /* Link styles */
+    a {
+      color: #0066cc;
+      text-decoration: none;
+      display: block;
+      margin-top: 20px;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
-    <!-- Add Logo at the Top -->
-    <div class="text-center mb-4">
-      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo" class="h-20 mx-auto">
+<body>
+  <!-- Header with Logo and Menu -->
+  <div class="header">
+    <div class="logo-container">
+      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
     </div>
-    <h1 class="text-2xl font-bold mb-4 text-center">Update Stock</h1>
+    <div class="menu">
+      <a href="/home">Home <span class="icon-business"></span></a>
+      <a href="/update-stock">Update Stock <span class="icon-analysis"></span></a>
+      <a href="/store-view">Store View <span class="icon-shopping-cart"></span></a>
+      <a href="/create-outlet">Create Outlet <span class="icon-group"></span></a>
+      <a href="/admin-logout">Logout <span class="icon-right-arrow"></span></a>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Add Logo at the Top (Optional decorative logo below header) -->
+    <div class="content-logo-container">
+      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo">
+    </div>
+
+    <h1>Update Stock <span class="icon-shopping-cart" style="margin-left: 10px;"></span></h1>
 
     <!-- Reset Inventory Button -->
-    <div class="mb-4 text-center">
+    <div class="form-section">
       <form action="/reset-inventory" method="POST" onsubmit="return confirm('Are you sure you want to reset all inventory to 0?');">
-        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset All Inventory to 0</button>
+        <button type="submit" class="reset-btn">Reset All Inventory to 0 <span class="icon-verification"></span></button>
       </form>
     </div>
 
     <!-- Add New Product Form -->
-    <div class="mb-6">
-      <h2 class="text-lg font-semibold mb-2">Add New Product</h2>
-      <form action="/add-product" method="POST" class="flex gap-2">
-        <input type="text" name="name" placeholder="Product Name" class="border p-1 rounded w-40" required>
-        <input type="number" name="stock" placeholder="Initial Stock" min="0" class="border p-1 rounded w-20" required>
-        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add Product</button>
-      </form>
+    <div class="form-section">
+      <h2>Add New Product <span class="icon-point-of-sale"></span></h2>
+      <div class="form-group">
+        <form action="/add-product" method="POST">
+          <input type="text" name="name" placeholder="Product Name" required>
+          <input type="number" name="stock" placeholder="Initial Stock" min="0" class="small" required>
+          <button type="submit" class="add-btn">Add Product <span class="icon-right-arrow"></span></button>
+        </form>
+      </div>
     </div>
 
-    <table class="w-full text-left">
-      <thead>
-        <tr class="bg-gray-200">
-          <th class="p-3">Product</th>
-          <th class="p-3">Stock</th>
-          <th class="p-3">Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% inventory.forEach(item => { %>
-          <tr class="border-b">
-            <td class="p-3"><%= item.name %></td>
-            <td class="p-3"><%= item.stock %></td>
-            <td class="p-3">
-              <form action="/update-stock" method="POST" class="flex gap-2">
-                <input type="hidden" name="id" value="<%= item.id %>">
-                <input type="number" name="stock" value="<%= item.stock %>" class="border p-1 rounded w-20">
-                <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Update</button>
-              </form>
-            </td>
+    <!-- Inventory Table -->
+    <div class="table-section">
+      <table>
+        <thead>
+          <tr class="bg-gray-200">
+            <th>Product <span class="icon-consumer-behavior"></span></th>
+            <th>Stock <span class="icon-analysis"></span></th>
+            <th>Action <span class="icon-strategy"></span></th>
           </tr>
-        <% }) %>
-      </tbody>
-    </table>
-    <a href="/store-view" class="block mt-4 text-center text-blue-500 hover:underline">Go to Store View</a>
+        </thead>
+        <tbody>
+          <% inventory.forEach(item => { %>
+            <tr class="border-b">
+              <td><%= item.name %></td>
+              <td><%= item.stock %></td>
+              <td>
+                <form action="/update-stock" method="POST" class="form-group">
+                  <input type="hidden" name="id" value="<%= item.id %>">
+                  <input type="number" name="stock" value="<%= item.stock %>" class="small">
+                  <button type="submit" class="update-btn">Update <span class="icon-right-arrow"></span></button>
+                </form>
+              </td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+
+    <a href="/store-view">Go to Store View <span class="icon-right-arrow"></span></a>
   </div>
 </body>
 </html>

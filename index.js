@@ -1,5 +1,6 @@
 const express = require('express');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb'); // Import ObjectId directly
+const session = require('express-session');
 require('dotenv').config();
 const app = express();
 const port = 3000;
@@ -14,6 +15,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
 
+// Session middleware for admin authentication
+app.use(session({
+  secret: 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: false }
+}));
+
 // Connect to MongoDB
 async function connectToMongo() {
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -22,7 +31,6 @@ async function connectToMongo() {
     console.log('Connected to MongoDB');
     db = client.db(dbName);
 
-    // Seed initial data (optional)
     const inventoryCollection = db.collection('inventory');
     const count = await inventoryCollection.countDocuments();
     if (count === 0) {
@@ -43,92 +51,210 @@ async function connectToMongo() {
   }
 }
 
-// Routes
-// Update Stock Page
-app.get('/update-stock', async (req, res) => {
-  try {
-    const inventory = await db.collection('inventory').find().toArray();
-    res.render('update-stock', { inventory });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error fetching inventory');
+// Middleware to check if admin is logged in
+function isAuthenticated(req, res, next) {
+  if (req.session.admin) {
+    return next();
+  }
+  res.redirect('/admin-login');
+}
+
+// Admin Login Routes
+app.get('/admin-login', (req, res) => {
+  res.render('admin-login', { error: null });
+});
+
+app.post('/admin-login', (req, res) => {
+  const { username, password } = req.body;
+  const adminUsername = 'admin';
+  const adminPassword = 'password123';
+  if (username === adminUsername && password === adminPassword) {
+    req.session.admin = true;
+    res.redirect('/home');
+  } else {
+    res.render('admin-login', { error: 'Invalid username or password' });
   }
 });
 
-app.post('/update-stock', async (req, res) => {
-  try {
-    const { id, stock } = req.body;
+app.get('/admin-logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/admin-login');
+});
+
+// Home Page Route
+app.get('/home', isAuthenticated, async (req, res) => {
+  const outlets = await db.collection('outlets').find().toArray();
+  res.render('home', { outlets });
+});
+
+// Create Outlet Route
+app.get('/create-outlet', isAuthenticated, (req, res) => {
+  res.render('create-outlet', { error: null });
+});
+
+app.post('/create-outlet', isAuthenticated, async (req, res) => {
+  const { name, location, mobile, username, password } = req.body;
+  const existingOutlet = await db.collection('outlets').findOne({ username });
+  if (existingOutlet) {
+    return res.render('create-outlet', { error: 'Username already exists' });
+  }
+  await db.collection('outlets').insertOne({
+    name,
+    location,
+    mobile,
+    username,
+    password,
+    inventory: []
+  });
+  res.redirect('/home');
+});
+
+// Dispense to Outlet Route
+app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  const inventory = await db.collection('inventory').find().toArray();
+  res.render('dispense-to-outlet', { outlet, inventory });
+});
+
+app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const { itemId, quantity } = req.body;
+  const qty = parseInt(quantity);
+  const item = await db.collection('inventory').findOne({ id: parseInt(itemId) });
+  if (item && item.stock >= qty && qty > 0) {
     await db.collection('inventory').updateOne(
-      { id: parseInt(id) },
-      { $set: { stock: parseInt(stock) } }
+      { id: parseInt(itemId) },
+      { $inc: { stock: -qty } }
     );
-    res.redirect('/update-stock');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error updating stock');
-  }
-});
-
-// Store View & Dispense Page
-app.get('/store-view', async (req, res) => {
-  try {
-    const inventory = await db.collection('inventory').find().toArray();
-    res.render('store-view', { inventory });
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error fetching inventory');
-  }
-});
-
-app.post('/dispense', async (req, res) => {
-  try {
-    const { id, quantity } = req.body;
-    const qty = parseInt(quantity);
-    const item = await db.collection('inventory').findOne({ id: parseInt(id) });
-    if (item && item.stock >= qty && qty > 0) {
-      await db.collection('inventory').updateOne(
-        { id: parseInt(id) },
-        { $inc: { stock: -qty } }
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+    const outletItem = outlet.inventory.find(i => i.id === parseInt(itemId));
+    if (outletItem) {
+      await db.collection('outlets').updateOne(
+        { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) }, // Fixed ObjectId usage
+        { $inc: { 'inventory.$.stock': qty } }
+      );
+    } else {
+      await db.collection('outlets').updateOne(
+        { _id: new ObjectId(outletId) }, // Fixed ObjectId usage
+        { $push: { inventory: { id: parseInt(itemId), name: item.name, stock: qty } } }
       );
     }
-    res.redirect('/store-view');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error dispensing item');
   }
+  res.redirect(`/dispense-to-outlet/${outletId}`);
 });
 
-// Reset Inventory to 0
-app.post('/reset-inventory', async (req, res) => {
-  try {
-    await db.collection('inventory').updateMany(
-      {},
-      { $set: { stock: 0 } }
+// Delete Outlet Route
+app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  await db.collection('outlets').deleteOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  res.redirect('/home');
+});
+
+// Update Stock Page
+app.get('/update-stock', isAuthenticated, async (req, res) => {
+  const inventory = await db.collection('inventory').find().toArray();
+  res.render('update-stock', { inventory });
+});
+
+app.post('/update-stock', isAuthenticated, async (req, res) => {
+  const { id, stock } = req.body;
+  await db.collection('inventory').updateOne(
+    { id: parseInt(id) },
+    { $set: { stock: parseInt(stock) } }
+  );
+  res.redirect('/update-stock');
+});
+
+// Store View Page
+app.get('/store-view', isAuthenticated, async (req, res) => {
+  const inventory = await db.collection('inventory').find().toArray();
+  res.render('store-view', { inventory });
+});
+
+app.post('/dispense', isAuthenticated, async (req, res) => {
+  const { id, quantity } = req.body;
+  const qty = parseInt(quantity);
+  const item = await db.collection('inventory').findOne({ id: parseInt(id) });
+  if (item && item.stock >= qty && qty > 0) {
+    await db.collection('inventory').updateOne(
+      { id: parseInt(id) },
+      { $inc: { stock: -qty } }
     );
-    res.redirect('/update-stock');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error resetting inventory');
+  }
+  res.redirect('/store-view');
+});
+
+// Outlet Login Routes
+app.get('/outlet-login', (req, res) => {
+  res.render('outlet-login', { error: null });
+});
+
+app.post('/outlet-login', async (req, res) => {
+  const { username, password } = req.body;
+  const outlet = await db.collection('outlets').findOne({ username, password });
+  if (outlet) {
+    req.session.outletId = outlet._id.toString();
+    res.redirect(`/outlet/${outlet._id}/stock-view`);
+  } else {
+    res.render('outlet-login', { error: 'Invalid username or password' });
   }
 });
 
-// Add New Product
-app.post('/add-product', async (req, res) => {
-  try {
-    const { name, stock } = req.body;
-    const inventoryCollection = db.collection('inventory');
-    const maxId = await inventoryCollection.find().sort({ id: -1 }).limit(1).toArray();
-    const newId = maxId.length > 0 ? maxId[0].id + 1 : 1;
-    await inventoryCollection.insertOne({
-      id: newId,
-      name: name.trim(),
-      stock: parseInt(stock) || 0
-    });
-    res.redirect('/update-stock');
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error adding product');
+// Middleware to check if outlet is logged in
+function isOutletAuthenticated(req, res, next) {
+  if (req.session.outletId) {
+    return next();
   }
+  res.redirect('/outlet-login');
+}
+
+// Outlet Stock View
+app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  if (!outlet || outlet._id.toString() !== req.session.outletId) {
+    return res.redirect('/outlet-login');
+  }
+  res.render('outlet-stock-view', { outlet });
+});
+
+// Outlet Sales Form
+app.get('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  if (!outlet || outlet._id.toString() !== req.session.outletId) {
+    return res.redirect('/outlet-login');
+  }
+  res.render('outlet-sales-form', { outlet });
+});
+
+app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const { customerName, phoneNumber, email, itemId, quantity } = req.body;
+  const qty = parseInt(quantity);
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  if (!outlet || outlet._id.toString() !== req.session.outletId) {
+    return res.redirect('/outlet-login');
+  }
+  const item = outlet.inventory.find(i => i.id === parseInt(itemId));
+  if (item && item.stock >= qty && qty > 0) {
+    await db.collection('outlets').updateOne(
+      { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) }, // Fixed ObjectId usage
+      { $inc: { 'inventory.$.stock': -qty } }
+    );
+    await db.collection('sales').insertOne({
+      outletId,
+      customerName,
+      phoneNumber,
+      email,
+      itemId: parseInt(itemId),
+      itemName: item.name,
+      quantity: qty,
+      date: new Date()
+    });
+  }
+  res.redirect(`/outlet/${outletId}/sales-form`);
 });
 
 // Start server and connect to MongoDB

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dispense to Outlet</title>
+  <link rel="stylesheet" href="/css/consult.css">
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    h1 { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { padding: 10px; text-align: left; }
+    th { background-color: #e0e0e0; }
+    tr { border-bottom: 1px solid #ddd; }
+    input[type="number"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
+    button { padding: 5px 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    a { color: #0066cc; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Dispense to Outlet: <%= outlet.name %> <span class="icon-point-of-sale"></span></h1>
+    <h2 style="font-size: 18px; margin-bottom: 15px;">Main Inventory</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Stock</th>
+          <th>Dispense Quantity</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% inventory.forEach(item => { %>
+          <tr>
+            <td><%= item.name %></td>
+            <td><%= item.stock %></td>
+            <td>
+              <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" style="display: flex; gap: 10px;">
+                <input type="hidden" name="itemId" value="<%= item.id %>">
+                <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required style="width: 100px; padding: 8px;">
+            </td>
+            <td>
+                <button type="submit">Dispense <span class="icon-right-arrow"></span></button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <h2 style="font-size: 18px; margin: 20px 0 15px;">Outlet Inventory</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th>
+          <th>Stock</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% outlet.inventory.forEach(item => { %>
+          <tr>
+            <td><%= item.name %></td>
+            <td><%= item.stock %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <a href="/home" class="block mt-4 text-center">Back to Home <span class="icon-right-arrow"></span></a>
+  </div>
+</body>
+</html>
