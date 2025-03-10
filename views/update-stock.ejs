@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Stock</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+    <!-- Add Logo at the Top -->
+    <div class="text-center mb-4">
+      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo" class="h-20 mx-auto">
+    </div>
+    <h1 class="text-2xl font-bold mb-4 text-center">Update Stock</h1>
+    <table class="w-full text-left">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-3">Product</th>
+          <th class="p-3">Stock</th>
+          <th class="p-3">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% inventory.forEach(item => { %>
+          <tr class="border-b">
+            <td class="p-3"><%= item.name %></td>
+            <td class="p-3"><%= item.stock %></td>
+            <td class="p-3">
+              <form action="/update-stock" method="POST" class="flex gap-2">
+                <input type="hidden" name="id" value="<%= item.id %>">
+                <input type="number" name="stock" value="<%= item.stock %>" class="border p-1 rounded w-20">
+                <button type="submit" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Update</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <a href="/store-view" class="block mt-4 text-center text-blue-500 hover:underline">Go to Store View</a>
+  </div>
+</body>
+</html>

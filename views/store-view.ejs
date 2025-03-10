@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Store View</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
+    <!-- Add Logo at the Top -->
+    <div class="text-center mb-4">
+      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo" class="h-20 mx-auto">
+    </div>
+    <h1 class="text-2xl font-bold mb-4 text-center">Store Inventory</h1>
+    <table class="w-full text-left">
+      <thead>
+        <tr class="bg-gray-200">
+          <th class="p-3">Product</th>
+          <th class="p-3">Stock</th>
+          <th class="p-3">Dispense Quantity</th>
+          <th class="p-3">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% inventory.forEach(item => { %>
+          <tr class="border-b">
+            <td class="p-3"><%= item.name %></td>
+            <td class="p-3"><%= item.stock %></td>
+            <td class="p-3">
+              <form action="/dispense" method="POST" class="flex gap-2">
+                <input type="hidden" name="id" value="<%= item.id %>">
+                <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" class="border p-1 rounded w-20" required>
+            </td>
+            <td class="p-3">
+                <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 <%= item.stock === 0 ? 'opacity-50 cursor-not-allowed' : '' %>" <%= item.stock === 0 ? 'disabled' : '' %>>Dispense</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+    <a href="/update-stock" class="block mt-4 text-center text-blue-500 hover:underline">Go to Update Stock</a>
+  </div>
+</body>
+</html>
