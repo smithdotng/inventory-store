@@ -10,9 +10,27 @@
   <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
     <!-- Add Logo at the Top -->
     <div class="text-center mb-4">
-      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo" class="h-20 mx-auto">
+      <img src="/images/logo.png" alt="Yearnings Custom Store Logo" class="h-20 mx-auto">
     </div>
     <h1 class="text-2xl font-bold mb-4 text-center">Update Stock</h1>
+
+    <!-- Reset Inventory Button -->
+    <div class="mb-4 text-center">
+      <form action="/reset-inventory" method="POST" onsubmit="return confirm('Are you sure you want to reset all inventory to 0?');">
+        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Reset All Inventory to 0</button>
+      </form>
+    </div>
+
+    <!-- Add New Product Form -->
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">Add New Product</h2>
+      <form action="/add-product" method="POST" class="flex gap-2">
+        <input type="text" name="name" placeholder="Product Name" class="border p-1 rounded w-40" required>
+        <input type="number" name="stock" placeholder="Initial Stock" min="0" class="border p-1 rounded w-20" required>
+        <button type="submit" class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">Add Product</button>
+      </form>
+    </div>
+
     <table class="w-full text-left">
       <thead>
         <tr class="bg-gray-200">
