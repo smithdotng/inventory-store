@@ -85,17 +85,49 @@ app.post('/dispense', async (req, res) => {
     const { id, quantity } = req.body;
     const qty = parseInt(quantity);
     const item = await db.collection('inventory').findOne({ id: parseInt(id) });
-    
     if (item && item.stock >= qty && qty > 0) {
       await db.collection('inventory').updateOne(
         { id: parseInt(id) },
-        { $inc: { stock: -qty } } // Decrease stock by the specified quantity
+        { $inc: { stock: -qty } }
       );
     }
     res.redirect('/store-view');
   } catch (err) {
     console.error(err);
     res.status(500).send('Error dispensing item');
+  }
+});
+
+// Reset Inventory to 0
+app.post('/reset-inventory', async (req, res) => {
+  try {
+    await db.collection('inventory').updateMany(
+      {},
+      { $set: { stock: 0 } }
+    );
+    res.redirect('/update-stock');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error resetting inventory');
+  }
+});
+
+// Add New Product
+app.post('/add-product', async (req, res) => {
+  try {
+    const { name, stock } = req.body;
+    const inventoryCollection = db.collection('inventory');
+    const maxId = await inventoryCollection.find().sort({ id: -1 }).limit(1).toArray();
+    const newId = maxId.length > 0 ? maxId[0].id + 1 : 1;
+    await inventoryCollection.insertOne({
+      id: newId,
+      name: name.trim(),
+      stock: parseInt(stock) || 0
+    });
+    res.redirect('/update-stock');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error adding product');
   }
 });
 
