@@ -4,6 +4,8 @@ const session = require('express-session');
 require('dotenv').config();
 const app = express();
 const port = 3000;
+const MongoStore = require('connect-mongo');
+
 
 // MongoDB connection details from .env
 const uri = process.env.MONGO_URI;
@@ -20,16 +22,22 @@ app.use(session({
   secret: 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false }
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  cookie: { secure: false } // Set to true if using HTTPS
 }));
+
+
+
 
 // Connect to MongoDB
 async function connectToMongo() {
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
+    console.log('Attempting to connect to MongoDB with URI:', uri.replace(/\/\/.*@/, '//[REDACTED]@')); // Redact credentials for logging
     await client.connect();
     console.log('Connected to MongoDB');
     db = client.db(dbName);
+    console.log('Using database:', dbName);
 
     const inventoryCollection = db.collection('inventory');
     const count = await inventoryCollection.countDocuments();
@@ -47,9 +55,13 @@ async function connectToMongo() {
       console.log('Initial inventory seeded');
     }
   } catch (err) {
-    console.error('MongoDB connection error:', err);
+    console.error('MongoDB connection error:', err.message, err.stack);
+    // Optionally, you can retry connecting
+    setTimeout(connectToMongo, 5000); // Retry after 5 seconds
   }
 }
+
+
 
 // Middleware to check if admin is logged in
 function isAuthenticated(req, res, next) {
@@ -59,9 +71,34 @@ function isAuthenticated(req, res, next) {
   res.redirect('/admin-login');
 }
 
+const winston = require('winston');
+const logger = winston.createLogger({
+  level: 'error',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.Console()
+  ]
+});
+
+
+
+
 // Admin Login Routes
 app.get('/admin-login', (req, res) => {
   res.render('admin-login', { error: null });
+});
+
+app.get('/health', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ status: 'error', message: 'Database not initialized' });
+    }
+    await db.collection('outlets').findOne({});
+    res.json({ status: 'ok', message: 'Database connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
 });
 
 app.post('/admin-login', (req, res) => {
@@ -259,12 +296,32 @@ app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res)
 
 // Outlet Details Route
 app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
-  const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
-  if (!outlet) {
-    return res.status(404).send('Outlet not found');
+  try {
+    console.log('Accessing /outlet-details/:outletId with outletId:', req.params.outletId);
+    if (!db) {
+      console.error('Database not initialized');
+      return res.status(500).send('Database not initialized');
+    }
+    const outletId = req.params.outletId;
+    let objectId;
+    try {
+      objectId = new ObjectId(outletId);
+    } catch (err) {
+      console.error('Invalid ObjectId:', outletId, err.message);
+      return res.status(400).send('Invalid outlet ID');
+    }
+    console.log('Querying outlet with _id:', objectId);
+    const outlet = await db.collection('outlets').findOne({ _id: objectId });
+    if (!outlet) {
+      console.log('Outlet not found for _id:', objectId);
+      return res.status(404).send('Outlet not found');
+    }
+    console.log('Outlet found:', outlet);
+    res.render('outlet-details', { outlet });
+  } catch (err) {
+    console.error('Error in /outlet-details/:outletId:', err.message, err.stack);
+    res.status(500).send('Internal Server Error');
   }
-  res.render('outlet-details', { outlet });
 });
 
 // Outlet Transactions Route
