@@ -1,5 +1,5 @@
 const express = require('express');
-const { MongoClient, ObjectId } = require('mongodb'); // Import ObjectId directly
+const { MongoClient, ObjectId } = require('mongodb');
 const session = require('express-session');
 require('dotenv').config();
 const app = express();
@@ -112,7 +112,7 @@ app.post('/create-outlet', isAuthenticated, async (req, res) => {
 // Dispense to Outlet Route
 app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   const inventory = await db.collection('inventory').find().toArray();
   res.render('dispense-to-outlet', { outlet, inventory });
 });
@@ -127,16 +127,16 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
       { id: parseInt(itemId) },
       { $inc: { stock: -qty } }
     );
-    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
     const outletItem = outlet.inventory.find(i => i.id === parseInt(itemId));
     if (outletItem) {
       await db.collection('outlets').updateOne(
-        { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) }, // Fixed ObjectId usage
+        { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) },
         { $inc: { 'inventory.$.stock': qty } }
       );
     } else {
       await db.collection('outlets').updateOne(
-        { _id: new ObjectId(outletId) }, // Fixed ObjectId usage
+        { _id: new ObjectId(outletId) },
         { $push: { inventory: { id: parseInt(itemId), name: item.name, stock: qty } } }
       );
     }
@@ -147,7 +147,7 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
 // Delete Outlet Route
 app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
-  await db.collection('outlets').deleteOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  await db.collection('outlets').deleteOne({ _id: new ObjectId(outletId) });
   res.redirect('/home');
 });
 
@@ -212,7 +212,7 @@ function isOutletAuthenticated(req, res, next) {
 // Outlet Stock View
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   if (!outlet || outlet._id.toString() !== req.session.outletId) {
     return res.redirect('/outlet-login');
   }
@@ -222,7 +222,7 @@ app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) 
 // Outlet Sales Form
 app.get('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   if (!outlet || outlet._id.toString() !== req.session.outletId) {
     return res.redirect('/outlet-login');
   }
@@ -233,14 +233,14 @@ app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res)
   const outletId = req.params.outletId;
   const { customerName, phoneNumber, email, itemId, quantity } = req.body;
   const qty = parseInt(quantity);
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) }); // Fixed ObjectId usage
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   if (!outlet || outlet._id.toString() !== req.session.outletId) {
     return res.redirect('/outlet-login');
   }
   const item = outlet.inventory.find(i => i.id === parseInt(itemId));
   if (item && item.stock >= qty && qty > 0) {
     await db.collection('outlets').updateOne(
-      { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) }, // Fixed ObjectId usage
+      { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) },
       { $inc: { 'inventory.$.stock': -qty } }
     );
     await db.collection('sales').insertOne({
@@ -255,6 +255,51 @@ app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res)
     });
   }
   res.redirect(`/outlet/${outletId}/sales-form`);
+});
+
+// Outlet Details Route
+app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+  if (!outlet) {
+    return res.status(404).send('Outlet not found');
+  }
+  res.render('outlet-details', { outlet });
+});
+
+// Outlet Transactions Route
+app.get('/outlet-transactions/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+  if (!outlet) {
+    return res.status(404).send('Outlet not found');
+  }
+  const transactions = await db.collection('sales').find({ outletId: outletId }).toArray();
+  res.render('outlet-transactions', { outlet, transactions });
+});
+
+// Outlet Customers Route
+app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+  if (!outlet) {
+    return res.status(404).send('Outlet not found');
+  }
+  // Fetch sales and aggregate unique customers
+  const sales = await db.collection('sales').find({ outletId: outletId }).toArray();
+  const customerMap = new Map();
+  sales.forEach(sale => {
+    const key = `${sale.customerName}-${sale.phoneNumber}-${sale.email || 'N/A'}`;
+    if (!customerMap.has(key)) {
+      customerMap.set(key, {
+        customerName: sale.customerName,
+        phoneNumber: sale.phoneNumber,
+        email: sale.email || 'N/A'
+      });
+    }
+  });
+  const customers = Array.from(customerMap.values());
+  res.render('outlet-customers', { outlet, customers });
 });
 
 // Start server and connect to MongoDB
