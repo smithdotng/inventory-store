@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Outlet Customers</title>
+  <link rel="stylesheet" href="/css/consult.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 60px;
+    }
+    .container {
+      text-align: center;
+      max-width: 800px;
+      width: 100%;
+      padding: 20px;
+    }
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background-color: white;
+      padding: 10px 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+    }
+    .logo-container img {
+      max-height: 50px;
+      vertical-align: middle;
+    }
+    .menu {
+      display: flex;
+      gap: 15px;
+    }
+    .menu a {
+      color: #0066cc;
+      text-decoration: none;
+      padding: 5px 10px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+    }
+    .menu a:hover {
+      background-color: #e0e0e0;
+      text-decoration: none;
+    }
+    .content-logo-container img {
+      max-height: 100px;
+      margin-bottom: 20px;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+    }
+    h2 {
+      font-size: 20px;
+      margin-bottom: 15px;
+    }
+    .customers-table {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0 auto;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #e0e0e0;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+    a {
+      color: #0066cc;
+      text-decoration: none;
+      margin-right: 10px;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-container">
+      <img src="/images/logo.png" alt="Yearnings Custom Store Logo">
+    </div>
+    <div class="menu">
+      <a href="/home">Home <span class="icon-business"></span></a>
+      <a href="/outlet-details/<%= outlet._id %>">Back to Outlet Details <span class="icon-back"></span></a>
+      <a href="/admin-logout">Logout <span class="icon-right-arrow"></span></a>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="content-logo-container">
+      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo">
+    </div>
+
+    <h1>Customers for <%= outlet.name %> <span class="icon-user" style="margin-left: 10px;"></span></h1>
+
+    <div class="customers-table">
+      <h2>Customer Information</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Customer Name</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% customers.forEach(customer => { %>
+            <tr>
+              <td><%= customer.customerName %></td>
+              <td><%= customer.phoneNumber %></td>
+              <td><%= customer.email || 'N/A' %></td>
+            </tr>
+          <% }) %>
+          <% if (customers.length === 0) { %>
+            <tr>
+              <td colspan="3">No customer information available for this outlet.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
