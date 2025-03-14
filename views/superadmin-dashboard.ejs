@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Outlet Customers</title>
+  <title>Super Admin Dashboard</title>
   <link rel="stylesheet" href="/css/conult.css">
   <style>
+    /* Centralized layout styles */
     body {
       font-family: Arial, sans-serif;
       background-color: #f5f5f5;
@@ -14,7 +15,7 @@
       display: flex;
       justify-content: center;
       align-items: flex-start;
-      padding-top: 60px;
+      padding-top: 60px; /* Space for the fixed header */
     }
     .container {
       text-align: center;
@@ -22,6 +23,7 @@
       width: 100%;
       padding: 20px;
     }
+    /* Header styles */
     .header {
       position: fixed;
       top: 0;
@@ -54,6 +56,7 @@
       background-color: #e0e0e0;
       text-decoration: none;
     }
+    /* Logo and heading styles */
     .content-logo-container img {
       max-height: 100px;
       margin-bottom: 20px;
@@ -67,7 +70,8 @@
       font-size: 20px;
       margin-bottom: 15px;
     }
-    .customers-table {
+    /* Table styles */
+    .table-section {
       background-color: white;
       padding: 20px;
       border-radius: 8px;
@@ -89,6 +93,31 @@
     tr {
       border-bottom: 1px solid #ddd;
     }
+    .delete-btn {
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
+    .details-btn {
+      background-color: #4CAF50; /* Green color for details button */
+      color: white;
+      border: none;
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+      text-decoration: none;
+      margin-right: 5px;
+    }
+    .details-btn:hover {
+      background-color: #45a049;
+    }
+    /* Link styles */
     a {
       color: #0066cc;
       text-decoration: none;
@@ -100,47 +129,55 @@
   </style>
 </head>
 <body>
+  <!-- Header with Logo and Menu -->
   <div class="header">
     <div class="logo-container">
       <img src="/images/logo.png" alt="Yearnings Custom Store Logo">
     </div>
     <div class="menu">
       <a href="/home">Home <span class="icon-business"></span></a>
-      <a href="/outlet-details/<%= outlet._id %>">Back to Outlet Details <span class="icon-back"></span></a>
+      <a href="/update-stock">Update Stock <span class="icon-analysis"></span></a>
+      <a href="/store-view">Store View <span class="icon-shopping-cart"></span></a>
+      <a href="/create-outlet">Create Outlet <span class="icon-group"></span></a>
       <a href="/admin-logout">Logout <span class="icon-right-arrow"></span></a>
     </div>
   </div>
 
   <div class="container">
+    <!-- Add Logo at the Top (Optional decorative logo below header) -->
     <div class="content-logo-container">
       <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
     </div>
 
-    <h1>Customers for <%= outlet.name %> <span class="icon-user" style="margin-left: 10px;"></span></h1>
+    <h1>Super Admin Dashboard <span class="icon-business" style="margin-left: 10px;"></span></h1>
 
-    <div class="customers-table">
-      <h2>Customer Information</h2>
+    <!-- Admins Table -->
+    <div class="table-section">
+      <h2>Admins</h2>
+      <a href="/superadmin/create-admin" class="btn btn-sm btn-primary" style="margin-bottom: 20px;">Create New Admin <span class="icon-group"></span></a>
       <table>
         <thead>
           <tr>
-            <th>Customer Name</th>
-            <th>Phone Number</th>
-            <th>Email</th>
+            <th>Username <span class="icon-consultant"></span></th>
+            <th>Role <span class="icon-strategy"></span></th>
+            <th>Logo <span class="icon-image"></span></th>
+            <th>Actions <span class="icon-strategy"></span></th>
           </tr>
         </thead>
         <tbody>
-          <% customers.forEach(customer => { %>
+          <% admins.forEach(admin => { %>
             <tr>
-              <td><%= customer.customerName %></td>
-              <td><%= customer.phoneNumber %></td>
-              <td><%= customer.email || 'N/A' %></td>
+              <td><%= admin.username %></td>
+              <td><%= admin.role %></td>
+              <td><img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Admin Logo" style="max-height: 50px;"></td>
+              <td>
+                <a href="/superadmin/edit-admin/<%= admin._id %>" class="details-btn">Edit <span class="icon-edit"></span></a>
+                <form action="/superadmin/delete-admin/<%= admin._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this admin?');">
+                  <button type="submit" class="delete-btn">Delete <span class="icon-verification"></span></button>
+                </form>
+              </td>
             </tr>
           <% }) %>
-          <% if (customers.length === 0) { %>
-            <tr>
-              <td colspan="3">No customer information available for this outlet.</td>
-            </tr>
-          <% } %>
         </tbody>
       </table>
     </div>

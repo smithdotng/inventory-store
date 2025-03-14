@@ -7,13 +7,10 @@ const MongoStore = require('connect-mongo');
 require('dotenv').config();
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = 3000;
-
-const fs = require('fs');
-
-
 
 // MongoDB connection details from .env
 const uri = process.env.MONGO_URI;
@@ -48,11 +45,25 @@ const logger = winston.createLogger({
   ]
 });
 
+// Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
   console.log('Uploads directory created:', uploadsDir);
 }
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir); // Save files in the 'public/uploads' directory
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
 
 // Connect to MongoDB
 async function connectToMongo() {
@@ -68,14 +79,16 @@ async function connectToMongo() {
     const adminCollection = db.collection('admins');
     const adminCount = await adminCollection.countDocuments();
     if (adminCount === 0) {
-      // Seed an initial admin account with a hashed password
-      const hashedPassword = await bcrypt.hash('password123', 10);
+      // Seed an initial superadmin account
+      const hashedPassword = await bcrypt.hash('superadmin123', 10);
       await adminCollection.insertOne({
-        username: 'admin',
+        username: 'superadmin',
         password: hashedPassword,
+        role: 'superadmin',
+        logo: '/images/logo.png',
         createdAt: new Date()
       });
-      console.log('Initial admin account seeded');
+      console.log('Initial superadmin account seeded');
     }
 
     // Ensure inventory collection exists
@@ -96,7 +109,6 @@ async function connectToMongo() {
     }
   } catch (err) {
     console.error('MongoDB connection error:', err.message, err.stack);
-    // Optionally, you can retry connecting
     setTimeout(connectToMongo, 5000); // Retry after 5 seconds
   }
 }
@@ -109,12 +121,18 @@ function isAuthenticated(req, res, next) {
   res.redirect('/admin-login');
 }
 
-// Middleware to check if outlet is logged in
-function isOutletAuthenticated(req, res, next) {
-  if (req.session.outletId) {
-    return next();
+// Middleware to check if user is superadmin
+function isSuperAdmin(req, res, next) {
+  if (req.session.admin) {
+    db.collection('admins').findOne({ username: req.session.admin }, (err, admin) => {
+      if (err || !admin || admin.role !== 'superadmin') {
+        return res.status(403).send('Access denied. Only super admins can access this page.');
+      }
+      next();
+    });
+  } else {
+    res.redirect('/admin-login');
   }
-  res.redirect('/outlet-login');
 }
 
 // Admin Login Routes
@@ -138,39 +156,9 @@ app.get('/admin-register', (req, res) => {
   res.render('admin-register', { error: null });
 });
 
-
-
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadsDir = path.join(__dirname, 'public', 'uploads');
-    if (!fs.existsSync(uploadsDir)) {
-      fs.mkdirSync(uploadsDir, { recursive: true });
-    }
-    cb(null, uploadsDir); // Save files in the 'public/uploads' directory
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({ storage });
-
-
-
-
-
-// Update the admin registration route
 app.post('/admin-register', upload.single('logo'), async (req, res) => {
-  console.log('Uploaded file:', req.file); // Debugging: Log the uploaded file details
-
-  if (!req.file) {
-    return res.render('admin-register', { error: 'No file uploaded' });
-  }
-
   const { username, password } = req.body;
-  const logoPath = `/uploads/${req.file.filename}`; // Path to the uploaded logo
+  const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
 
   const existingAdmin = await db.collection('admins').findOne({ username });
   if (existingAdmin) {
@@ -181,25 +169,79 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
   await db.collection('admins').insertOne({
     username,
     password: hashedPassword,
-    logo: logoPath, // Save the logo path in the database
+    role: 'admin', // Default role for new admins
+    logo: logoPath,
     createdAt: new Date()
   });
 
   res.redirect('/admin-login');
 });
 
-// Admin Logout Route
-app.get('/admin-logout', (req, res) => {
-  req.session.destroy();
-  res.redirect('/admin-login');
+// Superadmin Dashboard
+app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    const admins = await db.collection('admins').find().toArray();
+    res.render('superadmin-dashboard', { admins });
+  } catch (err) {
+    console.error('Error fetching admins:', err.message, err.stack);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Create Admin (Superadmin only)
+app.get('/superadmin/create-admin', isAuthenticated, isSuperAdmin, (req, res) => {
+  res.render('create-admin', { error: null });
+});
+
+app.post('/superadmin/create-admin', upload.single('logo'), async (req, res) => {
+  const { username, password, role } = req.body;
+  const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
+
+  const existingAdmin = await db.collection('admins').findOne({ username });
+  if (existingAdmin) {
+    return res.render('create-admin', { error: 'Username already exists' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await db.collection('admins').insertOne({
+    username,
+    password: hashedPassword,
+    role: role || 'superadmin', // Default to 'admin' if role is not provided
+    logo: logoPath,
+    createdAt: new Date()
+  });
+
+  res.redirect('/superadmin/dashboard');
+});
+
+// Delete Admin (Superadmin only)
+app.post('/superadmin/delete-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
+  const adminId = req.params.id;
+  await db.collection('admins').deleteOne({ _id: new ObjectId(adminId) });
+  res.redirect('/superadmin/dashboard');
 });
 
 
+// Delete Outlet Route
+app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
+  const outletId = req.params.outletId;
+  await db.collection('outlets').deleteOne({ _id: new ObjectId(outletId) });
+  res.redirect('/home');
+});
 
-app.get('/home', isAuthenticated, async (req, res) => {
-  const outlets = await db.collection('outlets').find().toArray();
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('home', { outlets, admin });
+// Update Stock Page
+app.get('/update-stock', isAuthenticated, async (req, res) => {
+  const inventory = await db.collection('inventory').find().toArray();
+  res.render('update-stock', { inventory });
+});
+
+app.post('/update-stock', isAuthenticated, async (req, res) => {
+  const { id, stock } = req.body;
+  await db.collection('inventory').updateOne(
+    { id: parseInt(id) },
+    { $set: { stock: parseInt(stock) } }
+  );
+  res.redirect('/update-stock');
 });
 
 // Create Outlet Route
@@ -260,28 +302,6 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   res.redirect(`/dispense-to-outlet/${outletId}`);
 });
 
-// Delete Outlet Route
-app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
-  const outletId = req.params.outletId;
-  await db.collection('outlets').deleteOne({ _id: new ObjectId(outletId) });
-  res.redirect('/home');
-});
-
-// Update Stock Page
-app.get('/update-stock', isAuthenticated, async (req, res) => {
-  const inventory = await db.collection('inventory').find().toArray();
-  res.render('update-stock', { inventory });
-});
-
-app.post('/update-stock', isAuthenticated, async (req, res) => {
-  const { id, stock } = req.body;
-  await db.collection('inventory').updateOne(
-    { id: parseInt(id) },
-    { $set: { stock: parseInt(stock) } }
-  );
-  res.redirect('/update-stock');
-});
-
 // Store View Page
 app.get('/store-view', isAuthenticated, async (req, res) => {
   const inventory = await db.collection('inventory').find().toArray();
@@ -306,6 +326,49 @@ app.get('/outlet-login', (req, res) => {
   res.render('outlet-login', { error: null });
 });
 
+// Edit Admin (Superadmin only)
+app.get('/superadmin/edit-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
+  const adminId = req.params.id;
+  const admin = await db.collection('admins').findOne({ _id: new ObjectId(adminId) });
+  res.render('edit-admin', { admin, error: null });
+});
+
+app.post('/superadmin/edit-admin/:id', upload.single('logo'), async (req, res) => {
+  const adminId = req.params.id;
+  const { username, password, role } = req.body;
+  const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
+
+  const updateData = { username, role };
+  if (password) {
+    updateData.password = await bcrypt.hash(password, 10);
+  }
+  if (logoPath) {
+    updateData.logo = logoPath;
+  }
+
+  await db.collection('admins').updateOne(
+    { _id: new ObjectId(adminId) },
+    { $set: updateData }
+  );
+
+  res.redirect('/superadmin/dashboard');
+});
+
+// Admin Logout Route
+app.get('/admin-logout', (req, res) => {
+  req.session.destroy();
+  res.redirect('/admin-login');
+});
+
+// Home Route
+app.get('/home', isAuthenticated, async (req, res) => {
+  const outlets = await db.collection('outlets').find().toArray();
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('home', { outlets, admin });
+});
+
+// Other routes (create-outlet, dispense-to-outlet, delete-outlet, etc.) remain unchanged...
+
 app.post('/outlet-login', async (req, res) => {
   const { username, password } = req.body;
   const outlet = await db.collection('outlets').findOne({ username });
@@ -316,6 +379,14 @@ app.post('/outlet-login', async (req, res) => {
     res.render('outlet-login', { error: 'Invalid username or password' });
   }
 });
+
+// Middleware to check if outlet is logged in
+function isOutletAuthenticated(req, res, next) {
+  if (req.session.outletId) {
+    return next();
+  }
+  res.redirect('/outlet-login');
+}
 
 // Outlet Stock View
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
@@ -442,6 +513,8 @@ app.get('/health', async (req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
+
+
 
 // Start server and connect to MongoDB
 async function startServer() {
