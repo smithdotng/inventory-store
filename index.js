@@ -1,10 +1,18 @@
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const session = require('express-session');
+const bcrypt = require('bcrypt');
+const winston = require('winston');
+const MongoStore = require('connect-mongo');
 require('dotenv').config();
+const multer = require('multer');
+const path = require('path');
+
 const app = express();
 const port = 3000;
-const MongoStore = require('connect-mongo');
+
+const fs = require('fs');
+
 
 
 // MongoDB connection details from .env
@@ -19,15 +27,32 @@ app.set('view engine', 'ejs');
 
 // Session middleware for admin authentication
 app.use(session({
-  secret: 'your-secret-key',
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-  cookie: { secure: false } // Set to true if using HTTPS
+  store: MongoStore.create({ mongoUrl: uri }),
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
+    httpOnly: true,
+    maxAge: 1000 * 60 * 60 * 24 // 1 day
+  }
 }));
 
+// Logger configuration
+const logger = winston.createLogger({
+  level: 'error',
+  format: winston.format.json(),
+  transports: [
+    new winston.transports.File({ filename: 'error.log', level: 'error' }),
+    new winston.transports.Console()
+  ]
+});
 
-
+const uploadsDir = path.join(__dirname, 'public', 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Uploads directory created:', uploadsDir);
+}
 
 // Connect to MongoDB
 async function connectToMongo() {
@@ -39,6 +64,21 @@ async function connectToMongo() {
     db = client.db(dbName);
     console.log('Using database:', dbName);
 
+    // Ensure admin collection exists
+    const adminCollection = db.collection('admins');
+    const adminCount = await adminCollection.countDocuments();
+    if (adminCount === 0) {
+      // Seed an initial admin account with a hashed password
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await adminCollection.insertOne({
+        username: 'admin',
+        password: hashedPassword,
+        createdAt: new Date()
+      });
+      console.log('Initial admin account seeded');
+    }
+
+    // Ensure inventory collection exists
     const inventoryCollection = db.collection('inventory');
     const count = await inventoryCollection.countDocuments();
     if (count === 0) {
@@ -61,8 +101,6 @@ async function connectToMongo() {
   }
 }
 
-
-
 // Middleware to check if admin is logged in
 function isAuthenticated(req, res, next) {
   if (req.session.admin) {
@@ -71,57 +109,97 @@ function isAuthenticated(req, res, next) {
   res.redirect('/admin-login');
 }
 
-const winston = require('winston');
-const logger = winston.createLogger({
-  level: 'error',
-  format: winston.format.json(),
-  transports: [
-    new winston.transports.File({ filename: 'error.log', level: 'error' }),
-    new winston.transports.Console()
-  ]
-});
-
-
-
+// Middleware to check if outlet is logged in
+function isOutletAuthenticated(req, res, next) {
+  if (req.session.outletId) {
+    return next();
+  }
+  res.redirect('/outlet-login');
+}
 
 // Admin Login Routes
 app.get('/admin-login', (req, res) => {
   res.render('admin-login', { error: null });
 });
 
-app.get('/health', async (req, res) => {
-  try {
-    if (!db) {
-      return res.status(500).json({ status: 'error', message: 'Database not initialized' });
-    }
-    await db.collection('outlets').findOne({});
-    res.json({ status: 'ok', message: 'Database connected' });
-  } catch (err) {
-    res.status(500).json({ status: 'error', message: err.message });
-  }
-});
-
-app.post('/admin-login', (req, res) => {
+app.post('/admin-login', async (req, res) => {
   const { username, password } = req.body;
-  const adminUsername = 'admin';
-  const adminPassword = 'password123';
-  if (username === adminUsername && password === adminPassword) {
-    req.session.admin = true;
+  const admin = await db.collection('admins').findOne({ username });
+  if (admin && await bcrypt.compare(password, admin.password)) {
+    req.session.admin = admin.username; // Store the admin's username in the session
     res.redirect('/home');
   } else {
     res.render('admin-login', { error: 'Invalid username or password' });
   }
 });
 
+// Admin Registration Routes
+app.get('/admin-register', (req, res) => {
+  res.render('admin-register', { error: null });
+});
+
+
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadsDir = path.join(__dirname, 'public', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+    cb(null, uploadsDir); // Save files in the 'public/uploads' directory
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+const upload = multer({ storage });
+
+
+
+
+
+// Update the admin registration route
+app.post('/admin-register', upload.single('logo'), async (req, res) => {
+  console.log('Uploaded file:', req.file); // Debugging: Log the uploaded file details
+
+  if (!req.file) {
+    return res.render('admin-register', { error: 'No file uploaded' });
+  }
+
+  const { username, password } = req.body;
+  const logoPath = `/uploads/${req.file.filename}`; // Path to the uploaded logo
+
+  const existingAdmin = await db.collection('admins').findOne({ username });
+  if (existingAdmin) {
+    return res.render('admin-register', { error: 'Username already exists' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  await db.collection('admins').insertOne({
+    username,
+    password: hashedPassword,
+    logo: logoPath, // Save the logo path in the database
+    createdAt: new Date()
+  });
+
+  res.redirect('/admin-login');
+});
+
+// Admin Logout Route
 app.get('/admin-logout', (req, res) => {
   req.session.destroy();
   res.redirect('/admin-login');
 });
 
-// Home Page Route
+
+
 app.get('/home', isAuthenticated, async (req, res) => {
   const outlets = await db.collection('outlets').find().toArray();
-  res.render('home', { outlets });
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('home', { outlets, admin });
 });
 
 // Create Outlet Route
@@ -135,12 +213,13 @@ app.post('/create-outlet', isAuthenticated, async (req, res) => {
   if (existingOutlet) {
     return res.render('create-outlet', { error: 'Username already exists' });
   }
+  const hashedPassword = await bcrypt.hash(password, 10);
   await db.collection('outlets').insertOne({
     name,
     location,
     mobile,
     username,
-    password,
+    password: hashedPassword,
     inventory: []
   });
   res.redirect('/home');
@@ -229,22 +308,14 @@ app.get('/outlet-login', (req, res) => {
 
 app.post('/outlet-login', async (req, res) => {
   const { username, password } = req.body;
-  const outlet = await db.collection('outlets').findOne({ username, password });
-  if (outlet) {
+  const outlet = await db.collection('outlets').findOne({ username });
+  if (outlet && await bcrypt.compare(password, outlet.password)) {
     req.session.outletId = outlet._id.toString();
     res.redirect(`/outlet/${outlet._id}/stock-view`);
   } else {
     res.render('outlet-login', { error: 'Invalid username or password' });
   }
 });
-
-// Middleware to check if outlet is logged in
-function isOutletAuthenticated(req, res, next) {
-  if (req.session.outletId) {
-    return next();
-  }
-  res.redirect('/outlet-login');
-}
 
 // Outlet Stock View
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
@@ -357,6 +428,19 @@ app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
   });
   const customers = Array.from(customerMap.values());
   res.render('outlet-customers', { outlet, customers });
+});
+
+// Health Check Route
+app.get('/health', async (req, res) => {
+  try {
+    if (!db) {
+      return res.status(500).json({ status: 'error', message: 'Database not initialized' });
+    }
+    await db.collection('outlets').findOne({});
+    res.json({ status: 'ok', message: 'Database connected' });
+  } catch (err) {
+    res.status(500).json({ status: 'error', message: err.message });
+  }
 });
 
 // Start server and connect to MongoDB
