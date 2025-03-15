@@ -1,10 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const { MongoClient, ObjectId } = require('mongodb');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const winston = require('winston');
 const MongoStore = require('connect-mongo');
-require('dotenv').config();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -241,7 +241,8 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 // Update Stock Page
 app.get('/update-stock', isAuthenticated, async (req, res) => {
   const inventory = await db.collection('inventory').find().toArray();
-  res.render('update-stock', { inventory });
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('update-stock', { inventory, admin });
 });
 
 app.post('/update-stock', isAuthenticated, async (req, res) => {
@@ -254,8 +255,9 @@ app.post('/update-stock', isAuthenticated, async (req, res) => {
 });
 
 // Create Outlet Route
-app.get('/create-outlet', isAuthenticated, (req, res) => {
-  res.render('create-outlet', { error: null });
+app.get('/create-outlet', isAuthenticated, async (req, res) => {
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('create-outlet', { error: null, admin });
 });
 
 app.post('/create-outlet', isAuthenticated, async (req, res) => {
@@ -281,7 +283,8 @@ app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   const inventory = await db.collection('inventory').find().toArray();
-  res.render('dispense-to-outlet', { outlet, inventory });
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('dispense-to-outlet', { outlet, inventory, admin });
 });
 
 app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
@@ -314,7 +317,8 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
 // Store View Page
 app.get('/store-view', isAuthenticated, async (req, res) => {
   const inventory = await db.collection('inventory').find().toArray();
-  res.render('store-view', { inventory });
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('store-view', { inventory, admin });
 });
 
 app.post('/dispense', isAuthenticated, async (req, res) => {
@@ -483,7 +487,8 @@ app.get('/outlet-transactions/:outletId', isAuthenticated, async (req, res) => {
     return res.status(404).send('Outlet not found');
   }
   const transactions = await db.collection('sales').find({ outletId: outletId }).toArray();
-  res.render('outlet-transactions', { outlet, transactions });
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('outlet-transactions', { outlet, transactions, admin });
 });
 
 // Outlet Customers Route
@@ -507,7 +512,8 @@ app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
     }
   });
   const customers = Array.from(customerMap.values());
-  res.render('outlet-customers', { outlet, customers });
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('outlet-customers', { outlet, customers, admin });
 });
 
 // Health Check Route
