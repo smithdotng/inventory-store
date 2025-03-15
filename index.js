@@ -155,6 +155,10 @@ app.post('/admin-login', async (req, res) => {
 });
 
 // Admin Registration Routes
+app.get('/', (req, res) => {
+  res.render('admin-register', { error: null });
+});
+
 app.get('/admin-register', (req, res) => {
   res.render('admin-register', { error: null });
 });
