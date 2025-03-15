@@ -234,9 +234,14 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 
 // Update Stock Page
 app.get('/update-stock', isAuthenticated, async (req, res) => {
+<<<<<<< HEAD
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
   
+=======
+  const inventory = await db.collection('inventory').find().toArray();
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+>>>>>>> 99fa486f61378a317f0aa3f94094ef2290e209e2
   res.render('update-stock', { inventory, admin });
 });
 
@@ -347,6 +352,7 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
 
 // Store View Page
 app.get('/store-view', isAuthenticated, async (req, res) => {
+<<<<<<< HEAD
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
   res.render('store-view', { inventory, admin });
@@ -374,6 +380,11 @@ app.post('/delete-product', isAuthenticated, async (req, res) => {
     console.error('Error deleting product:', error);
     res.status(500).send('Error deleting product');
   }
+=======
+  const inventory = await db.collection('inventory').find().toArray();
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  res.render('store-view', { inventory, admin });
+>>>>>>> 99fa486f61378a317f0aa3f94094ef2290e209e2
 });
 
 app.post('/dispense', isAuthenticated, async (req, res) => {
