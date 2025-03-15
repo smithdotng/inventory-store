@@ -60,6 +60,7 @@
     .content-logo-container img {
       max-height: 100px;
       margin-bottom: 20px;
+      margin-top: 50px;
     }
     h1 {
       font-size: 24px;
@@ -103,6 +104,12 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+    .delete-btn {
+      background-color: #ff4444;
+    }
+    .delete-btn:hover {
+      background-color: #cc0000;
+    }
     table {
       border-collapse: collapse;
       width: 100%;
@@ -127,6 +134,12 @@
     }
     a:hover {
       text-decoration: underline;
+    }
+    /* Align buttons side by side */
+    .action-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
   </style>
 </head>
@@ -171,15 +184,21 @@
               <td><%= item.stock %></td>
               <td>
                 <form action="/dispense" method="POST" class="form-group">
-                  <input type="hidden" name="id" value="<%= item.id %>">
+                  <input type="hidden" name="id" value="<%= item._id %>">
                   <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required>
                 </form>
               </td>
               <td>
-                <form action="/dispense" method="POST" class="form-group">
-                  <input type="hidden" name="id" value="<%= item.id %>">
-                  <button type="submit" class="dispense-btn <%= item.stock === 0 ? 'disabled' : '' %>" <%= item.stock === 0 ? 'disabled' : '' %>>Dispense <span class="icon-right-arrow"></span></button>
-                </form>
+                <div class="action-buttons">
+                  <form action="/dispense" method="POST" class="form-group">
+                    <input type="hidden" name="id" value="<%= item._id %>">
+                    <button type="submit" class="dispense-btn <%= item.stock === 0 ? 'disabled' : '' %>" <%= item.stock === 0 ? 'disabled' : '' %>>Dispense <span class="icon-right-arrow"></span></button>
+                  </form>
+                  <form action="/delete-product" method="POST" class="form-group">
+                    <input type="hidden" name="id" value="<%= item._id %>">
+                    <button type="submit" class="delete-btn">Delete <span class="icon-trash"></span></button>
+                  </form>
+                </div>
               </td>
             </tr>
           <% }) %>

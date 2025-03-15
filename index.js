@@ -91,7 +91,7 @@ async function connectToMongo() {
       await adminCollection.insertOne({
         username: 'superadmin',
         password: hashedPassword,
-        role: 'superadmin',
+        role: 'admin',
         logo: '/images/logo.png',
         createdAt: new Date()
       });
@@ -103,13 +103,7 @@ async function connectToMongo() {
     const count = await inventoryCollection.countDocuments();
     if (count === 0) {
       const initialInventory = [
-        { id: 1, name: 'Hoodies', stock: 10 },
-        { id: 2, name: 'T-shirt', stock: 15 },
-        { id: 3, name: 'Sweatshirt', stock: 8 },
-        { id: 4, name: 'Cap', stock: 20 },
-        { id: 5, name: 'Phone case', stock: 25 },
-        { id: 6, name: 'Mugs', stock: 12 },
-        { id: 7, name: 'Felt Product', stock: 5 },
+        
       ];
       await inventoryCollection.insertMany(initialInventory);
       console.log('Initial inventory seeded');
@@ -152,8 +146,8 @@ app.post('/admin-login', async (req, res) => {
   const admin = await db.collection('admins').findOne({ username });
   if (admin && await bcrypt.compare(password, admin.password)) {
     req.session.admin = admin.username;
-    // Store the admin's username in the session
-    console.log('signin successful');
+    req.session.adminId = admin._id; // Store admin's _id in session
+    console.log('Sign-in successful');
     res.redirect('/home');
   } else {
     res.render('admin-login', { error: 'Invalid username or password' });
@@ -240,19 +234,38 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 
 // Update Stock Page
 app.get('/update-stock', isAuthenticated, async (req, res) => {
-  const inventory = await db.collection('inventory').find().toArray();
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
+  
   res.render('update-stock', { inventory, admin });
 });
 
-app.post('/update-stock', isAuthenticated, async (req, res) => {
-  const { id, stock } = req.body;
-  await db.collection('inventory').updateOne(
-    { id: parseInt(id) },
-    { $set: { stock: parseInt(stock) } }
-  );
-  res.redirect('/update-stock');
+
+// Update Stock Route
+app.post("/update-stock", async (req, res) => {
+  const { id, stock, cost } = req.body;
+
+  try {
+    const objectId = new ObjectId(id);
+
+    const result = await db.collection('inventory').updateOne(
+      { _id: objectId },
+      { $set: { stock: parseInt(stock), cost: parseFloat(cost) } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send("Item not found");
+    }
+
+    // Redirect back to the inventory page after update
+    res.redirect("/update-stock");
+
+  } catch (error) {
+    console.error("Error updating item:", error);
+    res.status(500).send("Error updating item");
+  }
 });
+
 
 // Create Outlet Route
 app.get('/create-outlet', isAuthenticated, async (req, res) => {
@@ -260,12 +273,28 @@ app.get('/create-outlet', isAuthenticated, async (req, res) => {
   res.render('create-outlet', { error: null, admin });
 });
 
+app.get("/profile", async (req, res) => {
+  try {
+    // Fetch the business profile details from the database (assuming MongoDB)
+    const admin = await db.collection("admins").findOne({username: req.session.admin}); // Adjust query based on your DB structure
+
+    res.render("profile", { admin }); // Pass profile data to EJS
+  } catch (error) {
+    console.error("Error fetching profile data:", error);
+    res.status(500).send("Error loading profile page");
+  }
+});
+
+
 app.post('/create-outlet', isAuthenticated, async (req, res) => {
   const { name, location, mobile, username, password } = req.body;
+  const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
   const existingOutlet = await db.collection('outlets').findOne({ username });
   if (existingOutlet) {
     return res.render('create-outlet', { error: 'Username already exists' });
   }
+
   const hashedPassword = await bcrypt.hash(password, 10);
   await db.collection('outlets').insertOne({
     name,
@@ -273,8 +302,10 @@ app.post('/create-outlet', isAuthenticated, async (req, res) => {
     mobile,
     username,
     password: hashedPassword,
+    adminId: admin._id, // Associate outlet with adminId
     inventory: []
   });
+
   res.redirect('/home');
 });
 
@@ -316,22 +347,54 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
 
 // Store View Page
 app.get('/store-view', isAuthenticated, async (req, res) => {
-  const inventory = await db.collection('inventory').find().toArray();
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
   res.render('store-view', { inventory, admin });
+});
+
+
+app.post('/delete-product', isAuthenticated, async (req, res) => {
+  const productId = req.body.id; // Get the product ID from the form
+  console.log('Product ID to delete:', productId); // Debugging
+
+  try {
+    // Convert productId to ObjectId
+    const objectId = new ObjectId(productId);
+
+    // Delete the product using the _id field
+    const result = await db.collection('inventory').deleteOne({ _id: objectId });
+
+    // Check if the product was deleted
+    if (result.deletedCount === 1) {
+      res.redirect('/store-view'); // Redirect back to the store view after deletion
+    } else {
+      res.status(404).send('Product not found');
+    }
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    res.status(500).send('Error deleting product');
+  }
 });
 
 app.post('/dispense', isAuthenticated, async (req, res) => {
   const { id, quantity } = req.body;
   const qty = parseInt(quantity);
-  const item = await db.collection('inventory').findOne({ id: parseInt(id) });
-  if (item && item.stock >= qty && qty > 0) {
-    await db.collection('inventory').updateOne(
-      { id: parseInt(id) },
-      { $inc: { stock: -qty } }
-    );
+
+  try {
+    const objectId = new ObjectId(id);
+    const item = await db.collection('inventory').findOne({ _id: objectId });
+
+    if (item && item.stock >= qty && qty > 0) {
+      await db.collection('inventory').updateOne(
+        { _id: objectId },
+        { $inc: { stock: -qty } }
+      );
+    }
+    res.redirect('/store-view');
+  } catch (error) {
+    console.error('Error dispensing product:', error);
+    res.status(500).send('Error dispensing product');
   }
-  res.redirect('/store-view');
 });
 
 // Outlet Login Routes
@@ -373,10 +436,11 @@ app.get('/admin-logout', (req, res) => {
   res.redirect('/admin-login');
 });
 
-// Home Route
+
+// Home Route (Filter outlets by adminId)
 app.get('/home', isAuthenticated, async (req, res) => {
-  const outlets = await db.collection('outlets').find().toArray();
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
+  const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray(); // Filter outlets by adminId
   res.render('home', { outlets, admin });
 });
 
@@ -401,24 +465,32 @@ function isOutletAuthenticated(req, res, next) {
   res.redirect('/outlet-login');
 }
 
-// Outlet Stock View
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+
+  // Check if the outlet exists and matches the logged-in outlet
   if (!outlet || outlet._id.toString() !== req.session.outletId) {
     return res.redirect('/outlet-login');
   }
-  res.render('outlet-stock-view', { outlet });
+
+  // Fetch the admin who created the outlet
+  const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+
+  // Pass the outlet and admin's logo to the template
+  res.render('outlet-stock-view', { outlet, adminLogo: admin?.logo || '/images/default-logo.png' });
 });
 
 // Outlet Sales Form
 app.get('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
+  
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   if (!outlet || outlet._id.toString() !== req.session.outletId) {
     return res.redirect('/outlet-login');
   }
-  res.render('outlet-sales-form', { outlet });
+  const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+  res.render('outlet-sales-form', { outlet, admin });
 });
 
 app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
@@ -452,6 +524,8 @@ app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res)
 // Outlet Details Route
 app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
   try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    
     console.log('Accessing /outlet-details/:outletId with outletId:', req.params.outletId);
     if (!db) {
       console.error('Database not initialized');
@@ -472,7 +546,7 @@ app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
       return res.status(404).send('Outlet not found');
     }
     console.log('Outlet found:', outlet);
-    res.render('outlet-details', { outlet });
+    res.render('outlet-details', { outlet, admin });
   } catch (err) {
     console.error('Error in /outlet-details/:outletId:', err.message, err.stack);
     res.status(500).send('Internal Server Error');
