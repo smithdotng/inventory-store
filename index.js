@@ -24,16 +24,23 @@ app.set('view engine', 'ejs');
 
 // Session middleware for admin authentication
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: uri }),
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // Set to true if using HTTPS
+    secure: process.env.NODE_ENV === 'production', 
     httpOnly: true,
     maxAge: 1000 * 60 * 60 * 24 // 1 day
   }
 }));
+
+// Debug session
+app.use((req, res, next) => {
+  console.log("Session Data:", req.session);
+  next();
+});
+
 
 // Logger configuration
 const logger = winston.createLogger({
@@ -144,7 +151,9 @@ app.post('/admin-login', async (req, res) => {
   const { username, password } = req.body;
   const admin = await db.collection('admins').findOne({ username });
   if (admin && await bcrypt.compare(password, admin.password)) {
-    req.session.admin = admin.username; // Store the admin's username in the session
+    req.session.admin = admin.username;
+    // Store the admin's username in the session
+    console.log('signin successful');
     res.redirect('/home');
   } else {
     res.render('admin-login', { error: 'Invalid username or password' });
