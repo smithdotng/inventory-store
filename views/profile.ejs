@@ -3,154 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile Page</title>
-  <link rel="stylesheet" href="/css/conult.css"> 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 60px;
-    }
-    .container {
-      text-align: center;
-      max-width: 800px;
-      width: 100%;
-      padding: 20px;
-      background: white;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .form-group {
-      margin-bottom: 15px;
-      text-align: left;
-    }
-    label {
-      font-weight: bold;
-      display: block;
-      margin-bottom: 5px;
-    }
-    input, select {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-    }
-    button {
-      padding: 10px 15px;
-      border: none;
-      background-color: #4CAF50;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-      width: 100%;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-  </style>
+  <title>Profile</title>
+  <link rel="stylesheet" href="/style.css">
+ 
 </head>
 <body>
-  <div class="container">
-    <div class="content-logo-container">
-      <img src="/images/logo.png" alt="Business Logo" style="max-height: 100px;">
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
     </div>
-    <h1>Profile Setup</h1>
-    <form action="/update-profile" method="POST">
-      <div class="form-group">
-        <label for="business-name">Business Name</label>
-        <input type="text" id="business-name" name="businessName" required>
-      </div>
-      <div class="form-group">
-        <label for="contact-info">Contact Information</label>
-        <input type="text" id="contact-info" name="contactInfo" required>
-      </div>
-      <div class="form-group">
-        <label for="country">Country</label>
-        <select id="country" name="country" required onchange="loadStates()">
-          <option value="">Select Country</option>
-          <!-- Countries will be populated dynamically -->
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="state">State/City</label>
-        <select id="state" name="state" required>
-          <option value="">Select State/City</option>
-          <!-- States/Cities will be populated dynamically based on the selected country -->
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="currency">Currency</label>
-        <select id="currency" name="currency" required>
-          <option value="">Select Currency</option>
-          <!-- Currencies will be populated dynamically -->
-        </select>
-      </div>
-      <div class="form-group">
-        <label for="bank-details">Bank Details / Payment Info</label>
-        <input type="text" id="bank-details" name="bankDetails" required>
-      </div>
-      <button type="submit">Update Profile</button>
-    </form>
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+    <h2>Navigation</h2>
+    <a href="/sell"><span>Sell</span></a>
+    <a href="/store-view"><span>View Store</span></a>
+    <a href="/update-stock"><span>Update Stock</span></a>
+    <a href="/create-outlet"><span>Create an Outlet</span></a>
+    <a href="/invoice"><span>Invoice</span></a>
+    <a href="/transactions"><span>Transactions</span></a>
   </div>
 
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent" style="padding-left: 50px;">
+    <div class="welcome-message">
+      Welcome, <%= username %>!
+    </div>
+    <div class="content-logo-container">
+      <img src="<%= logo || '/images/logo.jpg' %>" alt="Business Logo">
+    </div>
+    <div class="business-info">
+      <h2>Business Information</h2>
+      <p><strong>Business Name:</strong> <%= businessName %></p>
+      <p><strong>Email:</strong> <%= email %></p>
+      <p><strong>Currency:</strong> <%= currency %></p>
+      <p><strong>Logo:</strong></p>
+    </div>
+  </div>
+
+  <!-- JavaScript for collapsing sidebar -->
   <script>
-    // Sample data for countries, states, and currencies
-    const countries = [
-      { name: "United States", code: "US", states: ["New York", "California", "Texas"] },
-      { name: "Canada", code: "CA", states: ["Ontario", "Quebec", "British Columbia"] },
-      { name: "Nigeria", code: "NG", states: ["Lagos", "Abuja", "Kano"] },
-      { name: "United Kingdom", code: "UK", states: ["England", "Scotland", "Wales"] },
-    ];
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('toggleBtn');
 
-    const currencies = [
-      { code: "USD", name: "United States Dollar" },
-      { code: "EUR", name: "Euro" },
-      { code: "GBP", name: "British Pound Sterling" },
-      { code: "NGN", name: "Nigerian Naira" },
-      { code: "CAD", name: "Canadian Dollar" },
-    ];
-
-    // Populate the country dropdown
-    const countryDropdown = document.getElementById("country");
-    countries.forEach(country => {
-      const option = document.createElement("option");
-      option.value = country.code;
-      option.textContent = country.name;
-      countryDropdown.appendChild(option);
-    });
-
-    // Populate the currency dropdown
-    const currencyDropdown = document.getElementById("currency");
-    currencies.forEach(currency => {
-      const option = document.createElement("option");
-      option.value = currency.code;
-      option.textContent = `${currency.code} - ${currency.name}`;
-      currencyDropdown.appendChild(option);
-    });
-
-    // Function to load states/cities based on the selected country
-    function loadStates() {
-      const stateDropdown = document.getElementById("state");
-      stateDropdown.innerHTML = '<option value="">Select State/City</option>'; // Reset the dropdown
-
-      const selectedCountryCode = countryDropdown.value;
-      if (!selectedCountryCode) return;
-
-      const selectedCountry = countries.find(country => country.code === selectedCountryCode);
-      if (selectedCountry && selectedCountry.states) {
-        selectedCountry.states.forEach(state => {
-          const option = document.createElement("option");
-          option.value = state;
-          option.textContent = state;
-          stateDropdown.appendChild(option);
-        });
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      mainContent.classList.toggle('collapsed');
+      // For mobile, toggle between collapsed and expanded states
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('expanded');
+        mainContent.classList.toggle('expanded');
       }
-    }
+    });
   </script>
 </body>
 </html>

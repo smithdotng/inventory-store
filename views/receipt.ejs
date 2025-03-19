@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Receipt</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Receipt</h1>
+    <div class="sale-details">
+      <p><strong>Customer Name:</strong> <%= sale.customerName %></p>
+      <p><strong>Total Amount:</strong> <%= admin.currency %> <%= sale.totalAmount.toFixed(2) %></p>
+      <p><strong>Payment Status:</strong> <%= sale.paymentStatus %></p>
+      <p><strong>Date:</strong> <%= sale.date.toLocaleString() %></p>
+    </div>
+
+    <h2>Items Purchased</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Quantity</th>
+          <th>Unit Cost</th>
+          <th>Total Cost</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sale.items.forEach(item => { %>
+          <tr>
+            <td><%= item.itemName %></td>
+            <td><%= item.quantity %></td>
+            <td><%= admin.currency %> <%= item.unitCost.toFixed(2) %></td>
+            <td><%= admin.currency %> <%= item.totalCost.toFixed(2) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>

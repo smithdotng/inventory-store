@@ -8,6 +8,7 @@ const MongoStore = require('connect-mongo');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const PDFDocument = require('pdfkit');
 
 const app = express();
 const port = 3000;
@@ -21,6 +22,53 @@ let db;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+
+const nodemailer = require('nodemailer');
+
+// Configure Nodemailer
+const transporter = nodemailer.createTransport({
+  host: 'smtp.hostinger.com', // Replace with your IMAP server host
+  port: 465, // IMAP over SSL port
+  secure: true, // Use SSL
+  auth: {
+    user: process.env.EMAIL_USER, // Your email address
+    pass: process.env.EMAIL_PASS  // Your email password or app-specific password
+  },
+  tls: {
+    rejectUnauthorized: false // Use this if you encounter self-signed certificate issues
+  }
+});
+
+async function sendWelcomeEmail(email, username, businessName) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: 'Welcome to Shed - !',
+    html: `
+      <h1>Welcome, ${username}!</h1>
+      <p>Thank you for registering your business, ${businessName}, on <strong>Shed</strong>.</p>
+      <p>Tired of juggling spreadsheets, writing transactions on notebook you worry you might lose, 
+      losing track of stock, or wasting hours on manual updates?</p>
+
+      <p> Say hello to Shed, the ultimate small and medium business solution designed to simplify your business operations 
+      and boost your bottom line!</p>
+
+      <p>We are excited to have you on board and look forward to helping you manage your inventory efficiently.</p>
+      
+      <p>Stanley,</p>
+
+      <p>Chief Relationship Officer, Shedfactory</p>
+      <a href="https://shedfactory.co">shedfactory.co</a>
+    `
+  };
+
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log('Welcome email sent to:', email);
+  } catch (error) {
+    console.error('Error sending welcome email:', error);
+  }
+}
 
 // Session middleware for admin authentication
 app.use(session({
@@ -40,7 +88,6 @@ app.use((req, res, next) => {
   console.log("Session Data:", req.session);
   next();
 });
-
 
 // Logger configuration
 const logger = winston.createLogger({
@@ -62,7 +109,7 @@ if (!fs.existsSync(uploadsDir)) {
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadsDir); // Save files in the 'public/uploads' directory
+    cb(null, uploadsDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
@@ -76,7 +123,7 @@ const upload = multer({ storage });
 async function connectToMongo() {
   const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
   try {
-    console.log('Attempting to connect to MongoDB with URI:', uri.replace(/\/\/.*@/, '//[REDACTED]@')); // Redact credentials for logging
+    console.log('Attempting to connect to MongoDB with URI:', uri.replace(/\/\/.*@/, '//[REDACTED]@'));
     await client.connect();
     console.log('Connected to MongoDB');
     db = client.db(dbName);
@@ -86,7 +133,6 @@ async function connectToMongo() {
     const adminCollection = db.collection('admins');
     const adminCount = await adminCollection.countDocuments();
     if (adminCount === 0) {
-      // Seed an initial superadmin account
       const hashedPassword = await bcrypt.hash('superadmin123', 10);
       await adminCollection.insertOne({
         username: 'superadmin',
@@ -102,9 +148,7 @@ async function connectToMongo() {
     const inventoryCollection = db.collection('inventory');
     const count = await inventoryCollection.countDocuments();
     if (count === 0) {
-      const initialInventory = [
-        
-      ];
+      const initialInventory = [];
       await inventoryCollection.insertMany(initialInventory);
       console.log('Initial inventory seeded');
     }
@@ -164,25 +208,45 @@ app.get('/admin-register', (req, res) => {
 });
 
 app.post('/admin-register', upload.single('logo'), async (req, res) => {
-  const { username, password } = req.body;
+  const { businessName, email, currency, username, password } = req.body;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
 
-  const existingAdmin = await db.collection('admins').findOne({ username });
-  if (existingAdmin) {
-    return res.render('admin-register', { error: 'Username already exists' });
+  try {
+    // Check if the username or email already exists
+    const existingAdmin = await db.collection('admins').findOne({
+      $or: [{ username }, { email }]
+    });
+
+    if (existingAdmin) {
+      return res.render('admin-register', { error: 'Username or email already exists.' });
+    }
+
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Insert the new admin into the database
+    await db.collection('admins').insertOne({
+      businessName,
+      email,
+      currency,
+      username,
+      password: hashedPassword,
+      logo: logoPath,
+      role: 'admin', // Default role for new admins
+      createdAt: new Date()
+    });
+
+    // Send welcome email
+    await sendWelcomeEmail(email, username, businessName);
+
+    // Redirect to the login page after successful registration
+    res.redirect('/admin-login');
+  } catch (error) {
+    console.error('Error during registration:', error);
+    res.render('admin-register', { error: 'An error occurred during registration. Please try again.' });
   }
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-  await db.collection('admins').insertOne({
-    username,
-    password: hashedPassword,
-    role: 'admin', // Default role for new admins
-    logo: logoPath,
-    createdAt: new Date()
-  });
-
-  res.redirect('/admin-login');
 });
+
 
 // Superadmin Dashboard
 app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
@@ -228,7 +292,6 @@ app.post('/superadmin/delete-admin/:id', isAuthenticated, isSuperAdmin, async (r
   res.redirect('/superadmin/dashboard');
 });
 
-
 // Delete Outlet Route
 app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
@@ -238,13 +301,12 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 
 // Update Stock Page
 app.get('/update-stock', isAuthenticated, async (req, res) => {
-
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
+  const username = req.session.admin;
   
-  res.render('update-stock', { inventory, admin });
+  res.render('update-stock', { inventory, admin, username });
 });
-
 
 // Update Stock Route
 app.post("/update-stock", async (req, res) => {
@@ -262,7 +324,6 @@ app.post("/update-stock", async (req, res) => {
       return res.status(404).send("Item not found");
     }
 
-    // Redirect back to the inventory page after update
     res.redirect("/update-stock");
 
   } catch (error) {
@@ -271,25 +332,77 @@ app.post("/update-stock", async (req, res) => {
   }
 });
 
+// Add Product Route
+app.post('/add-product', isAuthenticated, async (req, res) => {
+  const { name, stock, cost } = req.body;
+
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    if (!admin) {
+      return res.status(404).send("Admin not found.");
+    }
+
+    const result = await db.collection('inventory').insertOne({
+      name,
+      stock: parseInt(stock),
+      cost: parseFloat(cost),
+      adminId: admin._id,
+      createdAt: new Date()
+    });
+
+    if (result.insertedId) {
+      console.log("Product added successfully:", result.insertedId);
+      res.redirect('/update-stock');
+    } else {
+      res.status(500).send("Failed to add product.");
+    }
+  } catch (error) {
+    console.error("Error adding product:", error);
+    res.status(500).send("Error adding product.");
+  }
+});
 
 // Create Outlet Route
 app.get('/create-outlet', isAuthenticated, async (req, res) => {
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('create-outlet', { error: null, admin });
+  const username = req.session.admin;
+  res.render('create-outlet', { error: null, admin, username });
 });
 
-app.get("/profile", async (req, res) => {
+app.get('/profile', isAuthenticated, async (req, res) => {
   try {
-    // Fetch the business profile details from the database (assuming MongoDB)
-    const admin = await db.collection("admins").findOne({username: req.session.admin}); // Adjust query based on your DB structure
+    console.log("Session Admin:", req.session.admin);
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    console.log("Admin Data:", admin);
 
-    res.render("profile", { admin }); // Pass profile data to EJS
+    if (!admin) {
+      return res.status(404).send("Admin not found.");
+    }
+
+    res.render('profile', {
+      username: admin.username,
+      businessName: admin.businessName,
+      email: admin.email,
+      currency: admin.currency,
+      logo: admin.logo,
+      admin
+    });
+  } catch (error) {
+    console.error("Error fetching profile data:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/profile_old", async (req, res) => {
+  try {
+    const admin = await db.collection("admins").findOne({username: req.session.admin});
+    res.render("profile", { admin });
   } catch (error) {
     console.error("Error fetching profile data:", error);
     res.status(500).send("Error loading profile page");
   }
 });
-
 
 app.post('/create-outlet', isAuthenticated, async (req, res) => {
   const { name, location, mobile, username, password } = req.body;
@@ -307,7 +420,7 @@ app.post('/create-outlet', isAuthenticated, async (req, res) => {
     mobile,
     username,
     password: hashedPassword,
-    adminId: admin._id, // Associate outlet with adminId
+    adminId: admin._id,
     inventory: []
   });
 
@@ -320,7 +433,8 @@ app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   const inventory = await db.collection('inventory').find().toArray();
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('dispense-to-outlet', { outlet, inventory, admin });
+  const username = req.session.admin;
+  res.render('dispense-to-outlet', { outlet, inventory, admin, username });
 });
 
 app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
@@ -352,27 +466,22 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
 
 // Store View Page
 app.get('/store-view', isAuthenticated, async (req, res) => {
-
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
-  res.render('store-view', { inventory, admin });
+  const username = req.session.admin;
+  res.render('store-view', { inventory, admin, username });
 });
 
-
 app.post('/delete-product', isAuthenticated, async (req, res) => {
-  const productId = req.body.id; // Get the product ID from the form
-  console.log('Product ID to delete:', productId); // Debugging
+  const productId = req.body.id;
+  console.log('Product ID to delete:', productId);
 
   try {
-    // Convert productId to ObjectId
     const objectId = new ObjectId(productId);
-
-    // Delete the product using the _id field
     const result = await db.collection('inventory').deleteOne({ _id: objectId });
 
-    // Check if the product was deleted
     if (result.deletedCount === 1) {
-      res.redirect('/store-view'); // Redirect back to the store view after deletion
+      res.redirect('/store-view');
     } else {
       res.status(404).send('Product not found');
     }
@@ -380,11 +489,6 @@ app.post('/delete-product', isAuthenticated, async (req, res) => {
     console.error('Error deleting product:', error);
     res.status(500).send('Error deleting product');
   }
-
-  const inventory = await db.collection('inventory').find().toArray();
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('store-view', { inventory, admin });
-
 });
 
 app.post('/dispense', isAuthenticated, async (req, res) => {
@@ -447,15 +551,13 @@ app.get('/admin-logout', (req, res) => {
   res.redirect('/admin-login');
 });
 
-
 // Home Route (Filter outlets by adminId)
 app.get('/home', isAuthenticated, async (req, res) => {
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray(); // Filter outlets by adminId
-  res.render('home', { outlets, admin });
+  const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray();
+  const username = req.session.admin;
+  res.render('home', { outlets, admin, username });
 });
-
-// Other routes (create-outlet, dispense-to-outlet, delete-outlet, etc.) remain unchanged...
 
 app.post('/outlet-login', async (req, res) => {
   const { username, password } = req.body;
@@ -476,50 +578,253 @@ function isOutletAuthenticated(req, res, next) {
   res.redirect('/outlet-login');
 }
 
+app.get('/admin/sales-form', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
+    const username = req.session.admin;
+
+    res.render('admin-sales-form', { inventory, admin, username });
+  } catch (error) {
+    console.error('Error fetching admin sales form:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
+  const { customerName, phoneNumber, email, items } = req.body;
+
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
+    const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
+
+    if (itemIds.length !== quantities.length) {
+      return res.status(400).send('Mismatch between items and quantities.');
+    }
+
+    const saleItems = [];
+    let totalOrderAmount = 0;
+
+    for (let i = 0; i < itemIds.length; i++) {
+      const itemId = itemIds[i];
+      const qty = parseInt(quantities[i]);
+
+      // Convert itemId to ObjectId
+      let objectId;
+      try {
+        objectId = new ObjectId(itemId);
+      } catch (err) {
+        console.error('Invalid ObjectId:', itemId, err.message);
+        return res.status(400).send(`Invalid item ID: ${itemId}`);
+      }
+
+      const item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
+
+      if (!item) {
+        return res.status(404).send(`Item with ID ${itemId} not found in inventory.`);
+      }
+
+      if (item.stock < qty || qty <= 0) {
+        return res.status(400).send(`Invalid quantity or insufficient stock for ${item.name}.`);
+      }
+
+      await db.collection('inventory').updateOne(
+        { _id: objectId },
+        { $inc: { stock: -qty } }
+      );
+
+      const totalCost = item.cost * qty;
+      saleItems.push({
+        itemId: objectId,
+        itemName: item.name,
+        quantity: qty,
+        unitCost: item.cost,
+        totalCost
+      });
+      totalOrderAmount += totalCost;
+    }
+
+    const sale = {
+      adminId: admin._id,
+      customerName,
+      phoneNumber: phoneNumber || 'N/A',
+      email: email || 'N/A',
+      items: saleItems,
+      totalAmount: totalOrderAmount,
+      paymentStatus: 'Pending', // Default status
+      date: new Date()
+    };
+
+    // Insert the sale and get the inserted ID
+    const result = await db.collection('sales').insertOne(sale);
+    const saleId = result.insertedId;
+
+    // Redirect to payment confirmation page
+    res.redirect(`/payment-sales-confirmation/${saleId}`);
+  } catch (error) {
+    console.error('Error recording sale:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/payment-sales-confirmation/:saleId', isAuthenticated, async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+
+    if (!sale) {
+      return res.status(404).send('Sale not found.');
+    }
+
+    // Render the payment confirmation page
+    res.render('payment-sales-confirmation', {
+      sale,
+      admin,
+      username: req.session.admin
+    });
+  } catch (error) {
+    console.error('Error fetching sale details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/confirm-payment/:saleId', isAuthenticated, async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Update the payment status to "Paid"
+    await db.collection('sales').updateOne(
+      { _id: new ObjectId(saleId), adminId: admin._id },
+      { $set: { paymentStatus: 'Paid' } }
+    );
+
+    // Redirect to the receipt page
+    res.redirect(`/receipt/${saleId}`);
+  } catch (error) {
+    console.error('Error confirming payment:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/receipt/:saleId', isAuthenticated, async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+
+    if (!sale) {
+      return res.status(404).send('Sale not found.');
+    }
+
+    // Render the receipt page
+    res.render('receipt', {
+      sale,
+      admin,
+      username: req.session.admin
+    });
+  } catch (error) {
+    console.error('Error fetching receipt details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
+  const { customerName, phoneNumber, email, itemId, quantity } = req.body;
+
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const item = await db.collection('inventory').findOne({ _id: new ObjectId(itemId), adminId: admin._id });
+    if (!item) {
+      return res.status(404).send("Item not found in inventory.");
+    }
+
+    if (item.stock < parseInt(quantity) || parseInt(quantity) <= 0) {
+      return res.status(400).send("Invalid quantity or insufficient stock.");
+    }
+
+    await db.collection('inventory').updateOne(
+      { _id: new ObjectId(itemId) },
+      { $inc: { stock: -parseInt(quantity) } }
+    );
+
+    const sale = {
+      adminId: admin._id,
+      customerName,
+      phoneNumber,
+      email,
+      itemId: new ObjectId(itemId),
+      itemName: item.name,
+      quantity: parseInt(quantity),
+      cost: item.cost,
+      totalAmount: item.cost * parseInt(quantity),
+      date: new Date()
+    };
+
+    const result = await db.collection('sales').insertOne(sale);
+
+    if (result.insertedId) {
+      res.render('receipt', { sale, admin });
+    } else {
+      res.status(500).send("Failed to record sale.");
+    }
+  } catch (error) {
+    console.error("Error processing sale:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
 
-  // Check if the outlet exists and matches the logged-in outlet
   if (!outlet || outlet._id.toString() !== req.session.outletId) {
     return res.redirect('/outlet-login');
   }
 
-  // Fetch the admin who created the outlet
   const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
 
-  // Pass the outlet and admin's logo to the template
   res.render('outlet-stock-view', { outlet, adminLogo: admin?.logo || '/images/default-logo.png' });
 });
 
 // Outlet Sales Form
-app.get('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
-  
-  const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
-  if (!outlet || outlet._id.toString() !== req.session.outletId) {
-    return res.redirect('/outlet-login');
+app.get('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
+  try {
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(req.session.outletId) });
+    const inventory = outlet.inventory;
+    const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+
+    res.render('outlet-sales-form', { inventory, outlet, admin });
+  } catch (error) {
+    console.error('Error fetching outlet sales form:', error);
+    res.status(500).send('Internal Server Error');
   }
-  const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
-  res.render('outlet-sales-form', { outlet, admin });
 });
 
-app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res) => {
-  const outletId = req.params.outletId;
+app.post('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
   const { customerName, phoneNumber, email, itemId, quantity } = req.body;
   const qty = parseInt(quantity);
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
-  if (!outlet || outlet._id.toString() !== req.session.outletId) {
-    return res.redirect('/outlet-login');
-  }
-  const item = outlet.inventory.find(i => i.id === parseInt(itemId));
-  if (item && item.stock >= qty && qty > 0) {
+
+  try {
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(req.session.outletId) });
+    const item = outlet.inventory.find(i => i.id === parseInt(itemId));
+    if (!item) {
+      return res.status(404).send('Item not found in outlet inventory.');
+    }
+
+    if (item.stock < qty || qty <= 0) {
+      return res.status(400).send('Invalid quantity or insufficient stock.');
+    }
+
     await db.collection('outlets').updateOne(
-      { _id: new ObjectId(outletId), 'inventory.id': parseInt(itemId) },
+      { _id: new ObjectId(req.session.outletId), 'inventory.id': parseInt(itemId) },
       { $inc: { 'inventory.$.stock': -qty } }
     );
+
     await db.collection('sales').insertOne({
-      outletId,
+      outletId: outlet._id,
       customerName,
       phoneNumber,
       email,
@@ -528,8 +833,12 @@ app.post('/outlet/:outletId/sales-form', isOutletAuthenticated, async (req, res)
       quantity: qty,
       date: new Date()
     });
+
+    res.redirect('/outlet/sales-form');
+  } catch (error) {
+    console.error('Error processing outlet sale:', error);
+    res.status(500).send('Internal Server Error');
   }
-  res.redirect(`/outlet/${outletId}/sales-form`);
 });
 
 // Outlet Details Route
@@ -583,7 +892,6 @@ app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
   if (!outlet) {
     return res.status(404).send('Outlet not found');
   }
-  // Fetch sales and aggregate unique customers
   const sales = await db.collection('sales').find({ outletId: outletId }).toArray();
   const customerMap = new Map();
   sales.forEach(sale => {
@@ -601,6 +909,220 @@ app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
   res.render('outlet-customers', { outlet, customers, admin });
 });
 
+// Invoices Route
+app.get('/invoices', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const sales = await db.collection('sales').find({ adminId: admin._id }).toArray();
+    const customers = await db.collection('customers').find({ adminId: admin._id }).toArray();
+    const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
+    const username = req.session.admin;
+    res.render('invoices', { sales, admin, username, customers, inventory });
+  } catch (error) {
+    console.error('Error fetching invoices:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Create Invoice Form Submission (Updated for Multiple Items)
+
+app.post('/invoices/create', isAuthenticated, async (req, res) => {
+  const { customerId, newCustomerName, newCustomerPhone, newCustomerEmail, items, paymentMethod, bankName, bankAccountNumber, accountNumber } = req.body;
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    let customer;
+
+    if (customerId === 'new' && newCustomerName) {
+      const newCustomer = {
+        adminId: admin._id,
+        name: newCustomerName,
+        phone: newCustomerPhone || 'N/A',
+        email: newCustomerEmail || 'N/A',
+        createdAt: new Date()
+      };
+      const result = await db.collection('customers').insertOne(newCustomer);
+      customer = { _id: result.insertedId, ...newCustomer };
+    } else {
+      customer = await db.collection('customers').findOne({ _id: new ObjectId(customerId), adminId: admin._id });
+    }
+
+    if (!customer) return res.status(400).send('Customer not found or invalid.');
+
+    const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
+    const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
+    if (itemIds.length !== quantities.length) return res.status(400).send('Mismatch between items and quantities.');
+
+    const saleItems = [];
+    let totalOrderAmount = 0;
+
+    for (let i = 0; i < itemIds.length; i++) {
+      const itemId = itemIds[i];
+      const qty = parseInt(quantities[i]);
+
+      const item = await db.collection('inventory').findOne({ _id: new ObjectId(itemId), adminId: admin._id });
+      if (!item) return res.status(404).send(`Item with ID ${itemId} not found in inventory.`);
+      if (item.stock < qty || qty <= 0) return res.status(400).send(`Invalid quantity or insufficient stock for ${item.name}.`);
+
+      await db.collection('inventory').updateOne(
+        { _id: new ObjectId(itemId) },
+        { $inc: { stock: -qty } }
+      );
+
+      const totalCost = item.cost * qty;
+      saleItems.push({
+        itemId: new ObjectId(itemId),
+        itemName: item.name,
+        quantity: qty,
+        unitCost: item.cost,
+        totalCost
+      });
+      totalOrderAmount += totalCost;
+    }
+
+    const sale = {
+      adminId: admin._id,
+      customerId: customer._id,
+      customerName: customer.name,
+      phoneNumber: customer.phone,
+      email: customer.email,
+      items: saleItems,
+      totalAmount: totalOrderAmount,
+      paymentMethod: paymentMethod || 'N/A',
+      paymentStatus: 'Pending', // Default status
+      bankDetails: paymentMethod === 'Bank Transfer' ? { bankName, bankAccountNumber, accountNumber } : null,
+      date: new Date()
+    };
+    await db.collection('sales').insertOne(sale);
+
+    res.redirect('/invoices');
+  } catch (error) {
+    console.error('Error creating invoice:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Download Invoice as PDF (Updated for Multiple Items with Table)
+app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+
+    if (!sale) return res.status(404).send('Sale not found');
+
+    const doc = new PDFDocument({ margin: 50 });
+    const filename = `invoice-${saleId}.pdf`;
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-type', 'application/pdf');
+
+    doc.pipe(res);
+
+    // Add admin logo if available
+    if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
+      doc.image(path.join(__dirname, 'public', admin.logo), 50, 50, { width: 100 });
+      doc.moveDown(2);
+    }
+
+    doc.fontSize(20).text('Invoice', { align: 'center' });
+    doc.moveDown();
+    doc.fontSize(14).text(`Business: ${admin.businessName}`, { align: 'left' });
+    doc.text(`Email: ${admin.email}`, { align: 'left' });
+    doc.text(`Invoice Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
+    doc.moveDown();
+
+    doc.fontSize(12).text('Customer Details:', { underline: true });
+    doc.text(`Name: ${sale.customerName}`);
+    doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
+    doc.text(`Email: ${sale.email || 'N/A'}`);
+    doc.moveDown();
+
+    // Sale Items Table
+    doc.fontSize(12).text('Sale Details:', { underline: true });
+    doc.moveDown(0.5);
+
+    const tableTop = doc.y;
+    const tableLeft = 50;
+    const colWidths = [200, 70, 100, 100];
+    const rowHeight = 20;
+
+    // Update the Payment Information section in /invoices/download/:saleId
+doc.moveDown(1);
+doc.text('Payment Information:', { underline: true });
+doc.text(`Method: ${sale.paymentMethod || 'N/A'}`);
+if (sale.bankDetails) {
+  doc.text(`Bank Name: ${sale.bankDetails.bankName || 'N/A'}`);
+  doc.text(`Bank Account Number: ${sale.bankDetails.bankAccountNumber || 'N/A'}`);
+  doc.text(`Account Number: ${sale.bankDetails.accountNumber || 'N/A'}`);
+}
+doc.text(`Status: ${sale.paymentStatus || 'Pending'}`);
+doc.moveDown();
+
+    // Draw table headers
+    doc.fontSize(10).font('Helvetica-Bold');
+    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
+    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
+    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
+    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
+
+    // Draw header underline
+    doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
+    doc.font('Helvetica');
+
+    let y = tableTop + rowHeight;
+    sale.items.forEach(item => {
+      doc.text(item.itemName, tableLeft, y, { width: colWidths[0], align: 'left' });
+      doc.text(item.quantity.toString(), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
+      doc.text(`${admin.currency} ${item.unitCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+      doc.text(`${admin.currency} ${item.totalCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+      y += rowHeight;
+    });
+
+    // Draw total
+    doc.moveDown(1);
+    doc.font('Helvetica-Bold');
+    doc.text(`Total Order Amount: ${admin.currency} ${sale.totalAmount.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { align: 'right' });
+    doc.font('Helvetica');
+
+    doc.moveDown(1);
+    doc.text('Payment Information:', { underline: true });
+    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`);
+    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`);
+    doc.moveDown();
+
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, { align: 'right' });
+
+    // Add footer credit
+    doc.moveTo(50, doc.page.height - 50).lineTo(550, doc.page.height - 50).stroke();
+    doc.fontSize(10).text('Shed: Your Reliable Small Business Partner', 50, doc.page.height - 40, { align: 'center' });
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    res.status(500).send('Error generating PDF');
+  }
+});
+
+// Mark Invoice as Paid
+app.post('/invoices/mark-paid/:saleId', isAuthenticated, async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const result = await db.collection('sales').updateOne(
+      { _id: new ObjectId(saleId), adminId: admin._id },
+      { $set: { paymentStatus: 'Paid' } }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).send('Invoice not found');
+    }
+
+    res.redirect('/invoices');
+  } catch (error) {
+    console.error('Error marking invoice as paid:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // Health Check Route
 app.get('/health', async (req, res) => {
   try {
@@ -613,8 +1135,6 @@ app.get('/health', async (req, res) => {
     res.status(500).json({ status: 'error', message: err.message });
   }
 });
-
-
 
 // Start server and connect to MongoDB
 async function startServer() {

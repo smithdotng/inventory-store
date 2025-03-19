@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Confirmation</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Payment Confirmation</h1>
+    <div class="sale-details">
+      <p><strong>Customer Name:</strong> <%= sale.customerName %></p>
+      <p><strong>Total Amount:</strong> <%= admin.currency %> <%= sale.totalAmount.toFixed(2) %></p>
+      <p><strong>Payment Status:</strong> <%= sale.paymentStatus %></p>
+    </div>
+
+    <form action="/confirm-payment/<%= sale._id %>" method="POST">
+      <button type="submit">Confirm Payment</button>
+    </form>
+  </div>
+</body>
+</html>

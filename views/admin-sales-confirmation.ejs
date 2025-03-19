@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Confirmation</title>
+  <link rel="stylesheet" href="/style.css">
+  
+</head>
+<body>
+  <!-- Header with Logo, Menu, and Username -->
+  <div class="header">
+    <div class="menu">
+      <a href="/home">Home <span class="icon-home"></span></a>
+      <a href="/admin/sales-form">Sales Form <span class="icon-point-of-sale"></span></a>
+      <a href="/admin-logout">Logout <span class="icon-right-arrow"></span></a>
+    </div>
+    <div class="username">
+      <%= admin.username %>
+    </div>
+  </div>
+
+  <div class="container">
+    <!-- Add Logo at the Top (Optional decorative logo below header) -->
+    <div class="content-logo-container">
+      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+    </div>
+
+    <h1>Sales Confirmation <span class="icon-checkmark" style="margin-left: 10px;"></span></h1>
+
+    <!-- Confirmation Details -->
+    <div class="confirmation-details">
+      <p><strong>Customer Name:</strong> <%= customerName %></p>
+      <p><strong>Phone Number:</strong> <%= phoneNumber %></p>
+      <p><strong>Email:</strong> <%= email %></p>
+      <p><strong>Product:</strong> <%= itemName %></p>
+      <p><strong>Quantity:</strong> <%= quantity %></p>
+      <p><strong>Remaining Stock:</strong> <%= stock - quantity %></p>
+    </div>
+
+    <!-- Confirmation Button -->
+    <form action="/admin/confirm-sale" method="POST">
+      <input type="hidden" name="customerName" value="<%= customerName %>">
+      <input type="hidden" name="phoneNumber" value="<%= phoneNumber %>">
+      <input type="hidden" name="email" value="<%= email %>">
+      <input type="hidden" name="itemId" value="<%= itemId %>">
+      <input type="hidden" name="quantity" value="<%= quantity %>">
+      <button type="submit">Confirm Sale <span class="icon-checkmark"></span></button>
+    </form>
+  </div>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Registration</title>
+  <title>Business Registration</title>
   <link rel="stylesheet" href="/css/conult.css">
   <style>
     /* Centralized layout styles */
@@ -45,7 +45,7 @@
       text-align: center;
       margin-bottom: 10px;
     }
-    input[type="text"], input[type="password"], input[type="file"] {
+    input[type="text"], input[type="email"], input[type="password"], input[type="file"], select {
       width: 100%;
       padding: 10px;
       margin-bottom: 15px;
@@ -86,14 +86,27 @@
     </div>
 
     <div class="form-section">
-      <h2>Admin Registration <span class="icon-verification" style="margin-left: 10px;"></span></h2>
+      <h2>Business Registration <span class="icon-verification" style="margin-left: 10px;"></span></h2>
       <% if (error) { %>
         <div class="error"><%= error %></div>
       <% } %>
       <form action="/admin-register" method="POST" enctype="multipart/form-data">
+        <input type="text" name="businessName" placeholder="Business Name" required>
+        <input type="email" name="email" placeholder="Email Address" required>
+        <select name="currency" required>
+          <option value="">Select Currency</option>
+          <option value="USD">USD - United States Dollar</option>
+          <option value="EUR">EUR - Euro</option>
+          <option value="GBP">GBP - British Pound</option>
+          <option value="NGN">NGN - Nigerian Naira</option>
+          <option value="CAD">CAD - Canadian Dollar</option>
+          <!-- Add more currencies as needed -->
+        </select>
         <input type="text" name="username" placeholder="Username" required>
         <input type="password" name="password" placeholder="Password" required>
-        <input type="file" name="logo" value="Upload Logo" accept="image/*" required>
+        <label for="logo" style="display: block; text-align: left; margin-bottom: 5px; font-weight: bold;">Upload Logo:</label>
+        <input type="file" id="logo" name="logo" accept="image/*">
+        
         <button type="submit">Register <span class="icon-right-arrow"></span></button>
       </form>
       <div class="login-link">

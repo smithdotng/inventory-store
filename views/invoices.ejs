@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoices</title>
+  <link rel="stylesheet" href="/css/conult.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      background-color: #f5f5f5;
+      min-height: 100vh;
+    }
+    .container {
+      text-align: center;
+      max-width: 1200px;
+      width: 100%;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .content-logo-container img {
+      max-height: 100px;
+      margin: 20px auto;
+      display: block;
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .table-section, .form-section {
+      background-color: white;
+      padding: 25px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 600px;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+    }
+    th {
+      background-color: #e0e0e0;
+      font-weight: 600;
+      color: #333;
+    }
+    tr {
+      border-bottom: 1px solid #ddd;
+    }
+    tr:last-child {
+      border-bottom: none;
+    }
+    td {
+      font-size: 16px;
+      color: #555;
+    }
+    .create-btn, .download-btn, .form-section button, .mark-paid-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      font-weight: 500;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+    }
+    .download-btn, .mark-paid-btn {
+      padding: 8px 15px;
+    }
+    .create-btn:hover, .download-btn:hover, .form-section button:hover, .mark-paid-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+    .create-btn:active, .download-btn:active, .form-section button:active, .mark-paid-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .create-btn, .form-section button[type="submit"] {
+      background-color: #4CAF50;
+    }
+    .create-btn:hover, .form-section button[type="submit"]:hover {
+      background-color: #45a049;
+    }
+    .download-btn {
+      background-color: #4CAF50;
+    }
+    .download-btn:hover {
+      background-color: #45a049;
+    }
+    .mark-paid-btn {
+      background-color: #2196F3;
+      margin-left: 10px;
+    }
+    .mark-paid-btn:hover {
+      background-color: #1976D2;
+    }
+    .form-section form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      width: 100%;
+    }
+    .form-section input, .form-section select {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 350px;
+      box-sizing: border-box;
+      font-size: 16px;
+      background-color: #fafafa;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+    .form-section input:focus, .form-section select:focus {
+      border-color: #4CAF50;
+      box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+      outline: none;
+    }
+    #newCustomerFields, #bankDetails {
+      display: none;
+      width: 100%;
+    }
+    .item-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+      width: 100%;
+    }
+    .item-row select, .item-row input {
+      flex: 1;
+      min-width: 120px;
+    }
+    .remove-btn {
+      background-color: #ff4444;
+      padding: 8px 15px;
+    }
+    .remove-btn:hover {
+      background-color: #cc0000;
+    }
+    .sidebar {
+      width: 200px;
+      background-color: #0c913f;
+      color: white;
+      height: 100vh;
+      padding: 20px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+    }
+    .sidebar.hidden {
+      transform: translateX(-100%);
+    }
+    .sidebar .logo-container {
+      margin-bottom: 20px;
+    }
+    .sidebar .logo-container img {
+      max-height: 50px;
+      width: auto;
+    }
+    .sidebar h2 {
+      font-size: 20px;
+      margin: 0 0 20px;
+      white-space: nowrap;
+      color: #fff;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: background-color 0.3s;
+      white-space: nowrap;
+    }
+    .sidebar a:hover {
+      background-color: #555;
+    }
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background-color: #4CAF50;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      padding: 5px 10px;
+      border-radius: 4px;
+      z-index: 1100;
+      transition: background-color 0.3s;
+      display: none;
+    }
+    .toggle-btn:hover {
+      background-color: #45a049;
+    }
+    .main-content {
+      flex: 1;
+      padding: 20px;
+      margin-left: 200px;
+      width: calc(100% - 200px);
+      box-sizing: border-box;
+      transition: margin-left 0.3s ease, width 0.3s ease;
+    }
+    .welcome-message {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .sidebar {
+        width: 180px;
+      }
+      .main-content {
+        margin-left: 180px;
+        width: calc(100% - 180px);
+      }
+      .container {
+        max-width: 100%;
+      }
+      .content-logo-container img {
+        max-height: 80px;
+      }
+      h1 {
+        font-size: 22px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 200px;
+        transform: translateX(-100%);
+      }
+      .sidebar.visible {
+        transform: translateX(0);
+      }
+      .main-content {
+        margin-left: 0;
+        width: 100%;
+      }
+      .toggle-btn {
+        display: block;
+      }
+      .content-logo-container img {
+        max-height: 70px;
+      }
+      h1 {
+        font-size: 20px;
+      }
+      .form-section input, .form-section select {
+        max-width: 100%;
+      }
+      .item-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .item-row select, .item-row input {
+        min-width: 100%;
+      }
+      .remove-btn {
+        width: 100%;
+        margin-top: 10px;
+      }
+      .create-btn, .mark-paid-btn, .download-btn {
+        width: 100%;
+        padding: 10px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 10px;
+      }
+      .table-section, .form-section {
+        padding: 15px;
+      }
+      th, td {
+        padding: 8px;
+        font-size: 14px;
+      }
+      .welcome-message {
+        font-size: 18px;
+      }
+      .content-logo-container img {
+        max-height: 60px;
+      }
+      h1 {
+        font-size: 18px;
+      }
+      .create-btn, .download-btn, .mark-paid-btn, .form-section button {
+        font-size: 14px;
+        padding: 8px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+    </div>
+    <h2>Navigation</h2>
+    <a href="/sell"><span>Sell</span></a>
+    <a href="/store-view"><span>View Store</span></a>
+    <a href="/update-stock"><span>Update Stock</span></a>
+    <a href="/create-outlet"><span>Create an Outlet</span></a>
+    <a href="/invoices"><span>Invoice</span></a>
+    <a href="/transactions"><span>Transactions</span></a>
+  </div>
+
+  <!-- Toggle Button -->
+  <button class="toggle-btn" id="toggleBtn">☰</button>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="welcome-message">Welcome, <%= username %>!</div>
+    <div class="container">
+      <div class="content-logo-container">
+        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+      </div>
+      <h1>Invoices</h1>
+      
+      <button class="create-btn" id="createInvoiceBtn">Create Invoice</button>
+
+      <!-- Create Invoice Form -->
+      <div class="form-section" id="createInvoiceForm" style="display: none;">
+        <form action="/invoices/create" method="POST">
+          <select id="customerSelect" name="customerId" required>
+            <option value="">Select Customer</option>
+            <% customers.forEach(customer => { %>
+              <option value="<%= customer._id %>"><%= customer.name %> (<%= customer.phone || 'N/A' %>)</option>
+            <% }) %>
+            <option value="new">Create New Customer</option>
+          </select>
+          <div id="newCustomerFields">
+            <input type="text" name="newCustomerName" placeholder="New Customer Name" required>
+            <input type="text" name="newCustomerPhone" placeholder="Phone Number">
+            <input type="email" name="newCustomerEmail" placeholder="Email Address">
+          </div>
+
+          <div id="itemsContainer">
+            <div class="item-row">
+              <select name="items[itemId][]" required>
+                <option value="">Select Item</option>
+                <% inventory.forEach(item => { %>
+                  <% if (item.stock > 0) { %>
+                    <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
+                  <% } %>
+                <% }) %>
+              </select>
+              <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
+              <button type="button" class="remove-btn" style="display: none;">Remove</button>
+            </div>
+          </div>
+          <button type="button" class="create-btn" id="addItemBtn" style="margin-top: 10px;">Add Another Item</button>
+
+          <select name="paymentMethod" id="paymentMethod">
+            <option value="">Select Payment Method</option>
+            <option value="Cash">Cash</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Mobile Payment">Mobile Payment</option>
+          </select>
+          <div id="bankDetails">
+            <input type="text" name="bankName" placeholder="Bank Name">
+            <input type="text" name="bankAccountNumber" placeholder="Bank Account Number">
+            <input type="text" name="accountNumber" placeholder="Account Number">
+          </div>
+
+          <button type="submit">Create Invoice</button>
+        </form>
+      </div>
+
+      <!-- Invoices Table -->
+      <div class="table-section">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Customer Name</th>
+              <th>Items</th>
+              <th>Total Amount</th>
+              <th>Payment Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% sales.forEach(sale => { %>
+              <tr>
+                <td><%= new Date(sale.date).toLocaleDateString() %></td>
+                <td><%= sale.customerName %></td>
+                <td>
+                  <% if (sale.items) { %>
+                    <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
+                  <% } else { %>
+                    <%= `${sale.itemName} (${sale.quantity})` %>
+                  <% } %>
+                </td>
+                <td><%= admin.currency %> <%= sale.totalAmount.toFixed(2) %></td>
+                <td><%= sale.paymentStatus || 'Pending' %></td>
+                <td>
+                  <a href="/invoices/download/<%= sale._id %>">
+                    <button class="download-btn">Download PDF</button>
+                  </a>
+                  <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" style="display: inline;">
+                    <button type="submit" class="mark-paid-btn">Mark as Paid</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const createInvoiceBtn = document.getElementById('createInvoiceBtn');
+    const createInvoiceForm = document.getElementById('createInvoiceForm');
+    const customerSelect = document.getElementById('customerSelect');
+    const newCustomerFields = document.getElementById('newCustomerFields');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const addItemBtn = document.getElementById('addItemBtn');
+    const paymentMethod = document.getElementById('paymentMethod');
+    const bankDetails = document.getElementById('bankDetails');
+
+    // Toggle sidebar visibility
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('visible');
+      sidebar.classList.toggle('hidden');
+      if (sidebar.classList.contains('visible')) {
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      } else {
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      }
+    });
+
+    createInvoiceBtn.addEventListener('click', () => {
+      createInvoiceForm.style.display = createInvoiceForm.style.display === 'none' ? 'block' : 'none';
+    });
+
+    customerSelect.addEventListener('change', () => {
+      newCustomerFields.style.display = customerSelect.value === 'new' ? 'block' : 'none';
+      newCustomerFields.querySelectorAll('input').forEach(input => input.required = customerSelect.value === 'new');
+    });
+
+    paymentMethod.addEventListener('change', () => {
+      bankDetails.style.display = paymentMethod.value === 'Bank Transfer' ? 'block' : 'none';
+      bankDetails.querySelectorAll('input').forEach(input => input.required = paymentMethod.value === 'Bank Transfer');
+    });
+
+    addItemBtn.addEventListener('click', () => {
+      const newRow = document.createElement('div');
+      newRow.className = 'item-row';
+      newRow.innerHTML = `
+        <select name="items[itemId][]" required>
+          <option value="">Select Item</option>
+          <% inventory.forEach(item => { %>
+            <% if (item.stock > 0) { %>
+              <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
+            <% } %>
+          <% }) %>
+        </select>
+        <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
+        <button type="button" class="remove-btn">Remove</button>
+      `;
+      itemsContainer.appendChild(newRow);
+      updateRemoveButtons();
+    });
+
+    function updateRemoveButtons() {
+      const rows = itemsContainer.querySelectorAll('.item-row');
+      rows.forEach((row, index) => {
+        const removeBtn = row.querySelector('.remove-btn');
+        removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
+        removeBtn.onclick = () => {
+          if (rows.length > 1) row.remove();
+          updateRemoveButtons();
+        };
+      });
+    }
+
+    updateRemoveButtons();
+
+    // Set initial sidebar state based on screen width
+    function setSidebarState() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.add('hidden');
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      } else {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.remove('visible'); // Ensure no conflicting class
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      }
+    }
+
+    // Run on load and resize
+    setSidebarState();
+    window.addEventListener('resize', setSidebarState);
+  </script>
+</body>
+</html>
