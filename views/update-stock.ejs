@@ -4,309 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Update Stock</title>
-  <link rel="stylesheet" href="/css/conult.css">
-  <style>
-    /* General layout */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      background-color: #f5f5f5;
-    }
-    .container {
-      text-align: center;
-      max-width: 800px;
-      width: 100%;
-      padding: 20px;
-    }
-    /* Logo and heading styles */
-    .content-logo-container img {
-      max-height: 100px;
-      margin-bottom: 20px;
-      margin-top: 20px;
-    }
-    h1 {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    h2 {
-      font-size: 20px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    /* Form styles */
-    .form-section {
-      background-color: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
-    .form-group {
-      display: flex;
-      justify-content: center;
-      gap: 15px; /* Improved spacing */
-      flex-wrap: wrap;
-    }
-    .form-section input {
-      padding: 12px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      width: 100%;
-      max-width: 250px; /* Adjusted for better layout */
-      box-sizing: border-box;
-      font-size: 16px;
-      background-color: #fafafa;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .form-section input.small {
-      max-width: 120px; /* Slightly wider for stock and cost */
-    }
-    .form-section input:focus {
-      border-color: #4CAF50;
-      box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-      outline: none;
-    }
-    .form-section button,
-    .table-section button {
-      padding: 12px 25px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      color: white;
-      font-size: 16px;
-      font-weight: 500;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-      transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-    }
-    .add-btn {
-      background-color: #4CAF50;
-    }
-    .add-btn:hover {
-      background-color: #45a049;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-    .add-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    /* Table styles */
-    .table-section {
-      background-color: white;
-      padding: 25px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-      overflow-x: auto;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 0 auto;
-    }
-    th, td {
-      padding: 12px;
-      text-align: left;
-    }
-    th {
-      background-color: #e0e0e0;
-    }
-    tr {
-      border-bottom: 1px solid #ddd;
-    }
-    .stock-input, .cost-input {
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 6px;
-      width: 100px;
-      font-size: 16px;
-      background-color: #fafafa;
-      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
-      transition: border-color 0.3s, box-shadow 0.3s;
-    }
-    .stock-input:focus, .cost-input:focus {
-      border-color: #4CAF50;
-      box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
-      outline: none;
-    }
-    .edit-btn {
-      background-color: #0066cc;
-      padding: 8px 20px; /* Slightly smaller for table */
-    }
-    .edit-btn:hover {
-      background-color: #0052a3;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-    .edit-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .update-btn {
-      background-color: #4CAF50;
-      padding: 8px 20px;
-    }
-    .update-btn:hover {
-      background-color: #45a049;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-    .update-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    .cancel-btn {
-      background-color: #ff4444;
-      padding: 8px 20px;
-    }
-    .cancel-btn:hover {
-      background-color: #cc0000;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    }
-    .cancel-btn:active {
-      transform: translateY(0);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-    /* Link styles */
-    a {
-      color: #0066cc;
-      text-decoration: none;
-      display: block;
-      margin-top: 20px;
-      font-size: 16px;
-      transition: color 0.3s;
-    }
-    a:hover {
-      color: #004d99;
-      text-decoration: underline;
-    }
-    /* Sidebar styles */
-    .sidebar {
-      width: 200px;
-      background-color: #910c0c;
-      color: white;
-      height: 100vh;
-      padding: 20px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      position: fixed;
-    }
-    .sidebar .logo-container {
-      margin-bottom: 20px;
-    }
-    .sidebar .logo-container img {
-      max-height: 50px;
-      vertical-align: middle;
-    }
-    .sidebar h2 {
-      margin: 0 0 20px;
-      white-space: nowrap;
-    }
-    .sidebar a {
-      color: white;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-      white-space: nowrap;
-    }
-    .sidebar a:hover {
-      background-color: #555;
-    }
-    /* Toggle button */
-    .toggle-btn {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      background-color: #4CAF50;
-      border: none;
-      color: white;
-      font-size: 24px;
-      cursor: pointer;
-      padding: 5px 10px;
-      border-radius: 4px;
-      z-index: 1100;
-      transition: background-color 0.3s;
-      display: none;
-    }
-    .toggle-btn:hover {
-      background-color: #45a049;
-    }
-    /* Main content styles */
-    .main-content {
-      flex: 1;
-      padding: 20px;
-      margin-left: 200px;
-      transition: margin-left 0.3s ease;
-    }
-    .welcome-message {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .sidebar {
-        display: none;
-      }
-      .sidebar.expanded {
-        display: block;
-        width: 200px;
-      }
-      .main-content {
-        margin-left: 0;
-      }
-      .main-content.expanded {
-        margin-left: 200px;
-      }
-      .form-group {
-        flex-direction: column;
-        align-items: center;
-      }
-      .form-section input {
-        max-width: 100%;
-      }
-      .content-logo-container img {
-        max-height: 80px;
-      }
-      h1 {
-        font-size: 20px;
-      }
-      .toggle-btn {
-        display: block;
-      }
-    }
-    @media (max-width: 480px) {
-      .container {
-        padding: 10px;
-      }
-      .form-section,
-      .table-section {
-        padding: 15px;
-      }
-      th, td {
-        padding: 8px;
-      }
-      .welcome-message {
-        font-size: 20px;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="logo-container">
-      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
     </div>
     <h2>Navigation</h2>
     <a href="/sell"><span>Sell</span></a>
@@ -321,38 +25,34 @@
   <button class="toggle-btn" id="toggleBtn">☰</button>
 
   <!-- Main Content -->
-  <div class="main-content" id="mainContent" style="padding-left: 50px;">
-    <div class="welcome-message">
-      Welcome, <%= username %>!
-    </div>
-    <div class="container" style="justify-self: center;">
+  <div class="main-content" id="mainContent">
+    <div class="welcome-message">Welcome, <%= username %>!</div>
+    <div class="container">
       <div class="content-logo-container">
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
       </div>
-      <h1>Update Stock <span class="icon-shopping-cart" style="margin-left: 10px;"></span></h1>
+      <h1>Update Stock</h1>
 
       <!-- Add New Product Form -->
       <div class="form-section">
-        <h2>Add New Product <span class="icon-point-of-sale"></span></h2>
-        <div class="form-group">
-          <form action="/add-product" method="POST">
-            <input type="text" id="product-name" name="name" placeholder="Product Name" required>
-            <input type="number" id="initial-stock" name="stock" placeholder="Initial Stock" min="0" class="small" required>
-            <input type="number" id="cost" name="cost" placeholder="Cost" min="0" step="0.01" class="small" required>
-            <button type="submit" class="add-btn">Add Product <span class="icon-right-arrow"></span></button>
-          </form>
-        </div>
+        <h2>Add New Product</h2>
+        <form action="/add-product" method="POST" class="add-product-form">
+          <input type="text" name="name" placeholder="Product Name" required>
+          <input type="number" name="stock" placeholder="Initial Stock" min="0" required>
+          <input type="number" name="cost" placeholder="Cost" min="0" step="0.01" required>
+          <button type="submit" class="add-btn">Add Product</button>
+        </form>
       </div>
 
       <!-- Inventory Table -->
       <div class="table-section">
         <table>
           <thead>
-            <tr class="bg-gray-200">
-              <th>Product <span class="icon-consumer-behavior"></span></th>
-              <th>Stock <span class="icon-analysis"></span></th>
-              <th>Cost <span class="icon-money"></span></th>
-              <th>Action <span class="icon-strategy"></span></th>
+            <tr>
+              <th>Product</th>
+              <th>Stock</th>
+              <th>Cost</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -381,7 +81,7 @@
         </table>
       </div>
 
-      <a href="/store-view">Go to Store View <span class="icon-right-arrow"></span></a>
+      <a href="/store-view" class="go-to-store-btn">Go to Store View</a>
     </div>
   </div>
 
@@ -391,11 +91,34 @@
     const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleBtn');
 
-    // Sidebar toggle
+    // Toggle sidebar visibility
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('expanded');
-      mainContent.classList.toggle('expanded');
+      sidebar.classList.toggle('visible');
+      sidebar.classList.toggle('hidden');
+      if (sidebar.classList.contains('visible')) {
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      } else {
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      }
     });
+
+    // Set initial sidebar state
+    function setSidebarState() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.add('hidden');
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      } else {
+        sidebar.classList.remove('hidden');
+        sidebar.classList.remove('visible');
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      }
+    }
+    setSidebarState();
+    window.addEventListener('resize', setSidebarState);
 
     // Table editing functions
     function toggleEdit(id) {

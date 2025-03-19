@@ -192,7 +192,7 @@ app.post('/admin-login', async (req, res) => {
     req.session.admin = admin.username;
     req.session.adminId = admin._id; // Store admin's _id in session
     console.log('Sign-in successful');
-    res.redirect('/home');
+    res.redirect('/update-stock');
   } else {
     res.render('admin-login', { error: 'Invalid username or password' });
   }
@@ -205,6 +205,49 @@ app.get('/', (req, res) => {
 
 app.get('/admin-register', (req, res) => {
   res.render('admin-register', { error: null });
+});
+
+app.get('/transactions', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const { startDate, endDate } = req.query;
+    const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
+
+    const filter = { adminId: admin._id };
+    if (startDate && endDate) {
+      filter.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate)
+      };
+    }
+
+    const transactions = await db.collection('sales').find(filter).toArray();
+    const username = req.session.admin;
+
+    res.render('transactions', { transactions, admin, username, inventory });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Mark Transaction as Paid
+app.post('/transactions/mark-paid/:saleId', isAuthenticated, async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Update the payment status to "Paid"
+    await db.collection('sales').updateOne(
+      { _id: new ObjectId(saleId), adminId: admin._id },
+      { $set: { paymentStatus: 'Paid' } }
+    );
+
+    res.redirect('/transactions');
+  } catch (error) {
+    console.error('Error marking transaction as paid:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/admin-register', upload.single('logo'), async (req, res) => {
@@ -1020,10 +1063,10 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     // Add admin logo if available
     if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
       doc.image(path.join(__dirname, 'public', admin.logo), 50, 50, { width: 100 });
-      doc.moveDown(2);
+      doc.moveDown(5);
     }
 
-    doc.fontSize(20).text('Invoice', { align: 'center' });
+    doc.fontSize(20).text('Invoice', { align: 'right' });
     doc.moveDown();
     doc.fontSize(14).text(`Business: ${admin.businessName}`, { align: 'left' });
     doc.text(`Email: ${admin.email}`, { align: 'left' });
@@ -1046,7 +1089,7 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     const rowHeight = 20;
 
     // Update the Payment Information section in /invoices/download/:saleId
-doc.moveDown(1);
+doc.moveDown(5);
 doc.text('Payment Information:', { underline: true });
 doc.text(`Method: ${sale.paymentMethod || 'N/A'}`);
 if (sale.bankDetails) {
@@ -1083,7 +1126,7 @@ doc.moveDown();
     doc.text(`Total Order Amount: ${admin.currency} ${sale.totalAmount.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { align: 'right' });
     doc.font('Helvetica');
 
-    doc.moveDown(1);
+    doc.moveDown(5);
     doc.text('Payment Information:', { underline: true });
     doc.text(`Method: ${sale.paymentMethod || 'N/A'}`);
     doc.text(`Status: ${sale.paymentStatus || 'Pending'}`);

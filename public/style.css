@@ -162,7 +162,7 @@ td {
   transform: translateX(-100%);
 }
 .sidebar .logo-container {
-  margin-bottom: 20px;
+  margin-bottom: 75px;
 }
 .sidebar .logo-container img {
   max-height: 50px;
@@ -308,4 +308,134 @@ td {
     font-size: 14px;
     padding: 8px 15px;
   }
+  /* Table Styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+th, td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+/* Button Styling */
+.mark-paid-btn, .download-btn {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+.mark-paid-btn {
+  background-color: #28a745;
+  color: white;
+}
+
+.mark-paid-btn:hover {
+  background-color: #218838;
+}
+
+.download-btn {
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  display: inline-block;
+  padding: 8px 12px;
+}
+
+.download-btn:hover {
+  background-color: #0056b3;
+}
+
+/* Error Message Styling */
+.error-message {
+  color: red;
+  margin-top: 10px;
+  display: none;
+}
+
+/* Edit Stock Button */
+.edit-btn {
+  background-color: #2196F3; /* Blue */
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.edit-btn:hover {
+  background-color: #1976D2; /* Darker Blue */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.edit-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Update Button */
+.update-btn {
+  background-color: #4CAF50; /* Green */
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.update-btn:hover {
+  background-color: #45a049; /* Darker Green */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.update-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Cancel Button */
+.cancel-btn {
+  background-color: #ff4444; /* Red */
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.cancel-btn:hover {
+  background-color: #cc0000; /* Darker Red */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.cancel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 }
