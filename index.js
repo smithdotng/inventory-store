@@ -39,6 +39,14 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+transporter.verify((error, success) => {
+  if (error) {
+    console.error('SMTP connection error:', error);
+  } else {
+    console.log('SMTP connection successful:', success);
+  }
+});
+
 async function sendWelcomeEmail(email, username, businessName) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
