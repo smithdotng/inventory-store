@@ -1,61 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Profile</title>
-  <link rel="stylesheet" href="/style.css">
- 
-</head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Profile | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Profile</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin-sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/admin-logout">Log Out</a>
     </div>
+
+    <!-- Toggle Button -->
     <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
 
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent" style="padding-left: 50px;">
-    <div class="welcome-message">
-      Welcome, <%= username %>!
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= logo || '/images/logo.jpg' %>" alt="Business Logo">
+        </div>
+        <div class="business-info">
+          <h2>Business Information</h2>
+          <p><strong>Business Name:</strong> <%= businessName %></p>
+          <p><strong>Email:</strong> <%= email %></p>
+          <p><strong>Currency:</strong> <%= currency %></p>
+          <p><strong>Logo:</strong></p>
+        </div>
+      </div>
     </div>
-    <div class="content-logo-container">
-      <img src="<%= logo || '/images/logo.jpg' %>" alt="Business Logo">
-    </div>
-    <div class="business-info">
-      <h2>Business Information</h2>
-      <p><strong>Business Name:</strong> <%= businessName %></p>
-      <p><strong>Email:</strong> <%= email %></p>
-      <p><strong>Currency:</strong> <%= currency %></p>
-      <p><strong>Logo:</strong></p>
-    </div>
-  </div>
 
-  <!-- JavaScript for collapsing sidebar -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
+    <!-- JavaScript for sidebar toggle -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
 
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      mainContent.classList.toggle('collapsed');
-      // For mobile, toggle between collapsed and expanded states
-      if (window.innerWidth <= 768) {
-        sidebar.classList.toggle('expanded');
-        mainContent.classList.toggle('expanded');
-      }
-    });
-  </script>
-</body>
+      // Toggle sidebar visibility (only active on small screens)
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      });
+    </script>
+  </body>
 </html>

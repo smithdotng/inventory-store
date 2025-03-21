@@ -12,204 +12,186 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin-sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/admin-logout">Log Out</a>
     </div>
+
+    <!-- Toggle Button -->
     <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
 
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+        </div>
+        <h1>Admin Sales Form</h1>
+        <div class="form-section">
+          <form id="salesForm" action="/admin/sales-form" method="POST">
+            <!-- Customer Details -->
+            <input type="text" name="customerName" placeholder="Customer Name" required>
+            <input type="text" name="phoneNumber" placeholder="Phone Number">
+            <input type="email" name="email" placeholder="Email Address">
 
+            <!-- Payment Method -->
+            <select name="paymentMethod" required>
+              <option value="">Select Payment Method</option>
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Card">Card</option>
+            </select>
 
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="container">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-      </div>
-      <h1>Admin Sales Form</h1>
-      <div class="form-section">
-        <form id="salesForm" action="/admin/sales-form" method="POST">
-          <!-- Customer Details -->
-          <input type="text" name="customerName" placeholder="Customer Name" required>
-          <input type="text" name="phoneNumber" placeholder="Phone Number">
-          <input type="email" name="email" placeholder="Email Address">
-
-          <!-- Payment Method -->
-          <select name="paymentMethod" required>
-            <option value="">Select Payment Method</option>
-            <option value="Cash">Cash</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-            <option value="Card">Card</option>
-          </select>
-
-          <!-- Items Section -->
-          <div id="itemsContainer">
-            <div class="item-row">
-              <select name="items[itemId][]" class="item-select" required>
-                <option value="">Select Product</option>
-                <% inventory.forEach(item => { %>
-                  <% if (item.stock > 0) { %>
-                    <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
-                  <% } %>
-                <% }) %>
-              </select>
-              <input type="number" name="items[quantity][]" class="quantity-input" placeholder="Quantity" min="1" required>
-              <button type="button" class="remove-btn" style="display: none;">Remove</button>
+            <!-- Items Section -->
+            <div id="itemsContainer">
+              <div class="item-row">
+                <select name="items[itemId][]" class="item-select" required>
+                  <option value="">Select Product</option>
+                  <% inventory.forEach(item => { %>
+                    <% if (item.stock > 0) { %>
+                      <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
+                    <% } %>
+                  <% }) %>
+                </select>
+                <input type="number" name="items[quantity][]" class="quantity-input" placeholder="Quantity" min="1" required>
+                <button type="button" class="remove-btn" style="display: none;">Remove</button>
+              </div>
             </div>
-          </div>
 
-          <!-- Error Message -->
-          <div id="errorMessage" class="error-message" style="display: none;">
-            <span style="color: red;">Quantity exceeds available stock.</span>
-            <a href="/update-stock">Update Stock</a>
-          </div>
+            <!-- Error Message -->
+            <div id="errorMessage" class="error-message" style="display: none;">
+              <span style="color: red;">Quantity exceeds available stock.</span>
+              <a href="/update-stock">Update Stock</a>
+            </div>
 
-          <!-- Add Item Button -->
-          <button type="button" id="addItemBtn" style="margin-top: 10px; color: blueviolet;">Add Another Item</button>
+            <!-- Add Item Button -->
+            <button type="button" id="addItemBtn" style="margin-top: 10px; color: blueviolet;">Add Another Item</button>
 
-          <!-- Submit Button -->
-          <button type="submit">Record Sale</button>
-        </form>
+            <!-- Submit Button -->
+            <button type="submit">Record Sale</button>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- JavaScript -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const itemsContainer = document.getElementById('itemsContainer');
-    const addItemBtn = document.getElementById('addItemBtn');
-    const salesForm = document.getElementById('salesForm');
-    const errorMessage = document.getElementById('errorMessage');
+    <!-- JavaScript -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
+      const itemsContainer = document.getElementById('itemsContainer');
+      const addItemBtn = document.getElementById('addItemBtn');
+      const salesForm = document.getElementById('salesForm');
+      const errorMessage = document.getElementById('errorMessage');
 
-    // Hide the error message by default
-    errorMessage.style.display = 'none';
-
-    // Toggle sidebar visibility
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    });
-
-    // Set initial sidebar state
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('hidden');
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      } else {
-        sidebar.classList.remove('hidden');
-        sidebar.classList.remove('visible');
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      }
-    }
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
-
-    // Add new item row
-    addItemBtn.addEventListener('click', () => {
-      const newRow = document.createElement('div');
-      newRow.className = 'item-row';
-      newRow.innerHTML = `
-        <select name="items[itemId][]" class="item-select" required>
-          <option value="">Select Product</option>
-          <% inventory.forEach(item => { %>
-            <% if (item.stock > 0) { %>
-              <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
-            <% } %>
-          <% }) %>
-        </select>
-        <input type="number" name="items[quantity][]" class="quantity-input" placeholder="Quantity" min="1" required>
-        <button type="button" class="remove-btn">Remove</button>
-      `;
-      itemsContainer.appendChild(newRow);
-      updateRemoveButtons();
-      attachValidation(newRow.querySelector('.item-select'), newRow.querySelector('.quantity-input'));
-    });
-
-    // Update remove buttons visibility
-    function updateRemoveButtons() {
-      const rows = itemsContainer.querySelectorAll('.item-row');
-      rows.forEach((row, index) => {
-        const removeBtn = row.querySelector('.remove-btn');
-        removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
-        removeBtn.onclick = () => {
-          if (rows.length > 1) row.remove();
-          updateRemoveButtons();
-          validateForm();
-        };
-      });
-    }
-
-    // Attach validation to item select and quantity input
-    function attachValidation(itemSelect, quantityInput) {
-      itemSelect.addEventListener('change', () => {
-        const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
-        quantityInput.setAttribute('max', stock);
-        validateForm();
-      });
-
-      quantityInput.addEventListener('input', () => {
-        const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
-        const quantity = parseInt(quantityInput.value);
-        validateForm();
-      });
-    }
-
-    // Validate all items in the form
-    function validateForm() {
-      let hasError = false;
-      const rows = itemsContainer.querySelectorAll('.item-row');
-      rows.forEach(row => {
-        const itemSelect = row.querySelector('.item-select');
-        const quantityInput = row.querySelector('.quantity-input');
-        const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
-        const quantity = parseInt(quantityInput.value) || 0;
-        if (quantity > stock) {
-          hasError = true;
+      // Toggle sidebar visibility (only active on small screens)
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
         }
       });
-      errorMessage.style.display = hasError ? 'block' : 'none';
-      return !hasError;
-    }
 
-    // Initial validation setup
-    const initialItemSelect = itemsContainer.querySelector('.item-select');
-    const initialQuantityInput = itemsContainer.querySelector('.quantity-input');
-    attachValidation(initialItemSelect, initialQuantityInput);
-    updateRemoveButtons();
+      // Hide error message by default
+      errorMessage.style.display = 'none';
 
-    // Form submission validation
-    salesForm.addEventListener('submit', (event) => {
-      if (!validateForm()) {
-        event.preventDefault();
+      // Add new item row
+      addItemBtn.addEventListener('click', () => {
+        const newRow = document.createElement('div');
+        newRow.className = 'item-row';
+        newRow.innerHTML = `
+          <select name="items[itemId][]" class="item-select" required>
+            <option value="">Select Product</option>
+            <% inventory.forEach(item => { %>
+              <% if (item.stock > 0) { %>
+                <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
+              <% } %>
+            <% }) %>
+          </select>
+          <input type="number" name="items[quantity][]" class="quantity-input" placeholder="Quantity" min="1" required>
+          <button type="button" class="remove-btn">Remove</button>
+        `;
+        itemsContainer.appendChild(newRow);
+        updateRemoveButtons();
+        attachValidation(newRow.querySelector('.item-select'), newRow.querySelector('.quantity-input'));
+      });
+
+      // Update remove buttons visibility
+      function updateRemoveButtons() {
+        const rows = itemsContainer.querySelectorAll('.item-row');
+        rows.forEach((row, index) => {
+          const removeBtn = row.querySelector('.remove-btn');
+          removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
+          removeBtn.onclick = () => {
+            if (rows.length > 1) row.remove();
+            updateRemoveButtons();
+            validateForm();
+          };
+        });
       }
-    });
-  </script>
-</body>
+
+      // Attach validation to item select and quantity input
+      function attachValidation(itemSelect, quantityInput) {
+        itemSelect.addEventListener('change', () => {
+          const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
+          quantityInput.setAttribute('max', stock);
+          validateForm();
+        });
+
+        quantityInput.addEventListener('input', () => {
+          const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
+          const quantity = parseInt(quantityInput.value);
+          validateForm();
+        });
+      }
+
+      // Validate all items in the form
+      function validateForm() {
+        let hasError = false;
+        const rows = itemsContainer.querySelectorAll('.item-row');
+        rows.forEach(row => {
+          const itemSelect = row.querySelector('.item-select');
+          const quantityInput = row.querySelector('.quantity-input');
+          const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
+          const quantity = parseInt(quantityInput.value) || 0;
+          if (quantity > stock) {
+            hasError = true;
+          }
+        });
+        errorMessage.style.display = hasError ? 'block' : 'none';
+        return !hasError;
+      }
+
+      // Initial validation setup
+      const initialItemSelect = itemsContainer.querySelector('.item-select');
+      const initialQuantityInput = itemsContainer.querySelector('.quantity-input');
+      attachValidation(initialItemSelect, initialQuantityInput);
+      updateRemoveButtons();
+
+      // Form submission validation
+      salesForm.addEventListener('submit', (event) => {
+        if (!validateForm()) {
+          event.preventDefault();
+        }
+      });
+    </script>
+  </body>
 </html>

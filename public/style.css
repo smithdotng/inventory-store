@@ -1,4 +1,3 @@
-
 body {
   font-family: Arial, sans-serif;
   margin: 0;
@@ -7,6 +6,7 @@ body {
   background-color: #f5f5f5;
   min-height: 100vh;
 }
+
 .container {
   text-align: center;
   max-width: 1200px;
@@ -14,18 +14,22 @@ body {
   padding: 20px;
   box-sizing: border-box;
 }
+
 .content-logo-container img {
   max-height: 100px;
   margin: 20px auto;
   display: block;
 }
+
 h1 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
   color: #333;
 }
-.table-section, .form-section {
+
+.table-section,
+.form-section {
   background-color: white;
   padding: 25px;
   border-radius: 10px;
@@ -33,31 +37,42 @@ h1 {
   margin-bottom: 20px;
   overflow-x: auto;
 }
+
 table {
   border-collapse: collapse;
   width: 100%;
   min-width: 600px;
 }
-th, td {
+
+th,
+td {
   padding: 12px;
   text-align: left;
 }
+
 th {
   background-color: #e0e0e0;
   font-weight: 600;
   color: #333;
 }
+
 tr {
   border-bottom: 1px solid #ddd;
 }
+
 tr:last-child {
   border-bottom: none;
 }
+
 td {
   font-size: 16px;
   color: #555;
 }
-.create-btn, .download-btn, .form-section button, .mark-paid-btn {
+
+.create-btn,
+.download-btn,
+.form-section button,
+.mark-paid-btn {
   padding: 12px 25px;
   border: none;
   border-radius: 6px;
@@ -68,8 +83,10 @@ td {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
+
 /* Button Styling */
-.mark-paid-btn, .download-btn {
+.mark-paid-btn,
+.download-btn {
   padding: 8px 12px;
   border: none;
   border-radius: 4px;
@@ -229,36 +246,55 @@ td {
   transform: translateY(0);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-.download-btn, .mark-paid-btn {
+
+.download-btn,
+.mark-paid-btn {
   padding: 8px 15px;
 }
-.create-btn:hover, .download-btn:hover, .form-section button:hover, .mark-paid-btn:hover {
+
+.create-btn:hover,
+.download-btn:hover,
+.form-section button:hover,
+.mark-paid-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
-.create-btn:active, .download-btn:active, .form-section button:active, .mark-paid-btn:active {
+
+.create-btn:active,
+.download-btn:active,
+.form-section button:active,
+.mark-paid-btn:active {
   transform: translateY(0);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
-.create-btn, .form-section button[type="submit"] {
+
+.create-btn,
+.form-section button[type="submit"] {
   background-color: #4CAF50;
 }
-.create-btn:hover, .form-section button[type="submit"]:hover {
+
+.create-btn:hover,
+.form-section button[type="submit"]:hover {
   background-color: #45a049;
 }
+
 .download-btn {
   background-color: #4CAF50;
 }
+
 .download-btn:hover {
   background-color: #45a049;
 }
+
 .mark-paid-btn {
   background-color: #2196F3;
   margin-left: 10px;
 }
+
 .mark-paid-btn:hover {
   background-color: #1976D2;
 }
+
 .form-section form {
   display: flex;
   flex-direction: column;
@@ -266,7 +302,9 @@ td {
   gap: 15px;
   width: 100%;
 }
-.form-section input, .form-section select {
+
+.form-section input,
+.form-section select {
   padding: 12px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -278,15 +316,20 @@ td {
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
-.form-section input:focus, .form-section select:focus {
+
+.form-section input:focus,
+.form-section select:focus {
   border-color: #4CAF50;
   box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
   outline: none;
 }
-#newCustomerFields, #bankDetails {
+
+#newCustomerFields,
+#bankDetails {
   display: none;
   width: 100%;
 }
+
 .item-row {
   display: flex;
   flex-wrap: wrap;
@@ -295,17 +338,23 @@ td {
   align-items: center;
   width: 100%;
 }
-.item-row select, .item-row input {
+
+.item-row select,
+.item-row input {
   flex: 1;
   min-width: 120px;
 }
+
 .remove-btn {
   background-color: #ff4444;
   padding: 8px 15px;
 }
+
 .remove-btn:hover {
   background-color: #cc0000;
 }
+
+/* Sidebar Styles */
 .sidebar {
   width: 200px;
   background-color: #0c913f;
@@ -319,22 +368,31 @@ td {
   left: 0;
   z-index: 1000;
 }
+
 .sidebar.hidden {
   transform: translateX(-100%);
 }
+
+.sidebar.visible {
+  transform: translateX(0);
+}
+
 .sidebar .logo-container {
   margin-bottom: 75px;
 }
+
 .sidebar .logo-container img {
   max-height: 50px;
   width: auto;
 }
+
 .sidebar h2 {
   font-size: 20px;
   margin: 0 0 20px;
   white-space: nowrap;
   color: #fff;
 }
+
 .sidebar a {
   color: white;
   text-decoration: none;
@@ -347,12 +405,15 @@ td {
   transition: background-color 0.3s;
   white-space: nowrap;
 }
+
 .sidebar a:hover {
   background-color: #afce14;
 }
+
+/* Toggle Button */
 .toggle-btn {
   position: fixed;
-  top: 100px;
+  top: 10px;
   left: 10px;
   background-color: #4CAF50;
   border: none;
@@ -360,14 +421,18 @@ td {
   font-size: 24px;
   cursor: pointer;
   padding: 5px 10px;
+  margin-top: 75px;
   border-radius: 4px;
   z-index: 1100;
   transition: background-color 0.3s;
-  display: none;
+  display: none; /* Hidden by default on large screens */
 }
+
 .toggle-btn:hover {
   background-color: #45a049;
 }
+
+/* Main Content */
 .main-content {
   flex: 1;
   padding: 20px;
@@ -376,6 +441,7 @@ td {
   box-sizing: border-box;
   transition: margin-left 0.3s ease, width 0.3s ease;
 }
+
 .welcome-message {
   font-size: 24px;
   font-weight: bold;
@@ -406,18 +472,17 @@ td {
 
 @media (max-width: 768px) {
   .sidebar {
-    width: 200px;
-    transform: translateX(-100%);
+    transform: translateX(-100%); /* Hidden by default on small screens */
   }
   .sidebar.visible {
-    transform: translateX(0);
+    transform: translateX(0); /* Show when toggled */
   }
   .main-content {
     margin-left: 0;
     width: 100%;
   }
   .toggle-btn {
-    display: block;
+    display: block; /* Show toggle button on small screens */
   }
   .content-logo-container img {
     max-height: 70px;
@@ -425,23 +490,40 @@ td {
   h1 {
     font-size: 20px;
   }
-  .form-section input, .form-section select {
+  .form-section input,
+  .form-section select {
     max-width: 100%;
   }
   .item-row {
     flex-direction: column;
     align-items: stretch;
   }
-  .item-row select, .item-row input {
+  .item-row select,
+  .item-row input {
     min-width: 100%;
   }
   .remove-btn {
     width: 100%;
     margin-top: 10px;
   }
-  .create-btn, .mark-paid-btn, .download-btn {
+  .create-btn,
+  .mark-paid-btn,
+  .download-btn {
     width: 100%;
     padding: 10px;
+  }
+}
+
+@media (min-width: 769px) {
+  .sidebar {
+    transform: translateX(0); /* Always visible on large screens */
+  }
+  .main-content {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+  }
+  .toggle-btn {
+    display: none; /* Hide toggle button on large screens */
   }
 }
 
@@ -449,10 +531,12 @@ td {
   .container {
     padding: 10px;
   }
-  .table-section, .form-section {
+  .table-section,
+  .form-section {
     padding: 15px;
   }
-  th, td {
+  th,
+  td {
     padding: 8px;
     font-size: 14px;
   }
@@ -465,25 +549,26 @@ td {
   h1 {
     font-size: 18px;
   }
-  .create-btn, .download-btn, .mark-paid-btn, .form-section button {
+  .create-btn,
+  .download-btn,
+  .mark-paid-btn,
+  .form-section button {
     font-size: 14px;
     padding: 8px 15px;
   }
-  /* Table Styling */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-}
-
-th, td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-th {
-  background-color: #f4f4f4;
-  font-weight: bold;
-}
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  th,
+  td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
 }

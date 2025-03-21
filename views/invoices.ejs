@@ -12,232 +12,221 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin-sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/admin-logout">Log Out</a>
     </div>
+
+    <!-- Toggle Button -->
     <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
 
-  <!-- Toggle Button -->
-  <button class="toggle-btn" id="toggleBtn">☰</button>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+        </div>
+        <h1>Invoices</h1>
 
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="welcome-message">Welcome, <%= username %>!</div>
-    <div class="container">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-      </div>
-      <h1>Invoices</h1>
-      
-      <!-- Business Details -->
-      <div class="business-details">
-        <p><strong>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-        <p><strong>Email:</strong> <%= admin.email || 'N/A' %></p>
-        <p><strong>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-      </div>
+        <!-- Business Details -->
+        <div class="business-details">
+          <p><strong>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
+          <p><strong>Email:</strong> <%= admin.email || 'N/A' %></p>
+          <p><strong>Currency:</strong> <%= admin.currency || 'N/A' %></p>
+        </div>
 
-      <button class="create-btn" id="createInvoiceBtn">Create Invoice</button>
-      
-      <!-- Create Invoice Form -->
-      <div class="form-section" id="createInvoiceForm" style="display: none;">
-        <form action="/invoices/create" method="POST">
-          <select id="customerSelect" name="customerId" required>
-            <option value="">Select Customer</option>
-            <% customers.forEach(customer => { %>
-              <option value="<%= customer._id %>"><%= customer.name %> (<%= customer.phone || 'N/A' %>)</option>
-            <% }) %>
-            <option value="new">Create New Customer</option>
-          </select>
-          <div id="newCustomerFields">
-            <input type="text" name="newCustomerName" placeholder="New Customer Name" required>
-            <input type="text" name="newCustomerPhone" placeholder="Phone Number">
-            <input type="email" name="newCustomerEmail" placeholder="Email Address">
-          </div>
+        <button class="create-btn" id="createInvoiceBtn">Create Invoice</button>
 
-          <div id="itemsContainer">
-            <div class="item-row">
-              <select name="items[itemId][]" required>
-                <option value="">Select Item</option>
-                <% inventory.forEach(item => { %>
-                  <% if (item.stock > 0) { %>
-                    <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
-                  <% } %>
-                <% }) %>
-              </select>
-              <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
-              <button type="button" class="remove-btn" style="display: none;">Remove</button>
+        <!-- Create Invoice Form -->
+        <div class="form-section" id="createInvoiceForm">
+          <form action="/invoices/create" method="POST">
+            <select id="customerSelect" name="customerId" required>
+              <option value="">Select Customer</option>
+              <% customers.forEach(customer => { %>
+                <option value="<%= customer._id %>"><%= customer.name %> (<%= customer.phone || 'N/A' %>)</option>
+              <% }) %>
+              <option value="new">Create New Customer</option>
+            </select>
+            <div id="newCustomerFields">
+              <input type="text" name="newCustomerName" placeholder="New Customer Name" required>
+              <input type="text" name="newCustomerPhone" placeholder="Phone Number">
+              <input type="email" name="newCustomerEmail" placeholder="Email Address">
             </div>
-          </div>
-          <button type="button" class="create-btn" id="addItemBtn" style="margin-top: 10px;">Add Another Item</button>
 
-          <select name="paymentMethod" id="paymentMethod">
-            <option value="">Select Payment Method</option>
-            <option value="Cash">Cash</option>
-            <option value="Credit Card">Credit Card</option>
-            <option value="Bank Transfer">Bank Transfer</option>
-            <option value="Mobile Payment">Mobile Payment</option>
-          </select>
-          <div id="bankDetails">
-            <input type="text" name="bankName" placeholder="Bank Name">
-            <input type="text" name="bankAccountNumber" placeholder="Bank Account Number">
-            <input type="text" name="accountNumber" placeholder="Account Number">
-          </div>
+            <div id="itemsContainer">
+              <div class="item-row">
+                <select name="items[itemId][]" required>
+                  <option value="">Select Item</option>
+                  <% inventory.forEach(item => { %>
+                    <% if (item.stock > 0) { %>
+                      <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
+                    <% } %>
+                  <% }) %>
+                </select>
+                <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
+                <button type="button" class="remove-btn">Remove</button>
+              </div>
+            </div>
+            <button type="button" class="create-btn" id="addItemBtn">Add Another Item</button>
 
-          <button type="submit">Create Invoice</button>
-        </form>
-      </div>
+            <select name="paymentMethod" id="paymentMethod">
+              <option value="">Select Payment Method</option>
+              <option value="Cash">Cash</option>
+              <option value="Credit Card">Credit Card</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Mobile Payment">Mobile Payment</option>
+            </select>
+            <div id="bankDetails">
+              <input type="text" name="bankName" placeholder="Bank Name">
+              <input type="text" name="bankAccountNumber" placeholder="Bank Account Number">
+              <input type="text" name="accountNumber" placeholder="Account Number">
+            </div>
 
-      <!-- Invoices Table -->
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Customer Name</th>
-              <th>Items</th>
-              <th>Total Amount</th>
-              <th>Payment Status</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% sales.forEach(sale => { %>
+            <button type="submit">Create Invoice</button>
+          </form>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="table-section">
+          <table>
+            <thead>
               <tr>
-                <td><%= new Date(sale.date).toLocaleDateString() %></td>
-                <td><%= sale.customerName %></td>
-                <td>
-                  <% if (sale.items) { %>
-                    <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
-                  <% } else { %>
-                    <%= `${sale.itemName} (${sale.quantity})` %>
-                  <% } %>
-                </td>
-                <td><%= admin.currency %>
-                  <%= (sale.totalAmount || 0).toFixed(2) %></td>
-                <td><%= sale.paymentStatus || 'Pending' %></td>
-                <td>
-                  <a href="/invoices/download/<%= sale._id %>">
-                    <button class="download-btn">Download PDF</button>
-                  </a>
-                  <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" style="display: inline;">
-                    <button type="submit" class="mark-paid-btn">Mark as Paid</button>
-                  </form>
-                </td>
+                <th>Date</th>
+                <th>Customer Name</th>
+                <th>Items</th>
+                <th>Total Amount</th>
+                <th>Payment Status</th>
+                <th>Action</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <% sales.forEach(sale => { %>
+                <tr>
+                  <td><%= new Date(sale.date).toLocaleDateString() %></td>
+                  <td><%= sale.customerName %></td>
+                  <td>
+                    <% if (sale.items) { %>
+                      <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
+                    <% } else { %>
+                      <%= `${sale.itemName} (${sale.quantity})` %>
+                    <% } %>
+                  </td>
+                  <td><%= admin.currency %><%= (sale.totalAmount || 0).toFixed(2) %></td>
+                  <td><%= sale.paymentStatus || 'Pending' %></td>
+                  <td>
+                    <a href="/invoices/download/<%= sale._id %>">
+                      <button class="download-btn">Download PDF</button>
+                    </a>
+                    <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form">
+                      <button type="submit" class="mark-paid-btn">Mark as Paid</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- JavaScript -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const createInvoiceBtn = document.getElementById('createInvoiceBtn');
-    const createInvoiceForm = document.getElementById('createInvoiceForm');
-    const customerSelect = document.getElementById('customerSelect');
-    const newCustomerFields = document.getElementById('newCustomerFields');
-    const itemsContainer = document.getElementById('itemsContainer');
-    const addItemBtn = document.getElementById('addItemBtn');
-    const paymentMethod = document.getElementById('paymentMethod');
-    const bankDetails = document.getElementById('bankDetails');
+    <!-- JavaScript -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
+      const createInvoiceBtn = document.getElementById('createInvoiceBtn');
+      const createInvoiceForm = document.getElementById('createInvoiceForm');
+      const customerSelect = document.getElementById('customerSelect');
+      const newCustomerFields = document.getElementById('newCustomerFields');
+      const itemsContainer = document.getElementById('itemsContainer');
+      const addItemBtn = document.getElementById('addItemBtn');
+      const paymentMethod = document.getElementById('paymentMethod');
+      const bankDetails = document.getElementById('bankDetails');
 
-    // Toggle sidebar visibility
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    });
-
-    createInvoiceBtn.addEventListener('click', () => {
-      createInvoiceForm.style.display = createInvoiceForm.style.display === 'none' ? 'block' : 'none';
-    });
-
-    customerSelect.addEventListener('change', () => {
-      newCustomerFields.style.display = customerSelect.value === 'new' ? 'block' : 'none';
-      newCustomerFields.querySelectorAll('input').forEach(input => input.required = customerSelect.value === 'new');
-    });
-
-    paymentMethod.addEventListener('change', () => {
-      bankDetails.style.display = paymentMethod.value === 'Bank Transfer' ? 'block' : 'none';
-      bankDetails.querySelectorAll('input').forEach(input => input.required = paymentMethod.value === 'Bank Transfer');
-    });
-
-    addItemBtn.addEventListener('click', () => {
-      const newRow = document.createElement('div');
-      newRow.className = 'item-row';
-      newRow.innerHTML = `
-        <select name="items[itemId][]" required>
-          <option value="">Select Item</option>
-          <% inventory.forEach(item => { %>
-            <% if (item.stock > 0) { %>
-              <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
-            <% } %>
-          <% }) %>
-        </select>
-        <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
-        <button type="button" class="remove-btn">Remove</button>
-      `;
-      itemsContainer.appendChild(newRow);
-      updateRemoveButtons();
-    });
-
-    function updateRemoveButtons() {
-      const rows = itemsContainer.querySelectorAll('.item-row');
-      rows.forEach((row, index) => {
-        const removeBtn = row.querySelector('.remove-btn');
-        removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
-        removeBtn.onclick = () => {
-          if (rows.length > 1) row.remove();
-          updateRemoveButtons();
-        };
+      // Toggle sidebar visibility (only active on small screens)
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
       });
-    }
 
-    updateRemoveButtons();
+      // Toggle create invoice form visibility
+      createInvoiceBtn.addEventListener('click', () => {
+        createInvoiceForm.style.display = createInvoiceForm.style.display === 'none' ? 'block' : 'none';
+      });
 
-    // Set initial sidebar state based on screen width
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('hidden');
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      } else {
-        sidebar.classList.remove('hidden');
-        sidebar.classList.remove('visible'); // Ensure no conflicting class
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
+      // Toggle new customer fields based on selection
+      customerSelect.addEventListener('change', () => {
+        newCustomerFields.style.display = customerSelect.value === 'new' ? 'block' : 'none';
+        newCustomerFields.querySelectorAll('input').forEach(input => {
+          input.required = customerSelect.value === 'new';
+        });
+      });
+
+      // Toggle bank details based on payment method
+      paymentMethod.addEventListener('change', () => {
+        bankDetails.style.display = paymentMethod.value === 'Bank Transfer' ? 'block' : 'none';
+        bankDetails.querySelectorAll('input').forEach(input => {
+          input.required = paymentMethod.value === 'Bank Transfer';
+        });
+      });
+
+      // Add new item row
+      addItemBtn.addEventListener('click', () => {
+        const newRow = document.createElement('div');
+        newRow.className = 'item-row';
+        newRow.innerHTML = `
+          <select name="items[itemId][]" required>
+            <option value="">Select Item</option>
+            <% inventory.forEach(item => { %>
+              <% if (item.stock > 0) { %>
+                <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
+              <% } %>
+            <% }) %>
+          </select>
+          <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
+          <button type="button" class="remove-btn">Remove</button>
+        `;
+        itemsContainer.appendChild(newRow);
+        updateRemoveButtons();
+      });
+
+      // Update remove buttons visibility
+      function updateRemoveButtons() {
+        const rows = itemsContainer.querySelectorAll('.item-row');
+        rows.forEach((row, index) => {
+          const removeBtn = row.querySelector('.remove-btn');
+          removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
+          removeBtn.onclick = () => {
+            if (rows.length > 1) row.remove();
+            updateRemoveButtons();
+          };
+        });
       }
-    }
 
-    // Run on load and resize
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
-  </script>
-</body>
+      // Initial setup
+      updateRemoveButtons();
+      newCustomerFields.style.display = 'none'; // Hidden by default
+      bankDetails.style.display = 'none'; // Hidden by default
+    </script>
+  </body>
 </html>

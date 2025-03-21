@@ -12,65 +12,70 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin-sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/admin-logout">Log Out</a>
     </div>
+
+    <!-- Toggle Button -->
     <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
 
-
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent" style="padding-left: 50px;">
-    
-    <div class="container" style="justify-self: center;">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-      </div>
-      <div class="form-section">
-        <h2>Customer Details <span class="icon-group" style="margin-left: 10px;"></span></h2>
-        <% if (customer) { %>
-          <div class="customer-details">
-            <p><strong>Customer ID:</strong> <%= customer._id %></p>
-            <p><strong>Name:</strong> <%= customer.name %></p>
-            <p><strong>Email:</strong> <%= customer.email %></p>
-            <p><strong>Phone:</strong> <%= customer.phone %></p>
-            <p><strong>Address:</strong> <%= customer.address %></p>
-            <p><strong>Created At:</strong> <%= customer.createdAt.toLocaleString() %></p>
-          </div>
-        <% } else { %>
-          <div class="error">Customer not found.</div>
-        <% } %>
-        <a href="/store-view">Back to Store <span class="icon-right-arrow"></span></a>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+        </div>
+        <div class="form-section">
+          <h2>Customer Details <span class="icon-group" style="margin-left: 10px;"></span></h2>
+          <% if (customer) { %>
+            <div class="customer-details">
+              <p><strong>Customer ID:</strong> <%= customer._id %></p>
+              <p><strong>Name:</strong> <%= customer.name %></p>
+              <p><strong>Email:</strong> <%= customer.email %></p>
+              <p><strong>Phone:</strong> <%= customer.phone %></p>
+              <p><strong>Address:</strong> <%= customer.address %></p>
+              <p><strong>Created At:</strong> <%= customer.createdAt.toLocaleString() %></p>
+            </div>
+          <% } else { %>
+            <div class="error">Customer not found.</div>
+          <% } %>
+          <a href="/store-view" class="cancel-btn">Back to Store <span class="icon-right-arrow"></span></a>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- JavaScript for sidebar toggle -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
+    <!-- JavaScript for sidebar toggle -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
 
-    // Sidebar toggle
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('expanded');
-      mainContent.classList.toggle('expanded');
-    });
-  </script>
-</body>
+      // Toggle sidebar visibility (only active on small screens)
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      });
+    </script>
+  </body>
 </html>

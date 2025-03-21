@@ -12,59 +12,85 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
-<body>
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
-    </div>
-    <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
-  <div class="container">
-    <div class="content-logo-container">
-      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-    </div>
-    
-    <h1>Receipt</h1>
-    <div class="sale-details">
-      <p><strong>Customer Name:</strong> <%= sale.customerName %></p>
-      <p><strong>Total Amount:</strong> <%= admin.currency %> <%= sale.totalAmount.toFixed(2) %></p>
-      <p><strong>Payment Status:</strong> <%= sale.paymentStatus %></p>
-      <p><strong>Date:</strong> <%= sale.date.toLocaleString() %></p>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin-sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/admin-logout">Log Out</a>
     </div>
 
-    <h2>Items Purchased</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Item</th>
-          <th>Quantity</th>
-          <th>Unit Cost</th>
-          <th>Total Cost</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% sale.items.forEach(item => { %>
-          <tr>
-            <td><%= item.itemName %></td>
-            <td><%= item.quantity %></td>
-            <td><%= admin.currency %> <%= item.unitCost.toFixed(2) %></td>
-            <td><%= admin.currency %> <%= item.totalCost.toFixed(2) %></td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-  </div>
-</body>
+    <!-- Toggle Button -->
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+        </div>
+        <h1>Receipt</h1>
+        <div class="sale-details">
+          <p><strong>Customer Name:</strong> <%= sale.customerName %></p>
+          <p><strong>Total Amount:</strong> <%= admin.currency %> <%= sale.totalAmount.toFixed(2) %></p>
+          <p><strong>Payment Status:</strong> <%= sale.paymentStatus %></p>
+          <p><strong>Date:</strong> <%= sale.date.toLocaleString() %></p>
+        </div>
+
+        <h2>Items Purchased</h2>
+        <div class="table-section">
+          <table>
+            <thead>
+              <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Unit Cost</th>
+                <th>Total Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% sale.items.forEach(item => { %>
+                <tr>
+                  <td><%= item.itemName %></td>
+                  <td><%= item.quantity %></td>
+                  <td><%= admin.currency %> <%= item.unitCost.toFixed(2) %></td>
+                  <td><%= admin.currency %> <%= item.totalCost.toFixed(2) %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript for sidebar toggle -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
+
+      // Toggle sidebar visibility (only active on small screens)
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      });
+    </script>
+  </body>
 </html>

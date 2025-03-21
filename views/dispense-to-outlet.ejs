@@ -12,131 +12,110 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin-sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/admin-logout">Log Out</a>
     </div>
+
+    <!-- Toggle Button -->
     <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
 
-  
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+        </div>
+        <h1>Dispense to Outlet: <%= outlet.name %></h1>
 
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="welcome-message">Welcome, <%= username %>!</div>
-    <div class="container">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-      </div>
-      <h1>Dispense to Outlet: <%= outlet.name %></h1>
-
-      <!-- Main Inventory -->
-      <h2>Main Inventory</h2>
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Stock</th>
-              <th>Dispense Quantity</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% inventory.forEach(item => { %>
+        <!-- Main Inventory -->
+        <h2>Main Inventory</h2>
+        <div class="table-section">
+          <table>
+            <thead>
               <tr>
-                <td><%= item.name %></td>
-                <td><%= item.stock %></td>
-                <td>
-                  <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <input type="hidden" name="itemId" value="<%= item._id %>">
-                    <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required>
-                </td>
-                <td>
-                    <button type="submit">Dispense</button>
-                  </form>
-                </td>
+                <th>Product</th>
+                <th>Stock</th>
+                <th>Dispense Quantity</th>
+                <th>Action</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              <% inventory.forEach(item => { %>
+                <tr>
+                  <td><%= item.name %></td>
+                  <td><%= item.stock %></td>
+                  <td>
+                    <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" class="dispense-form">
+                      <input type="hidden" name="itemId" value="<%= item._id %>">
+                      <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required>
+                  </td>
+                  <td>
+                      <button type="submit">Dispense</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
 
-      <!-- Outlet Inventory -->
-      <h2>Outlet Inventory</h2>
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Stock</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% outlet.inventory.forEach(item => { %>
+        <!-- Outlet Inventory -->
+        <h2>Outlet Inventory</h2>
+        <div class="table-section">
+          <table>
+            <thead>
               <tr>
-                <td><%= item.name %></td>
-                <td><%= item.stock %></td>
+                <th>Product</th>
+                <th>Stock</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              <% outlet.inventory.forEach(item => { %>
+                <tr>
+                  <td><%= item.name %></td>
+                  <td><%= item.stock %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
 
-      <a href="/home" class="block">Back to Home</a>
+        <a href="/home" class="cancel-btn">Back to Home</a>
+      </div>
     </div>
-  </div>
 
-  <!-- JavaScript -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
+    <!-- JavaScript -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
 
-    // Toggle sidebar visibility
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    });
-
-    // Set initial sidebar state based on screen width
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('hidden');
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      } else {
-        sidebar.classList.remove('hidden');
-        sidebar.classList.remove('visible');
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      }
-    }
-
-    // Run on load and resize
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
-  </script>
-</body>
+      // Toggle sidebar visibility (only active on small screens)
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      });
+    </script>
+  </body>
 </html>

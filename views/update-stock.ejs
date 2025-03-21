@@ -21,7 +21,7 @@
     <div class="logo-container">
       <img src="/images/logo.png" alt="Shedfactory Business Solutions">
     </div>
-    <button class="toggle-btn" id="toggleBtn">☰</button>
+    
     <h2>Welcome, <%= username %>!</h2>
     <a href="/admin-sales-form">Sell</a>
     <a href="/store-view">View Store</a>
@@ -34,6 +34,7 @@
   </div>
 
  
+  <button class="toggle-btn" id="toggleBtn">☰</button>
 
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
@@ -104,18 +105,18 @@
     const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleBtn');
 
-    // Toggle sidebar visibility
+    // Toggle sidebar visibility (only active on small screens)
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    });
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      });
 
     // Set initial sidebar state
     function setSidebarState() {

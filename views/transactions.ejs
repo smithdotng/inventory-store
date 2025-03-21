@@ -21,7 +21,7 @@
     <div class="logo-container">
       <img src="/images/logo.png" alt="Shedfactory Business Solutions">
     </div>
-    <button class="toggle-btn" id="toggleBtn">☰</button>
+    
     <h2>Welcome, <%= username %>!</h2>
     <a href="/admin-sales-form">Sell</a>
     <a href="/store-view">View Store</a>
@@ -128,18 +128,18 @@
     const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleBtn');
 
-    // Toggle sidebar visibility
+    // Toggle sidebar visibility (only active on small screens)
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    });
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('visible')) {
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      });
 
     // Set initial sidebar state
     function setSidebarState() {
@@ -156,6 +156,52 @@
     }
     setSidebarState();
     window.addEventListener('resize', setSidebarState);
+
+    // Table editing functions
+    function toggleEdit(id) {
+      const row = document.getElementById(`row-${id}`);
+      const stockInput = row.querySelector('.stock-input');
+      const costInput = row.querySelector('.cost-input');
+      const editBtn = row.querySelector('.edit-btn');
+      const updateBtn = row.querySelector('.update-btn');
+      const cancelBtn = row.querySelector('.cancel-btn');
+
+      stockInput.disabled = false;
+      costInput.disabled = false;
+      editBtn.style.display = 'none';
+      updateBtn.style.display = 'inline';
+      cancelBtn.style.display = 'inline';
+    }
+
+    function updateHiddenInputs(id) {
+      const row = document.getElementById(`row-${id}`);
+      const stockInput = row.querySelector('.stock-input');
+      const costInput = row.querySelector('.cost-input');
+      const hiddenStock = row.querySelector('input[name="stock"]');
+      const hiddenCost = row.querySelector('input[name="cost"]');
+      const form = row.querySelector('form');
+
+      hiddenStock.value = stockInput.value;
+      hiddenCost.value = costInput.value;
+      form.submit(); // Submit the form to update the stock
+    }
+
+    function cancelEdit(id, originalStock, originalCost) {
+      const row = document.getElementById(`row-${id}`);
+      const stockInput = row.querySelector('.stock-input');
+      const costInput = row.querySelector('.cost-input');
+      const editBtn = row.querySelector('.edit-btn');
+      const updateBtn = row.querySelector('.update-btn');
+      const cancelBtn = row.querySelector('.cancel-btn');
+
+      stockInput.value = originalStock;
+      costInput.value = originalCost;
+      stockInput.disabled = true;
+      costInput.disabled = true;
+      editBtn.style.display = 'inline';
+      updateBtn.style.display = 'none';
+      cancelBtn.style.display = 'none';
+    }
   </script>
 </body>
 </html>
