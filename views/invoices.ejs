@@ -20,7 +20,7 @@
         <img src="/images/logo.png" alt="Shedfactory Business Solutions">
       </div>
       <h2>Welcome, <%= username %>!</h2>
-      <a href="/admin-sales-form">Sell</a>
+      <a href="/admin/sales-form">Sell</a>
       <a href="/store-view">View Store</a>
       <a href="/update-stock">Update Stock</a>
       <a href="/create-outlet">Create Outlet</a>
@@ -114,7 +114,7 @@
             </thead>
             <tbody>
               <% sales.forEach(sale => { %>
-                <tr>
+                <tr id="sale-<%= sale._id %>">
                   <td><%= new Date(sale.date).toLocaleDateString() %></td>
                   <td><%= sale.customerName %></td>
                   <td>
@@ -124,15 +124,17 @@
                       <%= `${sale.itemName} (${sale.quantity})` %>
                     <% } %>
                   </td>
-                  <td><%= admin.currency %><%= (sale.totalAmount || 0).toFixed(2) %></td>
-                  <td><%= sale.paymentStatus || 'Pending' %></td>
+                  <td><%= admin.currency %><%= formatCurrency(sale.totalAmount || 0) %></td>
+                  <td class="payment-status"><%= sale.paymentStatus || 'Pending' %></td>
                   <td>
                     <a href="/invoices/download/<%= sale._id %>">
                       <button class="download-btn">Download PDF</button>
                     </a>
-                    <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form">
-                      <button type="submit" class="mark-paid-btn">Mark as Paid</button>
-                    </form>
+                    <% if (sale.paymentStatus !== 'Paid') { %>
+                      <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
+                        <button type="submit" class="mark-paid-btn">Mark as Paid</button>
+                      </form>
+                    <% } %>
                   </td>
                 </tr>
               <% }) %>
@@ -222,6 +224,34 @@
           };
         });
       }
+
+      // Handle "Mark as Paid" form submission
+      document.querySelectorAll('.action-form').forEach(form => {
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const saleId = form.dataset.saleId;
+          try {
+            const response = await fetch(form.action, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+            });
+            if (response.ok) {
+              const row = document.getElementById(`sale-${saleId}`);
+              const paymentStatusCell = row.querySelector('.payment-status');
+              const actionCell = row.querySelector('td:last-child');
+              paymentStatusCell.textContent = 'Paid';
+              form.remove(); // Remove the "Mark as Paid" form
+            } else {
+              alert('Failed to mark invoice as paid.');
+            }
+          } catch (error) {
+            console.error('Error marking invoice as paid:', error);
+            alert('An error occurred while marking the invoice as paid.');
+          }
+        });
+      });
 
       // Initial setup
       updateRemoveButtons();

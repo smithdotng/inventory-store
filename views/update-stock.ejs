@@ -12,173 +12,172 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
-<body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
-    </div>
-    
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin-sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
-  </div>
-
- 
-  <button class="toggle-btn" id="toggleBtn">☰</button>
-
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    
-    <div class="container">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
       </div>
-      <h1>Update Stock</h1>
+      <h2>Welcome, <%= username %>!</h2>
+      <a href="/admin/sales-form">Sell</a>
+      <a href="/store-view">View Store</a>
+      <a href="/update-stock">Update Stock</a>
+      <a href="/create-outlet">Create Outlet</a>
+      <a href="/invoices">Invoices</a>
+      <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/admin-logout">Log Out</a>
+    </div>
 
-      <!-- Add New Product Form -->
-      <div class="form-section">
-        <h2>Add New Product</h2>
-        <div class="add-product-form" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
-          <form action="/add-product" method="POST">
-            <input type="text" name="name" placeholder="Product Name" required>
-            <input type="number" name="stock" placeholder="Initial Stock" min="0" required>
-            <input type="number" name="cost" placeholder="Cost" min="0" step="0.01" required>
-            <button type="submit" class="add-btn">Add Product</button>
-          </form>
+    <!-- Toggle Button -->
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
         </div>
-      </div>
+        <h1>Update Stock</h1>
 
-      <!-- Inventory Table -->
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Stock</th>
-              <th>Cost</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% inventory.forEach(item => { %>
-              <tr id="row-<%= item._id %>">
-                <td><%= item.name %></td>
-                <td>
-                  <input type="number" class="stock-input" value="<%= item.stock %>" disabled>
-                </td>
-                <td>
-                  <input type="number" class="cost-input" value="<%= item.cost %>" step="0.01" disabled>
-                </td>
-                <td>
-                  <button class="edit-btn" onclick="toggleEdit('<%= item._id %>')">Edit Stock</button>
-                  <form action="/update-stock" method="POST" style="display:inline;">
-                    <input type="hidden" name="id" value="<%= item._id %>">
-                    <input type="hidden" name="stock" class="stock-input" value="<%= item.stock %>">
-                    <input type="hidden" name="cost" class="cost-input" value="<%= item.cost %>">
-                    <button type="button" class="update-btn" style="display:none;" onclick="updateHiddenInputs('<%= item._id %>')">Update</button>
-                  </form>
-                  <button class="cancel-btn" style="display:none;" onclick="cancelEdit('<%= item._id %>', '<%= item.stock %>', '<%= item.cost %>')">Cancel</button>
-                </td>
+        <!-- Add New Product Form -->
+        <div class="form-section">
+          <h2>Add New Product</h2>
+          <div class="add-product-form" style="display: flex; flex-wrap: wrap; align-items: center; gap: 10px;">
+            <form action="/add-product" method="POST">
+              <input type="text" name="name" placeholder="Product Name" required>
+              <input type="number" name="stock" placeholder="Initial Stock" min="0" required>
+              <input type="number" name="cost" placeholder="Cost" min="0" step="0.01" required>
+              <button type="submit" class="add-btn">Add Product</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="table-section">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Stock</th>
+                <th>Cost</th>
+                <th>Action</th>
               </tr>
-            <% }) %>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              <% inventory.forEach(item => { %>
+                <tr id="row-<%= item._id %>">
+                  <td><%= item.name %></td>
+                  <td>
+                    <input type="number" class="stock-input" value="<%= item.stock %>" disabled>
+                  </td>
+                  <td>
+                    <span class="cost-display"><%= admin.currency %><%= formatCurrency(item.cost) %></span>
+                    <input type="number" class="cost-input" value="<%= item.cost %>" step="0.01" disabled style="display: none;">
+                  </td>
+                  <td>
+                    <button class="edit-btn" onclick="toggleEdit('<%= item._id %>')">Edit Stock</button>
+                    <form action="/update-stock" method="POST" style="display:inline;">
+                      <input type="hidden" name="id" value="<%= item._id %>">
+                      <input type="hidden" name="stock" class="stock-input" value="<%= item.stock %>">
+                      <input type="hidden" name="cost" class="cost-input" value="<%= item.cost %>">
+                      <button type="button" class="update-btn" style="display:none;" onclick="updateHiddenInputs('<%= item._id %>')">Update</button>
+                    </form>
+                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit('<%= item._id %>', '<%= item.stock %>', '<%= item.cost %>')">Cancel</button>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <a href="/store-view" class="go-to-store-btn">Go to Store View</a>
       </div>
-
-      <a href="/store-view" class="go-to-store-btn">Go to Store View</a>
     </div>
-  </div>
 
-  <!-- JavaScript for sidebar toggle and table editing -->
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
+    <!-- JavaScript for sidebar toggle and table editing -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
 
-    // Toggle sidebar visibility (only active on small screens)
-    toggleBtn.addEventListener('click', () => {
+      // Toggle sidebar visibility
+      toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
         sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
-        } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        }
+        mainContent.style.marginLeft = sidebar.classList.contains('visible') ? '200px' : '0';
+        mainContent.style.width = sidebar.classList.contains('visible') ? 'calc(100% - 200px)' : '100%';
       });
 
-    // Set initial sidebar state
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('hidden');
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      } else {
-        sidebar.classList.remove('hidden');
-        sidebar.classList.remove('visible');
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
+      // Set initial sidebar state
+      function setSidebarState() {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.add('hidden');
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        } else {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.remove('visible');
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        }
       }
-    }
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
+      setSidebarState();
+      window.addEventListener('resize', setSidebarState);
 
-    // Table editing functions
-    function toggleEdit(id) {
-      const row = document.getElementById(`row-${id}`);
-      const stockInput = row.querySelector('.stock-input');
-      const costInput = row.querySelector('.cost-input');
-      const editBtn = row.querySelector('.edit-btn');
-      const updateBtn = row.querySelector('.update-btn');
-      const cancelBtn = row.querySelector('.cancel-btn');
+      // Table editing functions
+      function toggleEdit(id) {
+        const row = document.getElementById(`row-${id}`);
+        const stockInput = row.querySelector('.stock-input');
+        const costDisplay = row.querySelector('.cost-display');
+        const costInput = row.querySelector('.cost-input');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
+        const cancelBtn = row.querySelector('.cancel-btn');
 
-      stockInput.disabled = false;
-      costInput.disabled = false;
-      editBtn.style.display = 'none';
-      updateBtn.style.display = 'inline';
-      cancelBtn.style.display = 'inline';
-    }
+        stockInput.disabled = false;
+        costInput.disabled = false;
+        costDisplay.style.display = 'none';
+        costInput.style.display = 'inline';
+        editBtn.style.display = 'none';
+        updateBtn.style.display = 'inline';
+        cancelBtn.style.display = 'inline';
+      }
 
-    function updateHiddenInputs(id) {
-      const row = document.getElementById(`row-${id}`);
-      const stockInput = row.querySelector('.stock-input');
-      const costInput = row.querySelector('.cost-input');
-      const hiddenStock = row.querySelector('input[name="stock"]');
-      const hiddenCost = row.querySelector('input[name="cost"]');
-      const form = row.querySelector('form');
+      function updateHiddenInputs(id) {
+        const row = document.getElementById(`row-${id}`);
+        const stockInput = row.querySelector('.stock-input');
+        const costInput = row.querySelector('.cost-input');
+        const hiddenStock = row.querySelector('input[name="stock"]');
+        const hiddenCost = row.querySelector('input[name="cost"]');
+        const form = row.querySelector('form');
 
-      hiddenStock.value = stockInput.value;
-      hiddenCost.value = costInput.value;
-      form.submit(); // Submit the form to update the stock
-    }
+        hiddenStock.value = stockInput.value;
+        hiddenCost.value = costInput.value;
+        form.submit();
+      }
 
-    function cancelEdit(id, originalStock, originalCost) {
-      const row = document.getElementById(`row-${id}`);
-      const stockInput = row.querySelector('.stock-input');
-      const costInput = row.querySelector('.cost-input');
-      const editBtn = row.querySelector('.edit-btn');
-      const updateBtn = row.querySelector('.update-btn');
-      const cancelBtn = row.querySelector('.cancel-btn');
+      function cancelEdit(id, originalStock, originalCost) {
+        const row = document.getElementById(`row-${id}`);
+        const stockInput = row.querySelector('.stock-input');
+        const costDisplay = row.querySelector('.cost-display');
+        const costInput = row.querySelector('.cost-input');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
+        const cancelBtn = row.querySelector('.cancel-btn');
 
-      stockInput.value = originalStock;
-      costInput.value = originalCost;
-      stockInput.disabled = true;
-      costInput.disabled = true;
-      editBtn.style.display = 'inline';
-      updateBtn.style.display = 'none';
-      cancelBtn.style.display = 'none';
-    }
-  </script>
-</body>
+        stockInput.value = originalStock;
+        costInput.value = originalCost;
+        stockInput.disabled = true;
+        costInput.disabled = true;
+        costDisplay.textContent = '<%= admin.currency %>' + Number(originalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        costDisplay.style.display = 'inline';
+        costInput.style.display = 'none';
+        editBtn.style.display = 'inline';
+        updateBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+      }
+    </script>
+  </body>
 </html>

@@ -210,6 +210,56 @@ app.post('/admin-login', async (req, res) => {
   }
 });
 
+app.use(async (req, res, next) => {
+  if (req.session.admin && req.method === 'POST' && req.path === '/admin-login') {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (admin) {
+      await db.collection('login_logs').insertOne({
+        adminId: admin._id,
+        username: req.session.admin,
+        loginTime: new Date(),
+      });
+    }
+  }
+  next();
+});
+
+// Superadmin Dashboard (Updated)
+app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    const admins = await db.collection('admins').find().toArray();
+    
+    // Fetch login logs for each admin
+    const adminIds = admins.map(admin => admin._id);
+    const loginLogs = await db.collection('login_logs')
+      .aggregate([
+        { $match: { adminId: { $in: adminIds } } },
+        { $group: {
+            _id: '$adminId',
+            lastLogin: { $max: '$loginTime' },
+            loginCount: { $sum: 1 }
+          }
+        }
+      ])
+      .toArray();
+
+    // Merge login data with admin data
+    const enrichedAdmins = admins.map(admin => {
+      const loginData = loginLogs.find(log => log._id.toString() === admin._id.toString()) || {};
+      return {
+        ...admin,
+        lastLogin: loginData.lastLogin || null,
+        loginCount: loginData.loginCount || 0
+      };
+    });
+
+    res.render('superadmin-dashboard', { admins: enrichedAdmins });
+  } catch (err) {
+    console.error('Error fetching admins:', err.message, err.stack);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 // Admin Registration Routes
 app.get('/', (req, res) => {
   res.render('admin-register', { error: null });
@@ -312,17 +362,6 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
   }
 });
 
-
-// Superadmin Dashboard
-app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
-  try {
-    const admins = await db.collection('admins').find().toArray();
-    res.render('superadmin-dashboard', { admins });
-  } catch (err) {
-    console.error('Error fetching admins:', err.message, err.stack);
-    res.status(500).send('Internal Server Error');
-  }
-});
 
 // Create Admin (Superadmin only)
 app.get('/superadmin/create-admin', isAuthenticated, isSuperAdmin, (req, res) => {
@@ -1117,7 +1156,7 @@ app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
   });
   const customers = Array.from(customerMap.values());
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('outlet-customers', { outlet, customers, admin });
+  res.render('outlet-customers', { outlet, customers, admin, formatCurrency });
 });
 
 
@@ -1140,8 +1179,9 @@ app.get('/invoices', isAuthenticated, async (req, res) => {
       username: req.session.admin,
       admin,
       sales: processedSales,
-      customers, 
-      inventory
+      customers,
+      inventory,
+      formatCurrency // Pass the function to the template
     });
   } catch (error) {
     console.error('Error fetching invoices:', error);
