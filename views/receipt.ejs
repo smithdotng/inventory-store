@@ -1,13 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Receipt</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Receipt | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Receipt</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    
+  </head>
 <body>
+  <div class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+    </div>
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+    <h2>Welcome, <%= username %>!</h2>
+    <a href="/admin-sales-form">Sell</a>
+    <a href="/store-view">View Store</a>
+    <a href="/update-stock">Update Stock</a>
+    <a href="/create-outlet">Create Outlet</a>
+    <a href="/invoices">Invoices</a>
+    <a href="/transactions">Transactions</a>
+    <a href="/customers">Customers</a>
+    <a href="/admin-logout">Log Out</a>
+  </div>
   <div class="container">
+    <div class="content-logo-container">
+      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+    </div>
+    
     <h1>Receipt</h1>
     <div class="sale-details">
       <p><strong>Customer Name:</strong> <%= sale.customerName %></p>

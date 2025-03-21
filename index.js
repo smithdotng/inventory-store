@@ -166,6 +166,10 @@ async function connectToMongo() {
   }
 }
 
+function formatCurrency(amount) {
+  return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
 // Middleware to check if admin is logged in
 function isAuthenticated(req, res, next) {
   if (req.session.admin) {
@@ -230,9 +234,19 @@ app.get('/transactions', isAuthenticated, async (req, res) => {
     }
 
     const transactions = await db.collection('sales').find(filter).toArray();
+
+    // Ensure all transactions have required fields
+    const validTransactions = transactions.map(sale => ({
+      ...sale,
+      totalAmount: sale.totalAmount || 0,
+     items: sale.items || []
+    }));
     const username = req.session.admin;
 
-    res.render('transactions', { transactions, admin, username, inventory });
+    // Log the transactions data for debugging
+    console.log('Transactions Data:', transactions);
+
+    res.render('transactions', { transactions: validTransactions, admin, username, inventory });
   } catch (error) {
     console.error('Error fetching transactions:', error);
     res.status(500).send('Internal Server Error');
@@ -356,7 +370,7 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
   const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
   const username = req.session.admin;
   
-  res.render('update-stock', { inventory, admin, username });
+  res.render('update-stock', { inventory, admin, username, formatCurrency });
 });
 
 // Update Stock Route
@@ -575,6 +589,26 @@ app.get('/superadmin/edit-admin/:id', isAuthenticated, isSuperAdmin, async (req,
   res.render('edit-admin', { admin, error: null });
 });
 
+// Update Customer Details
+app.post('/update-customer/:customerId', isAuthenticated, async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    const { name, phone, email } = req.body;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Update the customer
+    await db.collection('customers').updateOne(
+      { _id: new ObjectId(customerId), adminId: admin._id },
+      { $set: { name, phone, email } }
+    );
+
+    res.redirect('/customers');
+  } catch (error) {
+    console.error('Error updating customer:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 app.post('/superadmin/edit-admin/:id', upload.single('logo'), async (req, res) => {
   const adminId = req.params.id;
   const { username, password, role } = req.body;
@@ -643,10 +677,17 @@ app.get('/admin/sales-form', isAuthenticated, async (req, res) => {
 });
 
 app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
-  const { customerName, phoneNumber, email, items } = req.body;
+  const { customerName, phoneNumber, email, items, paymentMethod } = req.body;
 
   try {
+    // Validate required fields
+    if (!customerName || !items || !paymentMethod) {
+      return res.status(400).send('Customer name, items, and payment method are required.');
+    }
+
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Ensure items and quantities are arrays
     const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
     const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
 
@@ -657,9 +698,15 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
     const saleItems = [];
     let totalOrderAmount = 0;
 
+    // Process each item
     for (let i = 0; i < itemIds.length; i++) {
       const itemId = itemIds[i];
       const qty = parseInt(quantities[i]);
+
+      // Validate quantity
+      if (isNaN(qty)) {
+        return res.status(400).send(`Invalid quantity for item ${itemId}.`);
+      }
 
       // Convert itemId to ObjectId
       let objectId;
@@ -670,21 +717,19 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
         return res.status(400).send(`Invalid item ID: ${itemId}`);
       }
 
+      // Fetch item from inventory
       const item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
 
       if (!item) {
         return res.status(404).send(`Item with ID ${itemId} not found in inventory.`);
       }
 
+      // Validate stock
       if (item.stock < qty || qty <= 0) {
         return res.status(400).send(`Invalid quantity or insufficient stock for ${item.name}.`);
       }
 
-      await db.collection('inventory').updateOne(
-        { _id: objectId },
-        { $inc: { stock: -qty } }
-      );
-
+      // Calculate total cost for the item
       const totalCost = item.cost * qty;
       saleItems.push({
         itemId: objectId,
@@ -693,28 +738,27 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
         unitCost: item.cost,
         totalCost
       });
+
+      // Add to total order amount
       totalOrderAmount += totalCost;
     }
 
-    const sale = {
-      adminId: admin._id,
+    // Render the confirmation page with admin's currency
+    res.render('confirm-transaction', {
+      username: req.session.admin,
+      admin,
       customerName,
       phoneNumber: phoneNumber || 'N/A',
       email: email || 'N/A',
-      items: saleItems,
-      totalAmount: totalOrderAmount,
-      paymentStatus: 'Pending', // Default status
-      date: new Date()
-    };
+      saleItems,
+      totalOrderAmount,
+      paymentMethod,
+      currency: admin.currency || '$' , // Default to '$' if currency is not set
+      formatCurrency
+    });
 
-    // Insert the sale and get the inserted ID
-    const result = await db.collection('sales').insertOne(sale);
-    const saleId = result.insertedId;
-
-    // Redirect to payment confirmation page
-    res.redirect(`/payment-sales-confirmation/${saleId}`);
   } catch (error) {
-    console.error('Error recording sale:', error);
+    console.error('Error processing transaction:', error);
     res.status(500).send('Internal Server Error');
   }
 });
@@ -741,21 +785,42 @@ app.get('/payment-sales-confirmation/:saleId', isAuthenticated, async (req, res)
   }
 });
 
-app.post('/confirm-payment/:saleId', isAuthenticated, async (req, res) => {
+
+app.post('/confirm-sale', isAuthenticated, async (req, res) => {
+  const { customerName, phoneNumber, email, saleItems, totalOrderAmount, paymentMethod } = req.body;
+
   try {
-    const saleId = req.params.saleId;
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
 
-    // Update the payment status to "Paid"
-    await db.collection('sales').updateOne(
-      { _id: new ObjectId(saleId), adminId: admin._id },
-      { $set: { paymentStatus: 'Paid' } }
-    );
+    // Process each item and update inventory stock
+    for (const item of saleItems) {
+      await db.collection('inventory').updateOne(
+        { _id: new ObjectId(item.itemId) },
+        { $inc: { stock: -item.quantity } }
+      );
+    }
 
-    // Redirect to the receipt page
+    // Create sale object
+    const sale = {
+      adminId: admin._id,
+      customerName,
+      phoneNumber: phoneNumber || 'N/A',
+      email: email || 'N/A',
+      items: saleItems,
+      totalAmount: totalOrderAmount || 0,
+      paymentMethod: paymentMethod || 'N/A',
+      paymentStatus: 'Pending',
+      date: new Date()
+    };
+
+    // Insert the sale
+    const result = await db.collection('sales').insertOne(sale);
+    const saleId = result.insertedId;
+
+    // Redirect to receipt download page
     res.redirect(`/receipt/${saleId}`);
   } catch (error) {
-    console.error('Error confirming payment:', error);
+    console.error('Error confirming sale:', error);
     res.status(500).send('Internal Server Error');
   }
 });
@@ -770,17 +835,112 @@ app.get('/receipt/:saleId', isAuthenticated, async (req, res) => {
       return res.status(404).send('Sale not found.');
     }
 
-    // Render the receipt page
-    res.render('receipt', {
-      sale,
-      admin,
-      username: req.session.admin
-    });
+    console.log('Sale Data:', sale);
+
+    const doc = new PDFDocument({ margin: 50 });
+    const filename = `receipt-${saleId}.pdf`;
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-type', 'application/pdf');
+    doc.pipe(res);
+
+    // Footer function (called manually)
+    const drawFooter = () => {
+      const footerY = doc.page.height - 50;
+      doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
+      doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
+    };
+
+    // Business details
+    doc.fontSize(16).text('Receipt', { align: 'right' });
+    doc.moveDown();
+    doc.fontSize(14).text(`Business: ${admin.businessName || 'N/A'}`, { align: 'left' });
+    doc.text(`Email: ${admin.email || 'N/A'}`, { align: 'left' });
+    doc.text(`Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
+    doc.moveDown();
+
+    // Customer details
+    doc.fontSize(12).text('Customer Details:', { underline: true });
+    doc.text(`Name: ${sale.customerName || 'N/A'}`);
+    doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
+    doc.text(`Email: ${sale.email || 'N/A'}`);
+    doc.moveDown();
+
+    // Table headers
+    doc.fontSize(12).text('Items:', { underline: true });
+    doc.moveDown(0.5);
+
+    const tableTop = doc.y;
+    const tableLeft = 50;
+    const colWidths = [200, 70, 100, 100];
+    const rowHeight = 20;
+
+    doc.fontSize(10).font('Helvetica-Bold');
+    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
+    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
+    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
+    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
+
+    doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
+    doc.font('Helvetica');
+
+    let y = tableTop + rowHeight;
+
+    if (sale.items && sale.items.length > 0) {
+      sale.items.forEach(item => {
+        const unitCost = parseFloat(item.unitCost) || 0;
+        const totalCost = unitCost * (parseInt(item.quantity) || 0);
+
+        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
+        doc.text((item.quantity || 0).toString(), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
+        doc.text(`${admin.currency} ${unitCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+        doc.text(`${admin.currency} ${totalCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+
+        y += rowHeight;
+
+        // Ensure there's space for footer on the page
+        if (doc.y + rowHeight > doc.page.height - 100) {
+          doc.addPage();
+          y = doc.y; // Reset Y position on new page
+        }
+      });
+    } else {
+      doc.text('No items found', tableLeft, y, { width: colWidths[0], align: 'left' });
+      y += rowHeight;
+    }
+
+    // Draw total amount row aligned with items
+    doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
+    doc.font('Helvetica-Bold');
+    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
+    doc.text(`${admin.currency} ${(parseFloat(sale.totalAmount) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
+    doc.font('Helvetica');
+
+    y += rowHeight * 1.5;
+
+    // Payment details aligned to the left
+    doc.moveDown(1);
+    doc.fontSize(12).text('Payment Details:', { underline: true });
+    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`, { align: 'left' });
+    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`, { align: 'left' });
+
+    // Add footer manually at the bottom of the page
+    if (doc.y < doc.page.height - 100) {
+      drawFooter();
+    } else {
+      doc.addPage();
+      drawFooter();
+    }
+
+    doc.end();
   } catch (error) {
-    console.error('Error fetching receipt details:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error generating receipt:', error);
+    res.status(500).send('Error generating receipt');
   }
 });
+
+
+
+
 
 app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
   const { customerName, phoneNumber, email, itemId, quantity } = req.body;
@@ -960,29 +1120,54 @@ app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
   res.render('outlet-customers', { outlet, customers, admin });
 });
 
-// Invoices Route
+
 app.get('/invoices', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const sales = await db.collection('sales').find({ adminId: admin._id }).toArray();
     const customers = await db.collection('customers').find({ adminId: admin._id }).toArray();
     const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
-    const username = req.session.admin;
-    res.render('invoices', { sales, admin, username, customers, inventory });
+
+    // Fetch all sales for the admin
+    const sales = await db.collection('sales').find({ adminId: admin._id }).toArray();
+
+    // Ensure totalAmount is a valid number for each sale
+    const processedSales = sales.map(sale => ({
+      ...sale,
+      totalAmount: typeof sale.totalAmount === 'number' ? sale.totalAmount : 0, // Ensure totalAmount is a number
+    }));
+
+    res.render('invoices', {
+      username: req.session.admin,
+      admin,
+      sales: processedSales,
+      customers, 
+      inventory
+    });
   } catch (error) {
     console.error('Error fetching invoices:', error);
     res.status(500).send('Internal Server Error');
   }
 });
 
+
+
+
 // Create Invoice Form Submission (Updated for Multiple Items)
 
 app.post('/invoices/create', isAuthenticated, async (req, res) => {
   const { customerId, newCustomerName, newCustomerPhone, newCustomerEmail, items, paymentMethod, bankName, bankAccountNumber, accountNumber } = req.body;
+
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Validate required fields
+    if (!items || !paymentMethod) {
+      return res.status(400).send('Items and payment method are required.');
+    }
+
     let customer;
 
+    // Handle new customer creation
     if (customerId === 'new' && newCustomerName) {
       const newCustomer = {
         adminId: admin._id,
@@ -993,43 +1178,80 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       };
       const result = await db.collection('customers').insertOne(newCustomer);
       customer = { _id: result.insertedId, ...newCustomer };
-    } else {
+    } else if (customerId !== 'new') {
+      // Fetch existing customer
       customer = await db.collection('customers').findOne({ _id: new ObjectId(customerId), adminId: admin._id });
+    } else {
+      return res.status(400).send('Invalid customer details.');
     }
 
-    if (!customer) return res.status(400).send('Customer not found or invalid.');
+    if (!customer) {
+      return res.status(400).send('Customer not found or invalid.');
+    }
 
+    // Ensure items and quantities are arrays
     const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
     const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
-    if (itemIds.length !== quantities.length) return res.status(400).send('Mismatch between items and quantities.');
+
+    if (itemIds.length !== quantities.length) {
+      return res.status(400).send('Mismatch between items and quantities.');
+    }
 
     const saleItems = [];
     let totalOrderAmount = 0;
 
+    // Process each item
     for (let i = 0; i < itemIds.length; i++) {
       const itemId = itemIds[i];
       const qty = parseInt(quantities[i]);
 
-      const item = await db.collection('inventory').findOne({ _id: new ObjectId(itemId), adminId: admin._id });
-      if (!item) return res.status(404).send(`Item with ID ${itemId} not found in inventory.`);
-      if (item.stock < qty || qty <= 0) return res.status(400).send(`Invalid quantity or insufficient stock for ${item.name}.`);
+      // Validate quantity
+      if (isNaN(qty) || qty <= 0) {
+        return res.status(400).send(`Invalid quantity for item ${itemId}.`);
+      }
 
+      // Convert itemId to ObjectId
+      let objectId;
+      try {
+        objectId = new ObjectId(itemId);
+      } catch (err) {
+        console.error('Invalid ObjectId:', itemId, err.message);
+        return res.status(400).send(`Invalid item ID: ${itemId}`);
+      }
+
+      // Fetch item from inventory
+      const item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
+
+      if (!item) {
+        return res.status(404).send(`Item with ID ${itemId} not found in inventory.`);
+      }
+
+      // Validate stock
+      if (item.stock < qty || qty <= 0) {
+        return res.status(400).send(`Invalid quantity or insufficient stock for ${item.name}.`);
+      }
+
+      // Update inventory stock
       await db.collection('inventory').updateOne(
-        { _id: new ObjectId(itemId) },
+        { _id: objectId },
         { $inc: { stock: -qty } }
       );
 
+      // Calculate total cost for the item
       const totalCost = item.cost * qty;
       saleItems.push({
-        itemId: new ObjectId(itemId),
+        itemId: objectId,
         itemName: item.name,
         quantity: qty,
         unitCost: item.cost,
         totalCost
       });
+
+      // Add to total order amount
       totalOrderAmount += totalCost;
     }
 
+    // Create sale object
     const sale = {
       adminId: admin._id,
       customerId: customer._id,
@@ -1037,14 +1259,25 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       phoneNumber: customer.phone,
       email: customer.email,
       items: saleItems,
-      totalAmount: totalOrderAmount,
+      totalAmount: totalOrderAmount || 0, // Ensure totalAmount is always defined
       paymentMethod: paymentMethod || 'N/A',
       paymentStatus: 'Pending', // Default status
-      bankDetails: paymentMethod === 'Bank Transfer' ? { bankName, bankAccountNumber, accountNumber } : null,
       date: new Date()
     };
-    await db.collection('sales').insertOne(sale);
 
+    // Add bank details only if payment method is "Bank Transfer"
+    if (paymentMethod === 'Bank Transfer') {
+      if (!bankName || !bankAccountNumber || !accountNumber) {
+        return res.status(400).send('Bank name, bank account number, and account number are required for bank transfers.');
+      }
+      sale.bankDetails = { bankName, bankAccountNumber, accountNumber };
+    }
+
+    // Insert the sale
+    const result = await db.collection('sales').insertOne(sale);
+    const saleId = result.insertedId;
+
+    // Redirect to invoices page
     res.redirect('/invoices');
   } catch (error) {
     console.error('Error creating invoice:', error);
@@ -1068,15 +1301,20 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
 
     doc.pipe(res);
 
+    // Footer at the absolute top of the page
+    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
+    doc.moveTo(50, 45).lineTo(550, 45).stroke();
+    doc.moveDown(2);
+
     // Add admin logo if available
     if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
-      doc.image(path.join(__dirname, 'public', admin.logo), 50, 50, { width: 100 });
+      doc.image(path.join(__dirname, 'public', admin.logo), 50, 60, { width: 100 });
       doc.moveDown(5);
     }
 
     doc.fontSize(20).text('Invoice', { align: 'right' });
     doc.moveDown();
-    doc.fontSize(14).text(`Business: ${admin.businessName}`, { align: 'left' });
+    doc.fontSize(12).text(`Business: ${admin.businessName}`, { align: 'left' });
     doc.text(`Email: ${admin.email}`, { align: 'left' });
     doc.text(`Invoice Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
     doc.moveDown();
@@ -1096,55 +1334,50 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     const colWidths = [200, 70, 100, 100];
     const rowHeight = 20;
 
-    // Update the Payment Information section in /invoices/download/:saleId
-doc.moveDown(5);
-doc.text('Payment Information:', { underline: true });
-doc.text(`Method: ${sale.paymentMethod || 'N/A'}`);
-if (sale.bankDetails) {
-  doc.text(`Bank Name: ${sale.bankDetails.bankName || 'N/A'}`);
-  doc.text(`Bank Account Number: ${sale.bankDetails.bankAccountNumber || 'N/A'}`);
-  doc.text(`Account Number: ${sale.bankDetails.accountNumber || 'N/A'}`);
-}
-doc.text(`Status: ${sale.paymentStatus || 'Pending'}`);
-doc.moveDown();
-
-    // Draw table headers
+    // Table Headers
     doc.fontSize(10).font('Helvetica-Bold');
     doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
     doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
     doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
     doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
 
-    // Draw header underline
     doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
     doc.font('Helvetica');
 
     let y = tableTop + rowHeight;
-    sale.items.forEach(item => {
-      doc.text(item.itemName, tableLeft, y, { width: colWidths[0], align: 'left' });
-      doc.text(item.quantity.toString(), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
-      doc.text(`${admin.currency} ${item.unitCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
-      doc.text(`${admin.currency} ${item.totalCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
-      y += rowHeight;
-    });
 
-    // Draw total
-    doc.moveDown(1);
+    if (sale.items && Array.isArray(sale.items)) {
+      sale.items.forEach(item => {
+        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
+        doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
+        doc.text(`${admin.currency} ${(Number(item.unitCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+        doc.text(`${admin.currency} ${(Number(item.totalCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+        y += rowHeight;
+      });
+    } else {
+      doc.text('No items found', tableLeft, y, { width: colWidths[0], align: 'left' });
+      y += rowHeight;
+    }
+
+    doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
     doc.font('Helvetica-Bold');
-    doc.text(`Total Order Amount: ${admin.currency} ${sale.totalAmount.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { align: 'right' });
+    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
+    doc.text(`${admin.currency} ${(parseFloat(sale.totalAmount) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
     doc.font('Helvetica');
 
-    doc.moveDown(5);
-    doc.text('Payment Information:', { underline: true });
-    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`);
-    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`);
-    doc.moveDown();
+    // Payment Information on the left
+    doc.moveDown(2);
+    doc.fontSize(12).text('Payment Information:', 50, doc.y, { underline: true });
+    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`, 50, doc.y);
+    if (sale.bankDetails) {
+      doc.text(`Bank Name: ${sale.bankDetails.bankName || 'N/A'}`, 50, doc.y);
+      doc.text(`Bank Account Number: ${sale.bankDetails.bankAccountNumber || 'N/A'}`, 50, doc.y);
+    }
+    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`, 50, doc.y);
 
-    doc.text(`Generated on: ${new Date().toLocaleString()}`, { align: 'right' });
-
-    // Add footer credit
-    doc.moveTo(50, doc.page.height - 50).lineTo(550, doc.page.height - 50).stroke();
-    doc.fontSize(10).text('Shed: Your Reliable Small Business Partner', 50, doc.page.height - 40, { align: 'center' });
+    // Generated at centered
+    doc.moveDown(2);
+    doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
 
     doc.end();
   } catch (error) {
@@ -1152,6 +1385,7 @@ doc.moveDown();
     res.status(500).send('Error generating PDF');
   }
 });
+
 
 // Mark Invoice as Paid
 app.post('/invoices/mark-paid/:saleId', isAuthenticated, async (req, res) => {
@@ -1173,6 +1407,75 @@ app.post('/invoices/mark-paid/:saleId', isAuthenticated, async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
+
+// Customers Page Route
+app.get('/customers', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const customers = await db.collection('customers').find({ adminId: admin._id }).toArray();
+    const username = req.session.admin;
+
+    // Render the customers page with the fetched data
+    res.render('customers', { customers, admin, username });
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// View Customer Details
+app.get('/customer-details/:customerId', isAuthenticated, async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const customer = await db.collection('customers').findOne({ _id: new ObjectId(customerId), adminId: admin._id });
+
+    if (!customer) {
+      return res.status(404).send('Customer not found.');
+    }
+
+    res.render('customer-details', { customer, admin, username: req.session.admin });
+  } catch (error) {
+    console.error('Error fetching customer details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Edit Customer Details
+app.get('/edit-customer/:customerId', isAuthenticated, async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const customer = await db.collection('customers').findOne({ _id: new ObjectId(customerId), adminId: admin._id });
+
+    if (!customer) {
+      return res.status(404).send('Customer not found.');
+    }
+
+    res.render('edit-customer', { customer, admin, username: req.session.admin });
+  } catch (error) {
+    console.error('Error fetching customer details:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Delete Customer
+app.post('/delete-customer/:customerId', isAuthenticated, async (req, res) => {
+  try {
+    const customerId = req.params.customerId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Delete the customer
+    await db.collection('customers').deleteOne({ _id: new ObjectId(customerId), adminId: admin._id });
+
+    res.redirect('/customers');
+  } catch (error) {
+    console.error('Error deleting customer:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 // Health Check Route
 app.get('/health', async (req, res) => {

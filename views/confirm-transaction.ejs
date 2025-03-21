@@ -3,17 +3,15 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Sales Confirmation | Shed: Inventory, Invoices and More" />
+    <meta property="og:title" content="Confirm Transaction | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Sales confirmation</title>
+    <title>Confirm Transaction</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    
   </head>
 <body>
   <!-- Sidebar -->
@@ -33,8 +31,6 @@
     <a href="/admin-logout">Log Out</a>
   </div>
 
-  <!-- Toggle Button -->
-  <button class="toggle-btn" id="toggleBtn">☰</button>
 
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
@@ -42,26 +38,45 @@
       <div class="content-logo-container">
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
       </div>
-      <h1>Sales Confirmation <span class="icon-checkmark" style="margin-left: 10px;"></span></h1>
+      <h1>Confirm Transaction <span class="icon-checkmark" style="margin-left: 10px;"></span></h1>
 
-      <!-- Confirmation Details -->
-      <div class="confirmation-details">
+      <!-- Transaction Details -->
+      <div class="transaction-details">
         <p><strong>Customer Name:</strong> <%= customerName %></p>
         <p><strong>Phone Number:</strong> <%= phoneNumber %></p>
         <p><strong>Email:</strong> <%= email %></p>
-        <p><strong>Product:</strong> <%= itemName %></p>
-        <p><strong>Quantity:</strong> <%= quantity %></p>
-        <p><strong>Remaining Stock:</strong> <%= stock - quantity %></p>
+        <p><strong>Payment Method:</strong> <%= paymentMethod %></p>
+        <p><strong>Total Amount:</strong> <%= currency %><%= totalOrderAmount.toFixed(2) %></p>
+
+        <h3>Items:</h3>
+        <ul>
+          <% saleItems.forEach(item => { %>
+            <li>
+              <strong><%= item.itemName %></strong> -
+              Quantity: <%= item.quantity %> -
+              Unit Cost: <%= currency %><%= item.unitCost.toFixed(2) %> -
+              Total Cost: <%= currency %><%= item.totalCost.toFixed(2) %>
+            </li>
+          <% }) %>
+        </ul>
       </div>
 
-      <!-- Confirmation Button -->
-      <form action="/admin/confirm-sale" method="POST">
+      <!-- Confirmation Form -->
+      <form action="/confirm-sale" method="POST">
         <input type="hidden" name="customerName" value="<%= customerName %>">
         <input type="hidden" name="phoneNumber" value="<%= phoneNumber %>">
         <input type="hidden" name="email" value="<%= email %>">
-        <input type="hidden" name="itemId" value="<%= itemId %>">
-        <input type="hidden" name="quantity" value="<%= quantity %>">
-        <button type="submit">Confirm Sale <span class="icon-checkmark"></span></button>
+        <input type="hidden" name="paymentMethod" value="<%= paymentMethod %>">
+        <input type="hidden" name="totalOrderAmount" value="<%= totalOrderAmount %>">
+        <% saleItems.forEach((item, index) => { %>
+          <input type="hidden" name="saleItems[<%= index %>][itemId]" value="<%= item.itemId %>">
+          <input type="hidden" name="saleItems[<%= index %>][itemName]" value="<%= item.itemName %>">
+          <input type="hidden" name="saleItems[<%= index %>][quantity]" value="<%= item.quantity %>">
+          <input type="hidden" name="saleItems[<%= index %>][unitCost]" value="<%= item.unitCost %>">
+          <input type="hidden" name="saleItems[<%= index %>][totalCost]" value="<%= item.totalCost %>">
+        <% }) %>
+        <button type="submit">Confirm Sale</button>
+        <a href="/admin-sales-form">Cancel</a>
       </form>
     </div>
   </div>
@@ -72,34 +87,10 @@
     const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleBtn');
 
-    // Toggle sidebar visibility
     toggleBtn.addEventListener('click', () => {
       sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
+      mainContent.classList.toggle('expanded');
     });
-
-    // Set initial sidebar state
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.add('hidden');
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      } else {
-        sidebar.classList.remove('hidden');
-        sidebar.classList.remove('visible');
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      }
-    }
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
   </script>
 </body>
 </html>

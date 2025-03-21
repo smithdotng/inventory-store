@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Create Outlet | Shed: Inventory, Invoices and More" />
+    <meta property="og:title" content="Customer Details | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Create Outlet</title>
+    <title>Customer Details</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -33,6 +33,7 @@
     <a href="/admin-logout">Log Out</a>
   </div>
 
+
   <!-- Main Content -->
   <div class="main-content" id="mainContent" style="padding-left: 50px;">
     
@@ -41,19 +42,20 @@
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
       </div>
       <div class="form-section">
-        <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
-        <% if (error) { %>
-          <div class="error"><%= error %></div>
+        <h2>Customer Details <span class="icon-group" style="margin-left: 10px;"></span></h2>
+        <% if (customer) { %>
+          <div class="customer-details">
+            <p><strong>Customer ID:</strong> <%= customer._id %></p>
+            <p><strong>Name:</strong> <%= customer.name %></p>
+            <p><strong>Email:</strong> <%= customer.email %></p>
+            <p><strong>Phone:</strong> <%= customer.phone %></p>
+            <p><strong>Address:</strong> <%= customer.address %></p>
+            <p><strong>Created At:</strong> <%= customer.createdAt.toLocaleString() %></p>
+          </div>
+        <% } else { %>
+          <div class="error">Customer not found.</div>
         <% } %>
-        <form action="/create-outlet" method="POST">
-          <input type="text" name="name" placeholder="Outlet Name" required>
-          <input type="text" name="location" placeholder="Location/Address" required>
-          <input type="text" name="mobile" placeholder="Mobile Number" required>
-          <input type="text" name="username" placeholder="Username" required>
-          <input type="password" name="password" placeholder="Password" required>
-          <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
-        </form>
-        <a href="/home">Back to Home <span class="icon-right-arrow"></span></a>
+        <a href="/store-view">Back to Store <span class="icon-right-arrow"></span></a>
       </div>
     </div>
   </div>

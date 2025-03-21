@@ -1,12 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Sales Form</title>
-  <link rel="stylesheet" href="/style.css">
- 
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Sales Form | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Sales Form</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    
+  </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
@@ -21,15 +29,14 @@
     <a href="/create-outlet">Create Outlet</a>
     <a href="/invoices">Invoices</a>
     <a href="/transactions">Transactions</a>
+    <a href="/customers">Customers</a>
     <a href="/admin-logout">Log Out</a>
   </div>
 
-  <!-- Toggle Button -->
-  <button class="toggle-btn" id="toggleBtn">☰</button>
+
 
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
-    
     <div class="container">
       <div class="content-logo-container">
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
@@ -37,17 +44,27 @@
       <h1>Admin Sales Form</h1>
       <div class="form-section">
         <form id="salesForm" action="/admin/sales-form" method="POST">
+          <!-- Customer Details -->
           <input type="text" name="customerName" placeholder="Customer Name" required>
           <input type="text" name="phoneNumber" placeholder="Phone Number">
           <input type="email" name="email" placeholder="Email Address">
 
+          <!-- Payment Method -->
+          <select name="paymentMethod" required>
+            <option value="">Select Payment Method</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Card">Card</option>
+          </select>
+
+          <!-- Items Section -->
           <div id="itemsContainer">
             <div class="item-row">
               <select name="items[itemId][]" class="item-select" required>
                 <option value="">Select Product</option>
                 <% inventory.forEach(item => { %>
                   <% if (item.stock > 0) { %>
-                    <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
+                    <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
                   <% } %>
                 <% }) %>
               </select>
@@ -55,10 +72,17 @@
               <button type="button" class="remove-btn" style="display: none;">Remove</button>
             </div>
           </div>
-          <div id="errorMessage" class="error-message"><span style="color: red;">Quantity exceeds available stock.</span><a href="/update-stock">Update Stock</a></div>
-          <button type="button" id="addItemBtn" style="margin-top: 10px; color: blueviolet;">Add Another Item</button>
-          
 
+          <!-- Error Message -->
+          <div id="errorMessage" class="error-message" style="display: none;">
+            <span style="color: red;">Quantity exceeds available stock.</span>
+            <a href="/update-stock">Update Stock</a>
+          </div>
+
+          <!-- Add Item Button -->
+          <button type="button" id="addItemBtn" style="margin-top: 10px; color: blueviolet;">Add Another Item</button>
+
+          <!-- Submit Button -->
           <button type="submit">Record Sale</button>
         </form>
       </div>
@@ -75,7 +99,7 @@
     const salesForm = document.getElementById('salesForm');
     const errorMessage = document.getElementById('errorMessage');
 
-      // Hide the error message by default
+    // Hide the error message by default
     errorMessage.style.display = 'none';
 
     // Toggle sidebar visibility
@@ -116,7 +140,7 @@
           <option value="">Select Product</option>
           <% inventory.forEach(item => { %>
             <% if (item.stock > 0) { %>
-              <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
+              <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
             <% } %>
           <% }) %>
         </select>

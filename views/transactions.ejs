@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Transactions</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Transactions | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Transactions</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    
+  </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
@@ -20,6 +29,7 @@
     <a href="/create-outlet">Create Outlet</a>
     <a href="/invoices">Invoices</a>
     <a href="/transactions">Transactions</a>
+    <a href="/customers">Customers</a>
     <a href="/admin-logout">Log Out</a>
   </div>
 
@@ -34,7 +44,16 @@
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
       </div>
       <h1>Transactions</h1>
-      <div class="transactions-section">
+
+      <!-- Business Details -->
+      <div class="business-details">
+        <p><strong>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
+        <p><strong>Email:</strong> <%= admin.email || 'N/A' %></p>
+        <p><strong>Currency:</strong> <%= admin.currency || 'N/A' %></p>
+      </div>
+
+      <!-- Transactions Table -->
+      <div class="table-section">
         <table>
           <thead>
             <tr>
@@ -49,28 +68,51 @@
           <tbody>
             <% transactions.forEach(transaction => { %>
               <tr>
-                <td><%= new Date(transaction.date).toLocaleDateString() %></td>
-                <td><%= transaction.customerName %></td>
+                <!-- Date -->
+                <td><%= transaction.date ? new Date(transaction.date).toLocaleDateString() : 'N/A' %></td>
+
+                <!-- Customer Name -->
+                <td><%= transaction.customerName || 'N/A' %></td>
+
+                <!-- Items -->
                 <td>
                   <ul>
                     <% if (transaction.items && transaction.items.length > 0) { %>
                       <% transaction.items.forEach(item => { %>
-                        <li><%= item.itemName %> (Qty: <%= item.quantity %>, Cost: <%= admin.currency %> <%= item.unitCost.toFixed(2) %>)</li>
+                        <li>
+                          <%= item.itemName %> 
+                          (Qty: <%= item.quantity %>, Cost: <%= admin.currency %> <%= (item.unitCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>)
+                        </li>
                       <% }) %>
                     <% } else { %>
                       <li>No items found.</li>
                     <% } %>
                   </ul>
                 </td>
-                <td><%= admin.currency %> <%= transaction.totalAmount.toFixed(2) %></td>
-                <td><%= transaction.paymentStatus %></td>
+
+                <!-- Total Amount -->
                 <td>
-                  <% if (transaction.paymentStatus === 'Pending') { %>
-                    <form action="/transactions/mark-paid/<%= transaction._id %>" method="POST">
-                      <button type="submit" class="mark-paid-btn">Mark as Paid</button>
-                    </form>
+                  <%= admin.currency %> 
+                  <% if (transaction.totalAmount !== undefined && transaction.totalAmount !== null) { %>
+                    <%= transaction.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                  <% } else { %>
+                    0.00
                   <% } %>
-                  <a href="/invoices/download/<%= transaction._id %>" class="download-btn">Download Invoice</a>
+                </td>
+
+                <!-- Payment Status -->
+                <td><%= transaction.paymentStatus || 'Pending' %></td>
+
+                <!-- Actions -->
+                <td>
+                  <div class="actions-container">
+                    <% if (transaction.paymentStatus === 'Pending') { %>
+                      <form action="/transactions/mark-paid/<%= transaction._id %>" method="POST" style="display: inline;">
+                        <button type="submit" class="mark-paid-btn">Mark as Paid</button>
+                      </form>
+                    <% } %>
+                    <a href="/receipt/<%= transaction._id %>" class="download-btn">Download Receipt</a>
+                  </div>
                 </td>
               </tr>
             <% }) %>

@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Dispense to Outlet | Shed: Inventory, Invoices and More" />
+    <meta property="og:title" content="Edit Customer | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Dispense to Outlet</title>
+    <title>Edit Customer</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -19,10 +19,9 @@
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
     <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
     </div>
-    <button class="toggle-btn" id="toggleBtn">☰</button>
-    <h2>Welcome, <%= username %>!</h2>
+    <h2>Navigation</h2>
     <a href="/admin-sales-form">Sell</a>
     <a href="/store-view">View Store</a>
     <a href="/update-stock">Update Stock</a>
@@ -33,7 +32,8 @@
     <a href="/admin-logout">Log Out</a>
   </div>
 
-  
+  <!-- Toggle Button (Visible on Small Screens) -->
+  <button class="toggle-btn" id="toggleBtn">☰</button>
 
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
@@ -42,66 +42,31 @@
       <div class="content-logo-container">
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
       </div>
-      <h1>Dispense to Outlet: <%= outlet.name %></h1>
+      <h1>Edit Customer</h1>
 
-      <!-- Main Inventory -->
-      <h2>Main Inventory</h2>
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Stock</th>
-              <th>Dispense Quantity</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% inventory.forEach(item => { %>
-              <tr>
-                <td><%= item.name %></td>
-                <td><%= item.stock %></td>
-                <td>
-                  <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" style="display: flex; gap: 10px; flex-wrap: wrap;">
-                    <input type="hidden" name="itemId" value="<%= item._id %>">
-                    <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required>
-                </td>
-                <td>
-                    <button type="submit">Dispense</button>
-                  </form>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
+      <!-- Edit Customer Form -->
+      <div class="form-section">
+        <form action="/update-customer/<%= customer._id %>" method="POST">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" id="name" name="name" value="<%= customer.name %>" required>
+          </div>
+          <div class="form-group">
+            <label for="phone">Phone</label>
+            <input type="text" id="phone" name="phone" value="<%= customer.phone || '' %>">
+          </div>
+          <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" value="<%= customer.email || '' %>">
+          </div>
+          <button type="submit" class="update-btn">Update Customer</button>
+          <a href="/customers" class="cancel-btn">Cancel</a>
+        </form>
       </div>
-
-      <!-- Outlet Inventory -->
-      <h2>Outlet Inventory</h2>
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Stock</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% outlet.inventory.forEach(item => { %>
-              <tr>
-                <td><%= item.name %></td>
-                <td><%= item.stock %></td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-
-      <a href="/home" class="block">Back to Home</a>
     </div>
   </div>
 
-  <!-- JavaScript -->
+  <!-- JavaScript for sidebar toggle -->
   <script>
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('mainContent');
@@ -120,7 +85,7 @@
       }
     });
 
-    // Set initial sidebar state based on screen width
+    // Set initial sidebar state
     function setSidebarState() {
       if (window.innerWidth <= 768) {
         sidebar.classList.add('hidden');
@@ -133,8 +98,6 @@
         mainContent.style.width = 'calc(100% - 200px)';
       }
     }
-
-    // Run on load and resize
     setSidebarState();
     window.addEventListener('resize', setSidebarState);
   </script>

@@ -120,6 +120,55 @@ td {
   transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
 }
 
+.view-btn {
+  background-color: #2196F3; /* Blue */
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.view-btn:hover {
+  background-color: #1976D2; /* Darker Blue */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.view-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Delete Button */
+.delete-btn {
+  background-color: #ff4444; /* Red */
+  color: white;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+}
+
+.delete-btn:hover {
+  background-color: #cc0000; /* Darker Red */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.delete-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
 .edit-btn:hover {
   background-color: #1976D2; /* Darker Blue */
   transform: translateY(-2px);

@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Update Stock</title>
-  <link rel="stylesheet" href="/style.css">
-</head>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Update Stock | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Update Stock</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    
+    
+  </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
@@ -20,15 +29,15 @@
     <a href="/create-outlet">Create Outlet</a>
     <a href="/invoices">Invoices</a>
     <a href="/transactions">Transactions</a>
+    <a href="/customers">Customers</a>
     <a href="/admin-logout">Log Out</a>
   </div>
 
-  <!-- Toggle Button (Visible on Small Screens) -->
-  <button class="toggle-btn" id="toggleBtn">☰</button>
+ 
 
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
-    <div class="welcome-message">Welcome, <%= username %>!</div>
+    
     <div class="container">
       <div class="content-logo-container">
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
