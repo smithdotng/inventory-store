@@ -1,4 +1,8 @@
-const CACHE_NAME = 'shed-app-v1';
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+
+const CACHE = "pwabuilder-page";
+
+
 const ASSETS_TO_CACHE = [
   '/',
   '/admin-login',
