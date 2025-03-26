@@ -1584,6 +1584,30 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
   }
 });
 
+// Serve manifest.json
+app.get('/manifest.json', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
+});
+
+// Serve service worker
+app.get('/sw.js', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'sw.js'));
+});
+
+// Serve offline page
+app.get('/offline.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'offline.html'));
+});
+
+// Ensure all routes return the index.html for SPA behavior
+app.get('*', (req, res, next) => {
+  if (req.headers['service-worker']) {
+    const filePath = path.join(__dirname, 'public', 'sw.js');
+    return res.sendFile(filePath);
+  }
+  next();
+});
+
 app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
   try {
     const saleId = req.params.saleId;
