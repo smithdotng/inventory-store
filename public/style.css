@@ -295,6 +295,8 @@ td {
   background-color: #1976D2;
 }
 
+.reset-btn { background-color: #5eb814; color: white; padding: 5px 10px; border: none; cursor: pointer; }
+
 .form-section form {
   display: flex;
   flex-direction: column;

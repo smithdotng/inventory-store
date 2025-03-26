@@ -53,20 +53,40 @@
             </thead>
             <tbody>
               <% admins.forEach(admin => { %>
-                <tr>
+                <tr id="row-<%= admin._id %>">
                   <td><%= admin.username %></td>
-                  <td><%= admin.businessName || 'N/A' %></td>
+                  <td>
+                    <span class="display-value"><%= admin.businessName || 'N/A' %></span>
+                    <input type="text" class="edit-input" name="businessName" value="<%= admin.businessName || '' %>" style="display: none;">
+                  </td>
                   <td><%= admin.email || 'N/A' %></td>
-                  <td><%= admin.currency || 'N/A' %></td>
-                  <td><%= admin.role %></td>
+                  <td>
+                    <span class="display-value"><%= admin.currency || 'N/A' %></span>
+                    <input type="text" class="edit-input" name="currency" value="<%= admin.currency || '' %>" style="display: none;">
+                  </td>
+                  <td>
+                    <span class="display-value"><%= admin.role %></span>
+                    <select class="edit-input" name="role" style="display: none;">
+                      <option value="admin" <%= admin.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                      <option value="superadmin" <%= admin.role === 'superadmin' ? 'selected' : '' %>>Superadmin</option>
+                    </select>
+                  </td>
                   <td><%= admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : 'Never' %></td>
                   <td><%= admin.loginCount %></td>
                   <td>
-                    <a href="/superadmin/edit-admin/<%= admin._id %>">
-                      <button class="edit-btn">Edit</button>
-                    </a>
+                    <button class="edit-btn" onclick="toggleEdit('<%= admin._id %>')">Edit</button>
+                    <form action="/superadmin/update-admin/<%= admin._id %>" method="POST" class="update-form" style="display: inline;">
+                      <input type="hidden" name="businessName" value="<%= admin.businessName || '' %>">
+                      <input type="hidden" name="currency" value="<%= admin.currency || '' %>">
+                      <input type="hidden" name="role" value="<%= admin.role %>">
+                      <button type="submit" class="update-btn" style="display: none;">Update</button>
+                    </form>
+                    <button class="cancel-btn" style="display: none;" onclick="cancelEdit('<%= admin._id %>', '<%= admin.businessName || 'N/A' %>', '<%= admin.currency || 'N/A' %>', '<%= admin.role %>')">Cancel</button>
+                    <form action="/superadmin/reset-password/<%= admin._id %>" method="POST" style="display: inline;">
+                      <button type="submit" class="reset-btn">Reset Password</button>
+                    </form>
                     <% if (admin.role !== 'superadmin') { %>
-                      <form action="/superadmin/delete-admin/<%= admin._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this admin?');">
+                      <form action="/superadmin/delete-admin/<%= admin._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this admin?');">
                         <button type="submit" class="delete-btn">Delete</button>
                       </form>
                     <% } %>
@@ -82,7 +102,7 @@
       </div>
     </div>
 
-    <!-- JavaScript for Sidebar Toggle -->
+    <!-- JavaScript for Sidebar Toggle and Editing -->
     <script>
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
@@ -111,6 +131,67 @@
       }
       setSidebarState();
       window.addEventListener('resize', setSidebarState);
+
+      // Toggle edit mode
+      function toggleEdit(id) {
+        const row = document.getElementById(`row-${id}`);
+        const displayValues = row.querySelectorAll('.display-value');
+        const editInputs = row.querySelectorAll('.edit-input');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
+        const cancelBtn = row.querySelector('.cancel-btn');
+
+        displayValues.forEach(span => span.style.display = 'none');
+        editInputs.forEach(input => input.style.display = 'inline');
+        editBtn.style.display = 'none';
+        updateBtn.style.display = 'inline';
+        cancelBtn.style.display = 'inline';
+      }
+
+      // Update hidden inputs and submit form
+      function updateHiddenInputs(id) {
+        const row = document.getElementById(`row-${id}`);
+        const form = row.querySelector('.update-form');
+        const inputs = row.querySelectorAll('.edit-input');
+        const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+
+        inputs.forEach((input, index) => {
+          hiddenInputs[index].value = input.value;
+        });
+        form.submit();
+      }
+
+      // Handle form submission
+      document.querySelectorAll('.update-form').forEach(form => {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const id = form.action.split('/').pop();
+          updateHiddenInputs(id);
+        });
+      });
+
+      // Cancel edit mode
+      function cancelEdit(id, originalBusinessName, originalCurrency, originalRole) {
+        const row = document.getElementById(`row-${id}`);
+        const displayValues = row.querySelectorAll('.display-value');
+        const editInputs = row.querySelectorAll('.edit-input');
+        const editBtn = row.querySelector('.edit-btn');
+        const updateBtn = row.querySelector('.update-btn');
+        const cancelBtn = row.querySelector('.cancel-btn');
+
+        displayValues[0].textContent = originalBusinessName;
+        displayValues[1].textContent = originalCurrency;
+        displayValues[2].textContent = originalRole;
+        editInputs[0].value = originalBusinessName === 'N/A' ? '' : originalBusinessName;
+        editInputs[1].value = originalCurrency === 'N/A' ? '' : originalCurrency;
+        editInputs[2].value = originalRole;
+
+        displayValues.forEach(span => span.style.display = 'inline');
+        editInputs.forEach(input => input.style.display = 'none');
+        editBtn.style.display = 'inline';
+        updateBtn.style.display = 'none';
+        cancelBtn.style.display = 'none';
+      }
     </script>
   </body>
 </html>

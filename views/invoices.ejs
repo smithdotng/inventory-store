@@ -12,6 +12,40 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <style>
+      .error-message {
+        color: red;
+        margin-bottom: 10px;
+        font-weight: bold;
+        padding: 5px;
+        background-color: #ffe6e6;
+        border: 1px solid red;
+      }
+      .field-error {
+        color: red;
+        font-size: 0.9em;
+        margin-top: 5px;
+        display: none;
+      }
+      .item-row {
+        position: relative;
+        margin-bottom: 15px;
+      }
+      .hidden {
+        display: none;
+      }
+      .new-product-fields {
+        margin-top: 10px;
+        padding: 10px;
+        border: 1px solid #ccc;
+        background-color: #f9f9f9;
+      }
+      .new-product-fields input {
+        display: block;
+        margin-bottom: 10px;
+        width: 100%;
+      }
+    </style>
   </head>
   <body>
     <!-- Sidebar -->
@@ -51,51 +85,102 @@
         <button class="create-btn" id="createInvoiceBtn">Create Invoice</button>
 
         <!-- Create Invoice Form -->
-        <div class="form-section" id="createInvoiceForm">
-          <form action="/invoices/create" method="POST">
-            <select id="customerSelect" name="customerId" required>
-              <option value="">Select Customer</option>
-              <% customers.forEach(customer => { %>
-                <option value="<%= customer._id %>"><%= customer.name %> (<%= customer.phone || 'N/A' %>)</option>
-              <% }) %>
-              <option value="new">Create New Customer</option>
-            </select>
+        <div class="form-section hidden" id="createInvoiceForm">
+          <% if (error) { %>
+            <div class="error-message"><%= error %></div>
+          <% } %>
+          <form id="invoiceForm" action="/invoices/create" method="POST">
+            <div>
+              <select id="customerSelect" name="customerId" required>
+                <option value="">Select Customer</option>
+                <% customers.forEach(customer => { %>
+                  <option value="<%= customer._id %>" <%= formData.customerId === customer._id.toString() ? 'selected' : '' %>>
+                    <%= customer.name %> (<%= customer.phone || 'N/A' %>)
+                  </option>
+                <% }) %>
+                <option value="new" <%= formData.customerId === 'new' ? 'selected' : '' %>>Create New Customer</option>
+              </select>
+              <div class="field-error" id="customerSelectError"></div>
+            </div>
+
             <div id="newCustomerFields">
-              <input type="text" name="newCustomerName" placeholder="New Customer Name" required>
-              <input type="text" name="newCustomerPhone" placeholder="Phone Number">
-              <input type="email" name="newCustomerEmail" placeholder="Email Address">
+              <input type="text" name="newCustomerName" id="newCustomerName" placeholder="New Customer Name" value="<%= formData.newCustomerName || '' %>" <%= formData.customerId === 'new' ? 'required' : '' %>>
+              <div class="field-error" id="newCustomerNameError"></div>
+              <input type="text" name="newCustomerPhone" id="newCustomerPhone" placeholder="Phone Number" value="<%= formData.newCustomerPhone || '' %>">
+              <input type="email" name="newCustomerEmail" id="newCustomerEmail" placeholder="Email Address" value="<%= formData.newCustomerEmail || '' %>">
             </div>
 
             <div id="itemsContainer">
-              <div class="item-row">
-                <select name="items[itemId][]" required>
-                  <option value="">Select Item</option>
-                  <% inventory.forEach(item => { %>
-                    <% if (item.stock > 0) { %>
-                      <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
-                    <% } %>
-                  <% }) %>
-                </select>
-                <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
-                <button type="button" class="remove-btn">Remove</button>
-              </div>
+              <% if (formData.items && formData.items.itemId) { %>
+                <% const itemIds = Array.isArray(formData.items.itemId) ? formData.items.itemId : [formData.items.itemId]; %>
+                <% const quantities = Array.isArray(formData.items.quantity) ? formData.items.quantity : [formData.items.quantity]; %>
+                <% itemIds.forEach((itemId, index) => { %>
+                  <div class="item-row" data-index="<%= index %>">
+                    <select name="items[itemId][]" required>
+                      <option value="">Select Item</option>
+                      <% inventory.forEach(item => { %>
+                        <option value="<%= item._id %>" <%= itemId === item._id.toString() ? 'selected' : '' %> data-stock="<%= item.stock %>">
+                          <%= item.name %> (Stock: <%= item.stock %>)
+                        </option>
+                      <% }) %>
+                      <option value="new">Create New Product</option>
+                    </select>
+                    <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" value="<%= quantities[index] || '' %>" required>
+                    <button type="button" class="remove-btn">Remove</button>
+                    <div class="new-product-fields hidden" id="newProductFields<%= index %>">
+                      <input type="text" name="items[newProductName][]" placeholder="Product Name">
+                      <input type="number" name="items[newProductCost][]" placeholder="Cost" min="0" step="0.01">
+                      <input type="number" name="items[newProductStock][]" placeholder="Stock" min="0">
+                    </div>
+                    <div class="field-error" id="itemError<%= index %>"></div>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <div class="item-row" data-index="0">
+                  <select name="items[itemId][]" required>
+                    <option value="">Select Item</option>
+                    <% inventory.forEach(item => { %>
+                      <option value="<%= item._id %>" data-stock="<%= item.stock %>">
+                        <%= item.name %> (Stock: <%= item.stock %>)
+                      </option>
+                    <% }) %>
+                    <option value="new">Create New Product</option>
+                  </select>
+                  <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
+                  <button type="button" class="remove-btn">Remove</button>
+                  <div class="new-product-fields hidden" id="newProductFields0">
+                    <input type="text" name="items[newProductName][]" placeholder="Product Name">
+                    <input type="number" name="items[newProductCost][]" placeholder="Cost" min="0" step="0.01">
+                    <input type="number" name="items[newProductStock][]" placeholder="Stock" min="0">
+                  </div>
+                  <div class="field-error" id="itemError0"></div>
+                </div>
+              <% } %>
             </div>
+
             <button type="button" class="create-btn" id="addItemBtn">Add Another Item</button>
 
-            <select name="paymentMethod" id="paymentMethod">
-              <option value="">Select Payment Method</option>
-              <option value="Cash">Cash</option>
-              <option value="Credit Card">Credit Card</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Mobile Payment">Mobile Payment</option>
-            </select>
-            <div id="bankDetails">
-              <input type="text" name="bankName" placeholder="Bank Name">
-              <input type="text" name="bankAccountNumber" placeholder="Bank Account Number">
-              <input type="text" name="accountNumber" placeholder="Account Number">
+            <div>
+              <select name="paymentMethod" id="paymentMethod" required>
+                <option value="">Select Payment Method</option>
+                <option value="Cash" <%= formData.paymentMethod === 'Cash' ? 'selected' : '' %>>Cash</option>
+                <option value="Credit Card" <%= formData.paymentMethod === 'Credit Card' ? 'selected' : '' %>>Credit Card</option>
+                <option value="Bank Transfer" <%= formData.paymentMethod === 'Bank Transfer' ? 'selected' : '' %>>Bank Transfer</option>
+                <option value="Mobile Payment" <%= formData.paymentMethod === 'Mobile Payment' ? 'selected' : '' %>>Mobile Payment</option>
+              </select>
+              <div class="field-error" id="paymentMethodError"></div>
             </div>
 
-            <button type="submit">Create Invoice</button>
+            <div id="bankDetails">
+              <input type="text" name="bankName" id="bankName" placeholder="Bank Name" value="<%= formData.bankName || '' %>">
+              <div class="field-error" id="bankNameError"></div>
+              <input type="text" name="bankAccountNumber" id="bankAccountNumber" placeholder="Bank Account Number" value="<%= formData.bankAccountNumber || '' %>">
+              <div class="field-error" id="bankAccountNumberError"></div>
+              <input type="text" name="accountNumber" id="accountNumber" placeholder="Account Number" value="<%= formData.accountNumber || '' %>">
+              <div class="field-error" id="accountNumberError"></div>
+            </div>
+
+            <button type="submit" class="create-btn">Create Invoice</button>
           </form>
         </div>
 
@@ -157,8 +242,9 @@
       const addItemBtn = document.getElementById('addItemBtn');
       const paymentMethod = document.getElementById('paymentMethod');
       const bankDetails = document.getElementById('bankDetails');
+      const invoiceForm = document.getElementById('invoiceForm');
 
-      // Toggle sidebar visibility (only active on small screens)
+      // Toggle sidebar visibility
       toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
         sidebar.classList.toggle('hidden');
@@ -171,46 +257,78 @@
         }
       });
 
-      // Toggle create invoice form visibility
+      // Replace top button with form
       createInvoiceBtn.addEventListener('click', () => {
-        createInvoiceForm.style.display = createInvoiceForm.style.display === 'none' ? 'block' : 'none';
+        createInvoiceBtn.classList.add('hidden');
+        createInvoiceForm.classList.remove('hidden');
       });
 
-      // Toggle new customer fields based on selection
+      // Toggle new customer fields
       customerSelect.addEventListener('change', () => {
-        newCustomerFields.style.display = customerSelect.value === 'new' ? 'block' : 'none';
+        const isNewCustomer = customerSelect.value === 'new';
+        newCustomerFields.style.display = isNewCustomer ? 'block' : 'none';
         newCustomerFields.querySelectorAll('input').forEach(input => {
-          input.required = customerSelect.value === 'new';
+          input.required = isNewCustomer;
         });
+        validateCustomer();
       });
 
-      // Toggle bank details based on payment method
+      // Toggle bank details
       paymentMethod.addEventListener('change', () => {
-        bankDetails.style.display = paymentMethod.value === 'Bank Transfer' ? 'block' : 'none';
+        const isBankTransfer = paymentMethod.value === 'Bank Transfer';
+        bankDetails.style.display = isBankTransfer ? 'block' : 'none';
         bankDetails.querySelectorAll('input').forEach(input => {
-          input.required = paymentMethod.value === 'Bank Transfer';
+          input.required = isBankTransfer;
         });
+        validatePaymentMethod();
       });
 
-      // Add new item row
+      // Add new item row with "Create New Product" option
+      let itemIndex = <%= formData.items && formData.items.itemId ? (Array.isArray(formData.items.itemId) ? formData.items.itemId.length : 1) : 1 %>;
       addItemBtn.addEventListener('click', () => {
         const newRow = document.createElement('div');
         newRow.className = 'item-row';
+        newRow.dataset.index = itemIndex;
         newRow.innerHTML = `
           <select name="items[itemId][]" required>
             <option value="">Select Item</option>
             <% inventory.forEach(item => { %>
-              <% if (item.stock > 0) { %>
-                <option value="<%= item._id %>"><%= item.name %> (Stock: <%= item.stock %>)</option>
-              <% } %>
+              <option value="<%= item._id %>" data-stock="<%= item.stock %>">
+                <%= item.name %> (Stock: <%= item.stock %>)
+              </option>
             <% }) %>
+            <option value="new">Create New Product</option>
           </select>
           <input type="number" name="items[quantity][]" placeholder="Quantity" min="1" required>
           <button type="button" class="remove-btn">Remove</button>
+          <div class="new-product-fields hidden" id="newProductFields${itemIndex}">
+            <input type="text" name="items[newProductName][]" placeholder="Product Name">
+            <input type="number" name="items[newProductCost][]" placeholder="Cost" min="0" step="0.01">
+            <input type="number" name="items[newProductStock][]" placeholder="Stock" min="0">
+          </div>
+          <div class="field-error" id="itemError${itemIndex}"></div>
         `;
         itemsContainer.appendChild(newRow);
+        const select = newRow.querySelector('select');
+        select.addEventListener('change', () => toggleNewProductFields(select));
+        newRow.querySelector('select').addEventListener('change', validateItems);
+        newRow.querySelector('input[type="number"]').addEventListener('input', validateItems);
+        newRow.querySelectorAll('.new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
+        itemIndex++;
         updateRemoveButtons();
       });
+
+      // Toggle new product fields based on selection
+      function toggleNewProductFields(select) {
+        const index = select.closest('.item-row').dataset.index;
+        const newProductFields = document.getElementById(`newProductFields${index}`);
+        const isNewProduct = select.value === 'new';
+        newProductFields.classList.toggle('hidden', !isNewProduct);
+        newProductFields.querySelectorAll('input').forEach(input => {
+          input.required = isNewProduct;
+        });
+        validateItems();
+      }
 
       // Update remove buttons visibility
       function updateRemoveButtons() {
@@ -219,11 +337,156 @@
           const removeBtn = row.querySelector('.remove-btn');
           removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
           removeBtn.onclick = () => {
-            if (rows.length > 1) row.remove();
-            updateRemoveButtons();
+            if (rows.length > 1) {
+              row.remove();
+              validateItems();
+              updateRemoveButtons();
+            }
           };
         });
       }
+
+      // Client-side validation
+      function validateCustomer() {
+        const errorElement = document.getElementById('customerSelectError');
+        if (!customerSelect.value) {
+          errorElement.textContent = 'Please select a customer.';
+          errorElement.style.display = 'block';
+        } else if (customerSelect.value === 'new') {
+          const name = document.getElementById('newCustomerName').value.trim();
+          const nameError = document.getElementById('newCustomerNameError');
+          if (!name) {
+            nameError.textContent = 'Customer name is required.';
+            nameError.style.display = 'block';
+            errorElement.style.display = 'none';
+          } else {
+            nameError.style.display = 'none';
+            errorElement.style.display = 'none';
+          }
+        } else {
+          errorElement.style.display = 'none';
+        }
+      }
+
+      function validateItems() {
+        const rows = itemsContainer.querySelectorAll('.item-row');
+        rows.forEach(row => {
+          const index = row.dataset.index;
+          const select = row.querySelector('select');
+          const quantityInput = row.querySelector('input[type="number"]');
+          const errorElement = document.getElementById(`itemError${index}`);
+          const isNewProduct = select.value === 'new';
+
+          if (!select.value) {
+            errorElement.textContent = 'Please select an item.';
+            errorElement.style.display = 'block';
+          } else if (isNewProduct) {
+            const name = row.querySelector('input[name="items[newProductName][]"]').value.trim();
+            const cost = parseFloat(row.querySelector('input[name="items[newProductCost][]"]').value) || 0;
+            const stock = parseInt(row.querySelector('input[name="items[newProductStock][]"]').value) || 0;
+            const qty = parseInt(quantityInput.value) || 0;
+
+            if (!name) {
+              errorElement.textContent = 'Product name is required.';
+              errorElement.style.display = 'block';
+            } else if (cost <= 0) {
+              errorElement.textContent = 'Cost must be greater than 0.';
+              errorElement.style.display = 'block';
+            } else if (stock < 0) {
+              errorElement.textContent = 'Stock cannot be negative.';
+              errorElement.style.display = 'block';
+            } else if (qty <= 0) {
+              errorElement.textContent = 'Quantity must be greater than 0.';
+              errorElement.style.display = 'block';
+            } else if (qty > stock) {
+              errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+              errorElement.style.display = 'block';
+            } else {
+              errorElement.style.display = 'none';
+            }
+          } else {
+            const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
+            const qty = parseInt(quantityInput.value) || 0;
+
+            if (qty <= 0) {
+              errorElement.textContent = 'Quantity must be greater than 0.';
+              errorElement.style.display = 'block';
+            } else if (qty > stock) {
+              errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+              errorElement.style.display = 'block';
+            } else {
+              errorElement.style.display = 'none';
+            }
+          }
+        });
+      }
+
+      function validatePaymentMethod() {
+        const errorElement = document.getElementById('paymentMethodError');
+        if (!paymentMethod.value) {
+          errorElement.textContent = 'Please select a payment method.';
+          errorElement.style.display = 'block';
+        } else if (paymentMethod.value === 'Bank Transfer') {
+          const bankName = document.getElementById('bankName').value.trim();
+          const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
+          const accountNumber = document.getElementById('accountNumber').value.trim();
+          const bankNameError = document.getElementById('bankNameError');
+          const bankAccountNumberError = document.getElementById('bankAccountNumberError');
+          const accountNumberError = document.getElementById('accountNumberError');
+
+          if (!bankName) {
+            bankNameError.textContent = 'Bank name is required.';
+            bankNameError.style.display = 'block';
+            errorElement.style.display = 'none';
+          } else {
+            bankNameError.style.display = 'none';
+          }
+          if (!bankAccountNumber) {
+            bankAccountNumberError.textContent = 'Bank account number is required.';
+            bankAccountNumberError.style.display = 'block';
+            errorElement.style.display = 'none';
+          } else {
+            bankAccountNumberError.style.display = 'none';
+          }
+          if (!accountNumber) {
+            accountNumberError.textContent = 'Account number is required.';
+            accountNumberError.style.display = 'block';
+            errorElement.style.display = 'none';
+          } else {
+            accountNumberError.style.display = 'none';
+          }
+          if (bankName && bankAccountNumber && accountNumber) {
+            errorElement.style.display = 'none';
+          }
+        } else {
+          errorElement.style.display = 'none';
+        }
+      }
+
+      // Attach validation and toggle listeners
+      customerSelect.addEventListener('change', validateCustomer);
+      document.getElementById('newCustomerName')?.addEventListener('input', validateCustomer);
+      paymentMethod.addEventListener('change', validatePaymentMethod);
+      document.getElementById('bankName')?.addEventListener('input', validatePaymentMethod);
+      document.getElementById('bankAccountNumber')?.addEventListener('input', validatePaymentMethod);
+      document.getElementById('accountNumber')?.addEventListener('input', validatePaymentMethod);
+      itemsContainer.querySelectorAll('select').forEach(select => {
+        select.addEventListener('change', () => toggleNewProductFields(select));
+        select.addEventListener('change', validateItems);
+      });
+      itemsContainer.querySelectorAll('input[type="number"]').forEach(input => input.addEventListener('input', validateItems));
+      itemsContainer.querySelectorAll('.new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
+
+      // Handle form submission
+      invoiceForm.addEventListener('submit', (e) => {
+        validateCustomer();
+        validateItems();
+        validatePaymentMethod();
+        const errors = document.querySelectorAll('.field-error[style="display: block"]');
+        if (errors.length > 0) {
+          e.preventDefault();
+        }
+      });
 
       // Handle "Mark as Paid" form submission
       document.querySelectorAll('.action-form').forEach(form => {
@@ -233,16 +496,12 @@
           try {
             const response = await fetch(form.action, {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
+              headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             });
             if (response.ok) {
               const row = document.getElementById(`sale-${saleId}`);
-              const paymentStatusCell = row.querySelector('.payment-status');
-              const actionCell = row.querySelector('td:last-child');
-              paymentStatusCell.textContent = 'Paid';
-              form.remove(); // Remove the "Mark as Paid" form
+              row.querySelector('.payment-status').textContent = 'Paid';
+              form.remove();
             } else {
               alert('Failed to mark invoice as paid.');
             }
@@ -255,8 +514,18 @@
 
       // Initial setup
       updateRemoveButtons();
-      newCustomerFields.style.display = 'none'; // Hidden by default
-      bankDetails.style.display = 'none'; // Hidden by default
+      newCustomerFields.style.display = customerSelect.value === 'new' ? 'block' : 'none';
+      bankDetails.style.display = paymentMethod.value === 'Bank Transfer' ? 'block' : 'none';
+      <% if (error) { %>
+        createInvoiceBtn.classList.add('hidden');
+        createInvoiceForm.classList.remove('hidden');
+      <% } else { %>
+        createInvoiceForm.classList.add('hidden');
+      <% } %>
+      itemsContainer.querySelectorAll('select').forEach(select => toggleNewProductFields(select));
+      validateCustomer();
+      validateItems();
+      validatePaymentMethod();
     </script>
   </body>
 </html>

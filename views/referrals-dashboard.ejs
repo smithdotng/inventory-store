@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Affiliate Dashboard | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Track your referral activities and earnings." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Affiliate Dashboard</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+  </head>
+  <body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+      <div class="logo-container">
+        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2>Welcome, <%= affiliate.email %>!</h2>
+      <a href="/referrals/dashboard">Dashboard</a>
+      <a href="/referrals/logout">Log Out</a>
+    </div>
+
+    <!-- Toggle Button -->
+    <button class="toggle-btn" id="toggleBtn">☰</button>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="container">
+        <div class="content-logo-container">
+          <img src="/images/logo.jpg" alt="Shedfactory Business Solutions">
+        </div>
+        <h1>Affiliate Dashboard</h1>
+
+        <!-- Referral Link -->
+        <div class="form-section">
+          <h2>Your Referral Link</h2>
+          <input type="text" value="<%= referralLink %>" id="referralLink" readonly>
+          <button onclick="copyReferralLink()" class="create-btn">Copy Link</button>
+        </div>
+
+        <!-- Referral Activity -->
+        <div class="table-section">
+          <h2>Referral Activity</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Action</th>
+                <th>User Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% activities.forEach(activity => { %>
+                <tr>
+                  <td><%= new Date(activity.date).toLocaleString() %></td>
+                  <td><%= activity.action %></td>
+                  <td><%= activity.userEmail || 'N/A' %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+      const sidebar = document.getElementById('sidebar');
+      const mainContent = document.getElementById('mainContent');
+      const toggleBtn = document.getElementById('toggleBtn');
+
+      // Toggle sidebar visibility
+      toggleBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('visible');
+        sidebar.classList.toggle('hidden');
+        mainContent.style.marginLeft = sidebar.classList.contains('visible') ? '200px' : '0';
+        mainContent.style.width = sidebar.classList.contains('visible') ? 'calc(100% - 200px)' : '100%';
+      });
+
+      // Set initial sidebar state
+      function setSidebarState() {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.add('hidden');
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        } else {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.remove('visible');
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        }
+      }
+      setSidebarState();
+      window.addEventListener('resize', setSidebarState);
+
+      // Copy referral link to clipboard
+      function copyReferralLink() {
+        const link = document.getElementById('referralLink');
+        link.select();
+        document.execCommand('copy');
+        alert('Referral link copied to clipboard!');
+      }
+    </script>
+  </body>
+</html>
