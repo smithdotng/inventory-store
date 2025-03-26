@@ -579,21 +579,61 @@ app.get('/create-outlet', isAuthenticated, async (req, res) => {
   res.render('create-outlet', { error: null, admin, username });
 });
 
+// GET /profile
 app.get('/profile', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    if (!admin) return res.status(404).send('Admin not found.');
+    if (!admin) {
+      req.session.error = 'Admin not found.';
+      return res.redirect('/admin-login');
+    }
     res.render('profile', {
-      username: admin.username,
-      businessName: admin.businessName,
-      email: admin.email,
-      currency: admin.currency,
-      logo: admin.logo,
-      admin
+      username: req.session.admin,
+      admin,
+      error: req.session.error || null,
+      success: req.session.success || null
     });
+    req.session.error = null;
+    req.session.success = null;
   } catch (error) {
-    console.error('Error fetching profile data:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error fetching profile:', error);
+    req.session.error = 'An unexpected error occurred.';
+    res.redirect('/invoices');
+  }
+});
+
+// POST /profile/update
+app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      req.session.error = 'Admin not found.';
+      return res.redirect('/profile');
+    }
+
+    const { businessName, currency, phone, address } = req.body;
+    const updateData = {
+      businessName: businessName || admin.businessName,
+      currency: currency || admin.currency,
+      phone: phone || admin.phone,
+      address: address || admin.address
+    };
+
+    if (req.file) {
+      updateData.logo = `/uploads/${req.file.filename}`;
+    }
+
+    await db.collection('admins').updateOne(
+      { _id: admin._id },
+      { $set: updateData }
+    );
+
+    req.session.success = 'Profile updated successfully!';
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    req.session.error = 'Failed to update profile. Please try again.';
+    res.redirect('/profile');
   }
 });
 

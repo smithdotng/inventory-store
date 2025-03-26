@@ -12,6 +12,42 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    <style>
+      .error-message {
+        color: red;
+        margin-bottom: 10px;
+        font-weight: bold;
+        padding: 5px;
+        background-color: #ffe6e6;
+        border: 1px solid red;
+      }
+      .hidden {
+        display: none;
+      }
+      .profile-details p {
+        margin: 10px 0;
+      }
+      .edit-form input, .edit-form select {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+      .form-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .cancel-btn {
+        background-color: #ccc;
+        color: #333;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+      }
+      .cancel-btn:hover {
+        background-color: #bbb;
+      }
+    </style>
   </head>
   <body>
     <!-- Sidebar -->
@@ -26,6 +62,8 @@
       <a href="/create-outlet">Create Outlet</a>
       <a href="/invoices">Invoices</a>
       <a href="/transactions">Transactions</a>
+      <a href="/customers">Customers</a>
+      <a href="/profile">Profile</a>
       <a href="/admin-logout">Log Out</a>
     </div>
 
@@ -36,25 +74,62 @@
     <div class="main-content" id="mainContent">
       <div class="container">
         <div class="content-logo-container">
-          <img src="<%= logo || '/images/logo.jpg' %>" alt="Business Logo">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
         </div>
-        <div class="business-info">
-          <h2>Business Information</h2>
-          <p><strong>Business Name:</strong> <%= businessName %></p>
-          <p><strong>Email:</strong> <%= email %></p>
-          <p><strong>Currency:</strong> <%= currency %></p>
-          <p><strong>Logo:</strong></p>
+        <h1>Profile</h1>
+
+        <!-- Profile Details -->
+        <div class="profile-details" id="profileDetails">
+          <% if (error) { %>
+            <div class="error-message"><%= error %></div>
+          <% } %>
+          <% if (success) { %>
+            <div class="success-message"><%= success %></div>
+          <% } %>
+          <p><strong>Username:</strong> <%= admin.username %></p>
+          <p><strong>Email:</strong> <%= admin.email %></p>
+          <p><strong>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
+          <p><strong>Currency:</strong> <%= admin.currency || 'N/A' %></p>
+          <p><strong>Phone:</strong> <%= admin.phone || 'N/A' %></p>
+          <p><strong>Address:</strong> <%= admin.address || 'N/A' %></p>
+          <p><strong>Logo:</strong> <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Logo" style="max-width: 100px;"></p>
+          <button class="create-btn" id="editProfileBtn">Edit Profile</button>
+        </div>
+
+        <!-- Edit Profile Form -->
+        <div class="edit-form hidden" id="editProfileForm">
+          <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
+            <input type="text" name="businessName" value="<%= admin.businessName || '' %>" placeholder="Business Name">
+            <select name="currency">
+              <option value="">Select Currency</option>
+              <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD</option>
+              <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
+              <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
+              <!-- Add more currencies as needed -->
+            </select>
+            <input type="text" name="phone" value="<%= admin.phone || '' %>" placeholder="Phone Number">
+            <input type="text" name="address" value="<%= admin.address || '' %>" placeholder="Address">
+            <input type="file" name="logo" accept="image/*">
+            <div class="form-buttons">
+              <button type="submit" class="create-btn">Save Changes</button>
+              <button type="button" class="cancel-btn" id="cancelEditBtn">Cancel</button>
+            </div>
+          </form>
         </div>
       </div>
     </div>
 
-    <!-- JavaScript for sidebar toggle -->
+    <!-- JavaScript -->
     <script>
       const sidebar = document.getElementById('sidebar');
       const mainContent = document.getElementById('mainContent');
       const toggleBtn = document.getElementById('toggleBtn');
+      const editProfileBtn = document.getElementById('editProfileBtn');
+      const editProfileForm = document.getElementById('editProfileForm');
+      const profileDetails = document.getElementById('profileDetails');
+      const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-      // Toggle sidebar visibility (only active on small screens)
+      // Toggle sidebar visibility
       toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
         sidebar.classList.toggle('hidden');
@@ -65,6 +140,19 @@
           mainContent.style.marginLeft = '0';
           mainContent.style.width = '100%';
         }
+      });
+
+      // Toggle edit form visibility
+      editProfileBtn.addEventListener('click', () => {
+        profileDetails.classList.add('hidden');
+        editProfileForm.classList.remove('hidden');
+      });
+
+      // Cancel edit
+      cancelEditBtn.addEventListener('click', () => {
+        editProfileForm.classList.add('hidden');
+        profileDetails.classList.remove('hidden');
+        document.getElementById('updateProfileForm').reset();
       });
     </script>
   </body>
