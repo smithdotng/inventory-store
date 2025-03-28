@@ -27,12 +27,12 @@ workbox.precaching.precacheAndRoute([
   { url: '/referrals/signup', revision: '1' },
   { url: '/referrals/dashboard', revision: '1' },
   { url: '/outlet-login', revision: '1' },
-  { url: '/invoices/upload', revision: '1' }, // For file_handlers
-  { url: '/invoices/share', revision: '1' }, // For share_target
-  { url: '/handle-link', revision: '1' },    // For protocol_handlers
+  { url: '/invoices/upload', revision: '1' },
+  { url: '/invoices/share', revision: '1' },
+  { url: '/handle-link', revision: '1' },
   { url: '/style.css', revision: '1' },
   { url: '/images/logo.png', revision: '1' },
-  { url: '/images/pdf-icon.png', revision: '1' }, // New icon for file_handlers
+  { url: '/images/pdf-icon.png', revision: '1' },
   { url: '/manifest.json', revision: '1' },
   { url: '/scripts/main.js', revision: '1' },
   { url: '/offline.html', revision: '1' }
@@ -172,13 +172,4 @@ self.addEventListener('activate', (event) => {
       );
     }).then(() => self.clients.claim())
   );
-});
-
-// Handle file opening events (file_handlers)
-self.addEventListener('launch', (event) => {
-  if (event.action === '/invoices/upload') {
-    event.waitUntil(
-      clients.openWindow('/invoices/upload')
-    );
-  }
 });
