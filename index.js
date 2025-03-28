@@ -1585,7 +1585,7 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
 });
 
 // Serve manifest.json
-app.get('/manifest.json', (req, res) => {
+app.get('/site.webmanifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
 });
 

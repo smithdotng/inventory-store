@@ -1,38 +1,84 @@
 {
-    "name": "Shed - Inventory, Invoices and More",
-    "short_name": "shed",
-    "icons": [
-      {
-        "src": "/android-chrome-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png"
-      },
-      {
-        "src": "/android-chrome-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png"
-      }
-    ],
-    "theme_color": "#ffffff",
-    "background_color": "#ffffff",
-    "display": "fullscreen",
-    "start_url": "shedfactory.co",
-    "dir": "auto",
-    "lang": "en",
-    "orientation": "portrait",
-    "display_override": [
-      "fullscreen",
-      "standalone",
-      "browser",
-      "minimal-ui",
-      "window-controls-overlay"
-    ],
-    "id": "Shed",
-    "description": "Effortless Inventory Management: Keep track of your stock in real-time.",
-    "categories": [
-      "business",
-      "finance",
-      "productivity",
-      "shopping"
-    ]
-  }
+  "name": "Shed - Inventory, Invoices and More",
+  "short_name": "Shed",
+  "description": "Effortless inventory management: Track stock, manage invoices, and streamline your business in real-time.",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/maskable-icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/maskable-icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": "/admin-login?utm_source=pwa&utm_medium=homescreen",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "fullscreen",
+    "minimal-ui",
+    "browser"
+  ],
+  "theme_color": "#466c7b",
+  "background_color": "#ffffff",
+  "orientation": "any",
+  "lang": "en-US",
+  "dir": "ltr",
+  "id": "/admin-login",
+  "categories": [
+    "business",
+    "finance",
+    "productivity",
+    "shopping"
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/inventory-768x1366.png",
+      "sizes": "768x1366",
+      "type": "image/png",
+      "label": "Inventory Dashboard"
+    },
+    {
+      "src": "/screenshots/invoice-768x1366.png",
+      "sizes": "768x1366",
+      "type": "image/png",
+      "label": "Invoice Creation"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Update Stock",
+      "url": "/update-stock?utm_source=pwa_shortcut",
+      "description": "Quickly update your inventory stock levels"
+    },
+    {
+      "name": "Create Invoice",
+      "url": "/invoices?utm_source=pwa_shortcut#new",
+      "description": "Generate a new invoice for your customers"
+    },
+    {
+      "name": "Record Sale",
+      "url": "/admin/sales-form?utm_source=pwa_shortcut",
+      "description": "Log a new sale directly from your inventory"
+    }
+  ],
+  "prefer_related_applications": false
+}
