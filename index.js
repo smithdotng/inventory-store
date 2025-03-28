@@ -1628,6 +1628,7 @@ app.get('/handle-link', isAuthenticated, (req, res) => {
   }
 });
 
+
 // Serve manifest.json
 app.get('/site.webmanifest', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'site.webmanifest'));

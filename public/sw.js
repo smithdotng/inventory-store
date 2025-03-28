@@ -1,4 +1,4 @@
-importScripts('https://storage.googleapis.com/workbox-cdn/releases/5.1.2/workbox-sw.js');
+importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
 // Enable Workbox debugging in development
 workbox.setConfig({ debug: false });
@@ -8,7 +8,7 @@ const STATIC_CACHE = 'shed-static-v1';
 const DYNAMIC_CACHE = 'shed-dynamic-v1';
 const API_CACHE = 'shed-api-v1';
 
-// Precache static assets
+// Precache static assets (removed /invoices/share)
 workbox.precaching.precacheAndRoute([
   { url: '/', revision: '1' },
   { url: '/admin-login', revision: '1' },
@@ -28,7 +28,6 @@ workbox.precaching.precacheAndRoute([
   { url: '/referrals/dashboard', revision: '1' },
   { url: '/outlet-login', revision: '1' },
   { url: '/invoices/upload', revision: '1' },
-  { url: '/invoices/share', revision: '1' },
   { url: '/handle-link', revision: '1' },
   { url: '/style.css', revision: '1' },
   { url: '/images/logo.png', revision: '1' },
