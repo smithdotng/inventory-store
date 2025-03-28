@@ -1584,6 +1584,50 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
   }
 });
 
+// File upload handler for file_handlers
+app.get('/invoices/upload', isAuthenticated, (req, res) => {
+  res.render('invoices-upload', { username: req.session.admin }); // New EJS template
+});
+
+app.post('/invoices/upload', isAuthenticated, upload.single('file'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+    // Process the file (e.g., parse CSV for inventory, store PDF)
+    console.log('File uploaded:', filePath);
+    res.redirect('/invoices');
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Share target handler
+app.post('/invoices/share', isAuthenticated, upload.single('file'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+    // Process shared file
+    console.log('File shared:', filePath);
+    res.redirect('/invoices');
+  } catch (error) {
+    console.error('Error sharing file:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+// Protocol handler
+app.get('/handle-link', isAuthenticated, (req, res) => {
+  const url = req.query.url || '';
+  if (url.startsWith('web+shed://invoices')) {
+    res.redirect('/invoices');
+  } else if (url.startsWith('web+shed://update-stock')) {
+    res.redirect('/update-stock');
+  } else {
+    res.redirect('/home');
+  }
+});
+
 // Serve manifest.json
 app.get('/site.webmanifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));

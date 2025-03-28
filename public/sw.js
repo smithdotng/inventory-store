@@ -8,7 +8,7 @@ const STATIC_CACHE = 'shed-static-v1';
 const DYNAMIC_CACHE = 'shed-dynamic-v1';
 const API_CACHE = 'shed-api-v1';
 
-// Precache static assets (updated based on your server file)
+// Precache static assets
 workbox.precaching.precacheAndRoute([
   { url: '/', revision: '1' },
   { url: '/admin-login', revision: '1' },
@@ -27,13 +27,17 @@ workbox.precaching.precacheAndRoute([
   { url: '/referrals/signup', revision: '1' },
   { url: '/referrals/dashboard', revision: '1' },
   { url: '/outlet-login', revision: '1' },
+  { url: '/invoices/upload', revision: '1' }, // For file_handlers
+  { url: '/invoices/share', revision: '1' }, // For share_target
+  { url: '/handle-link', revision: '1' },    // For protocol_handlers
   { url: '/style.css', revision: '1' },
   { url: '/images/logo.png', revision: '1' },
+  { url: '/images/pdf-icon.png', revision: '1' }, // New icon for file_handlers
   { url: '/manifest.json', revision: '1' },
   { url: '/scripts/main.js', revision: '1' },
   { url: '/offline.html', revision: '1' }
 ], {
-  ignoreURLParametersMatching: [/.*/], // Ignore query params for precaching
+  ignoreURLParametersMatching: [/.*/],
   cleanUpCache: true
 });
 
@@ -44,7 +48,7 @@ workbox.routing.registerRoute(
     cacheName: STATIC_CACHE,
     plugins: [
       new workbox.expiration.ExpirationPlugin({
-        maxEntries: 50, // Limit cache size
+        maxEntries: 50,
         maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
       }),
       new workbox.cacheableResponse.CacheableResponsePlugin({
@@ -59,7 +63,7 @@ workbox.routing.registerRoute(
   ({ request }) => request.destination === 'document',
   new workbox.strategies.NetworkFirst({
     cacheName: DYNAMIC_CACHE,
-    networkTimeoutSeconds: 3, // Fallback to cache if network takes >3s
+    networkTimeoutSeconds: 3,
     plugins: [
       new workbox.expiration.ExpirationPlugin({
         maxEntries: 30,
@@ -72,7 +76,7 @@ workbox.routing.registerRoute(
   })
 );
 
-// API routes (e.g., POST requests, dynamic data) - StaleWhileRevalidate
+// API routes - StaleWhileRevalidate
 workbox.routing.registerRoute(
   ({ url }) => url.pathname.startsWith('/invoices/create') ||
                url.pathname.startsWith('/update-stock') ||
@@ -92,7 +96,39 @@ workbox.routing.registerRoute(
   })
 );
 
-// Handle authentication redirects (e.g., 302 to /admin-login)
+// File handling route - NetworkFirst
+workbox.routing.registerRoute(
+  ({ url }) => url.pathname === '/invoices/upload',
+  new workbox.strategies.NetworkFirst({
+    cacheName: DYNAMIC_CACHE,
+    plugins: [
+      new workbox.cacheableResponse.CacheableResponsePlugin({
+        statuses: [0, 200]
+      })
+    ]
+  })
+);
+
+// Share target route - NetworkOnly (POST request)
+workbox.routing.registerRoute(
+  ({ url, request }) => url.pathname === '/invoices/share' && request.method === 'POST',
+  new workbox.strategies.NetworkOnly()
+);
+
+// Protocol handling route - NetworkFirst
+workbox.routing.registerRoute(
+  ({ url }) => url.pathname.startsWith('/handle-link'),
+  new workbox.strategies.NetworkFirst({
+    cacheName: DYNAMIC_CACHE,
+    plugins: [
+      new workbox.cacheableResponse.CacheableResponsePlugin({
+        statuses: [0, 200]
+      })
+    ]
+  })
+);
+
+// Handle authentication redirects
 workbox.routing.registerRoute(
   ({ request }) => request.destination === 'document',
   async ({ event, request }) => {
@@ -109,7 +145,7 @@ workbox.routing.registerRoute(
   'GET'
 );
 
-// Default fallback for unmatched routes
+// Default handler - NetworkOnly
 workbox.routing.setDefaultHandler(
   new workbox.strategies.NetworkOnly()
 );
@@ -134,6 +170,15 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    }).then(() => self.clients.claim()) // Take control of clients immediately
+    }).then(() => self.clients.claim())
   );
+});
+
+// Handle file opening events (file_handlers)
+self.addEventListener('launch', (event) => {
+  if (event.action === '/invoices/upload') {
+    event.waitUntil(
+      clients.openWindow('/invoices/upload')
+    );
+  }
 });

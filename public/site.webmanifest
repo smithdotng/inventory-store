@@ -63,6 +63,36 @@
       "label": "Invoice Creation"
     }
   ],
+  "file_handlers": [
+    {
+      "action": "/invoices/upload",
+      "accept": {
+        "application/pdf": [".pdf"],
+        "text/csv": [".csv"]
+      },
+      "icons": [
+        {
+          "src": "/images/pdf-icon.png",
+          "sizes": "64x64",
+          "type": "image/png"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "/invoices/share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "name",
+      "files": [
+        {
+          "name": "file",
+          "accept": ["application/pdf", ".pdf", "text/csv", ".csv"]
+        }
+      ]
+    }
+  },
   "shortcuts": [
     {
       "name": "Update Stock",
@@ -80,5 +110,11 @@
       "description": "Log a new sale directly from your inventory"
     }
   ],
-  "prefer_related_applications": false
+  "prefer_related_applications": false,
+  "protocol_handlers": [
+    {
+      "protocol": "web+shed",
+      "url": "/handle-link?url=%s"
+    }
+  ]
 }
