@@ -118,10 +118,11 @@ async function connectToMongo() {
     await client.connect();
     console.log('Connected to MongoDB');
     db = client.db(dbName);
-
+    
     const adminCollection = db.collection('admins');
     if (await adminCollection.countDocuments() === 0) {
       const hashedPassword = await bcrypt.hash('superadmin123', 10);
+      console.log(hashedPassword);
       await adminCollection.insertOne({
         username: 'superadmin',
         password: hashedPassword,
@@ -154,16 +155,21 @@ function isAuthenticated(req, res, next) {
 }
 
 function isSuperAdmin(req, res, next) {
-  if (req.session.admin) {
-    db.collection('admins').findOne({ username: req.session.admin }, (err, admin) => {
-      if (err || !admin || admin.role !== 'superadmin') {
+  if (!req.session.admin) {
+    return res.redirect('/admin-login');
+  }
+  (async () => {
+    try {
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin || admin.role !== 'superadmin') {
         return res.status(403).send('Access denied. Only super admins can access this page.');
       }
       next();
-    });
-  } else {
-    res.redirect('/admin-login');
-  }
+    } catch (err) {
+      console.error('Error in isSuperAdmin middleware:', err);
+      res.status(500).send('Internal Server Error');
+    }
+  })();
 }
 
 function isAffiliateAuthenticated(req, res, next) {
@@ -224,7 +230,7 @@ app.post('/referrals/login', async (req, res) => {
 app.get('/referrals/dashboard', isAffiliateAuthenticated, async (req, res) => {
   try {
     const affiliate = await db.collection('affiliates').findOne({ _id: new ObjectId(req.session.affiliate) });
-    const referralLink = `http://localhost:3000/admin-register?ref=${affiliate.referralCode}`; // Updated to admin-register
+    const referralLink = `http://localhost:3000/admin-register?ref=${affiliate.referralCode}`;
     const activities = await db.collection('referral_activities')
       .find({ affiliateId: affiliate._id })
       .sort({ date: -1 })
@@ -284,7 +290,6 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
     const result = await db.collection('admins').insertOne(newAdmin);
     await sendWelcomeEmail(email, username, businessName);
 
-    // Track referral signup
     if (referralCode) {
       const referrer = await db.collection('affiliates').findOne({ referralCode });
       if (referrer) {
@@ -306,19 +311,31 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
 
 // Admin Login Routes
 app.get('/admin-login', (req, res) => {
-  res.render('admin-login', { error: null });
+  res.render('admin-login', { error: null, message: req.query.message || null });
 });
 
 app.post('/admin-login', async (req, res) => {
   const { username, password } = req.body;
-  const admin = await db.collection('admins').findOne({ username });
-  if (admin && await bcrypt.compare(password, admin.password)) {
-    req.session.admin = admin.username;
-    req.session.adminId = admin._id;
-    console.log('Sign-in successful');
-    res.redirect('/update-stock');
-  } else {
-    res.render('admin-login', { error: 'Invalid username or password' });
+  try {
+    const admin = await db.collection('admins').findOne({ username });
+    if (admin && await bcrypt.compare(password, admin.password)) {
+      req.session.admin = admin.username;
+      req.session.adminId = admin._id.toString();
+
+      await db.collection('login_logs').insertOne({
+        adminId: admin._id,
+        username: admin.username,
+        loginTime: new Date(),
+      });
+      console.log(`Login recorded for ${username}`);
+
+      res.redirect('/update-stock');
+    } else {
+      res.render('admin-login', { error: 'Invalid username or password', message: null });
+    }
+  } catch (error) {
+    console.error('Error during login:', error);
+    res.status(500).send('Internal Server Error');
   }
 });
 
@@ -336,10 +353,108 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// Superadmin Dashboard
-app.get('/superadmin/dashboard', isAuthenticated, async (req, res) => {
+// Forgot Password Routes
+app.get('/forgot-password', (req, res) => {
+  res.render('forgot-password', { message: null, error: null });
+});
+
+app.post('/forgot-password', async (req, res) => {
   try {
+    const { email } = req.body;
+    const admin = await db.collection('admins').findOne({ email });
+
+    if (!admin) {
+      return res.render('forgot-password', { message: null, error: 'No account found with that email.' });
+    }
+
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 3600000; // 1 hour expiration
+
+    await db.collection('password_resets').updateOne(
+      { email },
+      { $set: { token, expires } },
+      { upsert: true }
+    );
+
+    const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Password Reset Request - Shed',
+      html: `
+        <h1>Password Reset Request</h1>
+        <p>Hello, ${admin.username},</p>
+        <p>We received a request to reset your password for Shed. Click the link below to reset your password:</p>
+        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p>This link will expire in 1 hour. If you didn’t request this, please ignore this email.</p>
+        <p>Best regards,</p>
+        <p>Stanley, Chief Relationship Officer, Shedfactory</p>
+        <a href="https://shedfactory.co">shedfactory.co</a>
+      `
+    };
+
+    await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent to:', email);
+
+    res.render('forgot-password', { message: 'A reset link has been sent to your email.', error: null });
+  } catch (err) {
+    console.error('Error in forgot-password:', err.message, err.stack);
+    res.render('forgot-password', { message: null, error: 'An error occurred. Please try again.' });
+  }
+});
+
+app.get('/reset-password', async (req, res) => {
+  try {
+    const { token } = req.query;
+    const resetEntry = await db.collection('password_resets').findOne({ token });
+
+    if (!resetEntry || resetEntry.expires < Date.now()) {
+      return res.render('reset-password', { token: null, error: 'Invalid or expired reset link.' });
+    }
+
+    res.render('reset-password', { token, error: null });
+  } catch (err) {
+    console.error('Error in reset-password GET:', err.message, err.stack);
+    res.render('reset-password', { token: null, error: 'An error occurred.' });
+  }
+});
+
+app.post('/reset-password', async (req, res) => {
+  try {
+    const { token, password, confirmPassword } = req.body;
+
+    if (password !== confirmPassword) {
+      return res.render('reset-password', { token, error: 'Passwords do not match.' });
+    }
+
+    const resetEntry = await db.collection('password_resets').findOne({ token });
+    if (!resetEntry || resetEntry.expires < Date.now()) {
+      return res.render('reset-password', { token: null, error: 'Invalid or expired reset link.' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.collection('admins').updateOne(
+      { email: resetEntry.email },
+      { $set: { password: hashedPassword } }
+    );
+
+    await db.collection('password_resets').deleteOne({ token });
+    console.log('Password reset successful for email:', resetEntry.email);
+
+    res.redirect('/admin-login?message=Password reset successfully. Please log in.');
+  } catch (err) {
+    console.error('Error in reset-password POST:', err.message, err.stack);
+    res.render('reset-password', { token: req.body.token, error: 'An error occurred. Please try again.' });
+  }
+});
+
+// Superadmin Dashboard
+app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    console.log('Accessing /superadmin/dashboard for user:', req.session.admin);
     const admins = await db.collection('admins').find().toArray();
+    if (!admins.length) console.warn('No admins found in database');
+
     const adminIds = admins.map(admin => admin._id);
     const loginLogs = await db.collection('login_logs')
       .aggregate([
@@ -350,17 +465,27 @@ app.get('/superadmin/dashboard', isAuthenticated, async (req, res) => {
 
     const enrichedAdmins = admins.map(admin => {
       const loginData = loginLogs.find(log => log._id.toString() === admin._id.toString()) || {};
-      return { ...admin, lastLogin: loginData.lastLogin || null, loginCount: loginData.loginCount || 0 };
+      return { 
+        ...admin, 
+        hasLoggedIn: !!loginData.loginCount,
+        loginCount: loginData.loginCount || 0,
+        lastLogin: loginData.lastLogin || null 
+      };
     });
 
-    res.render('superadmin-dashboard', { admins: enrichedAdmins });
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    res.render('superadmin-dashboard', { 
+      admins: enrichedAdmins, 
+      formatCurrency, 
+      currentAdminId: currentAdmin._id.toString() 
+    });
   } catch (err) {
-    console.error('Error fetching admins:', err.message, err.stack);
+    console.error('Error in /superadmin/dashboard:', err.message, err.stack);
     res.status(500).send('Internal Server Error');
   }
 });
 
-// Password Reset Routes
+// Superadmin Password Reset Routes
 async function sendPasswordResetEmail(email, username, resetToken) {
   const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
   const mailOptions = {
@@ -520,9 +645,28 @@ app.post('/superadmin/create-admin', upload.single('logo'), async (req, res) => 
 });
 
 app.post('/superadmin/delete-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
-  const adminId = req.params.id;
-  await db.collection('admins').deleteOne({ _id: new ObjectId(adminId) });
-  res.redirect('/superadmin/dashboard');
+  try {
+    const adminId = req.params.id;
+    console.log('Delete request received for adminId:', adminId);
+
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (currentAdmin._id.toString() === adminId) {
+      console.warn('Attempted self-deletion by:', req.session.admin);
+      return res.status(403).send('You cannot delete your own superadmin account.');
+    }
+
+    const result = await db.collection('admins').deleteOne({ _id: new ObjectId(adminId) });
+    if (result.deletedCount === 0) {
+      console.warn('No admin found with ID:', adminId);
+      return res.status(404).send('Admin not found');
+    }
+
+    console.log('Admin deleted successfully:', adminId);
+    res.redirect('/superadmin/dashboard');
+  } catch (err) {
+    console.error('Error deleting admin:', err.message, err.stack);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
@@ -886,7 +1030,6 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
       date: new Date()
     };
     const result = await db.collection('sales').insertOne(sale);
-    // Redirect to a success page instead of directly to receipt
     res.redirect(`/sale-success/${result.insertedId}`);
   } catch (error) {
     console.error('Error confirming sale:', error);
@@ -894,7 +1037,6 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
   }
 });
 
-// New route for the success page
 app.get('/sale-success/:saleId', isAuthenticated, async (req, res) => {
   try {
     const saleId = req.params.saleId;
@@ -908,7 +1050,6 @@ app.get('/sale-success/:saleId', isAuthenticated, async (req, res) => {
   }
 });
 
-// New route to send receipt via email
 app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
   try {
     const saleId = req.params.saleId;
@@ -917,7 +1058,6 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
     if (!sale) return res.status(404).send('Sale not found.');
 
-    // Generate PDF receipt as a buffer
     const doc = new PDFDocument({ margin: 50 });
     let buffers = [];
     doc.on('data', buffers.push.bind(buffers));
@@ -953,7 +1093,6 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
       res.redirect(`/sale-success/${saleId}`);
     });
 
-    // Generate receipt content (same as /receipt/:saleId)
     doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
     doc.moveTo(50, 45).lineTo(550, 45).stroke();
     doc.moveDown(2);
@@ -1047,19 +1186,16 @@ app.get('/receipt/:saleId', isAuthenticated, async (req, res) => {
     res.setHeader('Content-type', 'application/pdf');
     doc.pipe(res);
 
-    // Define drawFooter function within this scope
     const drawFooter = () => {
       const footerY = doc.page.height - 50;
       doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
       doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
     };
 
-    // Add "Shed: Inventory, Invoices and More" at the top
     doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
     doc.moveTo(50, 45).lineTo(550, 45).stroke();
     doc.moveDown(2);
 
-    // Add logo if it exists
     if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
       doc.image(path.join(__dirname, 'public', admin.logo), 50, doc.y, { width: 100 });
       doc.moveDown(5);
@@ -1177,144 +1313,6 @@ app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
   }
 });
 
-app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
-  try {
-    const saleId = req.params.saleId;
-    const { email } = req.body;
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
-    if (!sale) return res.status(404).send('Sale not found.');
-
-    // Generate PDF receipt as a buffer
-    const doc = new PDFDocument({ margin: 50 });
-    let buffers = [];
-    doc.on('data', buffers.push.bind(buffers));
-    doc.on('end', async () => {
-      const pdfData = Buffer.concat(buffers);
-
-      const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: email,
-        subject: `Receipt for Your Purchase from ${admin.businessName || 'Shed'}`,
-        html: `
-          <h1>Thank You for Your Purchase!</h1>
-          <p>Dear ${sale.customerName || 'Customer'},</p>
-          <p>Please find your receipt attached for your recent purchase.</p>
-          <p>Business: ${admin.businessName || 'N/A'}</p>
-          <p>Date: ${new Date(sale.date).toLocaleDateString()}</p>
-          <p>Total Amount: ${admin.currency || '$'}${parseFloat(sale.totalAmount || 0).toFixed(2)}</p>
-          <p>Best regards,</p>
-          <p>Stanley, Chief Relationship Officer, Shedfactory</p>
-          <a href="https://shedfactory.co">shedfactory.co</a>
-        `,
-        attachments: [
-          {
-            filename: `receipt-${saleId}.pdf`,
-            content: pdfData,
-            contentType: 'application/pdf'
-          }
-        ]
-      };
-
-      await transporter.sendMail(mailOptions);
-      console.log('Receipt email sent to:', email);
-      res.redirect(`/sale-success/${saleId}`);
-    });
-
-    // Define drawFooter function within this scope
-    const drawFooter = () => {
-      const footerY = doc.page.height - 50;
-      doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
-      doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
-    };
-
-    // Generate receipt content
-    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
-    doc.moveTo(50, 45).lineTo(550, 45).stroke();
-    doc.moveDown(2);
-
-    if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
-      doc.image(path.join(__dirname, 'public', admin.logo), 50, doc.y, { width: 100 });
-      doc.moveDown(5);
-    }
-
-    doc.fontSize(16).text('Receipt', { align: 'right' });
-    doc.moveDown();
-    doc.fontSize(14).text(`Business: ${admin.businessName || 'N/A'}`, { align: 'left' });
-    doc.text(`Email: ${admin.email || 'N/A'}`, { align: 'left' });
-    doc.text(`Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
-    doc.moveDown();
-
-    doc.fontSize(12).text('Customer Details:', { underline: true });
-    doc.text(`Name: ${sale.customerName || 'N/A'}`);
-    doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
-    doc.text(`Email: ${sale.email || 'N/A'}`);
-    doc.moveDown();
-
-    doc.fontSize(12).text('Items:', { underline: true });
-    doc.moveDown(0.5);
-
-    const tableTop = doc.y;
-    const tableLeft = 50;
-    const colWidths = [200, 70, 100, 100];
-    const rowHeight = 20;
-
-    doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
-    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
-    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
-    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
-
-    doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
-    doc.font('Helvetica');
-
-    let y = tableTop + rowHeight;
-
-    if (sale.items && sale.items.length > 0) {
-      sale.items.forEach(item => {
-        const unitCost = parseFloat(item.unitCost) || 0;
-        const totalCost = unitCost * (parseInt(item.quantity) || 0);
-        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
-        doc.text((item.quantity || 0).toString(), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
-        doc.text(`${admin.currency} ${unitCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
-        doc.text(`${admin.currency} ${totalCost.toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
-        y += rowHeight;
-        if (doc.y + rowHeight > doc.page.height - 100) {
-          doc.addPage();
-          y = doc.y;
-        }
-      });
-    } else {
-      doc.text('No items found', tableLeft, y, { width: colWidths[0], align: 'left' });
-      y += rowHeight;
-    }
-
-    doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
-    doc.font('Helvetica-Bold');
-    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
-    doc.text(`${admin.currency} ${(parseFloat(sale.totalAmount) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
-    doc.font('Helvetica');
-
-    y += rowHeight * 1.5;
-
-    doc.moveDown(1);
-    doc.fontSize(12).text('Payment Details:', { underline: true });
-    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`, { align: 'left' });
-    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`, { align: 'left' });
-
-    if (doc.y < doc.page.height - 100) drawFooter();
-    else {
-      doc.addPage();
-      drawFooter();
-    }
-
-    doc.end();
-  } catch (error) {
-    console.error('Error sending receipt email:', error);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
@@ -1421,11 +1419,10 @@ app.get('/invoices', isAuthenticated, async (req, res) => {
       totalAmount: typeof sale.totalAmount === 'number' ? sale.totalAmount : 0
     }));
 
-    // Retrieve error and form data from session (if any)
     const error = req.session.error || null;
     const formData = req.session.formData || {};
-    delete req.session.error; // Clear after retrieving
-    delete req.session.formData; // Clear after retrieving
+    delete req.session.error;
+    delete req.session.formData;
 
     res.render('invoices', {
       username: req.session.admin,
@@ -1586,14 +1583,13 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
 
 // File upload handler for file_handlers
 app.get('/invoices/upload', isAuthenticated, (req, res) => {
-  res.render('invoices-upload', { username: req.session.admin }); // New EJS template
+  res.render('invoices-upload', { username: req.session.admin });
 });
 
 app.post('/invoices/upload', isAuthenticated, upload.single('file'), async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
-    // Process the file (e.g., parse CSV for inventory, store PDF)
     console.log('File uploaded:', filePath);
     res.redirect('/invoices');
   } catch (error) {
@@ -1607,7 +1603,6 @@ app.post('/invoices/share', isAuthenticated, upload.single('file'), async (req, 
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
-    // Process shared file
     console.log('File shared:', filePath);
     res.redirect('/invoices');
   } catch (error) {
@@ -1628,7 +1623,6 @@ app.get('/handle-link', isAuthenticated, (req, res) => {
   }
 });
 
-
 // Serve manifest.json
 app.get('/site.webmanifest', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'site.webmanifest'));
@@ -1638,22 +1632,18 @@ app.get('/status', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'status.jpg'));
 });
 
-// Serve manifest.json
 app.get('/manifest.json', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'manifest.json'));
 });
 
-// Serve service worker
 app.get('/sw.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'sw.js'));
 });
 
-// Serve offline page
 app.get('/offline.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'offline.html'));
 });
 
-// Ensure all routes return the index.html for SPA behavior
 app.get('*', (req, res, next) => {
   if (req.headers['service-worker']) {
     const filePath = path.join(__dirname, 'public', 'sw.js');
