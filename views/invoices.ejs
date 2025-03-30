@@ -243,26 +243,18 @@
       const paymentMethod = document.getElementById('paymentMethod');
       const bankDetails = document.getElementById('bankDetails');
       const invoiceForm = document.getElementById('invoiceForm');
-
+    
       // Toggle sidebar visibility
       toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
-        sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
-        } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        }
       });
-
+    
       // Replace top button with form
       createInvoiceBtn.addEventListener('click', () => {
         createInvoiceBtn.classList.add('hidden');
         createInvoiceForm.classList.remove('hidden');
       });
-
+    
       // Toggle new customer fields
       customerSelect.addEventListener('change', () => {
         const isNewCustomer = customerSelect.value === 'new';
@@ -272,7 +264,7 @@
         });
         validateCustomer();
       });
-
+    
       // Toggle bank details
       paymentMethod.addEventListener('change', () => {
         const isBankTransfer = paymentMethod.value === 'Bank Transfer';
@@ -282,7 +274,7 @@
         });
         validatePaymentMethod();
       });
-
+    
       // Add new item row with "Create New Product" option
       let itemIndex = <%= formData.items && formData.items.itemId ? (Array.isArray(formData.items.itemId) ? formData.items.itemId.length : 1) : 1 %>;
       addItemBtn.addEventListener('click', () => {
@@ -317,7 +309,7 @@
         itemIndex++;
         updateRemoveButtons();
       });
-
+    
       // Toggle new product fields based on selection
       function toggleNewProductFields(select) {
         const index = select.closest('.item-row').dataset.index;
@@ -329,7 +321,7 @@
         });
         validateItems();
       }
-
+    
       // Update remove buttons visibility
       function updateRemoveButtons() {
         const rows = itemsContainer.querySelectorAll('.item-row');
@@ -345,7 +337,7 @@
           };
         });
       }
-
+    
       // Client-side validation
       function validateCustomer() {
         const errorElement = document.getElementById('customerSelectError');
@@ -367,7 +359,7 @@
           errorElement.style.display = 'none';
         }
       }
-
+    
       function validateItems() {
         const rows = itemsContainer.querySelectorAll('.item-row');
         rows.forEach(row => {
@@ -376,7 +368,7 @@
           const quantityInput = row.querySelector('input[type="number"]');
           const errorElement = document.getElementById(`itemError${index}`);
           const isNewProduct = select.value === 'new';
-
+    
           if (!select.value) {
             errorElement.textContent = 'Please select an item.';
             errorElement.style.display = 'block';
@@ -385,7 +377,7 @@
             const cost = parseFloat(row.querySelector('input[name="items[newProductCost][]"]').value) || 0;
             const stock = parseInt(row.querySelector('input[name="items[newProductStock][]"]').value) || 0;
             const qty = parseInt(quantityInput.value) || 0;
-
+    
             if (!name) {
               errorElement.textContent = 'Product name is required.';
               errorElement.style.display = 'block';
@@ -407,7 +399,7 @@
           } else {
             const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
             const qty = parseInt(quantityInput.value) || 0;
-
+    
             if (qty <= 0) {
               errorElement.textContent = 'Quantity must be greater than 0.';
               errorElement.style.display = 'block';
@@ -420,7 +412,7 @@
           }
         });
       }
-
+    
       function validatePaymentMethod() {
         const errorElement = document.getElementById('paymentMethodError');
         if (!paymentMethod.value) {
@@ -433,7 +425,7 @@
           const bankNameError = document.getElementById('bankNameError');
           const bankAccountNumberError = document.getElementById('bankAccountNumberError');
           const accountNumberError = document.getElementById('accountNumberError');
-
+    
           if (!bankName) {
             bankNameError.textContent = 'Bank name is required.';
             bankNameError.style.display = 'block';
@@ -462,7 +454,7 @@
           errorElement.style.display = 'none';
         }
       }
-
+    
       // Attach validation and toggle listeners
       customerSelect.addEventListener('change', validateCustomer);
       document.getElementById('newCustomerName')?.addEventListener('input', validateCustomer);
@@ -476,7 +468,7 @@
       });
       itemsContainer.querySelectorAll('input[type="number"]').forEach(input => input.addEventListener('input', validateItems));
       itemsContainer.querySelectorAll('.new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
-
+    
       // Handle form submission
       invoiceForm.addEventListener('submit', (e) => {
         validateCustomer();
@@ -487,7 +479,7 @@
           e.preventDefault();
         }
       });
-
+    
       // Handle "Mark as Paid" form submission
       document.querySelectorAll('.action-form').forEach(form => {
         form.addEventListener('submit', async (e) => {
@@ -511,7 +503,7 @@
           }
         });
       });
-
+    
       // Initial setup
       updateRemoveButtons();
       newCustomerFields.style.display = customerSelect.value === 'new' ? 'block' : 'none';
