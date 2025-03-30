@@ -174,8 +174,8 @@
             <div id="bankDetails">
               <input type="text" name="bankName" id="bankName" placeholder="Bank Name" value="<%= formData.bankName || '' %>">
               <div class="field-error" id="bankNameError"></div>
-              <input type="text" name="bankAccountNumber" id="bankAccountNumber" placeholder="Bank Account Number" value="<%= formData.bankAccountNumber || '' %>">
-              <div class="field-error" id="bankAccountNumberError"></div>
+              <input type="text" name="bankAccountName" id="bankAccountName" placeholder="Bank Account Name" value="<%= formData.bankAccountName || '' %>">
+              <div class="field-error" id="bankAccountNameError"></div>
               <input type="text" name="accountNumber" id="accountNumber" placeholder="Account Number" value="<%= formData.accountNumber || '' %>">
               <div class="field-error" id="accountNumberError"></div>
             </div>
@@ -420,10 +420,10 @@
           errorElement.style.display = 'block';
         } else if (paymentMethod.value === 'Bank Transfer') {
           const bankName = document.getElementById('bankName').value.trim();
-          const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
+          const bankAccountName = document.getElementById('bankAccountName').value.trim();
           const accountNumber = document.getElementById('accountNumber').value.trim();
           const bankNameError = document.getElementById('bankNameError');
-          const bankAccountNumberError = document.getElementById('bankAccountNumberError');
+          const bankAccountNameError = document.getElementById('bankAccountNameError');
           const accountNumberError = document.getElementById('accountNumberError');
     
           if (!bankName) {
@@ -433,12 +433,12 @@
           } else {
             bankNameError.style.display = 'none';
           }
-          if (!bankAccountNumber) {
-            bankAccountNumberError.textContent = 'Bank account number is required.';
-            bankAccountNumberError.style.display = 'block';
+          if (!bankAccountName) {
+            bankAccountNameError.textContent = 'Bank account name is required.';
+            bankAccountNameError.style.display = 'block';
             errorElement.style.display = 'none';
           } else {
-            bankAccountNumberError.style.display = 'none';
+            bankAccountNameError.style.display = 'none';
           }
           if (!accountNumber) {
             accountNumberError.textContent = 'Account number is required.';
@@ -447,7 +447,7 @@
           } else {
             accountNumberError.style.display = 'none';
           }
-          if (bankName && bankAccountNumber && accountNumber) {
+          if (bankName && bankAccountName && accountNumber) {
             errorElement.style.display = 'none';
           }
         } else {
@@ -460,7 +460,7 @@
       document.getElementById('newCustomerName')?.addEventListener('input', validateCustomer);
       paymentMethod.addEventListener('change', validatePaymentMethod);
       document.getElementById('bankName')?.addEventListener('input', validatePaymentMethod);
-      document.getElementById('bankAccountNumber')?.addEventListener('input', validatePaymentMethod);
+      document.getElementById('bankAccountName')?.addEventListener('input', validatePaymentMethod);
       document.getElementById('accountNumber')?.addEventListener('input', validatePaymentMethod);
       itemsContainer.querySelectorAll('select').forEach(select => {
         select.addEventListener('change', () => toggleNewProductFields(select));

@@ -1441,7 +1441,7 @@ app.get('/invoices', isAuthenticated, async (req, res) => {
 });
 
 app.post('/invoices/create', isAuthenticated, async (req, res) => {
-  const { customerId, newCustomerName, newCustomerPhone, newCustomerEmail, items, paymentMethod, bankName, bankAccountNumber, accountNumber } = req.body;
+  const { customerId, newCustomerName, newCustomerPhone, newCustomerEmail, items, paymentMethod, bankName, bankAccountName, accountNumber } = req.body;
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!items || !paymentMethod) {
@@ -1561,13 +1561,13 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
     };
 
     if (paymentMethod === 'Bank Transfer') {
-      if (!bankName || !bankAccountNumber || !accountNumber) {
+      if (!bankName || !bankAccountName || !accountNumber) {
         req.session.error = 'Bank details required for bank transfers.';
         req.session.formData = req.body;
         await new Promise((resolve) => req.session.save(resolve));
         return res.redirect('/invoices');
       }
-      sale.bankDetails = { bankName, bankAccountNumber, accountNumber };
+      sale.bankDetails = { bankName, bankAccountName, accountNumber };
     }
 
     await db.collection('sales').insertOne(sale);
@@ -1730,7 +1730,8 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     doc.text(`Method: ${sale.paymentMethod || 'N/A'}`, 50, doc.y);
     if (sale.bankDetails) {
       doc.text(`Bank Name: ${sale.bankDetails.bankName || 'N/A'}`, 50, doc.y);
-      doc.text(`Bank Account Number: ${sale.bankDetails.bankAccountNumber || 'N/A'}`, 50, doc.y);
+      doc.text(`Bank Account Name: ${sale.bankDetails.bankAccountName || 'N/A'}`, 50, doc.y);
+      doc.text(`Account Number: ${sale.bankDetails.accountNumber || 'N/A'}`, 50, doc.y);
     }
     doc.text(`Status: ${sale.paymentStatus || 'Pending'}`, 50, doc.y);
 
