@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Update Stock | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stored Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
     <title>Update Stock</title>
     <link rel="stylesheet" href="/style.css">
@@ -13,31 +13,56 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <style>
-        /* Add these styles to your CSS */
+        /* Improved Add Product Form Styles */
+        .add-product-form {
+            margin: 20px 0;
+        }
+        
         .add-product-form form {
-            display: flex;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
             gap: 10px;
-            align-items: center; /* Align items vertically in the center */
+            align-items: center;
         }
         
         .add-product-form input {
-            flex: 1; /* Allow inputs to grow and shrink */
-            min-width: 150px; /* Minimum width for inputs */
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
         }
         
-        .add-product-form button {
-            flex: 0 0 auto; /* Prevent button from growing */
+        .add-product-btn {
+            padding: 10px 20px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            white-space: nowrap;
+            transition: background-color 0.3s;
+        }
+        
+        .add-product-btn:hover {
+            background-color: #2ecc71;
+        }
+        
+        /* Responsive Styles */
+        @media (max-width: 900px) {
+            .add-product-form form {
+                grid-template-columns: 1.5fr 1fr 1fr auto;
+            }
         }
         
         @media (max-width: 768px) {
             .add-product-form form {
-                flex-direction: column;
-                align-items: stretch;
+                grid-template-columns: 1fr;
             }
             
-            .add-product-form input,
-            .add-product-form button {
+            .add-product-btn {
                 width: 100%;
+                padding: 12px;
             }
         }
     </style>
@@ -54,8 +79,6 @@
         <a href="/transactions">View Transactions</a>
         <a href="/customers">Customers</a>
         <a href="/home">Manage Outlets</a>
-        <a href="/store-view">View Store</a>
-        <a href="/create-outlet">Create Outlet</a>
         <a href="/admin-logout">Log Out</a>
     </div>
 
@@ -75,7 +98,7 @@
                         <input type="text" name="name" placeholder="Product Name" required>
                         <input type="number" name="stock" placeholder="Initial Stock" min="0" required>
                         <input type="number" name="cost" placeholder="Cost" min="0" step="0.01" required>
-                        <button type="submit" class="add-btn">Add Product</button>
+                        <button type="submit" class="add-product-btn">Add Product</button>
                     </form>
                 </div>
             </div>

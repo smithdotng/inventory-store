@@ -4,16 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Signup | Shed: Inventory, Invoices and More" />
-     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-     <meta property="og:image" content="https://img.shed.ng/status.jpg" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="https://img.shed.ng/status.jpg" />
     <title>Signup - Shed</title>
 
-     <link rel="stylesheet" href="/style.css">
-     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-     <link rel="manifest" href="/site.webmanifest">
-
+    <link rel="stylesheet" href="/style.css">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 
     <style>
         body {
@@ -21,57 +20,93 @@
             line-height: 1.6;
             margin: 0;
             padding: 0;
-            background-color: #f8f9fa;
+            background-image: url('/images/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            position: relative;
         }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        
         .container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            box-sizing: border-box;
         }
+        
         .registration-box {
             width: 100%;
-            max-width: 500px;
-            background: white;
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
+        
         .logo-container {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
+        
         .logo-container img {
-            height: 60px;
+            height: 50px;
             margin-bottom: 10px;
+            max-width: 100%;
         }
+        
         .logo-container h1 {
             margin: 0;
             color: #2c3e50;
-            font-size: 24px;
+            font-size: 22px;
         }
+        
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
         }
+        
         label {
-            display: block;
-            margin-bottom: 8px;
+            width: 120px;
             font-weight: 600;
             color: #34495e;
+            margin-right: 15px;
+            flex-shrink: 0;
+            margin-bottom: 5px;
         }
+        
         input[type="text"],
         input[type="email"],
         input[type="password"],
         select {
-            width: 100%;
-            padding: 12px 15px;
+            flex: 1;
+            padding: 10px 12px;
             border: 1px solid #ddd;
             border-radius: 6px;
             box-sizing: border-box;
             font-size: 15px;
             transition: border-color 0.3s;
+            min-width: 200px;
         }
+        
         input[type="text"]:focus,
         input[type="email"]:focus,
         input[type="password"]:focus,
@@ -79,10 +114,11 @@
             border-color: #3498db;
             outline: none;
         }
+        
         button {
             background-color: #27ae60;
             color: white;
-            padding: 14px;
+            padding: 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
@@ -92,36 +128,45 @@
             margin-top: 10px;
             transition: background-color 0.3s;
         }
+        
         button:hover {
             background-color: #2ecc71;
         }
+        
         .error {
             color: #e74c3c;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             padding: 10px;
             background-color: #fadbd8;
             border-radius: 4px;
             text-align: center;
+            font-size: 14px;
         }
+        
         .login-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             color: #7f8c8d;
+            font-size: 14px;
         }
+        
         .login-link a {
             color: #3498db;
             text-decoration: none;
             font-weight: 600;
         }
+        
         .login-link a:hover {
             text-decoration: underline;
         }
+        
         .file-upload {
             position: relative;
             overflow: hidden;
-            display: inline-block;
-            width: 100%;
+            flex: 1;
+            min-width: 200px;
         }
+        
         .file-upload-input {
             position: absolute;
             font-size: 100px;
@@ -130,18 +175,82 @@
             top: 0;
             cursor: pointer;
         }
+        
         .file-upload-label {
             display: block;
-            padding: 12px 15px;
+            padding: 10px 12px;
             background: #f8f9fa;
             border: 1px dashed #bdc3c7;
             border-radius: 6px;
             text-align: center;
             cursor: pointer;
             color: #7f8c8d;
+            width: 100%;
+            box-sizing: border-box;
         }
+        
         .file-upload-label:hover {
             background: #ecf0f1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .registration-box {
+                padding: 20px;
+            }
+            
+            .logo-container img {
+                height: 45px;
+            }
+            
+            .logo-container h1 {
+                font-size: 20px;
+            }
+            
+            label {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 8px;
+            }
+            
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            select,
+            .file-upload {
+                min-width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .registration-box {
+                padding: 15px;
+            }
+            
+            .logo-container img {
+                height: 40px;
+            }
+            
+            .logo-container h1 {
+                font-size: 18px;
+            }
+            
+            input[type="text"],
+            input[type="email"],
+            input[type="password"],
+            select {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+            
+            button {
+                padding: 10px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
@@ -157,8 +266,7 @@
                 <div class="error"><%= error %></div>
             <% } %>
 
-            
-              <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
+            <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="businessName">Business Name</label>
                     <input type="text" id="businessName" name="businessName" required>
@@ -173,23 +281,19 @@
                     <label for="country">Country</label>
                     <select id="country" name="country" required>
                         <option value="">Select your country</option>
-                        <!-- African Countries -->
                         <optgroup label="Africa">
                             <option value="Nigeria">Nigeria</option>
                             <option value="South Africa">South Africa</option>
                             <option value="Ghana">Ghana</option>
                             <option value="Kenya">Kenya</option>
                         </optgroup>
-                        <!-- European Countries -->
                         <optgroup label="Europe">
                             <option value="United Kingdom">United Kingdom</option>
                             <option value="Germany">Germany</option>
                         </optgroup>
-                        <!-- Americas -->
                         <optgroup label="Americas">
                             <option value="United States">United States</option>
                         </optgroup>
-                        <!-- Other -->
                         <option value="Other">Other Country</option>
                     </select>
                 </div>
@@ -198,19 +302,16 @@
                     <label for="currency">Currency</label>
                     <select id="currency" name="currency" required>
                         <option value="">Select your currency</option>
-                        <!-- African Currencies -->
                         <optgroup label="African Currencies">
                             <option value="ZAR">South African Rand (ZAR)</option>
                             <option value="NGN">Nigerian Naira (NGN)</option>
                             <option value="GHS">Ghanaian Cedi (GHS)</option>
                             <option value="KES">Kenyan Shilling (KES)</option>
                         </optgroup>
-                        <!-- European Currencies -->
                         <optgroup label="European Currencies">
                             <option value="GBP">British Pound (GBP)</option>
                             <option value="EUR">Euro (EUR)</option>
                         </optgroup>
-                        <!-- US Currency -->
                         <optgroup label="Other Currencies">
                             <option value="USD">US Dollar (USD)</option>
                         </optgroup>
@@ -252,12 +353,10 @@
             const currencySelect = document.getElementById('currency');
             const country = this.value;
             
-            // Clear any previous auto-selection
             currencySelect.querySelectorAll('option').forEach(opt => {
                 opt.removeAttribute('selected');
             });
             
-            // Set currency based on country
             const countryToCurrency = {
                 'South Africa': 'ZAR',
                 'Nigeria': 'NGN',
@@ -275,14 +374,12 @@
             }
         });
 
-        // Initialize currency if country is pre-selected (e.g., from form error)
         document.addEventListener('DOMContentLoaded', function() {
             const countrySelect = document.getElementById('country');
             if (countrySelect.value) {
                 countrySelect.dispatchEvent(new Event('change'));
             }
             
-            // Show selected filename for logo upload
             const fileInput = document.getElementById('logo');
             const fileLabel = document.querySelector('.file-upload-label');
             
@@ -302,10 +399,10 @@
         });
     </script>
 
-<script>
-  if (typeof navigator.serviceWorker !== 'undefined') {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' });
-  }
-</script>
+    <script>
+        if (typeof navigator.serviceWorker !== 'undefined') {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
 </body>
 </html>

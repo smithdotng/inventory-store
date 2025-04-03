@@ -12,6 +12,64 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+    
+    <style>
+      /* Compact Action Buttons */
+      .customer-actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      
+      .customer-actions button {
+        padding: 6px 12px;
+        font-size: 14px;
+        border-radius: 4px;
+        cursor: pointer;
+        border: none;
+        font-weight: 500;
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      
+      .view-btn {
+        background-color: #3498db;
+        color: white;
+      }
+      
+      .edit-btn {
+        background-color: #f39c12;
+        color: white;
+      }
+      
+      .delete-btn {
+        background-color: #e74c3c;
+        color: white;
+      }
+      
+      .customer-actions button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+      
+      .customer-actions button:active {
+        transform: translateY(0);
+      }
+      
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .customer-actions {
+          flex-direction: column;
+          gap: 6px;
+        }
+        
+        .customer-actions button {
+          width: 100%;
+          padding: 8px;
+        }
+      }
+    </style>
+
   </head>
   <body>
     <!-- Sidebar -->
@@ -26,8 +84,6 @@
       <a href="/transactions">View Transactions</a>
       <a href="/customers" class="active">Customers</a>
       <a href="/home">Manage Outlets</a>
-      <a href="/store-view">View Store</a>
-      <a href="/create-outlet">Create Outlet</a>
       <a href="/admin-logout">Log Out</a>
     </div>
 
