@@ -247,21 +247,7 @@ app.get('/referrals/logout', (req, res) => {
   req.session.destroy(() => res.redirect('/referrals/login'));
 });
 
-// Track Referral Clicks on /admin-register
-app.get('/admin-register', async (req, res) => {
-  const referralCode = req.query.ref;
-  if (referralCode) {
-    const referrer = await db.collection('affiliates').findOne({ referralCode });
-    if (referrer) {
-      await db.collection('referral_activities').insertOne({
-        affiliateId: referrer._id,
-        action: 'Referral Link Clicked',
-        date: new Date()
-      });
-    }
-  }
-  res.render('admin-register', { error: null, referralCode });
-});
+
 
 
 // In your /admin-register POST route
@@ -311,6 +297,32 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
   } catch (error) {
     console.error('Error during registration:', error);
     res.render('admin-register', { error: 'An error occurred during registration. Please try again.' });
+  }
+});
+
+app.get('/admin-register', async (req, res) => {
+  try {
+    const referralCode = req.query.ref || null; // Ensure referralCode is always defined
+    if (referralCode) {
+      const referrer = await db.collection('affiliates').findOne({ referralCode });
+      if (referrer) {
+        await db.collection('referral_activities').insertOne({
+          affiliateId: referrer._id,
+          action: 'Referral Link Clicked',
+          date: new Date()
+        });
+      }
+    }
+    res.render('admin-register', { 
+      error: null, 
+      referralCode: referralCode // Make sure to pass it to the template
+    });
+  } catch (err) {
+    console.error('Error in /admin-register:', err);
+    res.render('admin-register', {
+      error: 'An error occurred while loading the registration page',
+      referralCode: null
+    });
   }
 });
 
