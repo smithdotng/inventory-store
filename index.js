@@ -629,16 +629,53 @@ app.get('/transactions', isAuthenticated, async (req, res) => {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const { startDate, endDate } = req.query;
     const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
-    const filter = { adminId: admin._id };
-    if (startDate && endDate) filter.date = { $gte: new Date(startDate), $lte: new Date(endDate) };
-    const transactions = await db.collection('sales').find(filter).toArray();
+    
+    // Create filter to get both direct admin sales and outlet sales
+    const filter = { 
+      $or: [
+        { adminId: admin._id }, // Direct admin sales
+        { 'outlet.adminId': admin._id } // Sales from outlets owned by this admin
+      ]
+    };
+    
+    if (startDate && endDate) {
+      filter.date = { 
+        $gte: new Date(startDate), 
+        $lte: new Date(`${endDate}T23:59:59.999Z`) // Include entire end day
+      };
+    }
+    
+    // Get sales with outlet information populated
+    const transactions = await db.collection('sales').aggregate([
+      { $match: filter },
+      {
+        $lookup: {
+          from: 'outlets',
+          localField: 'outletId',
+          foreignField: '_id',
+          as: 'outlet'
+        }
+      },
+      { $unwind: { path: '$outlet', preserveNullAndEmptyArrays: true } },
+      { $sort: { date: -1 } } // Newest transactions first
+    ]).toArray();
+
     const validTransactions = transactions.map(sale => ({
       ...sale,
       totalAmount: sale.totalAmount || 0,
-      items: sale.items || []
+      items: sale.items || [],
+      // Add outlet name if this is an outlet sale
+      outletName: sale.outlet ? sale.outlet.name : null
     }));
-    const username = req.session.admin;
-    res.render('transactions', { transactions: validTransactions, admin, username, inventory });
+    
+    res.render('transactions', { 
+      transactions: validTransactions, 
+      admin, 
+      username: req.session.admin,
+      inventory,
+      startDate: startDate || '', // Pass empty string if not provided
+      endDate: endDate || '' // Pass empty string if not provided
+    });
   } catch (error) {
     console.error('Error fetching transactions:', error);
     res.status(500).send('Internal Server Error');
@@ -1468,7 +1505,7 @@ app.get('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
     // Only show inventory items that belong to this outlet
     const inventory = outlet.inventory || [];
     
-    res.render('outlet-sales-form', username,{ 
+    res.render('outlet-sales-form', { 
       inventory, 
       outlet, 
       admin,
@@ -1515,22 +1552,30 @@ app.post('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
       }
     );
 
-    // Record the sale
-    await db.collection('sales').insertOne({
-      outletId: outlet._id,
-      adminId: outlet.adminId,
-      customerName,
-      phoneNumber: phoneNumber || 'N/A',
-      email: email || 'N/A',
-      itemId: itemId,
-      itemName: item.name,
-      quantity: qty,
-      date: new Date(),
-      paymentMethod: 'Cash', // Default payment method for outlets
-      paymentStatus: 'Paid'  // Outlet sales are typically paid immediately
-    });
+        // Record the sale with proper outlet identification
+        const sale = {
+          outletId: outlet._id,
+          outletName: outlet.name, // Store outlet name directly
+          adminId: outlet.adminId,
+          customerName,
+          phoneNumber: phoneNumber || 'N/A',
+          email: email || 'N/A',
+          items: [{
+            itemId: itemId,
+            itemName: item.name,
+            quantity: qty,
+            unitCost: item.cost || 0,
+            totalCost: (item.cost || 0) * qty
+          }],
+          totalAmount: (item.cost || 0) * qty,
+          date: new Date(),
+          paymentMethod: 'Cash',
+          paymentStatus: 'Paid',
+          source: 'outlet' // Explicit source identifier
+        };
 
-    res.redirect('/outlet/sales-form');
+      await db.collection('sales').insertOne(sale);
+      res.redirect('/outlet/sales-form');
   } catch (error) {
     console.error('Error processing outlet sale:', error);
     res.status(500).send('Internal Server Error');

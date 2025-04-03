@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <style>
-      /* Add this new style for transaction actions */
+      /* Transaction actions */
       .transaction-actions {
         display: flex;
         gap: 15px;
@@ -21,6 +21,32 @@
       }
       .transaction-actions form {
         margin: 0;
+      }
+      
+      /* Outlet transaction styling */
+      .outlet-transaction {
+        background-color: #f8fafc;
+        border-left: 4px solid #3b82f6;
+      }
+      .outlet-badge {
+        background-color: #e0f2fe;
+        color: #0369a1;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-left: 5px;
+        display: inline-block;
+      }
+      .source-indicator {
+        font-size: 0.8rem;
+        color: #64748b;
+        margin-top: 3px;
+      }
+      .admin-source {
+        color: #10b981;
+      }
+      .outlet-source {
+        color: #3b82f6;
       }
     </style>
   </head>
@@ -35,7 +61,7 @@
     <a href="/pos">Point of Sale</a>
     <a href="/update-stock">Manage Inventory</a>
     <a href="/invoices">Generate Invoice</a>
-    <a href="/transactions"  class="active">View Transactions</a>
+    <a href="/transactions" class="active">View Transactions</a>
     <a href="/customers">Customers</a>
     <a href="/home">Manage Outlets</a>
     <a href="/admin-logout">Log Out</a>
@@ -59,13 +85,30 @@
         <p><strong>Currency:</strong> <%= admin.currency || 'N/A' %></p>
       </div>
 
+      <!-- Filter Form -->
+      <div class="filter-section">
+        <form method="GET" action="/transactions">
+          <div class="filter-row">
+            <label for="startDate">From:</label>
+            <input type="date" id="startDate" name="startDate" value="<%= typeof startDate !== 'undefined' ? startDate : '' %>">
+            
+            <label for="endDate">To:</label>
+            <input type="date" id="endDate" name="endDate" value="<%= typeof endDate !== 'undefined' ? endDate : '' %>">
+            
+            <button type="submit" class="filter-btn">Filter</button>
+            <a href="/transactions" class="reset-btn">Reset</a>
+          </div>
+        </form>
+      </div>
+
       <!-- Transactions Table -->
       <div class="table-section">
         <table>
           <thead>
             <tr>
               <th>Date</th>
-              <th>Customer Name</th>
+              <th>Customer</th>
+              <th>Source</th>
               <th>Items</th>
               <th>Total Amount</th>
               <th>Payment Status</th>
@@ -74,12 +117,26 @@
           </thead>
           <tbody>
             <% transactions.forEach(transaction => { %>
-              <tr>
+              <tr class="<%= transaction.outletName ? 'outlet-transaction' : '' %>">
                 <!-- Date -->
-                <td><%= transaction.date ? new Date(transaction.date).toLocaleDateString() : 'N/A' %></td>
+                <td><%= transaction.date ? new Date(transaction.date).toLocaleString() : 'N/A' %></td>
 
                 <!-- Customer Name -->
                 <td><%= transaction.customerName || 'N/A' %></td>
+
+                <!-- Source -->
+                <td>
+                  <% if (transaction.outletName) { %>
+                    <span class="outlet-source">
+                      <i class="source-indicator">Outlet:</i><br>
+                      <%= transaction.outletName %>
+                    </span>
+                  <% } else { %>
+                    <span class="admin-source">
+                      <i class="source-indicator">Admin Store</i>
+                    </span>
+                  <% } %>
+                </td>
 
                 <!-- Items -->
                 <td>
@@ -91,6 +148,12 @@
                           (Qty: <%= item.quantity %>, Cost: <%= admin.currency %> <%= (item.unitCost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>)
                         </li>
                       <% }) %>
+                    <% } else if (transaction.itemName) { %>
+                      <!-- For older single-item transactions -->
+                      <li>
+                        <%= transaction.itemName %>
+                        (Qty: <%= transaction.quantity %>, Cost: <%= admin.currency %> <%= (transaction.cost || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>)
+                      </li>
                     <% } else { %>
                       <li>No items found.</li>
                     <% } %>
@@ -102,21 +165,26 @@
                   <%= admin.currency %> 
                   <% if (transaction.totalAmount !== undefined && transaction.totalAmount !== null) { %>
                     <%= transaction.totalAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
+                  <% } else if (transaction.cost && transaction.quantity) { %>
+                    <!-- For older single-item transactions -->
+                    <%= (transaction.cost * transaction.quantity).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) %>
                   <% } else { %>
                     0.00
                   <% } %>
                 </td>
 
                 <!-- Payment Status -->
-                <td><%= transaction.paymentStatus || 'Pending' %></td>
+                <td>
+                  <%= transaction.paymentStatus || 'Pending' %>
+                </td>
 
                 <!-- Actions -->
                 <td>
                   <div class="transaction-actions">
-                    <a href="/receipt/<%= transaction._id %>" class="download-btn">Download Receipt</a>
-                    <% if (transaction.paymentStatus === 'Pending') { %>
+                    <a href="/receipt/<%= transaction._id %>" class="download-btn">Receipt</a>
+                    <% if (transaction.paymentStatus !== 'Paid') { %>
                       <form action="/transactions/mark-paid/<%= transaction._id %>" method="POST">
-                        <button type="submit" class="mark-paid-btn">Mark as Paid</button>
+                        <button type="submit" class="mark-paid-btn">Mark Paid</button>
                       </form>
                     <% } %>
                   </div>
@@ -163,52 +231,6 @@
     }
     setSidebarState();
     window.addEventListener('resize', setSidebarState);
-
-    // Table editing functions
-    function toggleEdit(id) {
-      const row = document.getElementById(`row-${id}`);
-      const stockInput = row.querySelector('.stock-input');
-      const costInput = row.querySelector('.cost-input');
-      const editBtn = row.querySelector('.edit-btn');
-      const updateBtn = row.querySelector('.update-btn');
-      const cancelBtn = row.querySelector('.cancel-btn');
-
-      stockInput.disabled = false;
-      costInput.disabled = false;
-      editBtn.style.display = 'none';
-      updateBtn.style.display = 'inline';
-      cancelBtn.style.display = 'inline';
-    }
-
-    function updateHiddenInputs(id) {
-      const row = document.getElementById(`row-${id}`);
-      const stockInput = row.querySelector('.stock-input');
-      const costInput = row.querySelector('.cost-input');
-      const hiddenStock = row.querySelector('input[name="stock"]');
-      const hiddenCost = row.querySelector('input[name="cost"]');
-      const form = row.querySelector('form');
-
-      hiddenStock.value = stockInput.value;
-      hiddenCost.value = costInput.value;
-      form.submit(); // Submit the form to update the stock
-    }
-
-    function cancelEdit(id, originalStock, originalCost) {
-      const row = document.getElementById(`row-${id}`);
-      const stockInput = row.querySelector('.stock-input');
-      const costInput = row.querySelector('.cost-input');
-      const editBtn = row.querySelector('.edit-btn');
-      const updateBtn = row.querySelector('.update-btn');
-      const cancelBtn = row.querySelector('.cancel-btn');
-
-      stockInput.value = originalStock;
-      costInput.value = originalCost;
-      stockInput.disabled = true;
-      costInput.disabled = true;
-      editBtn.style.display = 'inline';
-      updateBtn.style.display = 'none';
-      cancelBtn.style.display = 'none';
-    }
   </script>
 </body>
 </html>

@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Sales Form | Shed: Inventory, Invoices and More" />
+    <meta property="og:title" content="Outlet Sales Form | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Sales Form</title>
+    <title>Outlet Sales Form</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -19,14 +19,12 @@
       <div class="logo-container">
         <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
       </div>
-      <h2>Welcome, <%= username %>!</h2>
-        <a href="/pos" class="active">Point of Sale</a>
-        <a href="/update-stock">Manage Inventory</a>
-        <a href="/invoices">Generate Invoice</a>
-        <a href="/transactions">View Transactions</a>
-        <a href="/customers">Customers</a>
-        <a href="/home">Manage Outlets</a>
-        <a href="/admin-logout">Log Out</a>
+      <h2>Welcome, <%= outlet.name %>!</h2>
+        <a href="/outlet/sales-form" class="active">Point of Sale</a>
+        <a href="/outlet/<%= outlet._id %>/stock-view">View Inventory</a>
+        <a href="/outlet-transactions/<%= outlet._id %>">View Transactions</a>
+        <a href="/outlet-customers/<%= outlet._id %>">Customers</a>
+        <a href="/outlet-logout">Log Out</a>
     </div>
 
     <!-- Toggle Button -->
@@ -36,36 +34,30 @@
     <div class="main-content" id="mainContent">
       <div class="container">
         <div class="content-logo-container">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="<%= admin.businessName || 'Shed' %>">
         </div>
-        <h1>Admin Sales Form</h1>
+        <h1>Outlet Sales Form</h1>
         <div class="form-section">
-          <form id="salesForm" action="/admin/sales-form" method="POST">
+          <form id="salesForm" action="/outlet/sales-form" method="POST">
             <!-- Customer Details -->
             <input type="text" name="customerName" placeholder="Customer Name" required>
             <input type="text" name="phoneNumber" placeholder="Phone Number">
             <input type="email" name="email" placeholder="Email Address">
 
-            <!-- Payment Method -->
-            <select name="paymentMethod" required>
-              <option value="">Select Payment Method</option>
-              <option value="Cash">Cash</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Card">Card</option>
-            </select>
-
             <!-- Items Section -->
             <div id="itemsContainer">
               <div class="item-row">
-                <select name="items[itemId][]" class="item-select" required>
+                <select name="itemId" class="item-select" required>
                   <option value="">Select Product</option>
                   <% inventory.forEach(item => { %>
                     <% if (item.stock > 0) { %>
-                      <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
+                      <option value="<%= item.id %>" data-stock="<%= item.stock %>">
+                        <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %>
+                      </option>
                     <% } %>
                   <% }) %>
                 </select>
-                <input type="number" name="items[quantity][]" class="quantity-input" placeholder="Quantity" min="1" required>
+                <input type="number" name="quantity" class="quantity-input" placeholder="Quantity" min="1" required>
                 <button type="button" class="remove-btn" style="display: none;">Remove</button>
               </div>
             </div>
@@ -73,14 +65,10 @@
             <!-- Error Message -->
             <div id="errorMessage" class="error-message" style="display: none;">
               <span style="color: red;">Quantity exceeds available stock.</span>
-              <a href="/update-stock">Update Stock</a>
             </div>
 
-            <!-- Add Item Button -->
-            <button type="button" id="addItemBtn" style="margin-top: 10px; color: blueviolet;">Add Another Item</button>
-
             <!-- Submit Button -->
-            <button type="submit">Record Sale</button>
+            <button type="submit">Complete Sale</button>
           </form>
         </div>
       </div>
@@ -92,11 +80,10 @@
       const mainContent = document.getElementById('mainContent');
       const toggleBtn = document.getElementById('toggleBtn');
       const itemsContainer = document.getElementById('itemsContainer');
-      const addItemBtn = document.getElementById('addItemBtn');
       const salesForm = document.getElementById('salesForm');
       const errorMessage = document.getElementById('errorMessage');
 
-      // Toggle sidebar visibility (only active on small screens)
+      // Toggle sidebar visibility
       toggleBtn.addEventListener('click', () => {
         sidebar.classList.toggle('visible');
         sidebar.classList.toggle('hidden');
@@ -112,78 +99,31 @@
       // Hide error message by default
       errorMessage.style.display = 'none';
 
-      // Add new item row
-      addItemBtn.addEventListener('click', () => {
-        const newRow = document.createElement('div');
-        newRow.className = 'item-row';
-        newRow.innerHTML = `
-          <select name="items[itemId][]" class="item-select" required>
-            <option value="">Select Product</option>
-            <% inventory.forEach(item => { %>
-              <% if (item.stock > 0) { %>
-                <option value="<%= item._id %>" data-stock="<%= item.stock %>"><%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %></option>
-              <% } %>
-            <% }) %>
-          </select>
-          <input type="number" name="items[quantity][]" class="quantity-input" placeholder="Quantity" min="1" required>
-          <button type="button" class="remove-btn">Remove</button>
-        `;
-        itemsContainer.appendChild(newRow);
-        updateRemoveButtons();
-        attachValidation(newRow.querySelector('.item-select'), newRow.querySelector('.quantity-input'));
-      });
-
-      // Update remove buttons visibility
-      function updateRemoveButtons() {
-        const rows = itemsContainer.querySelectorAll('.item-row');
-        rows.forEach((row, index) => {
-          const removeBtn = row.querySelector('.remove-btn');
-          removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'inline-block';
-          removeBtn.onclick = () => {
-            if (rows.length > 1) row.remove();
-            updateRemoveButtons();
-            validateForm();
-          };
-        });
-      }
-
-      // Attach validation to item select and quantity input
-      function attachValidation(itemSelect, quantityInput) {
-        itemSelect.addEventListener('change', () => {
-          const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
-          quantityInput.setAttribute('max', stock);
-          validateForm();
-        });
-
-        quantityInput.addEventListener('input', () => {
-          const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
-          const quantity = parseInt(quantityInput.value);
-          validateForm();
-        });
-      }
-
-      // Validate all items in the form
+      // Validate item selection and quantity
       function validateForm() {
-        let hasError = false;
-        const rows = itemsContainer.querySelectorAll('.item-row');
-        rows.forEach(row => {
-          const itemSelect = row.querySelector('.item-select');
-          const quantityInput = row.querySelector('.quantity-input');
-          const stock = parseInt(itemSelect.options[itemSelect.selectedIndex].getAttribute('data-stock'));
-          const quantity = parseInt(quantityInput.value) || 0;
-          if (quantity > stock) {
-            hasError = true;
-          }
-        });
-        errorMessage.style.display = hasError ? 'block' : 'none';
-        return !hasError;
+        const itemSelect = document.querySelector('.item-select');
+        const quantityInput = document.querySelector('.quantity-input');
+        
+        if (!itemSelect || !quantityInput) return true;
+        
+        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
+        if (!selectedOption || !selectedOption.value) return true;
+        
+        const stock = parseInt(selectedOption.getAttribute('data-stock'));
+        const quantity = parseInt(quantityInput.value) || 0;
+        
+        if (quantity > stock) {
+          errorMessage.style.display = 'block';
+          return false;
+        } else {
+          errorMessage.style.display = 'none';
+          return true;
+        }
       }
 
-      // Initial validation setup
-      const initialItemSelect = itemsContainer.querySelector('.item-select');
-      const initialQuantityInput = itemsContainer.querySelector('.quantity-input');
-      attachValidation(initialItemSelect, initialQuantityInput);
-      updateRemoveButtons();
+      // Attach validation to form elements
+      document.querySelector('.item-select')?.addEventListener('change', validateForm);
+      document.querySelector('.quantity-input')?.addEventListener('input', validateForm);
 
       // Form submission validation
       salesForm.addEventListener('submit', (event) => {
@@ -191,6 +131,24 @@
           event.preventDefault();
         }
       });
+
+      // Responsive adjustments
+      function handleResize() {
+        if (window.innerWidth > 768) {
+          sidebar.classList.add('visible');
+          sidebar.classList.remove('hidden');
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        } else {
+          sidebar.classList.remove('visible');
+          sidebar.classList.add('hidden');
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        }
+      }
+
+      window.addEventListener('resize', handleResize);
+      handleResize(); // Initialize on load
     </script>
   </body>
 </html>
