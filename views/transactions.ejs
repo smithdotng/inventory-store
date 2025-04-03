@@ -48,6 +48,83 @@
       .outlet-source {
         color: #3b82f6;
       }
+      /* Updated Filter Section Styles */
+      .filter-section {
+        margin: 20px 0;
+        width: 85%;
+      }
+
+      .filter-section form {
+        display: grid;
+        grid-template-columns: auto 1fr auto 1fr auto auto;
+        gap: 15px;
+        align-items: center;
+        max-width: 100%;
+      }
+
+      .filter-section label {
+        font-weight: 500;
+        color: #374151;
+      }
+
+      .filter-section input[type="date"] {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        width: 100%;
+        max-width: 200px;
+      }
+
+      .filter-btn,
+      .reset-btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 500;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
+
+      .filter-btn {
+        background-color: #20b115;
+        color: white;
+      }
+
+      .filter-btn:hover {
+        background-color: #4deb25;
+        transform: translateY(-1px);
+      }
+
+      .reset-btn {
+        background-color: #6b7280;
+        color: white;
+      }
+
+      .reset-btn:hover {
+        background-color: #4b5563;
+        transform: translateY(-1px);
+      }
+
+      /* Responsive Styles */
+      @media (max-width: 768px) {
+        .filter-section form {
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .filter-section input[type="date"] {
+          max-width: 100%;
+        }
+
+        .filter-btn,
+        .reset-btn {
+          width: 100%;
+        }
+      
     </style>
   </head>
 <body>
@@ -86,20 +163,17 @@
       </div>
 
       <!-- Filter Form -->
-      <div class="filter-section">
-        <form method="GET" action="/transactions">
-          <div class="filter-row">
-            <label for="startDate">From:</label>
+      <!-- Updated Filter Form -->
+        <div class="filter-section">
+          <form method="GET" action="/transactions">
+            <label for="startDate" style="color: #d1d5db;">From:</label>
             <input type="date" id="startDate" name="startDate" value="<%= typeof startDate !== 'undefined' ? startDate : '' %>">
-            
-            <label for="endDate">To:</label>
+            <label for="endDate" style="color: #d1d5db;">To:</label>
             <input type="date" id="endDate" name="endDate" value="<%= typeof endDate !== 'undefined' ? endDate : '' %>">
-            
             <button type="submit" class="filter-btn">Filter</button>
             <a href="/transactions" class="reset-btn">Reset</a>
-          </div>
-        </form>
-      </div>
+          </form>
+        </div>
 
       <!-- Transactions Table -->
       <div class="table-section">
