@@ -1,59 +1,293 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Signup | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-    <meta property="og:image" content="https://img.shed.ng/status.jpg" />
-    <title>Shed</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-  </head>
-<body style="justify-content: center;">
-  <div class="container">
-    <!-- Logo above the form -->
-    <div class="logo-container">
-      <img src="/images/logo-a.png" alt="Yearnings Custom Store Logo">
+    <title>Admin Registration - Shed</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .registration-box {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .logo-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .logo-container img {
+            height: 60px;
+            margin-bottom: 10px;
+        }
+        .logo-container h1 {
+            margin: 0;
+            color: #2c3e50;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        button {
+            background-color: #27ae60;
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2ecc71;
+        }
+        .error {
+            color: #e74c3c;
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: #fadbd8;
+            border-radius: 4px;
+            text-align: center;
+        }
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #7f8c8d;
+        }
+        .login-link a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+        .file-upload {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+        .file-upload-input {
+            position: absolute;
+            font-size: 100px;
+            opacity: 0;
+            right: 0;
+            top: 0;
+            cursor: pointer;
+        }
+        .file-upload-label {
+            display: block;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border: 1px dashed #bdc3c7;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+        .file-upload-label:hover {
+            background: #ecf0f1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="registration-box">
+            <div class="logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+                <h1>Create your Account</h1>
+            </div>
+            
+            <% if (error) { %>
+                <div class="error"><%= error %></div>
+            <% } %>
+
+            <form action="/admin-register<%= referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="businessName">Business Name</label>
+                    <input type="text" id="businessName" name="businessName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="country">Country</label>
+                    <select id="country" name="country" required>
+                        <option value="">Select your country</option>
+                        <!-- African Countries -->
+                        <optgroup label="Africa">
+                            <option value="Nigeria">Nigeria</option>
+                            <option value="South Africa">South Africa</option>
+                            <option value="Ghana">Ghana</option>
+                            <option value="Kenya">Kenya</option>
+                        </optgroup>
+                        <!-- European Countries -->
+                        <optgroup label="Europe">
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Germany">Germany</option>
+                        </optgroup>
+                        <!-- Americas -->
+                        <optgroup label="Americas">
+                            <option value="United States">United States</option>
+                        </optgroup>
+                        <!-- Other -->
+                        <option value="Other">Other Country</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currency">Currency</label>
+                    <select id="currency" name="currency" required>
+                        <option value="">Select your currency</option>
+                        <!-- African Currencies -->
+                        <optgroup label="African Currencies">
+                            <option value="ZAR">South African Rand (ZAR)</option>
+                            <option value="NGN">Nigerian Naira (NGN)</option>
+                            <option value="GHS">Ghanaian Cedi (GHS)</option>
+                            <option value="KES">Kenyan Shilling (KES)</option>
+                        </optgroup>
+                        <!-- European Currencies -->
+                        <optgroup label="European Currencies">
+                            <option value="GBP">British Pound (GBP)</option>
+                            <option value="EUR">Euro (EUR)</option>
+                        </optgroup>
+                        <!-- US Currency -->
+                        <optgroup label="Other Currencies">
+                            <option value="USD">US Dollar (USD)</option>
+                        </optgroup>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="logo">Business Logo</label>
+                    <div class="file-upload">
+                        <label class="file-upload-label" for="logo">
+                            Click to upload logo (Optional)
+                        </label>
+                        <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
+                    </div>
+                </div>
+                
+                <button type="submit">Create Account</button>
+            </form>
+            
+            <div class="login-link">
+                Already have an account? <a href="/admin-login">Sign in here</a>
+            </div>
+        </div>
     </div>
 
-    <div class="form-section">
-      <h2>Business Registration <span class="icon-verification" style="margin-left: 10px;"></span></h2>
-      <% if (error) { %>
-        <div class="error"><%= error %></div>
-      <% } %>
-      <form action="/admin-register" method="POST" enctype="multipart/form-data">
-        <input type="text" name="businessName" placeholder="Business Name" required>
-        <input type="email" name="email" placeholder="Email Address" required>
-        <select name="currency" required>
-          <option value="">Select Currency</option>
-          <option value="USD">USD - United States Dollar</option>
-          <option value="EUR">EUR - Euro</option>
-          <option value="GBP">GBP - British Pound</option>
-          <option value="NGN">NGN - Nigerian Naira</option>
-          <option value="CAD">CAD - Canadian Dollar</option>
-          <!-- Add more currencies as needed -->
-        </select>
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <label for="logo" style="display: block; text-align: left; margin-bottom: 5px; font-weight: bold;">Upload Logo:</label>
-        <input type="file" id="logo" name="logo" accept="image/*">
-        
-        <button type="submit">Register <span class="icon-right-arrow"></span></button>
-      </form>
-      <div class="login-link">
-        Already have an account? <a href="/admin-login">Login here</a>
-      </div>
-    </div>
-  </div>
+    <script>
+        // Auto-select currency based on country
+        document.getElementById('country').addEventListener('change', function() {
+            const currencySelect = document.getElementById('currency');
+            const country = this.value;
+            
+            // Clear any previous auto-selection
+            currencySelect.querySelectorAll('option').forEach(opt => {
+                opt.removeAttribute('selected');
+            });
+            
+            // Set currency based on country
+            const countryToCurrency = {
+                'South Africa': 'ZAR',
+                'Nigeria': 'NGN',
+                'Ghana': 'GHS',
+                'Kenya': 'KES',
+                'United Kingdom': 'GBP',
+                'Germany': 'EUR',
+                'United States': 'USD'
+            };
+            
+            if (countryToCurrency[country]) {
+                currencySelect.value = countryToCurrency[country];
+            } else {
+                currencySelect.value = '';
+            }
+        });
+
+        // Initialize currency if country is pre-selected (e.g., from form error)
+        document.addEventListener('DOMContentLoaded', function() {
+            const countrySelect = document.getElementById('country');
+            if (countrySelect.value) {
+                countrySelect.dispatchEvent(new Event('change'));
+            }
+            
+            // Show selected filename for logo upload
+            const fileInput = document.getElementById('logo');
+            const fileLabel = document.querySelector('.file-upload-label');
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files.length > 0) {
+                    fileLabel.textContent = this.files[0].name;
+                    fileLabel.style.color = '#2c3e50';
+                    fileLabel.style.borderColor = '#27ae60';
+                    fileLabel.style.backgroundColor = '#e8f8ef';
+                } else {
+                    fileLabel.textContent = 'Click to upload logo (Optional)';
+                    fileLabel.style.color = '#7f8c8d';
+                    fileLabel.style.borderColor = '#bdc3c7';
+                    fileLabel.style.backgroundColor = '#f8f9fa';
+                }
+            });
+        });
+    </script>
 </body>
-
-<script>
-  if (typeof navigator.serviceWorker !== 'undefined') {
-    navigator.serviceWorker.register('/sw.js', { scope: '/' });
-  }
-</script>
 </html>

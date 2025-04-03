@@ -1,10 +1,13 @@
+/* Base Styles */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
   display: flex;
-  background-color: #f5f5f5;
+  background-color: #f8f9fa;
   min-height: 100vh;
+  line-height: 1.6;
+  color: #2c3e50;
 }
 
 .container {
@@ -15,29 +18,54 @@ body {
   box-sizing: border-box;
 }
 
+/* Logo Styles */
 .content-logo-container img {
   max-height: 100px;
   margin: 20px auto;
   display: block;
 }
 
+.logo-container {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.logo-container img {
+  height: 60px;
+  margin-bottom: 10px;
+}
+
+.logo-container h1 {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 24px;
+}
+
+/* Typography */
 h1 {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
-  color: #333;
+  color: #2c3e50;
 }
 
+h2 {
+  font-size: 20px;
+  color: #34495e;
+}
+
+/* Section Styles */
 .table-section,
 .form-section {
   background-color: white;
-  padding: 25px;
+  padding: 30px;
   border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
   overflow-x: auto;
 }
 
+/* Table Styles */
 table {
   border-collapse: collapse;
   width: 100%;
@@ -48,16 +76,13 @@ th,
 td {
   padding: 12px;
   text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
 th {
-  background-color: #e0e0e0;
+  background-color: #f4f4f4;
   font-weight: 600;
   color: #333;
-}
-
-tr {
-  border-bottom: 1px solid #ddd;
 }
 
 tr:last-child {
@@ -69,263 +94,181 @@ td {
   color: #555;
 }
 
+/* Button Base Styles */
+button,
 .create-btn,
 .download-btn,
 .form-section button,
-.mark-paid-btn {
+.mark-paid-btn,
+.edit-btn,
+.view-btn,
+.delete-btn,
+.update-btn,
+.cancel-btn,
+.reset-btn,
+.remove-btn {
   padding: 12px 25px;
   border: none;
   border-radius: 6px;
   cursor: pointer;
   color: white;
   font-size: 16px;
-  font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
 }
 
-/* Button Styling */
-.mark-paid-btn,
-.download-btn {
-  padding: 8px 12px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px;
-  margin-right: 10px;
-}
-
-.mark-paid-btn {
-  background-color: #28a745;
-  color: white;
-}
-
-.mark-paid-btn:hover {
-  background-color: #218838;
-}
-
-.download-btn {
-  background-color: #007bff;
-  color: white;
-  text-decoration: none;
-  display: inline-block;
-  padding: 8px 12px;
-}
-
-.download-btn:hover {
-  background-color: #0056b3;
-}
-
-/* Error Message Styling */
-.error-message {
-  color: red;
-  margin-top: 10px;
-  display: none;
-}
-
-/* Edit Stock Button */
-.edit-btn {
-  background-color: #2196F3; /* Blue */
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-.view-btn {
-  background-color: #2196F3; /* Blue */
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-.view-btn:hover {
-  background-color: #1976D2; /* Darker Blue */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.view-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Delete Button */
-.delete-btn {
-  background-color: #ff4444; /* Red */
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-.delete-btn:hover {
-  background-color: #cc0000; /* Darker Red */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.delete-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.edit-btn:hover {
-  background-color: #1976D2; /* Darker Blue */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.edit-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Update Button */
-.update-btn {
-  background-color: #4CAF50; /* Green */
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-.update-btn:hover {
-  background-color: #45a049; /* Darker Green */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.update-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-/* Cancel Button */
-.cancel-btn {
-  background-color: #ff4444; /* Red */
-  color: white;
-  padding: 8px 15px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: background-color 0.3s, transform 0.2s, box-shadow 0.3s;
-}
-
-.cancel-btn:hover {
-  background-color: #cc0000; /* Darker Red */
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.cancel-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.download-btn,
-.mark-paid-btn {
-  padding: 8px 15px;
-}
-
-.create-btn:hover,
-.download-btn:hover,
-.form-section button:hover,
-.mark-paid-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.create-btn:active,
-.download-btn:active,
-.form-section button:active,
-.mark-paid-btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
+/* Button Colors & Hover States */
 .create-btn,
-.form-section button[type="submit"] {
-  background-color: #4CAF50;
+.form-section button[type="submit"],
+.download-btn {
+  background-color: #27ae60;
 }
 
 .create-btn:hover,
-.form-section button[type="submit"]:hover {
-  background-color: #45a049;
-}
-
-.download-btn {
-  background-color: #4CAF50;
-}
-
+.form-section button[type="submit"]:hover,
 .download-btn:hover {
-  background-color: #45a049;
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
 .mark-paid-btn {
-  background-color: #2196F3;
+  background-color: #3498db;
   margin-left: 10px;
 }
 
 .mark-paid-btn:hover {
-  background-color: #1976D2;
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
 }
 
-.reset-btn { background-color: #5eb814; color: white; padding: 5px 10px; border: none; cursor: pointer; }
+.edit-btn,
+.view-btn {
+  background-color: #3498db;
+}
 
+.edit-btn:hover,
+.view-btn:hover {
+  background-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.delete-btn,
+.cancel-btn,
+.remove-btn {
+  background-color: #e74c3c;
+}
+
+.delete-btn:hover,
+.cancel-btn:hover,
+.remove-btn:hover {
+  background-color: #c0392b;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.update-btn {
+  background-color: #27ae60;
+}
+
+.update-btn:hover {
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.reset-btn {
+  background-color: #5eb814;
+}
+
+.reset-btn:hover {
+  background-color: #4ca30d;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Button Active States */
+button:active,
+.create-btn:active,
+.download-btn:active,
+.form-section button:active,
+.mark-paid-btn:active,
+.edit-btn:active,
+.view-btn:active,
+.delete-btn:active,
+.update-btn:active,
+.cancel-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Form Styles */
 .form-section form {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 20px;
   width: 100%;
 }
 
 .form-section input,
 .form-section select {
-  padding: 12px;
+  padding: 12px 15px;
   border: 1px solid #ddd;
   border-radius: 6px;
   width: 100%;
   max-width: 350px;
   box-sizing: border-box;
   font-size: 16px;
-  background-color: #fafafa;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+  background-color: #f8f9fa;
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 .form-section input:focus,
 .form-section select:focus {
-  border-color: #4CAF50;
-  box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52,152,219,0.2);
   outline: none;
 }
 
+/* File Upload Styles */
+.file-upload {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+.file-upload-input {
+  position: absolute;
+  font-size: 100px;
+  opacity: 0;
+  right: 0;
+  top: 0;
+  cursor: pointer;
+}
+
+.file-upload-label {
+  display: block;
+  padding: 12px 15px;
+  background: #f8f9fa;
+  border: 1px dashed #bdc3c7;
+  border-radius: 6px;
+  text-align: center;
+  cursor: pointer;
+  color: #7f8c8d;
+  transition: all 0.3s;
+}
+
+.file-upload-label:hover {
+  background: #ecf0f1;
+  border-color: #95a5a6;
+}
+
+/* Dynamic Form Sections */
 #newCustomerFields,
 #bankDetails {
   display: none;
@@ -336,7 +279,7 @@ td {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-bottom: 10px;
+  margin-bottom: 15px;
   align-items: center;
   width: 100%;
 }
@@ -347,15 +290,6 @@ td {
   min-width: 120px;
 }
 
-.remove-btn {
-  background-color: #ff4444;
-  padding: 8px 15px;
-}
-
-.remove-btn:hover {
-  background-color: #cc0000;
-}
-
 /* Sidebar Styles */
 .sidebar {
   width: 200px;
@@ -363,7 +297,7 @@ td {
   color: white;
   height: 100vh;
   padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
   transition: transform 0.3s ease;
   position: fixed;
   top: 0;
@@ -388,51 +322,63 @@ td {
   width: auto;
 }
 
-.sidebar h2 {
-  font-size: 20px;
-  margin: 0 0 20px;
-  white-space: nowrap;
-  color: #fff;
-}
-
 .sidebar a {
   color: white;
   text-decoration: none;
   display: flex;
   align-items: center;
-  padding: 10px;
+  padding: 12px 15px;
   margin: 10px 0;
   border-radius: 6px;
   font-size: 16px;
   transition: background-color 0.3s;
-  white-space: nowrap;
 }
 
 .sidebar a:hover {
   background-color: #afce14;
 }
 
+/* Add this new active state */
+.sidebar a.active {
+  background-color: #FFD700; /* Yellow color */
+  color: #2c3e50; /* Dark text for better contrast */
+  font-weight: 600;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+
 /* Toggle Button */
 .toggle-btn {
   position: fixed;
-  top: 10px;
-  left: 10px;
-  background-color: #4CAF50;
+  top: 20px;
+  left: 20px;
+  margin-top: 75px;
+  background-color: #27ae60;
   border: none;
   color: white;
   font-size: 24px;
   cursor: pointer;
-  padding: 5px 10px;
-  margin-top: 75px;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border-radius: 6px;
   z-index: 1100;
-  transition: background-color 0.3s;
-  display: none; /* Hidden by default on large screens */
+  transition: all 0.3s ease;
+  display: none;
+  width: auto;
+  min-width: auto;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
 .toggle-btn:hover {
-  background-color: #45a049;
+  background-color: #2ecc71;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
+
+.toggle-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
 
 /* Main Content */
 .main-content {
@@ -448,9 +394,144 @@ td {
   font-size: 24px;
   font-weight: bold;
   margin-bottom: 20px;
-  color: #333;
+  color: #2c3e50;
   padding-left: 50px;
 }
+
+/* Utility Classes */
+.error-message {
+  color: #e74c3c;
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #fadbd8;
+  border-radius: 4px;
+  text-align: center;
+  display: none;
+}
+
+.error {
+  color: #e74c3c;
+  margin-bottom: 20px;
+  padding: 10px;
+  background-color: #fadbd8;
+  border-radius: 4px;
+  text-align: center;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #7f8c8d;
+}
+
+.login-link a {
+  color: #3498db;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* Action Buttons */
+.dispense-btn, 
+.details-btn, 
+.delete-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  margin-right: 8px;
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Dispense Button */
+.dispense-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.dispense-btn:hover {
+  background-color: #3e8e41;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Details Button */
+.details-btn {
+  background-color: #2196F3;
+  color: white;
+}
+
+.details-btn:hover {
+  background-color: #0b7dda;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Delete Button */
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Button container in table cells */
+td {
+  white-space: nowrap;
+}
+
+/* Form styling for delete button */
+.delete-form {
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+}
+
+@media (max-width: 768px) {
+  .dispense-btn, 
+  .details-btn, 
+  .delete-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+    margin-right: 4px;
+  }
+}
+
+.dispense-btn::before {
+  content: "➞";
+  margin-right: 5px;
+}
+
+.details-btn::before {
+  content: "👁️";
+  margin-right: 5px;
+}
+
+.delete-btn::before {
+  content: "🗑️";
+  margin-right: 5px;
+}
+
+.dispense-btn:disabled,
+.details-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 
 /* Responsive Design */
 @media (max-width: 1024px) {
@@ -474,17 +555,17 @@ td {
 
 @media (max-width: 768px) {
   .sidebar {
-    transform: translateX(-100%); /* Hidden by default on small screens */
+    transform: translateX(-100%);
   }
   .sidebar.visible {
-    transform: translateX(0); /* Show when toggled */
+    transform: translateX(0);
   }
   .main-content {
     margin-left: 0;
     width: 100%;
   }
   .toggle-btn {
-    display: block; /* Show toggle button on small screens */
+    display: block;
   }
   .content-logo-container img {
     max-height: 70px;
@@ -508,24 +589,25 @@ td {
     width: 100%;
     margin-top: 10px;
   }
+  button,
   .create-btn,
   .mark-paid-btn,
   .download-btn {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
   }
 }
 
 @media (min-width: 769px) {
   .sidebar {
-    transform: translateX(0); /* Always visible on large screens */
+    transform: translateX(0);
   }
   .main-content {
     margin-left: 200px;
     width: calc(100% - 200px);
   }
   .toggle-btn {
-    display: none; /* Hide toggle button on large screens */
+    display: none;
   }
 }
 
@@ -551,26 +633,13 @@ td {
   h1 {
     font-size: 18px;
   }
+  button,
   .create-btn,
   .download-btn,
   .mark-paid-btn,
   .form-section button {
     font-size: 14px;
-    padding: 8px 15px;
+    padding: 10px 15px;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-  }
-  th,
-  td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-  }
-  th {
-    background-color: #f4f4f4;
-    font-weight: bold;
-  }
+  
 }

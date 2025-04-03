@@ -260,12 +260,13 @@ app.get('/admin-register', async (req, res) => {
       });
     }
   }
-  res.render('admin-register', { error: null });
+  res.render('admin-register', { error: null, referralCode });
 });
 
-// Track Referral Signups on /admin-register
+
+// In your /admin-register POST route
 app.post('/admin-register', upload.single('logo'), async (req, res) => {
-  const { businessName, email, currency, username, password } = req.body;
+  const { businessName, email, currency, username, password, country } = req.body;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
   const referralCode = req.query.ref;
 
@@ -280,11 +281,13 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       businessName,
       email,
       currency,
+      country,
       username,
       password: hashedPassword,
       logo: logoPath,
       role: 'admin',
-      createdAt: new Date()
+      createdAt: new Date(),
+      
     };
 
     const result = await db.collection('admins').insertOne(newAdmin);
@@ -302,12 +305,16 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       }
     }
 
+
+
     res.redirect('/admin-login');
   } catch (error) {
     console.error('Error during registration:', error);
     res.render('admin-register', { error: 'An error occurred during registration. Please try again.' });
   }
 });
+
+
 
 // Admin Login Routes
 app.get('/admin-login', (req, res) => {
@@ -755,10 +762,11 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       return res.redirect('/profile');
     }
 
-    const { businessName, currency, phone, address } = req.body;
+    const { businessName, currency, phone, address, country } = req.body;
     const updateData = {
       businessName: businessName || admin.businessName,
       currency: currency || admin.currency,
+      country: country || admin.country,
       phone: phone || admin.phone,
       address: address || admin.address
     };
@@ -783,21 +791,32 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
 
 app.post('/create-outlet', isAuthenticated, async (req, res) => {
   const { name, location, mobile, username, password } = req.body;
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  const existingOutlet = await db.collection('outlets').findOne({ username });
-  if (existingOutlet) return res.render('create-outlet', { error: 'Username already exists', admin, username: req.session.admin });
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const existingOutlet = await db.collection('outlets').findOne({ username });
+    
+    if (existingOutlet) {
+      req.session.error = 'Username already exists';
+      return res.redirect('/home');
+    }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
-  await db.collection('outlets').insertOne({
-    name,
-    location,
-    mobile,
-    username,
-    password: hashedPassword,
-    adminId: admin._id,
-    inventory: []
-  });
-  res.redirect('/home');
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await db.collection('outlets').insertOne({
+      name,
+      location,
+      mobile,
+      username,
+      password: hashedPassword,
+      adminId: admin._id,
+      inventory: []
+    });
+    
+    res.redirect('/home');
+  } catch (error) {
+    console.error('Error creating outlet:', error);
+    req.session.error = 'An error occurred while creating outlet';
+    res.redirect('/home');
+  }
 });
 
 app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
@@ -920,10 +939,25 @@ app.get('/admin-logout', (req, res) => {
 });
 
 app.get('/home', isAuthenticated, async (req, res) => {
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray();
-  const username = req.session.admin;
-  res.render('home', { outlets, admin, username });
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray();
+    const username = req.session.admin;
+    
+    // Get error from session and then clear it
+    const error = req.session.error || null;
+    req.session.error = null;
+    
+    res.render('home', { 
+      outlets, 
+      admin, 
+      username,
+      error
+    });
+  } catch (err) {
+    console.error('Error loading home page:', err);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/outlet-login', async (req, res) => {
@@ -942,12 +976,12 @@ function isOutletAuthenticated(req, res, next) {
   res.redirect('/outlet-login');
 }
 
-app.get('/admin/sales-form', isAuthenticated, async (req, res) => {
+app.get('/pos', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
     const username = req.session.admin;
-    res.render('admin-sales-form', { inventory, admin, username });
+    res.render('pos', { inventory, admin, username });
   } catch (error) {
     console.error('Error fetching admin sales form:', error);
     res.status(500).send('Internal Server Error');

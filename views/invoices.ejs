@@ -45,6 +45,20 @@
         margin-bottom: 10px;
         width: 100%;
       }
+      /* Add these new styles */
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .invoice-actions {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+      }
+      .action-form {
+        margin: 0;
+      }
     </style>
   </head>
   <body>
@@ -54,13 +68,14 @@
         <img src="/images/logo.png" alt="Shedfactory Business Solutions">
       </div>
       <h2>Welcome, <%= username %>!</h2>
-      <a href="/admin/sales-form">Sell</a>
-      <a href="/store-view">View Store</a>
-      <a href="/update-stock">Update Stock</a>
-      <a href="/create-outlet">Create Outlet</a>
-      <a href="/invoices">Invoices</a>
-      <a href="/transactions">Transactions</a>
+      <a href="/pos">Point of Sale</a>
+      <a href="/update-stock">Manage Inventory</a>
+      <a href="/invoices"  class="active">Generate Invoice</a>
+      <a href="/transactions">View Transactions</a>
       <a href="/customers">Customers</a>
+      <a href="/home">Manage Outlets</a>
+      <a href="/store-view">View Store</a>
+      <a href="/create-outlet">Create Outlet</a>
       <a href="/admin-logout">Log Out</a>
     </div>
 
@@ -180,7 +195,10 @@
               <div class="field-error" id="accountNumberError"></div>
             </div>
 
-            <button type="submit" class="create-btn">Create Invoice</button>
+            <div class="form-actions">
+              <button type="submit" class="create-btn">Create Invoice</button>
+              <button type="button" class="cancel-btn" id="cancelInvoiceBtn">Cancel</button>
+            </div>
           </form>
         </div>
 
@@ -212,14 +230,16 @@
                   <td><%= admin.currency %><%= formatCurrency(sale.totalAmount || 0) %></td>
                   <td class="payment-status"><%= sale.paymentStatus || 'Pending' %></td>
                   <td>
-                    <a href="/invoices/download/<%= sale._id %>">
-                      <button class="download-btn">Download PDF</button>
-                    </a>
-                    <% if (sale.paymentStatus !== 'Paid') { %>
-                      <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
-                        <button type="submit" class="mark-paid-btn">Mark as Paid</button>
-                      </form>
-                    <% } %>
+                    <div class="invoice-actions">
+                      <a href="/invoices/download/<%= sale._id %>">
+                        <button class="download-btn">Download PDF</button>
+                      </a>
+                      <% if (sale.paymentStatus !== 'Paid') { %>
+                        <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
+                          <button type="submit" class="mark-paid-btn">Mark as Paid</button>
+                        </form>
+                      <% } %>
+                    </div>
                   </td>
                 </tr>
               <% }) %>
@@ -236,6 +256,7 @@
       const toggleBtn = document.getElementById('toggleBtn');
       const createInvoiceBtn = document.getElementById('createInvoiceBtn');
       const createInvoiceForm = document.getElementById('createInvoiceForm');
+      const cancelInvoiceBtn = document.getElementById('cancelInvoiceBtn');
       const customerSelect = document.getElementById('customerSelect');
       const newCustomerFields = document.getElementById('newCustomerFields');
       const itemsContainer = document.getElementById('itemsContainer');
@@ -249,10 +270,24 @@
         sidebar.classList.toggle('visible');
       });
     
-      // Replace top button with form
+      // Toggle invoice form visibility
       createInvoiceBtn.addEventListener('click', () => {
         createInvoiceBtn.classList.add('hidden');
         createInvoiceForm.classList.remove('hidden');
+      });
+      
+      // Cancel invoice creation
+      cancelInvoiceBtn.addEventListener('click', () => {
+        createInvoiceForm.classList.add('hidden');
+        createInvoiceBtn.classList.remove('hidden');
+        invoiceForm.reset();
+        // Reset to single item row if multiple exist
+        const rows = itemsContainer.querySelectorAll('.item-row');
+        if (rows.length > 1) {
+          for (let i = 1; i < rows.length; i++) {
+            rows[i].remove();
+          }
+        }
       });
     
       // Toggle new customer fields

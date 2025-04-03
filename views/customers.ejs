@@ -20,13 +20,14 @@
         <img src="/images/logo.png" alt="Shedfactory Business Solutions">
       </div>
       <h2>Welcome, <%= username %>!</h2>
-      <a href="/admin/sales-form">Sell</a>
+      <a href="/pos">Point of Sale</a>
+      <a href="/update-stock">Manage Inventory</a>
+      <a href="/invoices">Generate Invoice</a>
+      <a href="/transactions">View Transactions</a>
+      <a href="/customers" class="active">Customers</a>
+      <a href="/home">Manage Outlets</a>
       <a href="/store-view">View Store</a>
-      <a href="/update-stock">Update Stock</a>
       <a href="/create-outlet">Create Outlet</a>
-      <a href="/invoices">Invoices</a>
-      <a href="/transactions">Transactions</a>
-      <a href="/customers">Customers</a>
       <a href="/admin-logout">Log Out</a>
     </div>
 
@@ -49,6 +50,8 @@
                 <th>Name</th>
                 <th>Phone</th>
                 <th>Email</th>
+                <th>Total Value</th>
+                <th>Last Purchase</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -59,9 +62,21 @@
                   <td><%= customer.phone || 'N/A' %></td>
                   <td><%= customer.email || 'N/A' %></td>
                   <td>
-                    <button class="view-btn" onclick="viewCustomer('<%= customer._id %>')">View</button>
-                    <button class="edit-btn" onclick="editCustomer('<%= customer._id %>')">Edit</button>
-                    <button class="delete-btn" onclick="deleteCustomer('<%= customer._id %>')">Delete</button>
+                    <%= admin.currency || '$' %><%= customer.totalValue ? formatCurrency(customer.totalValue) : '0.00' %>
+                  </td>
+                  <td>
+                    <% if (customer.lastPurchaseDate) { %>
+                      <%= new Date(customer.lastPurchaseDate).toLocaleDateString() %>
+                    <% } else { %>
+                      Never
+                    <% } %>
+                  </td>
+                  <td>
+                    <div class="customer-actions">
+                      <button class="view-btn" onclick="viewCustomer('<%= customer._id %>')">View</button>
+                      <button class="edit-btn" onclick="editCustomer('<%= customer._id %>')">Edit</button>
+                      <button class="delete-btn" onclick="deleteCustomer('<%= customer._id %>')">Delete</button>
+                    </div>
                   </td>
                 </tr>
               <% }) %>
@@ -116,6 +131,22 @@
           }
         }
       }
+
+      // Set initial sidebar state
+      function setSidebarState() {
+        if (window.innerWidth <= 768) {
+          sidebar.classList.add('hidden');
+          mainContent.style.marginLeft = '0';
+          mainContent.style.width = '100%';
+        } else {
+          sidebar.classList.remove('hidden');
+          sidebar.classList.remove('visible');
+          mainContent.style.marginLeft = '200px';
+          mainContent.style.width = 'calc(100% - 200px)';
+        }
+      }
+      setSidebarState();
+      window.addEventListener('resize', setSidebarState);
     </script>
   </body>
 </html>
