@@ -250,6 +250,7 @@ h2 {
 }
 
 /* Table Styles */
+/* Table Styles - Add zebra striping */
 table {
   border-collapse: collapse;
   width: 100%;
@@ -260,13 +261,61 @@ th,
 td {
   padding: 12px;
   text-align: left;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid #e0e0e0;
 }
 
+/* Zebra striping for table rows */
+tbody tr:nth-child(odd) {
+  background-color: rgba(255, 255, 255, 0.9); /* Solid white for light theme */
+}
+
+tbody tr:nth-child(even) {
+  background-color: rgba(245, 245, 245, 0.9); /* Slightly darker for contrast */
+}
+
+/* Dark theme version - if you're using a dark theme */
+.dark-table tbody tr:nth-child(odd) {
+  background-color: rgba(50, 50, 50, 0.9); /* Dark gray for dark theme */
+}
+
+.dark-table tbody tr:nth-child(even) {
+  background-color: rgba(60, 60, 60, 0.9); /* Slightly lighter for contrast */
+}
+
+/* Hover effect for rows */
+tbody tr:hover {
+  background-color: #f0f8ff; /* Light blue hover for light theme */
+}
+
+.dark-table tbody tr:hover {
+  background-color: #2a3f5f; /* Dark blue hover for dark theme */
+}
+
+/* Header styles (unchanged) */
 th {
   background-color: #f4f4f4;
   font-weight: 600;
   color: #333;
+  position: sticky;
+  top: 0;
+  box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark theme header */
+.dark-table th {
+  background-color: #333;
+  color: white;
+}
+
+/* Cell styles (unchanged) */
+td {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Dark theme cell text */
+.dark-table td {
+  color: #e0e0e0;
 }
 
 tr:last-child {

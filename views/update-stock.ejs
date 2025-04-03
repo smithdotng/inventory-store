@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <style>
-        /* Improved Add Product Form Styles */
+        /* Existing styles remain unchanged */
         .add-product-form {
             margin: 20px 0;
         }
@@ -32,22 +32,82 @@
             border: 1px solid #ddd;
         }
         
-        .add-product-btn {
-            padding: 10px 20px;
-            background-color: #27ae60;
-            color: white;
+        /* Updated Button Styles */
+        .add-product-btn,
+        .edit-btn,
+        .update-btn,
+        .cancel-btn,
+        .go-to-store-btn {
+            padding: 8px 16px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            white-space: nowrap;
-            transition: background-color 0.3s;
+            text-align: center;
+            transition: all 0.3s ease;
+            display: inline-block;
+            text-decoration: none;
+            width: 50%;
+        }
+    
+        /* Add Product Button */
+        .add-product-btn {
+            background-color: #27ae60;
+            color: white;
+            width: 50%;
         }
         
         .add-product-btn:hover {
             background-color: #2ecc71;
+            transform: translateY(-1px);
+        }
+    
+        /* Edit Button */
+        .edit-btn {
+            background-color: #3498db;
+            color: white;
         }
         
+        .edit-btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+        }
+    
+        /* Update Button */
+        .update-btn {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .update-btn:hover {
+            background-color: #27ae60;
+            transform: translateY(-1px);
+        }
+    
+        /* Cancel Button */
+        .cancel-btn {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .cancel-btn:hover {
+            background-color: #c0392b;
+            transform: translateY(-1px);
+        }
+    
+        /* Go to Store Button */
+        .go-to-store-btn {
+            background-color: #8e44ad;
+            color: white;
+            padding: 10px 20px;
+            margin-top: 20px;
+        }
+        
+        .go-to-store-btn:hover {
+            background-color: #9b59b6;
+            transform: translateY(-1px);
+        }
+    
         /* Responsive Styles */
         @media (max-width: 900px) {
             .add-product-form form {
@@ -60,9 +120,14 @@
                 grid-template-columns: 1fr;
             }
             
-            .add-product-btn {
-                width: 100%;
-                padding: 12px;
+            .add-product-btn,
+            .edit-btn,
+            .update-btn,
+            .cancel-btn,
+            .go-to-store-btn {
+                width: 50%;
+                padding: 10px;
+                margin: 5px 0;
             }
         }
     </style>
