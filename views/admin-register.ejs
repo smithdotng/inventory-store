@@ -146,7 +146,8 @@
                 <div class="error"><%= error %></div>
             <% } %>
 
-            <form action="/admin-register<%= referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
+            
+              <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
                 <div class="form-group">
                     <label for="businessName">Business Name</label>
                     <input type="text" id="businessName" name="businessName" required>

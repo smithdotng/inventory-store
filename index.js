@@ -87,6 +87,15 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.render('admin-register', {
+    error: 'System error',
+    referralCode: null,
+    message: null
+  });
+});
+
 // Logger configuration
 const logger = winston.createLogger({
   level: 'error',
@@ -302,7 +311,9 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
 
 app.get('/admin-register', async (req, res) => {
   try {
-    const referralCode = req.query.ref || null; // Ensure referralCode is always defined
+    const referralCode = req.query.ref || null; // Ensure it's never undefined
+    
+    // Track referral if code exists
     if (referralCode) {
       const referrer = await db.collection('affiliates').findOne({ referralCode });
       if (referrer) {
@@ -313,15 +324,22 @@ app.get('/admin-register', async (req, res) => {
         });
       }
     }
+    
+    // Render with all required variables
     res.render('admin-register', { 
-      error: null, 
-      referralCode: referralCode // Make sure to pass it to the template
+      error: null,
+      referralCode: referralCode, // Explicitly pass the variable
+      message: null,
+      admin: null // Include other variables your template might expect
     });
+    
   } catch (err) {
     console.error('Error in /admin-register:', err);
     res.render('admin-register', {
       error: 'An error occurred while loading the registration page',
-      referralCode: null
+      referralCode: null, // Ensure it's passed even in error case
+      message: null,
+      admin: null
     });
   }
 });
