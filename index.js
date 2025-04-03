@@ -849,26 +849,80 @@ app.post('/create-outlet', isAuthenticated, async (req, res) => {
   }
 });
 
+// Updated dispense-to-outlet route
 app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
-  const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
-  const inventory = await db.collection('inventory').find().toArray();
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  const username = req.session.admin;
-  res.render('dispense-to-outlet', { outlet, inventory, admin, username });
+  try {
+    const outletId = req.params.outletId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    
+    // Verify the outlet belongs to the current admin
+    const outlet = await db.collection('outlets').findOne({ 
+      _id: new ObjectId(outletId),
+      adminId: admin._id 
+    });
+    
+    if (!outlet) {
+      return res.status(404).send('Outlet not found or not authorized');
+    }
+
+    // Only get inventory items belonging to this admin
+    const inventory = await db.collection('inventory').find({ 
+      adminId: admin._id 
+    }).toArray();
+    
+    const username = req.session.admin;
+    res.render('dispense-to-outlet', { 
+      outlet, 
+      inventory, 
+      admin, 
+      username 
+    });
+  } catch (error) {
+    console.error('Error in dispense-to-outlet:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
+// Updated dispense-to-outlet POST route
 app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const { itemId, quantity } = req.body;
   const qty = parseInt(quantity);
-  const item = await db.collection('inventory').findOne({ _id: new ObjectId(itemId) });
-  if (item && item.stock >= qty && qty > 0) {
+  
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    
+    // Verify the outlet belongs to the current admin
+    const outlet = await db.collection('outlets').findOne({ 
+      _id: new ObjectId(outletId),
+      adminId: admin._id 
+    });
+    
+    if (!outlet) {
+      return res.status(404).send('Outlet not found or not authorized');
+    }
+
+    // Verify the item belongs to the current admin
+    const item = await db.collection('inventory').findOne({ 
+      _id: new ObjectId(itemId),
+      adminId: admin._id 
+    });
+    
+    if (!item) {
+      return res.status(404).send('Item not found or not authorized');
+    }
+
+    if (item.stock < qty || qty <= 0) {
+      return res.status(400).send('Invalid quantity or insufficient stock');
+    }
+
+    // Update admin's inventory (reduce stock)
     await db.collection('inventory').updateOne(
-      { _id: new ObjectId(itemId) },
+      { _id: new ObjectId(itemId), adminId: admin._id },
       { $inc: { stock: -qty } }
     );
-    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+
+    // Update outlet's inventory (add stock)
     const outletItem = outlet.inventory.find(i => i.id === itemId);
     if (outletItem) {
       await db.collection('outlets').updateOne(
@@ -878,11 +932,21 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
     } else {
       await db.collection('outlets').updateOne(
         { _id: new ObjectId(outletId) },
-        { $push: { inventory: { id: itemId, name: item.name, stock: qty } } }
+        { $push: { 
+          inventory: { 
+            id: itemId, 
+            name: item.name, 
+            stock: qty 
+          } 
+        } }
       );
     }
+
+    res.redirect(`/dispense-to-outlet/${outletId}`);
+  } catch (error) {
+    console.error('Error dispensing to outlet:', error);
+    res.status(500).send('Internal Server Error');
   }
-  res.redirect(`/dispense-to-outlet/${outletId}`);
 });
 
 app.get('/store-view', isAuthenticated, async (req, res) => {
@@ -1387,10 +1451,29 @@ app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) 
 
 app.get('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
   try {
-    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(req.session.outletId) });
-    const inventory = outlet.inventory;
-    const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
-    res.render('outlet-sales-form', { inventory, outlet, admin });
+    // Get the current outlet
+    const outlet = await db.collection('outlets').findOne({ 
+      _id: new ObjectId(req.session.outletId) 
+    });
+    
+    if (!outlet) {
+      return res.status(404).send('Outlet not found');
+    }
+
+    // Get the admin to display business info
+    const admin = await db.collection('admins').findOne({ 
+      _id: outlet.adminId 
+    });
+
+    // Only show inventory items that belong to this outlet
+    const inventory = outlet.inventory || [];
+    
+    res.render('outlet-sales-form', username,{ 
+      inventory, 
+      outlet, 
+      admin,
+      formatCurrency
+    });
   } catch (error) {
     console.error('Error fetching outlet sales form:', error);
     res.status(500).send('Internal Server Error');
@@ -1400,26 +1483,51 @@ app.get('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
 app.post('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
   const { customerName, phoneNumber, email, itemId, quantity } = req.body;
   const qty = parseInt(quantity);
+  
   try {
-    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(req.session.outletId) });
-    const item = outlet.inventory.find(i => i.id === itemId);
-    if (!item) return res.status(404).send('Item not found in outlet inventory.');
-    if (item.stock < qty || qty <= 0) return res.status(400).send('Invalid quantity or insufficient stock.');
+    // Get the current outlet
+    const outlet = await db.collection('outlets').findOne({ 
+      _id: new ObjectId(req.session.outletId) 
+    });
+    
+    if (!outlet) {
+      return res.status(404).send('Outlet not found');
+    }
 
+    // Find the item in the outlet's inventory
+    const item = outlet.inventory.find(i => i.id === itemId);
+    if (!item) {
+      return res.status(404).send('Item not found in outlet inventory');
+    }
+
+    if (item.stock < qty || qty <= 0) {
+      return res.status(400).send('Invalid quantity or insufficient stock');
+    }
+
+    // Update outlet's inventory (reduce stock)
     await db.collection('outlets').updateOne(
-      { _id: new ObjectId(req.session.outletId), 'inventory.id': itemId },
-      { $inc: { 'inventory.$.stock': -qty } }
+      { 
+        _id: new ObjectId(req.session.outletId),
+        'inventory.id': itemId 
+      },
+      { 
+        $inc: { 'inventory.$.stock': -qty } 
+      }
     );
 
+    // Record the sale
     await db.collection('sales').insertOne({
       outletId: outlet._id,
+      adminId: outlet.adminId,
       customerName,
-      phoneNumber,
-      email,
+      phoneNumber: phoneNumber || 'N/A',
+      email: email || 'N/A',
       itemId: itemId,
       itemName: item.name,
       quantity: qty,
-      date: new Date()
+      date: new Date(),
+      paymentMethod: 'Cash', // Default payment method for outlets
+      paymentStatus: 'Paid'  // Outlet sales are typically paid immediately
     });
 
     res.redirect('/outlet/sales-form');
