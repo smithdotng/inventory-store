@@ -34,7 +34,11 @@ workbox.precaching.precacheAndRoute([
   { url: '/images/pdf-icon.png', revision: '1' },
   { url: '/manifest.json', revision: '1' },
   { url: '/scripts/main.js', revision: '1' },
-  { url: '/offline.html', revision: '1' }
+  { url: '/offline.html', revision: '1' },
+  { url: '/outlet-customers', revision: '1' },
+  { url: '/outlet-transactions', revision: '1' },
+  { url: '/outlet-sales-form', revision: '1' },
+  { url: '/receipt', revision: '1' },
 ], {
   ignoreURLParametersMatching: [/.*/],
   cleanUpCache: true
@@ -80,6 +84,7 @@ workbox.routing.registerRoute(
   ({ url }) => url.pathname.startsWith('/invoices/create') ||
                url.pathname.startsWith('/update-stock') ||
                url.pathname.startsWith('/admin/sales-form') ||
+                url.pathname.startsWith('/outlet-login') ||
                url.pathname.startsWith('/confirm-sale'),
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: API_CACHE,
