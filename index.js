@@ -425,7 +425,9 @@ app.post('/forgot-password', async (req, res) => {
       { upsert: true }
     );
 
-    const resetUrl = `http://localhost:3000/reset-password?token=${token}`;
+    // Use environment variable for domain or fallback to localhost in development
+    const domain = process.env.DOMAIN_URL || 'http://localhost:3000';
+    const resetUrl = `${domain}/reset-password?token=${token}`;
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
@@ -536,7 +538,8 @@ app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res)
 
 // Superadmin Password Reset Routes
 async function sendPasswordResetEmail(email, username, resetToken) {
-  const resetLink = `http://localhost:3000/reset-password/${resetToken}`;
+  const domain = process.env.DOMAIN_URL || 'http://localhost:3000';
+  const resetLink = `${domain}/reset-password/${resetToken}`;
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: email,
