@@ -14,93 +14,144 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-
       /* Form Section Styling */
-.form-section {
-  background: #f9f9f9;
-  padding: 25px;
-  border-radius: 8px;
-  margin-bottom: 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  max-width: 600px;
-}
+      .form-section {
+        background: #f9f9f9;
+        padding: 25px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        max-width: 600px;
+        width: 100%;
+        box-sizing: border-box;
+        margin-left: auto;
+        margin-right: auto;
+      }
 
-.form-section h2 {
-  margin-bottom: 20px;
-  color: #333;
-}
+      .form-section h2 {
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.5rem;
+      }
 
-.form-section input {
-  width: 100%;
-  padding: 12px;
-  margin: 10px 0;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  transition: border-color 0.3s;
-}
+      .form-section input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        transition: border-color 0.3s;
+        box-sizing: border-box;
+      }
 
-.form-section input:focus {
-  border-color: #4CAF50;
-  outline: none;
-}
+      .form-section input:focus {
+        border-color: #4CAF50;
+        outline: none;
+      }
 
-/* Button Container */
-.form-buttons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 20px;
-}
+      /* Button Container */
+      .form-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
 
-/* Submit Button */
-.form-section form button[type="submit"] {
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  padding: 12px 25px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.3s;
-}
+      /* Submit Button */
+      .form-section form button[type="submit"] {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s;
+        flex: 1;
+        min-width: 120px;
+      }
 
-.form-section form button[type="submit"]:hover {
-  background-color: #3e8e41;
-  transform: translateY(-2px);
-}
+      .form-section form button[type="submit"]:hover {
+        background-color: #3e8e41;
+        transform: translateY(-2px);
+      }
 
-/* Cancel Button */
-.cancel-btn {
-  background-color: #e11414;
-  color: #555;
-  border: 1px solid #ddd;
-  padding: 12px 25px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: 500;
-  transition: all 0.3s;
-  text-decoration: none;
-  text-align: center;
-}
+      /* Cancel Button */
+      .cancel-btn {
+        background-color: #f1f1f1;
+        color: #555;
+        border: 1px solid #ddd;
+        padding: 12px 25px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        font-weight: 500;
+        transition: all 0.3s;
+        text-decoration: none;
+        text-align: center;
+        flex: 1;
+        min-width: 120px;
+      }
 
-.cancel-btn:hover {
-  background-color: #d65656;
-  transform: translateY(-2px);
-}
+      .cancel-btn:hover {
+        background-color: #e0e0e0;
+        transform: translateY(-2px);
+      }
 
-/* Error Message */
-.error {
-  color: #d32f2f;
-  background-color: #fde8e8;
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  border: 1px solid #f5c2c7;
-  font-size: 14px;
-}
+      /* Error Message */
+      .error {
+        color: #d32f2f;
+        background-color: #fde8e8;
+        padding: 12px;
+        border-radius: 6px;
+        margin-bottom: 20px;
+        border: 1px solid #f5c2c7;
+        font-size: 14px;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .form-section {
+          padding: 20px;
+          margin-left: 15px;
+          margin-right: 15px;
+        }
+        
+        .form-section h2 {
+          font-size: 1.3rem;
+        }
+        
+        .form-buttons {
+          flex-direction: column;
+          gap: 10px;
+        }
+        
+        .form-section form button[type="submit"],
+        .cancel-btn {
+          width: 100%;
+          flex: none;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .form-section {
+          padding: 15px;
+        }
+        
+        .form-section input {
+          padding: 10px;
+          font-size: 14px;
+        }
+        
+        .form-section form button[type="submit"],
+        .cancel-btn {
+          padding: 10px 15px;
+          font-size: 14px;
+        }
+      }
     </style>
   </head>
   <body>
@@ -136,23 +187,22 @@
         </div>
 
         <!-- Create Outlet Form (Initially Hidden) -->
-        
-        <div class="form-section" id="createOutletForm" style="display: none; justify-self: center; width: 600px;">
-  <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
-  <% if (error) { %>
-    <div class="error"><%= error %></div>
-  <% } %>
-  <form action="/create-outlet" method="POST">
-    <input type="text" name="name" placeholder="Outlet Name" required>
-    <input type="text" name="location" placeholder="Location/Address" required>
-    <input type="text" name="mobile" placeholder="Mobile Number" required>
-    <input type="text" name="username" placeholder="Username" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <div class="form-buttons">
-      <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
-      <button type="button" class="cancel-btn" id="cancelCreateBtn">Cancel</button>
-    </div>
-  </form>
+        <div class="form-section" id="createOutletForm" style="display: none;">
+          <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
+          <% if (error) { %>
+            <div class="error"><%= error %></div>
+          <% } %>
+          <form action="/create-outlet" method="POST">
+            <input type="text" name="name" placeholder="Outlet Name" required>
+            <input type="text" name="location" placeholder="Location/Address" required>
+            <input type="text" name="mobile" placeholder="Mobile Number" required>
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <div class="form-buttons">
+              <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
+              <button type="button" class="cancel-btn" id="cancelCreateBtn">Cancel</button>
+            </div>
+          </form>
         </div>
 
         <!-- Outlets Table -->
@@ -215,6 +265,8 @@
       createOutletBtn.addEventListener('click', () => {
         createOutletForm.style.display = 'block';
         createOutletBtn.style.display = 'none';
+        // Scroll to form for better mobile experience
+        createOutletForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       });
 
       cancelCreateBtn.addEventListener('click', () => {
