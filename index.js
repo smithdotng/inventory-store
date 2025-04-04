@@ -222,10 +222,15 @@ app.get('/referrals/login', (req, res) => {
 
 app.post('/referrals/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const affiliate = await db.collection('affiliates').findOne({ email });
+    const { usernameOrEmail, password } = req.body;
+    const affiliate = await db.collection('affiliates').findOne({
+      $or: [
+        { username: usernameOrEmail },
+        { email: usernameOrEmail }
+      ]
+    });
     if (!affiliate || !(await bcrypt.compare(password, affiliate.password))) {
-      return res.status(401).send('Invalid email or password.');
+      return res.status(401).send('Invalid username/email or password.');
     }
 
     req.session.affiliate = affiliate._id.toString();
@@ -352,9 +357,16 @@ app.get('/admin-login', (req, res) => {
 });
 
 app.post('/admin-login', async (req, res) => {
-  const { username, password } = req.body;
+  const { usernameOrEmail, password } = req.body; // Changed from username to usernameOrEmail
   try {
-    const admin = await db.collection('admins').findOne({ username });
+    // Check if login is by email or username
+    const admin = await db.collection('admins').findOne({
+      $or: [
+        { username: usernameOrEmail },
+        { email: usernameOrEmail }
+      ]
+    });
+    
     if (admin && await bcrypt.compare(password, admin.password)) {
       req.session.admin = admin.username;
       req.session.adminId = admin._id.toString();
@@ -364,11 +376,11 @@ app.post('/admin-login', async (req, res) => {
         username: admin.username,
         loginTime: new Date(),
       });
-      console.log(`Login recorded for ${username}`);
+      console.log(`Login recorded for ${admin.username}`);
 
       res.redirect('/update-stock');
     } else {
-      res.render('admin-login', { error: 'Invalid username or password', message: null });
+      res.render('admin-login', { error: 'Invalid username/email or password', message: null });
     }
   } catch (error) {
     console.error('Error during login:', error);
@@ -1092,13 +1104,18 @@ app.get('/home', isAuthenticated, async (req, res) => {
 });
 
 app.post('/outlet-login', async (req, res) => {
-  const { username, password } = req.body;
-  const outlet = await db.collection('outlets').findOne({ username });
+  const { usernameOrEmail, password } = req.body; // Changed from username to usernameOrEmail
+  const outlet = await db.collection('outlets').findOne({
+    $or: [
+      { username: usernameOrEmail },
+      { email: usernameOrEmail } // Assuming outlets have email field
+    ]
+  });
   if (outlet && await bcrypt.compare(password, outlet.password)) {
     req.session.outletId = outlet._id.toString();
     res.redirect(`/outlet/${outlet._id}/stock-view`);
   } else {
-    res.render('outlet-login', { error: 'Invalid username or password' });
+    res.render('outlet-login', { error: 'Invalid username/email or password' });
   }
 });
 
