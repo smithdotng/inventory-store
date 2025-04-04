@@ -1498,12 +1498,20 @@ app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
   }
 });
 
+
+
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   if (!outlet || outlet._id.toString() !== req.session.outletId) return res.redirect('/outlet-login');
   const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
-  res.render('outlet-stock-view', { outlet, adminLogo: admin?.logo || '/images/default-logo.png' });
+  res.render('outlet-stock-view', { 
+    outlet, 
+    admin: {
+      logo: admin?.logo || '/images/logo.jpg',
+      businessName: admin?.businessName || 'Shed'
+    }
+  });
 });
 
 app.get('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {

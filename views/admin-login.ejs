@@ -6,7 +6,7 @@
     <meta property="og:title" content="Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="https://img.shed.ng/status.jpg" />
-    <title>Login - Shed</title>
+    <title>Admin Login - Shed</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -58,6 +58,7 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            position: relative;
         }
         
         .logo-container {
@@ -151,6 +152,36 @@
             text-decoration: underline;
         }
 
+        .outlet-login {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .outlet-login-text {
+            color: #7f8c8d;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .outlet-login-btn {
+            background: none;
+            border: 1px solid #3498db;
+            color: #3498db;
+            padding: 10px 15px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            display: inline-block;
+        }
+
+        .outlet-login-btn:hover {
+            background-color: #3498db;
+            color: white;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .login-box {
@@ -208,14 +239,14 @@
         <div class="login-box">
             <div class="logo-container">
                 <img src="/images/logo.png" alt="Shed Logo">
-                <h1>Login to Your Account</h1>
+                <h1>Admin Login</h1>
             </div>
             
             <% if (error) { %>
                 <div class="error"><%= error %></div>
             <% } %>
 
-            <form action="/admin-login" method="POST">
+            <form id="loginForm" action="/admin-login" method="POST">
                 <div class="form-group">
                     <label for="usernameOrEmail">Username or Email</label>
                     <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
@@ -230,13 +261,24 @@
             </form>
             
             <div class="links-container">
-                <a href="/admin-register" class="link">Create an account</a>
+                <a href="/admin-register" class="link">Create admin account</a>
                 <a href="/forgot-password" class="link">Forgot password?</a>
+            </div>
+
+            <div class="outlet-login">
+                <div class="outlet-login-text">Need to access an outlet account?</div>
+                <button class="outlet-login-btn" id="outletLoginBtn">Outlet Login</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Outlet login button handler
+        document.getElementById('outletLoginBtn').addEventListener('click', function() {
+            window.location.href = '/outlet-login';
+        });
+
+        // Service worker registration
         if (typeof navigator.serviceWorker !== 'undefined') {
             navigator.serviceWorker.register('/sw.js', { scope: '/' });
         }

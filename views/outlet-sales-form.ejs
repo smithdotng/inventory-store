@@ -1,154 +1,430 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Outlet Sales Form | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-    <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Outlet Sales Form</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-  </head>
-  <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="logo-container">
-        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-      </div>
-      <h2>Welcome, <%= outlet.name %>!</h2>
-        <a href="/outlet/sales-form" class="active">Point of Sale</a>
-        <a href="/outlet/<%= outlet._id %>/stock-view">View Inventory</a>
-        <a href="/outlet-transactions/<%= outlet._id %>">View Transactions</a>
-        <a href="/outlet-customers/<%= outlet._id %>">Customers</a>
-        <a href="/outlet-logout">Log Out</a>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Outlet Sales Form | Shed: Inventory, Invoices and More" />
+  <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+  <meta property="og:image" content="/android-chrome-512x512.png" />
+  <title>Outlet Sales Form</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-image: url('/images/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      position: relative;
+    }
+    
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: -1;
+    }
+    
+    .sidebar {
+      position: fixed;
+      width: 200px;
+      height: 100vh;
+      background: #2c3e50;
+      color: white;
+      padding: 20px;
+      transition: all 0.3s;
+    }
+    
+    .sidebar.visible {
+      left: 0;
+    }
+    
+    .sidebar.hidden {
+      left: -200px;
+    }
+    
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1000;
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    
+    .main-content {
+      transition: all 0.3s;
+      min-height: 100vh;
+    }
+    
+    .container {
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    .logo-container img {
+      max-height: 80px;
+      margin-bottom: 15px;
+    }
+    
+    .form-section {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 25px;
+      border-radius: 8px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+    
+    button[type="submit"] {
+      background-color: #27ae60;
+      color: white;
+      padding: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+      margin-top: 15px;
+    }
+    
+    /* Product Items Specific Styles */
+    .item-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 15px;
+      align-items: center;
+      position: relative;
+    }
+    
+    .item-select {
+      flex: 3;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    
+    .quantity-input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    
+    .remove-btn {
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      width: 20px; /* Reduced from 32px */
+      height: 20px; /* Reduced from 32px */
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px; /* Reduced from 14px for proportionality */
+      padding: 0;
+      flex-shrink: 0;
+    }
+    
+    .remove-btn:hover {
+      background-color: #cc0000;
+    }
+    
+    .add-item-btn {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .add-item-btn:hover {
+      background-color: #45a049;
+    }
+    
+    .error-message {
+      color: #e74c3c;
+      margin: 10px 0;
+      padding: 10px;
+      background-color: #fadbd8;
+      border-radius: 4px;
+      display: none;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+      .item-row {
+        flex-direction: column;
+        gap: 5px;
+      }
+      
+      .item-select, 
+      .quantity-input {
+        width: 100%;
+        padding: 8px 12px;
+      }
+      
+      .remove-btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: none;
+        color: #ff4444;
+        font-size: 18px;
+        width: 24px;
+        height: 24px;
+      }
+      
+      .remove-btn:hover {
+        background: none;
+        color: #cc0000;
+      }
+      
+      .container {
+        padding: 15px;
+      }
+      
+      .form-section {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
     </div>
+    <h2>Welcome, <%= outlet.name %>!</h2>
+    <a href="/outlet/sales-form" class="active">Point of Sale</a>
+    <a href="/outlet/<%= outlet._id %>/stock-view">View Inventory</a>
+    <a href="/outlet-transactions/<%= outlet._id %>">View Transactions</a>
+    <a href="/outlet-customers/<%= outlet._id %>">Customers</a>
+    <a href="/outlet-logout">Log Out</a>
+  </div>
 
-    <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">☰</button>
+  <!-- Toggle Button -->
+  <button class="toggle-btn" id="toggleBtn">☰</button>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-      <div class="container">
-        <div class="content-logo-container">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="<%= admin.businessName || 'Shed' %>">
-        </div>
-        <h1>Outlet Sales Form</h1>
-        <div class="form-section">
-          <form id="salesForm" action="/outlet/sales-form" method="POST">
-            <!-- Customer Details -->
-            <input type="text" name="customerName" placeholder="Customer Name" required>
-            <input type="text" name="phoneNumber" placeholder="Phone Number">
-            <input type="email" name="email" placeholder="Email Address">
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="container">
+      <div class="content-logo-container">
+        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="<%= admin.businessName || 'Shed' %>">
+      </div>
+      <h1>Outlet Sales Form</h1>
+      <div class="form-section">
+        <form id="salesForm" action="/outlet/sales-form" method="POST">
+          <!-- Customer Details -->
+          <input type="text" name="customerName" placeholder="Customer Name" required>
+          <input type="text" name="phoneNumber" placeholder="Phone Number">
+          <input type="email" name="email" placeholder="Email Address">
 
-            <!-- Items Section -->
-            <div id="itemsContainer">
-              <div class="item-row">
-                <select name="itemId" class="item-select" required>
-                  <option value="">Select Product</option>
-                  <% inventory.forEach(item => { %>
-                    <% if (item.stock > 0) { %>
-                      <option value="<%= item.id %>" data-stock="<%= item.stock %>">
-                        <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %>
-                      </option>
-                    <% } %>
-                  <% }) %>
-                </select>
-                <input type="number" name="quantity" class="quantity-input" placeholder="Quantity" min="1" required>
-                <button type="button" class="remove-btn" style="display: none;">Remove</button>
-              </div>
+          <!-- Items Section -->
+          <h3>Products</h3>
+          <button type="button" class="add-item-btn" id="addItemBtn">+ Add Product</button>
+          
+          <div id="itemsContainer">
+            <div class="item-row" data-index="0">
+              <select name="items[0][itemId]" class="item-select" required>
+                <option value="">Select Product</option>
+                <% inventory.forEach(item => { %>
+                  <% if (item.stock > 0) { %>
+                    <option value="<%= item.id %>" data-stock="<%= item.stock %>">
+                      <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %>
+                    </option>
+                  <% } %>
+                <% }) %>
+              </select>
+              <input type="number" name="items[0][quantity]" class="quantity-input" placeholder="Quantity" min="1" required>
+              <button type="button" class="remove-btn" style="display: none;">×</button>
             </div>
+          </div>
 
-            <!-- Error Message -->
-            <div id="errorMessage" class="error-message" style="display: none;">
-              <span style="color: red;">Quantity exceeds available stock.</span>
-            </div>
+          <!-- Error Message -->
+          <div id="errorMessage" class="error-message" style="display: none;">
+            <span>Quantity exceeds available stock.</span>
+          </div>
 
-            <!-- Submit Button -->
-            <button type="submit">Complete Sale</button>
-          </form>
-        </div>
+          <!-- Submit Button -->
+          <button type="submit">Complete Sale</button>
+        </form>
       </div>
     </div>
+  </div>
 
-    <!-- JavaScript -->
-    <script>
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const toggleBtn = document.getElementById('toggleBtn');
-      const itemsContainer = document.getElementById('itemsContainer');
-      const salesForm = document.getElementById('salesForm');
-      const errorMessage = document.getElementById('errorMessage');
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const itemsContainer = document.getElementById('itemsContainer');
+    const salesForm = document.getElementById('salesForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const addItemBtn = document.getElementById('addItemBtn');
 
-      // Toggle sidebar visibility
-      toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('visible');
-        sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
-        } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        }
+    // Initialize sidebar state
+    sidebar.classList.add('visible');
+    sidebar.classList.remove('hidden');
+    mainContent.style.marginLeft = '200px';
+    mainContent.style.width = 'calc(100% - 200px)';
+
+    // Toggle sidebar visibility
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('visible');
+      sidebar.classList.toggle('hidden');
+      if (sidebar.classList.contains('visible')) {
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      } else {
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      }
+    });
+
+    // Initialize with one item row
+    let itemCount = 1;
+
+    // Add new item row
+    addItemBtn.addEventListener('click', () => {
+      const newRow = document.createElement('div');
+      newRow.className = 'item-row';
+      newRow.dataset.index = itemCount;
+      
+      newRow.innerHTML = `
+        <select name="items[${itemCount}][itemId]" class="item-select" required>
+          <option value="">Select Product</option>
+          <% inventory.forEach(item => { %>
+            <% if (item.stock > 0) { %>
+              <option value="<%= item.id %>" data-stock="<%= item.stock %>">
+                <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %>
+              </option>
+            <% } %>
+          <% }) %>
+        </select>
+        <input type="number" name="items[${itemCount}][quantity]" class="quantity-input" placeholder="Quantity" min="1" required>
+        <button type="button" class="remove-btn">×</button>
+      `;
+      
+      itemsContainer.appendChild(newRow);
+      itemCount++;
+      
+      // Show remove buttons on all rows except first
+      document.querySelectorAll('.remove-btn').forEach(btn => {
+        btn.style.display = 'block';
       });
+      
+      // Add event listeners to new elements
+      addValidationListeners(newRow);
+    });
 
-      // Hide error message by default
-      errorMessage.style.display = 'none';
-
-      // Validate item selection and quantity
-      function validateForm() {
-        const itemSelect = document.querySelector('.item-select');
-        const quantityInput = document.querySelector('.quantity-input');
-        
-        if (!itemSelect || !quantityInput) return true;
-        
-        const selectedOption = itemSelect.options[itemSelect.selectedIndex];
-        if (!selectedOption || !selectedOption.value) return true;
-        
-        const stock = parseInt(selectedOption.getAttribute('data-stock'));
-        const quantity = parseInt(quantityInput.value) || 0;
-        
-        if (quantity > stock) {
-          errorMessage.style.display = 'block';
-          return false;
-        } else {
-          errorMessage.style.display = 'none';
-          return true;
+    // Remove item row
+    itemsContainer.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-btn')) {
+        const row = e.target.closest('.item-row');
+        if (document.querySelectorAll('.item-row').length > 1) {
+          row.remove();
+          
+          // Hide remove button if only one row left
+          if (document.querySelectorAll('.item-row').length === 1) {
+            document.querySelector('.remove-btn').style.display = 'none';
+          }
         }
       }
+    });
 
-      // Attach validation to form elements
-      document.querySelector('.item-select')?.addEventListener('change', validateForm);
-      document.querySelector('.quantity-input')?.addEventListener('input', validateForm);
+    // Add validation listeners to a row
+    function addValidationListeners(row) {
+      const select = row.querySelector('.item-select');
+      const input = row.querySelector('.quantity-input');
+      
+      select?.addEventListener('change', validateStock);
+      input?.addEventListener('input', validateStock);
+    }
 
-      // Form submission validation
-      salesForm.addEventListener('submit', (event) => {
-        if (!validateForm()) {
-          event.preventDefault();
+    // Validate stock for all items
+    function validateStock() {
+      let hasError = false;
+      document.querySelectorAll('.item-row').forEach(row => {
+        const select = row.querySelector('.item-select');
+        const input = row.querySelector('.quantity-input');
+        
+        if (select && input) {
+          const selectedOption = select.options[select.selectedIndex];
+          if (selectedOption && selectedOption.value) {
+            const stock = parseInt(selectedOption.getAttribute('data-stock'));
+            const quantity = parseInt(input.value) || 0;
+            
+            if (quantity > stock) {
+              hasError = true;
+            }
+          }
         }
       });
+      
+      errorMessage.style.display = hasError ? 'block' : 'none';
+      return !hasError;
+    }
 
-      // Responsive adjustments
-      function handleResize() {
-        if (window.innerWidth > 768) {
-          sidebar.classList.add('visible');
-          sidebar.classList.remove('hidden');
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
-        } else {
-          sidebar.classList.remove('visible');
-          sidebar.classList.add('hidden');
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        }
+    // Form submission validation
+    salesForm.addEventListener('submit', (event) => {
+      if (!validateStock()) {
+        event.preventDefault();
       }
+    });
 
-      window.addEventListener('resize', handleResize);
-      handleResize(); // Initialize on load
-    </script>
-  </body>
+    // Initialize validation for first row
+    addValidationListeners(document.querySelector('.item-row'));
+
+    // Responsive adjustments
+    function handleResize() {
+      if (window.innerWidth > 768) {
+        sidebar.classList.add('visible');
+        sidebar.classList.remove('hidden');
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      } else {
+        sidebar.classList.remove('visible');
+        sidebar.classList.add('hidden');
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      }
+    }
+
+    window.addEventListener('resize', handleResize);
+    handleResize(); // Initialize on load
+  </script>
+</body>
 </html>
