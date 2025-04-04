@@ -161,8 +161,8 @@
   <!-- Toggle Button -->
   <button class="toggle-btn" id="toggleBtn">☰</button>
 
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
+   <!-- Main Content -->
+   <div class="main-content" id="mainContent">
     <div class="container">
       <div class="content-logo-container">
         <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="<%= admin.businessName || 'Shed' %>">
@@ -178,18 +178,20 @@
               <th>Quantity Sold</th>
               <th>Customer Name</th>
               <th>Date</th>
-              <th>Total</th>
+              <th>Commission Due</th>
             </tr>
           </thead>
           <tbody>
             <% transactions.forEach(transaction => { %>
-              <tr>
-                <td><%= transaction.itemName %></td>
-                <td><%= transaction.quantity %></td>
-                <td><%= transaction.customerName %></td>
-                <td><%= new Date(transaction.date).toLocaleString() %></td>
-                <td><%= admin.currency || '$' %><%= transaction.total ? transaction.total.toFixed(2) : '0.00' %></td>
-              </tr>
+              <% transaction.items.forEach(item => { %>
+                <tr>
+                  <td><%= item.itemName %></td>
+                  <td><%= item.quantity %></td>
+                  <td><%= transaction.customerName %></td>
+                  <td><%= new Date(transaction.date).toLocaleString() %></td>
+                  <td><%= admin.currency || '$' %><%= item.commissionAmount ? item.commissionAmount.toFixed(2) : '0.00' %></td>
+                </tr>
+              <% }) %>
             <% }) %>
             <% if (transactions.length === 0) { %>
               <tr>

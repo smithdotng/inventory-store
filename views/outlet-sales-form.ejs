@@ -248,12 +248,10 @@
       <h1>Outlet Sales Form</h1>
       <div class="form-section">
         <form id="salesForm" action="/outlet/sales-form" method="POST">
-          <!-- Customer Details -->
           <input type="text" name="customerName" placeholder="Customer Name" required>
           <input type="text" name="phoneNumber" placeholder="Phone Number">
           <input type="email" name="email" placeholder="Email Address">
 
-          <!-- Items Section -->
           <h3>Products</h3>
           <button type="button" class="add-item-btn" id="addItemBtn">+ Add Product</button>
           
@@ -263,7 +261,7 @@
                 <option value="">Select Product</option>
                 <% inventory.forEach(item => { %>
                   <% if (item.stock > 0) { %>
-                    <option value="<%= item.id %>" data-stock="<%= item.stock %>">
+                    <option value="<%= item.id || item._id %>" data-stock="<%= item.stock %>">
                       <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %>
                     </option>
                   <% } %>
@@ -274,12 +272,10 @@
             </div>
           </div>
 
-          <!-- Error Message -->
           <div id="errorMessage" class="error-message" style="display: none;">
             <span>Quantity exceeds available stock.</span>
           </div>
 
-          <!-- Submit Button -->
           <button type="submit">Complete Sale</button>
         </form>
       </div>
@@ -295,13 +291,11 @@
     const errorMessage = document.getElementById('errorMessage');
     const addItemBtn = document.getElementById('addItemBtn');
 
-    // Initialize sidebar state
     sidebar.classList.add('visible');
     sidebar.classList.remove('hidden');
     mainContent.style.marginLeft = '200px';
     mainContent.style.width = 'calc(100% - 200px)';
 
-    // Toggle sidebar visibility
     toggleBtn.addEventListener('click', () => {
       sidebar.classList.toggle('visible');
       sidebar.classList.toggle('hidden');
@@ -314,10 +308,8 @@
       }
     });
 
-    // Initialize with one item row
     let itemCount = 1;
 
-    // Add new item row
     addItemBtn.addEventListener('click', () => {
       const newRow = document.createElement('div');
       newRow.className = 'item-row';
@@ -328,7 +320,7 @@
           <option value="">Select Product</option>
           <% inventory.forEach(item => { %>
             <% if (item.stock > 0) { %>
-              <option value="<%= item.id %>" data-stock="<%= item.stock %>">
+              <option value="<%= item.id || item._id %>" data-stock="<%= item.stock %>">
                 <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %>
               </option>
             <% } %>
@@ -341,23 +333,18 @@
       itemsContainer.appendChild(newRow);
       itemCount++;
       
-      // Show remove buttons on all rows except first
       document.querySelectorAll('.remove-btn').forEach(btn => {
         btn.style.display = 'block';
       });
       
-      // Add event listeners to new elements
       addValidationListeners(newRow);
     });
 
-    // Remove item row
     itemsContainer.addEventListener('click', (e) => {
       if (e.target.classList.contains('remove-btn')) {
         const row = e.target.closest('.item-row');
         if (document.querySelectorAll('.item-row').length > 1) {
           row.remove();
-          
-          // Hide remove button if only one row left
           if (document.querySelectorAll('.item-row').length === 1) {
             document.querySelector('.remove-btn').style.display = 'none';
           }
@@ -365,7 +352,6 @@
       }
     });
 
-    // Add validation listeners to a row
     function addValidationListeners(row) {
       const select = row.querySelector('.item-select');
       const input = row.querySelector('.quantity-input');
@@ -374,7 +360,6 @@
       input?.addEventListener('input', validateStock);
     }
 
-    // Validate stock for all items
     function validateStock() {
       let hasError = false;
       document.querySelectorAll('.item-row').forEach(row => {
@@ -398,17 +383,30 @@
       return !hasError;
     }
 
-    // Form submission validation
     salesForm.addEventListener('submit', (event) => {
-      if (!validateStock()) {
-        event.preventDefault();
-      }
-    });
+    if (!validateStock()) {
+      event.preventDefault();
+    }
+  });
 
-    // Initialize validation for first row
-    addValidationListeners(document.querySelector('.item-row'));
+  // Initialize validation for the first row
+  addValidationListeners(document.querySelector('.item-row'));
 
-    // Responsive adjustments
+  // Display server-side success or error
+  const urlParams = new URLSearchParams(window.location.search);
+  const serverError = urlParams.get('error');
+  const serverSuccess = urlParams.get('success');
+  if (serverError) {
+    errorText.textContent = decodeURIComponent(serverError);
+    errorMessage.style.display = 'block';
+    errorMessage.style.backgroundColor = '#fadbd8'; // Red for error
+  } else if (serverSuccess) {
+    errorText.textContent = decodeURIComponent(serverSuccess);
+    errorMessage.style.display = 'block';
+    errorMessage.style.backgroundColor = '#d4edda'; // Green for success
+    errorMessage.style.color = '#155724';
+  }
+
     function handleResize() {
       if (window.innerWidth > 768) {
         sidebar.classList.add('visible');
@@ -424,7 +422,7 @@
     }
 
     window.addEventListener('resize', handleResize);
-    handleResize(); // Initialize on load
+    handleResize();
   </script>
 </body>
 </html>

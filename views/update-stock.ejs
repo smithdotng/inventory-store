@@ -20,7 +20,7 @@
         
         .add-product-form form {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
             gap: 10px;
             align-items: center;
         }
@@ -111,7 +111,7 @@
         /* Responsive Styles */
         @media (max-width: 900px) {
             .add-product-form form {
-                grid-template-columns: 1.5fr 1fr 1fr auto;
+                grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
             }
         }
         
@@ -163,6 +163,7 @@
                         <input type="text" name="name" placeholder="Product Name" required>
                         <input type="number" name="stock" placeholder="Initial Stock" min="0" required>
                         <input type="number" name="cost" placeholder="Cost" min="0" step="0.01" required>
+                        <input type="number" name="commission" placeholder="Commission %" min="0" max="100" step="0.01">
                         <button type="submit" class="add-product-btn">Add Product</button>
                     </form>
                 </div>
@@ -175,6 +176,7 @@
                             <th>Product</th>
                             <th>Stock</th>
                             <th>Cost</th>
+                            <th>Commission</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -190,14 +192,19 @@
                                     <input type="number" class="cost-input" value="<%= item.cost %>" step="0.01" disabled style="display: none;">
                                 </td>
                                 <td>
-                                    <button class="edit-btn" onclick="toggleEdit('<%= item._id %>')">Edit Stock</button>
+                                    <span class="commission-display"><%= item.commission || '0' %>%</span>
+                                    <input type="number" class="commission-input" value="<%= item.commission || '' %>" min="0" max="100" step="0.01" disabled style="display: none;">
+                                </td>
+                                <td>
+                                    <button class="edit-btn" onclick="toggleEdit('<%= item._id %>')">Edit</button>
                                     <form action="/update-stock" method="POST" style="display:inline;">
                                         <input type="hidden" name="id" value="<%= item._id %>">
                                         <input type="hidden" name="stock" class="stock-input" value="<%= item.stock %>">
                                         <input type="hidden" name="cost" class="cost-input" value="<%= item.cost %>">
+                                        <input type="hidden" name="commission" class="commission-input" value="<%= item.commission || '' %>">
                                         <button type="button" class="update-btn" style="display:none;" onclick="updateHiddenInputs('<%= item._id %>')">Update</button>
                                     </form>
-                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit('<%= item._id %>', '<%= item.stock %>', '<%= item.cost %>')">Cancel</button>
+                                    <button class="cancel-btn" style="display:none;" onclick="cancelEdit('<%= item._id %>', '<%= item.stock %>', '<%= item.cost %>', '<%= item.commission || "" %>')">Cancel</button>
                                 </td>
                             </tr>
                         <% }) %>
@@ -244,14 +251,19 @@
             const stockInput = row.querySelector('.stock-input');
             const costDisplay = row.querySelector('.cost-display');
             const costInput = row.querySelector('.cost-input');
+            const commissionDisplay = row.querySelector('.commission-display');
+            const commissionInput = row.querySelector('.commission-input');
             const editBtn = row.querySelector('.edit-btn');
             const updateBtn = row.querySelector('.update-btn');
             const cancelBtn = row.querySelector('.cancel-btn');
 
             stockInput.disabled = false;
             costInput.disabled = false;
+            commissionInput.disabled = false;
             costDisplay.style.display = 'none';
             costInput.style.display = 'inline';
+            commissionDisplay.style.display = 'none';
+            commissionInput.style.display = 'inline';
             editBtn.style.display = 'none';
             updateBtn.style.display = 'inline';
             cancelBtn.style.display = 'inline';
@@ -261,31 +273,41 @@
             const row = document.getElementById(`row-${id}`);
             const stockInput = row.querySelector('.stock-input');
             const costInput = row.querySelector('.cost-input');
+            const commissionInput = row.querySelector('.commission-input');
             const hiddenStock = row.querySelector('input[name="stock"]');
             const hiddenCost = row.querySelector('input[name="cost"]');
+            const hiddenCommission = row.querySelector('input[name="commission"]');
             const form = row.querySelector('form');
 
             hiddenStock.value = stockInput.value;
             hiddenCost.value = costInput.value;
+            hiddenCommission.value = commissionInput.value;
             form.submit();
         }
 
-        function cancelEdit(id, originalStock, originalCost) {
+        function cancelEdit(id, originalStock, originalCost, originalCommission) {
             const row = document.getElementById(`row-${id}`);
             const stockInput = row.querySelector('.stock-input');
             const costDisplay = row.querySelector('.cost-display');
             const costInput = row.querySelector('.cost-input');
+            const commissionDisplay = row.querySelector('.commission-display');
+            const commissionInput = row.querySelector('.commission-input');
             const editBtn = row.querySelector('.edit-btn');
             const updateBtn = row.querySelector('.update-btn');
             const cancelBtn = row.querySelector('.cancel-btn');
 
             stockInput.value = originalStock;
             costInput.value = originalCost;
+            commissionInput.value = originalCommission;
             stockInput.disabled = true;
             costInput.disabled = true;
+            commissionInput.disabled = true;
             costDisplay.textContent = '<%= admin.currency %>' + Number(originalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             costDisplay.style.display = 'inline';
             costInput.style.display = 'none';
+            commissionDisplay.textContent = (originalCommission || '0') + '%';
+            commissionDisplay.style.display = 'inline';
+            commissionInput.style.display = 'none';
             editBtn.style.display = 'inline';
             updateBtn.style.display = 'none';
             cancelBtn.style.display = 'none';

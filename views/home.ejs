@@ -1,278 +1,458 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Home | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-    <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Home</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Home | Shed: Inventory, Invoices and More" />
+  <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+  <meta property="og:image" content="/android-chrome-512x512.png" />
+  <title>Home</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
 
-    <style>
-      /* Form Section Styling */
+  <style>
+    /* Form Section Styling */
+    .form-section {
+      background: #f9f9f9;
+      padding: 25px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      width: 100%;
+      box-sizing: border-box;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .form-section h2 {
+      margin-bottom: 20px;
+      color: #333;
+      font-size: 1.5rem;
+    }
+
+    .form-section input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+      box-sizing: border-box;
+    }
+
+    .form-section input:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    /* Button Container */
+    .form-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* Submit Button */
+    .form-section form button[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .form-section form button[type="submit"]:hover {
+      background-color: #3e8e41;
+      transform: translateY(-2px);
+    }
+
+    /* Cancel Button */
+    .cancel-btn {
+      background-color: #f1f1f1;
+      color: #555;
+      border: 1px solid #ddd;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      transition: all 0.3s;
+      text-decoration: none;
+      text-align: center;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .cancel-btn:hover {
+      background-color: #e0e0e0;
+      transform: translateY(-2px);
+    }
+
+    /* Error Message */
+    .error {
+      color: #d32f2f;
+      background-color: #fde8e8;
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border: 1px solid #f5c2c7;
+      font-size: 14px;
+    }
+
+    /* Table Styling */
+    .table-section table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .table-section th, .table-section td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .table-section th {
+      background-color: #f4f4f4;
+      font-weight: bold;
+      color: #333;
+    }
+
+    /* Commission Column */
+    .commission-cell {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: bold;
+      color: #2c3e50;
+      white-space: nowrap;
+    }
+
+    /* Commission Button */
+    .pay-commission-btn {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s;
+      flex-shrink: 0;
+    }
+
+    .pay-commission-btn:hover {
+      background-color: #2980b9;
+    }
+
+    .pay-commission-btn.paid {
+      background-color: #27ae60;
+      cursor: default;
+    }
+
+    /* Actions Dropdown */
+    .actions-dropdown {
+      padding: 6px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+      background-color: #fff;
+      cursor: pointer;
+      width: 100%; /* Ensure consistent width */
+      max-width: 150px; /* Limit width for aesthetics */
+    }
+
+    .actions-dropdown:focus {
+      border-color: #4CAF50;
+      outline: none;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
       .form-section {
-        background: #f9f9f9;
-        padding: 25px;
-        border-radius: 8px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        max-width: 600px;
-        width: 100%;
-        box-sizing: border-box;
-        margin-left: auto;
-        margin-right: auto;
+        padding: 20px;
+        margin-left: 15px;
+        margin-right: 15px;
       }
-
+      
       .form-section h2 {
-        margin-bottom: 20px;
-        color: #333;
-        font-size: 1.5rem;
+        font-size: 1.3rem;
       }
-
-      .form-section input {
-        width: 100%;
-        padding: 12px;
-        margin: 10px 0;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 16px;
-        transition: border-color 0.3s;
-        box-sizing: border-box;
-      }
-
-      .form-section input:focus {
-        border-color: #4CAF50;
-        outline: none;
-      }
-
-      /* Button Container */
+      
       .form-buttons {
-        display: flex;
-        justify-content: flex-end;
-        gap: 15px;
-        margin-top: 20px;
-        flex-wrap: wrap;
+        flex-direction: column;
+        gap: 10px;
       }
-
-      /* Submit Button */
-      .form-section form button[type="submit"] {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 12px 25px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 500;
-        transition: all 0.3s;
-        flex: 1;
-        min-width: 120px;
-      }
-
-      .form-section form button[type="submit"]:hover {
-        background-color: #3e8e41;
-        transform: translateY(-2px);
-      }
-
-      /* Cancel Button */
+      
+      .form-section form button[type="submit"],
       .cancel-btn {
-        background-color: #f1f1f1;
-        color: #555;
-        border: 1px solid #ddd;
-        padding: 12px 25px;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 16px;
-        font-weight: 500;
-        transition: all 0.3s;
-        text-decoration: none;
-        text-align: center;
-        flex: 1;
-        min-width: 120px;
+        width: 100%;
+        flex: none;
       }
 
-      .cancel-btn:hover {
-        background-color: #e0e0e0;
-        transform: translateY(-2px);
+      .table-section th, .table-section td {
+        padding: 8px;
       }
 
-      /* Error Message */
-      .error {
-        color: #d32f2f;
-        background-color: #fde8e8;
-        padding: 12px;
-        border-radius: 6px;
-        margin-bottom: 20px;
-        border: 1px solid #f5c2c7;
+      .commission-cell {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+
+      .actions-dropdown {
+        max-width: 120px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .form-section {
+        padding: 15px;
+      }
+      
+      .form-section input {
+        padding: 10px;
+        font-size: 14px;
+      }
+      
+      .form-section form button[type="submit"],
+      .cancel-btn {
+        padding: 10px 15px;
         font-size: 14px;
       }
 
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        .form-section {
-          padding: 20px;
-          margin-left: 15px;
-          margin-right: 15px;
-        }
-        
-        .form-section h2 {
-          font-size: 1.3rem;
-        }
-        
-        .form-buttons {
-          flex-direction: column;
-          gap: 10px;
-        }
-        
-        .form-section form button[type="submit"],
-        .cancel-btn {
-          width: 100%;
-          flex: none;
-        }
+      .pay-commission-btn {
+        padding: 5px 10px;
+        font-size: 12px;
       }
 
-      @media (max-width: 480px) {
-        .form-section {
-          padding: 15px;
-        }
-        
-        .form-section input {
-          padding: 10px;
-          font-size: 14px;
-        }
-        
-        .form-section form button[type="submit"],
-        .cancel-btn {
-          padding: 10px 15px;
-          font-size: 14px;
-        }
+      .actions-dropdown {
+        font-size: 12px;
+        max-width: 100px;
       }
-    </style>
-  </head>
-  <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="logo-container">
-        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-      </div>
-      <h2>Welcome, <%= username %>!</h2>
-      <a href="/pos">Point of Sale</a>
-      <a href="/update-stock">Manage Inventory</a>
-      <a href="/invoices">Generate Invoice</a>
-      <a href="/transactions">View Transactions</a>
-      <a href="/customers">Customers</a>
-      <a href="/home"  class="active">Manage Outlets</a>
-      <a href="/admin-logout">Log Out</a>
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
     </div>
+    <h2>Welcome, <%= admin.username %>!</h2>
+    <a href="/pos">Point of Sale</a>
+    <a href="/update-stock">Manage Inventory</a>
+    <a href="/invoices">Generate Invoice</a>
+    <a href="/transactions">View Transactions</a>
+    <a href="/customers">Customers</a>
+    <a href="/home" class="active">Manage Outlets</a>
+    <a href="/admin-logout">Log Out</a>
+  </div>
 
-    <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">☰</button>
+  <!-- Toggle Button -->
+  <button class="toggle-btn" id="toggleBtn">☰</button>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-      <div class="container">
-        <div class="content-logo-container">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-        </div>
-        <h1>Manage Outlets</h1>
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="container">
+      <div class="content-logo-container">
+        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+      </div>
+      <h1>Manage Outlets</h1>
 
-        <!-- Create Outlet Button -->
-        <div class="action-bar">
-          <button class="create-btn" id="createOutletBtn">+ Create New Outlet</button>
-        </div>
+      <!-- Create Outlet Button -->
+      <div class="action-bar">
+        <button class="create-btn" id="createOutletBtn">+ Create New Outlet</button>
+      </div>
 
-        <!-- Create Outlet Form (Initially Hidden) -->
-        <div class="form-section" id="createOutletForm" style="display: none;">
-          <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
-          <% if (error) { %>
-            <div class="error"><%= error %></div>
-          <% } %>
-          <form action="/create-outlet" method="POST">
-            <input type="text" name="name" placeholder="Outlet Name" required>
-            <input type="text" name="location" placeholder="Location/Address" required>
-            <input type="text" name="mobile" placeholder="Mobile Number" required>
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <div class="form-buttons">
-              <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
-              <button type="button" class="cancel-btn" id="cancelCreateBtn">Cancel</button>
-            </div>
-          </form>
-        </div>
+      <!-- Create Outlet Form (Initially Hidden) -->
+      <div class="form-section" id="createOutletForm" style="display: none;">
+        <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
+        <% if (error) { %>
+          <div class="error"><%= error %></div>
+        <% } %>
+        <form action="/create-outlet" method="POST">
+          <input type="text" name="name" placeholder="Outlet Name" required>
+          <input type="text" name="location" placeholder="Location/Address" required>
+          <input type="text" name="mobile" placeholder="Mobile Number" required>
+          <input type="text" name="username" placeholder="Username" required>
+          <input type="password" name="password" placeholder="Password" required>
+          <div class="form-buttons">
+            <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
+            <button type="button" class="cancel-btn" id="cancelCreateBtn">Cancel</button>
+          </div>
+        </form>
+      </div>
 
-        <!-- Outlets Table -->
-        <div class="table-section">
-          <table>
-            <thead>
+      <!-- Outlets Table -->
+      <div class="table-section">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Location</th>
+              <th>Mobile</th>
+              <th>Username</th>
+              <th>Total Commission Due</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% outlets.forEach(outlet => { %>
               <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Mobile</th>
-                <th>Username</th>
-                <th>Actions</th>
+                <td><%= outlet.name %></td>
+                <td><%= outlet.location %></td>
+                <td><%= outlet.mobile %></td>
+                <td><%= outlet.username %></td>
+                <td class="commission-cell">
+                  <%= admin.currency || '$' %><%= (outlet.totalCommissionDue || 0).toFixed(2) %>
+                  <% if (outlet.totalCommissionDue && outlet.totalCommissionDue > 0) { %>
+                    <button class="pay-commission-btn" 
+                            data-outlet-id="<%= outlet._id %>"
+                            data-outlet-name="<%= outlet.name %>"
+                            data-amount="<%= outlet.totalCommissionDue %>"
+                            onclick="payCommission('<%= outlet._id %>')">
+                      Pay Commission
+                    </button>
+                  <% } else { %>
+                    <button class="pay-commission-btn paid" disabled>
+                      Paid
+                    </button>
+                  <% } %>
+                </td>
+                <td>
+                  <select class="actions-dropdown" onchange="handleAction(this, '<%= outlet._id %>')">
+                    <option value="">Select Action</option>
+                    <option value="dispense">Dispense</option>
+                    <option value="details">View Details</option>
+                    <option value="delete">Delete</option>
+                  </select>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              <% outlets.forEach(outlet => { %>
-                <tr>
-                  <td><%= outlet.name %></td>
-                  <td><%= outlet.location %></td>
-                  <td><%= outlet.mobile %></td>
-                  <td><%= outlet.username %></td>
-                  <td>
-                    <a href="/dispense-to-outlet/<%= outlet._id %>" class="dispense-btn">Dispense</a>
-                    <a href="/outlet-details/<%= outlet._id %>" class="details-btn">View Details</a>
-                    <form action="/delete-outlet/<%= outlet._id %>" method="POST" class="delete-form" onsubmit="return confirm('Are you sure you want to delete this outlet?');">
-                      <button type="submit" class="delete-btn">Delete</button>
-                    </form>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
+            <% }) %>
+          </tbody>
+        </table>
       </div>
     </div>
+  </div>
 
-    <!-- JavaScript -->
-    <script>
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const toggleBtn = document.getElementById('toggleBtn');
-      const createOutletBtn = document.getElementById('createOutletBtn');
-      const createOutletForm = document.getElementById('createOutletForm');
-      const cancelCreateBtn = document.getElementById('cancelCreateBtn');
+  <!-- JavaScript -->
+  <script>
+    const sidebar = document.getElementById('sidebar');
+    const mainContent = document.getElementById('mainContent');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const createOutletBtn = document.getElementById('createOutletBtn');
+    const createOutletForm = document.getElementById('createOutletForm');
+    const cancelCreateBtn = document.getElementById('cancelCreateBtn');
 
-      // Toggle sidebar visibility
-      toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('visible');
-        sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
+    // Toggle sidebar visibility
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('visible');
+      sidebar.classList.toggle('hidden');
+      if (sidebar.classList.contains('visible')) {
+        mainContent.style.marginLeft = '200px';
+        mainContent.style.width = 'calc(100% - 200px)';
+      } else {
+        mainContent.style.marginLeft = '0';
+        mainContent.style.width = '100%';
+      }
+    });
+
+    // Toggle create outlet form visibility
+    createOutletBtn.addEventListener('click', () => {
+      createOutletForm.style.display = 'block';
+      createOutletBtn.style.display = 'none';
+      createOutletForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
+
+    cancelCreateBtn.addEventListener('click', () => {
+      createOutletForm.style.display = 'none';
+      createOutletBtn.style.display = 'block';
+    });
+
+    // Pay Commission Function
+    async function payCommission(outletId) {
+      const button = document.querySelector(`button[data-outlet-id="${outletId}"]`);
+      
+      try {
+        button.disabled = true;
+        button.textContent = 'Processing...';
+        
+        const response = await fetch(`/pay-commission/${outletId}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (response.ok) {
+          const result = await response.json();
+          button.textContent = 'Paid';
+          button.classList.remove('pay-commission-btn');
+          button.classList.add('paid');
+          
+          // Update the commission due display
+          const commissionCell = button.closest('.commission-cell');
+          if (commissionCell) {
+            commissionCell.innerHTML = `
+              <%= admin.currency || '$' %>0.00
+              <button class="pay-commission-btn paid" disabled>
+                Paid
+              </button>
+            `;
+          }
+          
+          alert('Commission paid successfully!');
         } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
+          throw new Error('Failed to pay commission');
         }
-      });
+      } catch (error) {
+        console.error('Error paying commission:', error);
+        button.disabled = false;
+        button.textContent = 'Pay Commission';
+        alert('Failed to pay commission. Please try again.');
+      }
+    }
 
-      // Toggle create outlet form visibility
-      createOutletBtn.addEventListener('click', () => {
-        createOutletForm.style.display = 'block';
-        createOutletBtn.style.display = 'none';
-        // Scroll to form for better mobile experience
-        createOutletForm.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
+    // Handle Action Dropdown
+    function handleAction(select, outletId) {
+      const action = select.value;
+      if (!action) return; // Do nothing if "Select Action" is chosen
 
-      cancelCreateBtn.addEventListener('click', () => {
-        createOutletForm.style.display = 'none';
-        createOutletBtn.style.display = 'block';
-      });
-    </script>
-  </body>
+      switch (action) {
+        case 'dispense':
+          window.location.href = `/dispense-to-outlet/${outletId}`;
+          break;
+        case 'details':
+          window.location.href = `/outlet-details/${outletId}`;
+          break;
+        case 'delete':
+          if (confirm('Are you sure you want to delete this outlet?')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/delete-outlet/${outletId}`;
+            document.body.appendChild(form);
+            form.submit();
+          }
+          break;
+      }
+
+      // Reset dropdown to "Select Action" after selection
+      select.value = '';
+    }
+  </script>
+</body>
 </html>

@@ -42,6 +42,48 @@ transporter.verify((error, success) => {
   else console.log('SMTP connection successful:', success);
 });
 
+// Calculate total commission due for an outlet
+async function calculateOutletCommission(outletId) {
+  try {
+    // Get all pending commissions for this outlet
+    const result = await db.collection('commissions').aggregate([
+      { 
+        $match: { 
+          outletId: new ObjectId(outletId),
+          status: 'pending'
+        } 
+      },
+      {
+        $group: {
+          _id: null,
+          total: { $sum: "$amount" }
+        }
+      }
+    ]).toArray();
+
+    return result[0]?.total || 0;
+  } catch (error) {
+    console.error('Error calculating commission:', error);
+    return 0;
+  }
+}
+
+// Get outlets with commission data
+async function getOutletsWithCommission(adminId) {
+  const outlets = await db.collection('outlets')
+    .find({ adminId: new ObjectId(adminId) })
+    .toArray();
+
+  return Promise.all(outlets.map(async outlet => {
+    const commissionDue = await calculateOutletCommission(outlet._id);
+    return {
+      ...outlet,
+      commissionDue
+    };
+  }));
+}
+
+
 async function sendWelcomeEmail(email, username, businessName) {
   const mailOptions = {
     from: process.env.EMAIL_USER,
@@ -771,34 +813,53 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
   res.render('update-stock', { inventory, admin, username, formatCurrency });
 });
 
-app.post('/update-stock', async (req, res) => {
-  const { id, stock, cost } = req.body;
+app.post('/update-stock', isAuthenticated, async (req, res) => {
+  const { id, stock, cost, commission } = req.body;
   try {
     const objectId = new ObjectId(id);
+    const updateData = {
+      stock: parseInt(stock),
+      cost: parseFloat(cost)
+    };
+    
+    // Only update commission if it's provided and not empty
+    if (commission !== undefined && commission !== '') {
+      updateData.commission = parseFloat(commission);
+    }
+
     const result = await db.collection('inventory').updateOne(
       { _id: objectId },
-      { $set: { stock: parseInt(stock), cost: parseFloat(cost) } }
+      { $set: updateData }
     );
+    
     if (result.matchedCount === 0) return res.status(404).send('Item not found');
     res.redirect('/update-stock');
   } catch (error) {
     console.error('Error updating item:', error);
     res.status(500).send('Error updating item');
   }
-});
+});;
 
 app.post('/add-product', isAuthenticated, async (req, res) => {
-  const { name, stock, cost } = req.body;
+  const { name, stock, cost, commission } = req.body;
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!admin) return res.status(404).send('Admin not found.');
-    await db.collection('inventory').insertOne({
+    
+    const newProduct = {
       name,
       stock: parseInt(stock),
       cost: parseFloat(cost),
       adminId: admin._id,
       createdAt: new Date()
-    });
+    };
+    
+    // Add commission if provided
+    if (commission !== undefined && commission !== '') {
+      newProduct.commission = parseFloat(commission);
+    }
+
+    await db.collection('inventory').insertOne(newProduct);
     res.redirect('/update-stock');
   } catch (error) {
     console.error('Error adding product:', error);
@@ -1044,6 +1105,17 @@ app.get('/outlet-login', (req, res) => {
   res.render('outlet-login', { error: null });
 });
 
+// Outlet Logout Route
+app.get('/outlet-logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying outlet session:', err);
+      return res.status(500).send('Error logging out');
+    }
+    res.redirect('/admin-login');
+  });
+});
+
 app.get('/superadmin/edit-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
   const adminId = req.params.id;
   const admin = await db.collection('admins').findOne({ _id: new ObjectId(adminId) });
@@ -1086,23 +1158,40 @@ app.get('/admin-logout', (req, res) => {
 
 app.get('/home', isAuthenticated, async (req, res) => {
   try {
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray();
-    const username = req.session.admin;
-    
-    // Get error from session and then clear it
-    const error = req.session.error || null;
-    req.session.error = null;
-    
-    res.render('home', { 
-      outlets, 
-      admin, 
-      username,
-      error
+    console.log('Admin ID from session:', req.session.adminId);
+    const admin = await db.collection('admins').findOne({ _id: new ObjectId(req.session.adminId) });
+    if (!admin) throw new Error('Admin not found');
+    console.log('Admin found:', admin.username);
+
+    let outlets = await db.collection('outlets').find({ adminId: new ObjectId(req.session.adminId) }).toArray();
+    console.log('Outlets found:', outlets.length);
+
+    const outletsWithCommission = await Promise.all(outlets.map(async (outlet) => {
+      const pendingCommissions = await db.collection('commissions').aggregate([
+        { $match: { outletId: outlet._id, status: 'pending' } },
+        { $group: { _id: null, total: { $sum: "$amount" } } }
+      ]).toArray();
+
+      console.log(`Outlet ${outlet.name} (${outlet._id}): Pending Commissions:`, pendingCommissions);
+      const totalCommissionDue = pendingCommissions[0]?.total || 0;
+      console.log(`Total Commission Due for ${outlet.name}: ${totalCommissionDue}`);
+      return { ...outlet, totalCommissionDue };
+    }));
+
+    res.render('home', {
+      username: req.session.admin, // Use admin username from session
+      admin,
+      outlets: outletsWithCommission,
+      error: req.query.error
     });
-  } catch (err) {
-    console.error('Error loading home page:', err);
-    res.status(500).send('Internal Server Error');
+  } catch (error) {
+    console.error('Error loading admin home:', error);
+    res.render('home', {
+      username: req.session.admin,
+      admin: null,
+      outlets: [],
+      error: 'Failed to load outlets. Please try again.'
+    });
   }
 });
 
@@ -1119,6 +1208,94 @@ app.post('/outlet-login', async (req, res) => {
     res.redirect(`/outlet/${outlet._id}/stock-view`);
   } else {
     res.render('outlet-login', { error: 'Invalid username/email or password' });
+  }
+});
+
+app.post('/pay-commission/:outletId', isAuthenticated, async (req, res) => {
+  try {
+    const outletId = req.params.outletId;
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Verify outlet belongs to admin
+    const outlet = await db.collection('outlets').findOne({ 
+      _id: new ObjectId(outletId),
+      adminId: admin._id
+    });
+
+    if (!outlet) {
+      return res.status(404).json({ success: false, message: 'Outlet not found' });
+    }
+
+    // Get all pending commissions
+    const pendingCommissions = await db.collection('commissions')
+      .find({ 
+        outletId: new ObjectId(outletId),
+        status: 'pending'
+      })
+      .toArray();
+
+    if (pendingCommissions.length === 0) {
+      return res.status(400).json({ success: false, message: 'No pending commissions' });
+    }
+
+    // Create commission payment record
+    const totalAmount = pendingCommissions.reduce((sum, c) => sum + c.amount, 0);
+    const paymentRecord = {
+      adminId: admin._id,
+      outletId: new ObjectId(outletId),
+      outletName: outlet.name,
+      amount: totalAmount,
+      datePaid: new Date(),
+      commissionIds: pendingCommissions.map(c => c._id),
+      paymentMethod: 'Bank Transfer', // Could be made dynamic
+      reference: `COMM-${Date.now()}`
+    };
+
+    // Start transaction
+    const session = db.client.startSession();
+    try {
+      await session.withTransaction(async () => {
+        // 1. Create payment record
+        await db.collection('commission_payments').insertOne(paymentRecord, { session });
+
+        // 2. Update all commissions to paid status
+        await db.collection('commissions').updateMany(
+          { 
+            _id: { $in: pendingCommissions.map(c => c._id) }
+          },
+          { 
+            $set: { 
+              status: 'paid',
+              paymentId: paymentRecord._id,
+              datePaid: new Date()
+            } 
+          },
+          { session }
+        );
+
+        // 3. Create transaction record
+        await db.collection('transactions').insertOne({
+          adminId: admin._id,
+          type: 'commission_payment',
+          amount: totalAmount,
+          date: new Date(),
+          description: `Commission payment to ${outlet.name}`,
+          reference: paymentRecord.reference,
+          balanceImpact: -1 // Negative for outgoing payment
+        }, { session });
+      });
+    } finally {
+      await session.endSession();
+    }
+
+    res.json({ 
+      success: true,
+      amount: totalAmount,
+      outletName: outlet.name
+    });
+  } catch (error) {
+    console.error('Error processing commission payment:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -1546,67 +1723,112 @@ app.get('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
 });
 
 app.post('/outlet/sales-form', isOutletAuthenticated, async (req, res) => {
-  const { customerName, phoneNumber, email, itemId, quantity } = req.body;
-  const qty = parseInt(quantity);
-  
+  const { customerName, phoneNumber, email, items } = req.body;
   try {
-    // Get the current outlet
-    const outlet = await db.collection('outlets').findOne({ 
-      _id: new ObjectId(req.session.outletId) 
-    });
-    
-    if (!outlet) {
-      return res.status(404).send('Outlet not found');
-    }
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(req.session.outletId) });
+    if (!outlet) return res.status(404).send('Outlet not found');
+    console.log('Outlet:', outlet.name, outlet._id);
 
-    // Find the item in the outlet's inventory
-    const item = outlet.inventory.find(i => i.id === itemId);
-    if (!item) {
-      return res.status(404).send('Item not found in outlet inventory');
-    }
+    if (!Array.isArray(items)) return res.status(400).send('Invalid items data');
+    const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+    const saleItems = [];
+    let totalAmount = 0;
+    let totalCommission = 0;
 
-    if (item.stock < qty || qty <= 0) {
-      return res.status(400).send('Invalid quantity or insufficient stock');
-    }
+    console.log('Items:', items);
 
-    // Update outlet's inventory (reduce stock)
-    await db.collection('outlets').updateOne(
-      { 
-        _id: new ObjectId(req.session.outletId),
-        'inventory.id': itemId 
-      },
-      { 
-        $inc: { 'inventory.$.stock': -qty } 
+    for (const itemData of items) {
+      const itemId = itemData.itemId;
+      const qty = parseInt(itemData.quantity);
+      if (!itemId || isNaN(qty)) return res.status(400).send('Invalid item ID or quantity');
+
+      const outletItem = outlet.inventory.find(i => (i.id && i.id.toString() === itemId) || (i._id && i._id.toString() === itemId));
+      if (!outletItem) return res.status(404).send(`Item ${itemId} not found in outlet inventory`);
+
+      const adminProduct = await db.collection('inventory').findOne({ _id: new ObjectId(outletItem.id || outletItem._id), adminId: outlet.adminId });
+      console.log(`Item ${outletItem.name}:`, { cost: adminProduct?.cost, commission: adminProduct?.commission });
+
+      let commissionAmount = 0;
+      let commissionRate = 0;
+      if (adminProduct?.commission) {
+        commissionRate = parseFloat(adminProduct.commission);
+        commissionAmount = (adminProduct.cost * qty * commissionRate) / 100;
+        totalCommission += commissionAmount;
       }
-    );
+      console.log(`Commission calc for ${outletItem.name}: Rate=${commissionRate}%, Amount=${commissionAmount}, Total so far=${totalCommission}`);
 
-        // Record the sale with proper outlet identification
-        const sale = {
-          outletId: outlet._id,
-          outletName: outlet.name, // Store outlet name directly
+      saleItems.push({
+        itemId: new ObjectId(outletItem.id || outletItem._id),
+        itemName: outletItem.name,
+        quantity: qty,
+        unitCost: adminProduct?.cost || 0,
+        totalCost: (adminProduct?.cost || 0) * qty,
+        commissionRate,
+        commissionAmount
+      });
+      totalAmount += (adminProduct?.cost || 0) * qty;
+
+      await db.collection('outlets').updateOne(
+        { _id: new ObjectId(req.session.outletId), 'inventory.id': itemId },
+        { $inc: { 'inventory.$.stock': -qty } }
+      );
+    }
+
+    totalCommission = parseFloat(totalCommission.toFixed(2));
+    const sale = {
+      outletId: outlet._id,
+      outletName: outlet.name,
+      adminId: outlet.adminId,
+      customerName,
+      phoneNumber: phoneNumber || 'N/A',
+      email: email || 'N/A',
+      items: saleItems,
+      totalAmount,
+      totalCommission,
+      date: new Date(),
+      paymentMethod: 'Cash',
+      paymentStatus: 'Paid',
+      source: 'outlet'
+    };
+
+    const saleResult = await db.collection('sales').insertOne(sale);
+    console.log('Sale saved:', { _id: saleResult.insertedId, totalCommission });
+
+    if (totalCommission > 0) {
+      console.log('Processing commissions...');
+      for (const item of saleItems.filter(i => i.commissionAmount > 0)) {
+        const commissionDoc = {
+          saleId: saleResult.insertedId,
           adminId: outlet.adminId,
-          customerName,
-          phoneNumber: phoneNumber || 'N/A',
-          email: email || 'N/A',
-          items: [{
-            itemId: itemId,
-            itemName: item.name,
-            quantity: qty,
-            unitCost: item.cost || 0,
-            totalCost: (item.cost || 0) * qty
-          }],
-          totalAmount: (item.cost || 0) * qty,
+          outletId: outlet._id,
+          outletName: outlet.name,
+          itemId: item.itemId,
+          itemName: item.itemName,
+          quantity: parseInt(item.quantity),
+          amount: parseFloat(item.commissionAmount.toFixed(2)) + 0.000001, // Force double
+          rate: parseFloat(item.commissionRate.toFixed(2)) + 0.000001,     // Force double
           date: new Date(),
-          paymentMethod: 'Cash',
-          paymentStatus: 'Paid',
-          source: 'outlet' // Explicit source identifier
+          status: 'pending'
         };
+        console.log('Inserting commission (post-conversion):', commissionDoc);
+        console.log('amount type:', typeof commissionDoc.amount, commissionDoc.amount);
+        console.log('rate type:', typeof commissionDoc.rate, commissionDoc.rate);
+        try {
+          const commissionResult = await db.collection('commissions').insertOne(commissionDoc);
+          console.log(`Commission inserted: ${commissionResult.insertedId}`);
+        } catch (err) {
+          console.error('Failed to insert commission:', err);
+          throw err;
+        }
+      }
+    } else {
+      console.log('No commissions to process: totalCommission =', totalCommission);
+    }
 
-      await db.collection('sales').insertOne(sale);
-      res.redirect('/outlet/sales-form');
+    res.redirect('/outlet/sales-form?success=' + encodeURIComponent('Sale recorded successfully'));
   } catch (error) {
     console.error('Error processing outlet sale:', error);
-    res.status(500).send('Internal Server Error');
+    res.redirect('/outlet/sales-form?error=' + encodeURIComponent('Failed to complete sale: ' + error.message));
   }
 });
 
@@ -1630,6 +1852,65 @@ app.get('/outlet-transactions/:outletId', isAuthenticated, async (req, res) => {
   const transactions = await db.collection('sales').find({ outletId: new ObjectId(outletId) }).toArray();
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   res.render('outlet-transactions', { outlet, transactions, admin });
+});
+
+app.get('/commission-reports', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    
+    // Get summary of commissions
+    const commissionSummary = await db.collection('commissions').aggregate([
+      { $match: { adminId: admin._id } },
+      {
+        $group: {
+          _id: '$status',
+          totalAmount: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      }
+    ]).toArray();
+
+    // Get recent payments
+    const recentPayments = await db.collection('commission_payments')
+      .find({ adminId: admin._id })
+      .sort({ datePaid: -1 })
+      .limit(10)
+      .toArray();
+
+    // Get outlets with pending commissions
+    const outletsWithCommissions = await db.collection('outlets').aggregate([
+      { $match: { adminId: admin._id } },
+      {
+        $lookup: {
+          from: 'commissions',
+          localField: '_id',
+          foreignField: 'outletId',
+          as: 'commissions',
+          pipeline: [
+            { $match: { status: 'pending' } }
+          ]
+        }
+      },
+      {
+        $addFields: {
+          pendingCommission: { $sum: '$commissions.amount' }
+        }
+      },
+      { $match: { pendingCommission: { $gt: 0 } } }
+    ]).toArray();
+
+    res.render('commission-reports', {
+      admin,
+      username: req.session.admin,
+      summary: commissionSummary,
+      payments: recentPayments,
+      outlets: outletsWithCommissions,
+      formatCurrency
+    });
+  } catch (error) {
+    console.error('Error fetching commission reports:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
