@@ -1845,6 +1845,10 @@ app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
   }
 });
 
+app.get('/landing', (req, res) => {
+  res.render('landing', { admin: { currency: '$' } }); // Default currency for display
+});
+
 app.get('/outlet-transactions/:outletId', isAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
