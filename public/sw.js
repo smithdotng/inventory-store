@@ -39,6 +39,7 @@ workbox.precaching.precacheAndRoute([
   { url: '/outlet-transactions', revision: '1' },
   { url: '/outlet-sales-form', revision: '1' },
   { url: '/receipt', revision: '1' },
+  { url: '/landing', revision: '1' },
 ], {
   ignoreURLParametersMatching: [/.*/],
   cleanUpCache: true
