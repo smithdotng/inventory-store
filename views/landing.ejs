@@ -36,17 +36,15 @@
     body {
       font-family: 'Poppins', sans-serif;
       color: var(--dark-text);
-      background: linear-gradient(135deg, var(--light-bg), #e9ecef);
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
       line-height: 1.6;
       overflow-x: hidden;
-      
-      background-size: cover;
       display: flex;
       flex-direction: column;
       min-height: 100vh;
     }
 
-    /* Fixed Top Bar */
+    /* Glossy Top Bar */
     .top-bar {
       position: fixed;
       top: 0;
@@ -56,20 +54,21 @@
       flex-direction: column;
       align-items: center;
       padding: 8px;
-      background: #466c7b;
-      box-shadow: var(--shadow-sm);
+      background: linear-gradient(135deg, #466c7b 0%, #3a5a6b 100%);
+      box-shadow: var(--shadow-lg);
       z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
     }
 
     .content-logo-container {
       margin-bottom: 10px;
+      position: relative;
     }
 
     .content-logo-container img {
       max-width: 150px;
-      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
       transition: var(--transition);
-      
     }
 
     .content-logo-container img:hover {
@@ -84,21 +83,23 @@
       margin-right: 50px;
     }
 
-    /* Mobile Bottom CTAs */
+    /* Glossy Mobile Bottom CTAs */
     .mobile-cta-section {
       display: none;
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      padding: 20px 15px;
-      background: #466c7b;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+      padding: 15px;
+      background: linear-gradient(135deg, #466c7b 0%, #3a5a6b 100%);
+      box-shadow: 0 -5px 15px rgba(0,0,0,0.2);
       z-index: 1000;
+      border-top: 1px solid rgba(255,255,255,0.2);
     }
 
+    /* Enhanced Glossy Buttons */
     .cta-btn {
-      padding: 6px 18px;
+      padding: 8px 20px;
       background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
       color: white;
       border: none;
@@ -108,7 +109,9 @@
       text-decoration: none;
       display: inline-flex;
       align-items: center;
-      box-shadow: var(--shadow-lg);
+      box-shadow: 
+        0 4px 15px rgba(0,0,0,0.2),
+        inset 0 1px 1px rgba(255,255,255,0.4);
       transition: var(--transition);
       position: relative;
       overflow: hidden;
@@ -121,26 +124,31 @@
       background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
     }
 
-    .cta-btn::after {
+    .cta-btn::before {
       content: '';
       position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: 50%;
-      transform: translate(-50%, -50%);
-      transition: width 0.6s ease, height 0.6s ease;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+      );
+      transition: 0.5s;
     }
 
-    .cta-btn:hover::after {
-      width: 200%;
-      height: 200%;
+    .cta-btn:hover::before {
+      left: 100%;
     }
 
     .cta-btn:hover {
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: 
+        0 6px 20px rgba(0,0,0,0.3),
+        inset 0 1px 1px rgba(255,255,255,0.4);
     }
 
     .cta-btn i {
@@ -152,7 +160,7 @@
       transform: translateX(5px);
     }
 
-    /* Main Content */
+    /* Main Content with Glossy Overlay */
     .main-content {
       flex: 1;
       padding: 180px 20px 120px;
@@ -160,6 +168,19 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      position: relative;
+    }
+
+    .main-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.8) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
     }
 
     .container {
@@ -170,11 +191,24 @@
       align-items: center;
     }
 
-    /* Header Content */
+    /* Glossy Header Content */
     .header-content {
       margin-bottom: 50px;
       animation: fadeIn 1s ease;
       width: 100%;
+      position: relative;
+    }
+
+    .header-content::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+      border-radius: 3px;
     }
 
     @keyframes fadeIn {
@@ -188,6 +222,9 @@
       font-weight: 700;
       margin-bottom: 15px;
       text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+      background: linear-gradient(135deg, #2c3e50, #466c7b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
 
     .tagline {
@@ -198,7 +235,7 @@
       margin: 0 auto;
     }
 
-    /* Features */
+    /* Glossy Feature Cards */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -206,16 +243,15 @@
       margin-bottom: 50px;
       width: 80%;
       justify-items: center;
-      justify-self: center;
-      align-self: center;
-      align-content: center;
     }
 
     .feature-card {
-      background: white;
+      background: rgba(255,255,255,0.9);
       padding: 35px;
       border-radius: 15px;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 
+        0 5px 15px rgba(0,0,0,0.1),
+        inset 0 1px 1px rgba(255,255,255,0.8);
       text-align: center;
       transition: var(--transition);
       position: relative;
@@ -223,27 +259,46 @@
       cursor: pointer;
       max-width: 350px;
       width: 100%;
+      border: 1px solid rgba(255,255,255,0.3);
     }
 
     .feature-card:hover {
       transform: translateY(-8px);
-      box-shadow: var(--shadow-lg);
+      box-shadow: 
+        0 15px 30px rgba(0,0,0,0.15),
+        inset 0 1px 1px rgba(255,255,255,0.8);
     }
 
     .feature-card::before {
       content: '';
       position: absolute;
       top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(120deg, rgba(39, 174, 96, 0.1), rgba(52, 152, 219, 0.1));
-      transition: var(--transition);
-      z-index: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
     }
 
-    .feature-card:hover::before {
-      left: 0;
+    .feature-card::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        to bottom right,
+        rgba(255,255,255,0) 0%,
+        rgba(255,255,255,0.1) 50%,
+        rgba(255,255,255,0) 100%
+      );
+      transform: rotate(30deg);
+      transition: var(--transition);
+    }
+
+    .feature-card:hover::after {
+      left: 100%;
+      top: 100%;
     }
 
     .feature-icon {
@@ -253,6 +308,7 @@
       transition: var(--transition);
       position: relative;
       z-index: 1;
+      text-shadow: 0 2px 3px rgba(0,0,0,0.1);
     }
 
     .feature-card:hover .feature-icon {
@@ -288,8 +344,9 @@
       max-height: 400px;
       margin-top: 20px;
       padding: 15px;
-      background: rgba(248, 249, 250, 0.8);
+      background: rgba(248, 249, 250, 0.9);
       border-radius: 10px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
 
     .feature-details ul {
@@ -315,73 +372,52 @@
       top: 2px;
     }
 
-    /* Testimonials */
-    .testimonials {
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto 50px;
-    }
-
-    .testimonial-slider {
-      position: relative;
-    }
-
-    .testimonial {
-      background: white;
-      padding: 30px;
-      border-radius: 15px;
-      box-shadow: var(--shadow-sm);
-      margin: 0 15px;
-      text-align: center;
-    }
-
-    .testimonial-content {
-      font-style: italic;
-      margin-bottom: 20px;
-      color: var(--dark-text);
-    }
-
-    .testimonial-author {
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    .testimonial-role {
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
-
-    .slick-dots {
-      bottom: -40px;
-    }
-
-    .slick-dots li button:before {
-      color: var(--primary-color);
-      font-size: 10px;
-    }
-
-    .slick-dots li.slick-active button:before {
-      color: var(--primary-color);
-    }
-
-    /* Footer */
+    /* Glossy Footer */
     .footer {
       text-align: center;
       padding: 50px 20px;
-      background: var(--secondary-color);
+      background: linear-gradient(135deg, #2c3e50 0%, #1a2a3a 100%);
       color: rgba(255, 255, 255, 0.8);
       font-size: 0.9rem;
       width: 100%;
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
     }
 
     .footer a {
       color: var(--accent-color);
       text-decoration: none;
       transition: var(--transition);
+      position: relative;
     }
 
     .footer a:hover {
       color: white;
+    }
+
+    .footer a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: white;
+      transition: var(--transition);
+    }
+
+    .footer a:hover::after {
+      width: 100%;
     }
 
     /* Responsive */
@@ -408,13 +444,12 @@
 
     @media (max-width: 768px) {
       .main-content { 
-        padding: 180px 15px 180px; /* Increased bottom padding for mobile CTAs */
+        padding: 180px 15px 180px;
       }
       .features { grid-template-columns: 1fr; }
       h1 { font-size: 2.2rem; }
       .tagline { font-size: 1.1rem; }
       
-      /* Show mobile CTAs and hide desktop ones */
       .mobile-cta-section {
         display: flex;
         gap: 8px;
@@ -443,7 +478,7 @@
   </style>
 </head>
 <body>
-  <!-- Fixed Top Bar -->
+  <!-- Glossy Top Bar -->
   <div class="top-bar">
     <div class="content-logo-container">
       <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
@@ -569,12 +604,10 @@
           </div>
         </div>
       </div>
-
-      
     </div>
   </div>
 
-  <!-- Footer -->
+  <!-- Glossy Footer -->
   <footer class="footer">
     <p style="margin-bottom: 30px;">© 2025 Shedfactory Limited. <br><a href="mailto:hello@shed.ng">Nigeria</a> | <a href="mailto:hello@shedfactory.co.za">South Africa</a></p>
   </footer>
@@ -582,45 +615,25 @@
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.8.1/slick.min.js"></script>
   <script>
-    // Initialize testimonial slider
-    $(document).ready(function(){
-      $('.testimonial-slider').slick({
-        dots: true,
-        infinite: true,
-        speed: 300,
-        slidesToShow: 1,
-        adaptiveHeight: true,
-        autoplay: true,
-        autoplaySpeed: 5000
-      });
-    });
-
     const featureCards = document.querySelectorAll('.feature-card');
 
-    // Feature card interaction - MODIFIED TO ONLY TOGGLE CLICKED CARD
+    // Feature card interaction
     featureCards.forEach(card => {
       card.addEventListener('click', (e) => {
-        // Only toggle the clicked card
         card.classList.toggle('active');
-        
-        // Scroll into view if opening
         if (card.classList.contains('active')) {
           card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
-        
-        // Prevent event bubbling to avoid closing when clicking inside
         e.stopPropagation();
       });
     });
 
-    // Close all feature cards when clicking outside
     document.addEventListener('click', () => {
       featureCards.forEach(card => {
         card.classList.remove('active');
       });
     });
 
-    // Adjust top padding on resize to account for top bar height
     function adjustMainPadding() {
       const topBar = document.querySelector('.top-bar');
       const mainContent = document.querySelector('.main-content');
