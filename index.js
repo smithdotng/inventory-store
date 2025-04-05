@@ -679,7 +679,7 @@ app.post('/reset-password/:token', async (req, res) => {
 });
 
 // Other Routes
-app.get('/', (req, res) => res.render('admin-register', { error: null }));
+app.get('/', (req, res) => res.render('landing', { error: null }));
 
 app.get('/transactions', isAuthenticated, async (req, res) => {
   try {
