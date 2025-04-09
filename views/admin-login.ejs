@@ -19,7 +19,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-  
 
     <style>
         body {
@@ -78,6 +77,47 @@
             padding: 30px;
         }
         
+        /* Login Button Styling */
+        .btn-login {
+            background-color: rgb(224, 235, 17);
+            color: #333;
+            width: 30%;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        
+        .btn-login:hover {
+            background-color: rgb(240, 245, 100);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .btn-login:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Outlet Login Button Styling */
+        .btn-outlet-login {
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            color: white;
+        }
+        
+        .btn-outlet-login:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-color: white;
+            color: white;
+        }
+        
+        .btn-outlet-login:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
         .outlet-login {
             margin-top: 30px;
             padding-top: 20px;
@@ -100,6 +140,10 @@
             .logo-container img {
                 height: 50px;
             }
+            
+            .btn-login {
+                width: 40%;
+            }
         }
         
         @media (max-width: 480px) {
@@ -109,6 +153,10 @@
             
             .logo-container img {
                 height: 45px;
+            }
+            
+            .btn-login {
+                width: 50%;
             }
         }
     </style>
@@ -159,8 +207,8 @@
                         </div>
                     </div>
                     
-                    <div class="form-group">
-                        <button type="submit" class="btn btn-neutral btn-round btn-lg btn-block" style="background-color: rgb(224, 235, 17); width: 30%; justify-self: center; ">Login</button>
+                    <div class="form-group text-center">
+                        <button type="submit" class="btn btn-round btn-lg btn-login">Login</button>
                     </div>
                 </form>
                 
@@ -175,7 +223,7 @@
 
                 <div class="outlet-login">
                     <div class="outlet-login-text">Need to access an outlet account?</div>
-                    <button class="btn btn-outline-neutral btn-round" id="outletLoginBtn">Outlet Login</button>
+                    <button class="btn btn-round btn-outlet-login" id="outletLoginBtn">Outlet Login</button>
                 </div>
             </div>
         </div>

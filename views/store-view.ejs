@@ -1,110 +1,388 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Store View | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-    <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Store View</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="Store View | Shed: Inventory, Invoices and More" />
+  <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+  <meta property="og:image" content="/android-chrome-512x512.png" />
+  <title>Store View</title>
+  
+  <!-- Now UI Kit CSS -->
+  <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+  <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+  
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  
+  <!-- Favicons -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+
+  <style>
+    :root {
+      --primary-color: #466c7b;
+      --secondary-color: #4CAF50;
+      --accent-color: #3498db;
+      --text-color: #333;
+      --light-bg: #f9f9f9;
+      --dark-bg: #2c3e50;
+    }
+
+    body {
+      background-image: url('/images/bg.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Sidebar styling */
+    .sidebar {
+      width: 250px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      background: var(--primary-color);
+      color: white;
+      padding: 20px;
+      transition: all 0.3s;
+      z-index: 1000;
+      box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-top: 75px;
+    }
     
+    .sidebar.collapsed {
+      width: 80px;
+      overflow: hidden;
+    }
     
-  </head>
+    .sidebar.collapsed .logo-container img {
+      max-width: 50px;
+    }
+    
+    .sidebar.collapsed h2,
+    .sidebar.collapsed a span {
+      display: none;
+    }
+    
+    .sidebar.collapsed a {
+      text-align: center;
+      padding: 12px 5px;
+    }
+    
+    .sidebar.collapsed a i {
+      margin-right: 0;
+      font-size: 1.2rem;
+    }
+    
+    .sidebar .logo-container {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .sidebar .logo-container img {
+      max-width: 80%;
+      height: auto;
+      transition: all 0.3s;
+    }
+    
+    .sidebar h2 {
+      color: white;
+      font-size: 1.2rem;
+      margin-bottom: 30px;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      color: rgba(255, 255, 255, 0.8);
+      padding: 12px 15px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    
+    .sidebar a i {
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+    
+    .sidebar a:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+    }
+    
+    .sidebar a.active {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      font-weight: bold;
+    }
+    
+    /* Main content */
+    .main-content {
+      margin-left: 250px;
+      transition: all 0.3s;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .sidebar.collapsed + .main-content {
+      margin-left: 80px;
+    }
+    
+    /* Toggle button */
+    .toggle-btn {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      z-index: 1100;
+      background: var(--dark-bg);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      transition: all 0.3s;
+    }
+    
+    .sidebar.collapsed + .main-content .toggle-btn {
+      left: 20px;
+    }
+
+    /* Success Container */
+    .success-container {
+      text-align: center;
+      margin-top: 50px;
+      background: var(--light-bg);
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .success-container h1 {
+      color: var(--secondary-color);
+      margin-bottom: 30px;
+    }
+    
+    .buttons {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .send-options {
+      display: none;
+      margin-top: 20px;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    
+    .send-options.active {
+      display: block;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+    
+    .send-options form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+    }
+    
+    .send-options input {
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      width: 100%;
+      max-width: 400px;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .sidebar {
+        left: -250px;
+      }
+      
+      .sidebar.visible {
+        left: 0;
+      }
+      
+      .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+      
+      .sidebar.collapsed {
+        width: 250px;
+      }
+      
+      .sidebar.collapsed h2,
+      .sidebar.collapsed a span {
+        display: block;
+      }
+      
+      .sidebar.collapsed a {
+        text-align: left;
+        padding: 12px 15px;
+      }
+      
+      .sidebar.collapsed a i {
+        margin-right: 10px;
+      }
+      
+      .buttons {
+        flex-direction: column;
+      }
+      
+      .send-options {
+        padding: 15px;
+      }
+    }
+  </style>
+</head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+    <div class="nav-content">
+      <div class="logo-container">
+        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+      </div>
+      <h2 class="text-white">Welcome, <%= username %>!</h2>
+      <a href="/admin/sales-form"><i class="fas fa-shopping-bag"></i> <span>Sell</span></a>
+      <a href="/store-view" class="active"><i class="fas fa-store"></i> <span>View Store</span></a>
+      <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Update Stock</span></a>
+      <a href="/create-outlet"><i class="fas fa-plus-circle"></i> <span>Create Outlet</span></a>
+      <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Invoices</span></a>
+      <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>Transactions</span></a>
+      <a href="/customers"><i class="fas fa-users"></i> <span>Customers</span></a>
+      <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
     </div>
-    
-    <h2>Welcome, <%= username %>!</h2>
-    <a href="/admin/sales-form">Sell</a>
-    <a href="/store-view">View Store</a>
-    <a href="/update-stock">Update Stock</a>
-    <a href="/create-outlet">Create Outlet</a>
-    <a href="/invoices">Invoices</a>
-    <a href="/transactions">Transactions</a>
-    <a href="/customers">Customers</a>
-    <a href="/admin-logout">Log Out</a>
   </div>
 
+  <!-- Toggle Button -->
+  <button class="toggle-btn" id="toggleBtn">
+    <i class="fas fa-bars"></i>
+  </button>
 
-  <button class="toggle-btn" id="toggleBtn">☰</button>
   <!-- Main Content -->
-  <div class="main-content" id="mainContent" style="padding-left: 50px;">
-    <div class="welcome-message">
-      Welcome, <%= username %>!
-    </div>
-    <div class="container" style="justify-self: center;">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+  <div class="main-content" id="mainContent">
+    <div class="container">
+      <div class="success-container">
+        <h1><i class="fas fa-check-circle mr-2"></i> Your sale has been successfully posted!</h1>
+        <div class="buttons">
+          <a href="/receipt/<%= sale._id %>" class="btn btn-primary btn-round">
+            <i class="fas fa-download mr-1"></i> Download Receipt
+          </a>
+          <button id="sendReceiptBtn" class="btn btn-info btn-round">
+            <i class="fas fa-paper-plane mr-1"></i> Send Receipt
+          </button>
+        </div>
+        <div id="sendOptions" class="send-options">
+          <form action="/send-receipt-email/<%= sale._id %>" method="POST">
+            <input type="email" name="email" placeholder="Enter email" value="<%= sale.email !== 'N/A' ? sale.email : '' %>" required>
+            <button type="submit" class="btn btn-success btn-round">
+              <i class="fas fa-envelope mr-1"></i> Send via Email
+            </button>
+          </form>
+          <div class="mt-3">
+            <a href="https://wa.me/?text=Please%20find%20your%20receipt%20here:%20http://localhost:3000/receipt/<%= sale._id %>" 
+               target="_blank" 
+               class="btn btn-success btn-round" 
+               style="background-color: #25D366;">
+              <i class="fab fa-whatsapp mr-1"></i> Send via WhatsApp
+            </a>
+          </div>
+        </div>
       </div>
-      <h1>Store Inventory <span class="icon-shopping-cart" style="margin-left: 10px;"></span></h1>
-      <div class="table-section">
-        <table>
-          <thead>
-            <tr class="bg-gray-200">
-              <th>Product <span class="icon-consumer-behavior"></span></th>
-              <th>Stock <span class="icon-analysis"></span></th>
-              <th>Dispense Quantity <span class="icon-point-of-sale"></span></th>
-              <th>Action <span class="icon-strategy"></span></th>
-            </tr>
-          </thead>
-          <tbody>
-            <% inventory.forEach(item => { %>
-              <tr class="border-b">
-                <td><%= item.name %></td>
-                <td><%= item.stock %></td>
-                <td>
-                  <form action="/dispense" method="POST" class="form-group">
-                    <input type="hidden" name="id" value="<%= item._id %>">
-                    <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required>
-                  </form>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <form action="/dispense" method="POST" class="form-group">
-                      <input type="hidden" name="id" value="<%= item._id %>">
-                      <button type="submit" class="dispense-btn <%= item.stock === 0 ? 'disabled' : '' %>" <%= item.stock === 0 ? 'disabled' : '' %>>Dispense <span class="icon-right-arrow"></span></button>
-                    </form>
-                    <form action="/delete-product" method="POST" class="form-group">
-                      <input type="hidden" name="id" value="<%= item._id %>">
-                      <button type="submit" class="delete-btn">Delete <span class="icon-trash"></span></button>
-                    </form>
-                  </div>
-                </td>
-              </tr>
-            <% }) %>
-          </tbody>
-        </table>
-      </div>
-      <a href="/update-stock">Go to Update Stock <span class="icon-right-arrow"></span></a>
     </div>
   </div>
 
-  <!-- JavaScript for collapsing sidebar -->
+  <!-- Now UI Kit JS -->
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="assets/js/core/popper.min.js"></script>
+  <script src="assets/js/core/bootstrap.min.js"></script>
+  <script src="assets/js/now-ui-kit.js"></script>
+
   <script>
     const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
     const toggleBtn = document.getElementById('toggleBtn');
+    const mainContent = document.getElementById('mainContent');
+    const sendReceiptBtn = document.getElementById('sendReceiptBtn');
+    const sendOptions = document.getElementById('sendOptions');
 
-    // Toggle sidebar visibility (only active on small screens)
+    // Toggle sidebar visibility and collapse state
+    let isCollapsed = false;
+    
     toggleBtn.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        // Mobile behavior - simple toggle
         sidebar.classList.toggle('visible');
-        sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
+      } else {
+        // Desktop behavior - collapse/expand
+        isCollapsed = !isCollapsed;
+        if (isCollapsed) {
+          sidebar.classList.add('collapsed');
         } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
+          sidebar.classList.remove('collapsed');
         }
-      });
+      }
+    });
+
+    // Set initial sidebar state
+    function setSidebarState() {
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('collapsed');
+        sidebar.classList.remove('visible');
+      } else {
+        sidebar.classList.remove('collapsed');
+        isCollapsed = false;
+      }
+    }
+    setSidebarState();
+    window.addEventListener('resize', setSidebarState);
+
+    // Toggle send options
+    sendReceiptBtn.addEventListener('click', () => {
+      sendOptions.classList.toggle('active');
+    });
+
+    // Close send options when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!sendReceiptBtn.contains(e.target) && !sendOptions.contains(e.target)) {
+        sendOptions.classList.remove('active');
+      }
+    });
   </script>
 </body>
 </html>

@@ -7,8 +7,14 @@
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="https://img.shed.ng/status.jpg" />
     <title>Signup - Shed</title>
-
-    <link rel="stylesheet" href="/style.css">
+    
+    <!-- Now UI Kit CSS -->
+    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -16,16 +22,13 @@
 
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-image: url('/images/bg.jpg');
+            background-image: url('images/bg.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
             position: relative;
+            min-height: 100vh;
         }
         
         body::before {
@@ -39,121 +42,104 @@
             z-index: -1;
         }
         
-        .container {
+        .registration-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            box-sizing: border-box;
         }
         
-        .registration-box {
+        .registration-card {
             width: 100%;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 25px;
+            max-width: 600px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+            background-color: darkcyan;
         }
         
         .logo-container {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            padding-top: 20px;
         }
         
         .logo-container img {
-            height: 50px;
-            margin-bottom: 10px;
+            height: 60px;
+            margin-bottom: 15px;
             max-width: 100%;
         }
         
-        .logo-container h1 {
-            margin: 0;
-            color: #2c3e50;
-            font-size: 22px;
+        .card-body {
+            padding: 30px;
         }
         
-        .form-group {
-            margin-bottom: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
+        .form-group label {
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 8px;
+            display: block;
         }
         
-        label {
-            width: 120px;
-            font-weight: 600;
-            color: #34495e;
-            margin-right: 15px;
-            flex-shrink: 0;
-            margin-bottom: 5px;
-        }
-        
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        select {
-            flex: 1;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-            transition: border-color 0.3s;
-            min-width: 200px;
-        }
-        
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        select:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        button {
-            background-color: #27ae60;
-            color: white;
-            padding: 12px;
+        .input-group-text {
+            background-color: rgba(255, 255, 255, 0.1);
             border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: background-color 0.3s;
+            color: white;
         }
         
-        button:hover {
-            background-color: #2ecc71;
+        .form-control {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
         }
         
-        .error {
-            color: #e74c3c;
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #fadbd8;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 14px;
+        .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Custom dropdown styling */
+        select.form-control {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 16px 12px;
+        }
+        
+        /* Dropdown options styling */
+        select option {
+            background-color: #006666;
+            color: white;
+        }
+        
+        /* Dropdown hover/focus states */
+        select option:hover {
+            background-color: #008080;
+        }
+        
+        select option:checked {
+            background-color: #004d4d;
         }
         
         .login-link {
             text-align: center;
-            margin-top: 15px;
-            color: #7f8c8d;
-            font-size: 14px;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.8);
         }
         
         .login-link a {
-            color: #3498db;
-            text-decoration: none;
+            color: white;
             font-weight: 600;
+            text-decoration: none;
         }
         
         .login-link a:hover {
@@ -163,8 +149,7 @@
         .file-upload {
             position: relative;
             overflow: hidden;
-            flex: 1;
-            min-width: 200px;
+            margin-top: 10px;
         }
         
         .file-upload-input {
@@ -179,27 +164,55 @@
         .file-upload-label {
             display: block;
             padding: 10px 12px;
-            background: #f8f9fa;
-            border: 1px dashed #bdc3c7;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px dashed rgba(255, 255, 255, 0.4);
             border-radius: 6px;
             text-align: center;
             cursor: pointer;
-            color: #7f8c8d;
-            width: 100%;
-            box-sizing: border-box;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s;
         }
         
         .file-upload-label:hover {
-            background: #ecf0f1;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Create Account Button Styling */
+        .btn-create-account {
+            background-color: rgb(224, 235, 17);
+            color: #333;
+            width: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-create-account:hover {
+            background-color: rgb(240, 245, 100);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-create-account:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .container {
-                padding: 15px;
+            .card-body {
+                padding: 25px;
             }
             
-            .registration-box {
+            .logo-container img {
+                height: 50px;
+            }
+            
+            .btn-create-account {
+                width: 60%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .card-body {
                 padding: 20px;
             }
             
@@ -207,145 +220,160 @@
                 height: 45px;
             }
             
-            .logo-container h1 {
-                font-size: 20px;
-            }
-            
-            label {
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 8px;
-            }
-            
-            input[type="text"],
-            input[type="email"],
-            input[type="password"],
-            select,
-            .file-upload {
-                min-width: 100%;
-            }
-        }
-        
-        @media (max-width: 480px) {
-            .registration-box {
-                padding: 15px;
-            }
-            
-            .logo-container img {
-                height: 40px;
-            }
-            
-            .logo-container h1 {
-                font-size: 18px;
-            }
-            
-            input[type="text"],
-            input[type="email"],
-            input[type="password"],
-            select {
-                padding: 8px 10px;
-                font-size: 14px;
-            }
-            
-            button {
-                padding: 10px;
-                font-size: 15px;
+            .btn-create-account {
+                width: 80%;
             }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="registration-box">
-            <div class="logo-container">
-                <img src="/images/logo.png" alt="Shed Logo">
-                <h1>Create your Account</h1>
-            </div>
-            
-            <% if (error) { %>
-                <div class="error"><%= error %></div>
-            <% } %>
-
-            <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label for="businessName">Business Name</label>
-                    <input type="text" id="businessName" name="businessName" required>
+    <div class="registration-container">
+        <div class="card registration-card">
+            <div class="card-body">
+                <div class="logo-container">
+                    <img src="images/logo-a.png" alt="Shed Logo">
+                    <h4 class="text-white">Create your Shed</h4>
                 </div>
                 
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="country">Country</label>
-                    <select id="country" name="country" required>
-                        <option value="">Select your country</option>
-                        <optgroup label="Africa">
-                            <option value="Nigeria">Nigeria</option>
-                            <option value="South Africa">South Africa</option>
-                            <option value="Ghana">Ghana</option>
-                            <option value="Kenya">Kenya</option>
-                        </optgroup>
-                        <optgroup label="Europe">
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="Germany">Germany</option>
-                        </optgroup>
-                        <optgroup label="Americas">
-                            <option value="United States">United States</option>
-                        </optgroup>
-                        <option value="Other">Other Country</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="currency">Currency</label>
-                    <select id="currency" name="currency" required>
-                        <option value="">Select your currency</option>
-                        <optgroup label="African Currencies">
-                            <option value="ZAR">South African Rand (ZAR)</option>
-                            <option value="NGN">Nigerian Naira (NGN)</option>
-                            <option value="GHS">Ghanaian Cedi (GHS)</option>
-                            <option value="KES">Kenyan Shilling (KES)</option>
-                        </optgroup>
-                        <optgroup label="European Currencies">
-                            <option value="GBP">British Pound (GBP)</option>
-                            <option value="EUR">Euro (EUR)</option>
-                        </optgroup>
-                        <optgroup label="Other Currencies">
-                            <option value="USD">US Dollar (USD)</option>
-                        </optgroup>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="logo">Business Logo</label>
-                    <div class="file-upload">
-                        <label class="file-upload-label" for="logo">
-                            Click to upload logo (Optional)
-                        </label>
-                        <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
+                <% if (error) { %>
+                    <div class="alert alert-danger">
+                        <div class="container">
+                            <div class="alert-icon">
+                                <i class="now-ui-icons ui-1_bell-53"></i>
+                            </div>
+                            <%= error %>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">
+                                    <i class="now-ui-icons ui-1_simple-remove"></i>
+                                </span>
+                            </button>
+                        </div>
                     </div>
-                </div>
+                <% } %>
+
+                <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
+                    <!-- Form fields remain unchanged from previous version -->
+                    <!-- ... -->
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons business_bank"></i></span>
+                            </div>
+                            <input type="text" class="form-control" id="businessName" name="businessName" placeholder="Enter business name..." required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons ui-1_email-85"></i></span>
+                            </div>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address..." required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Country</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons location_pin"></i></span>
+                            </div>
+                            <select class="form-control" id="country" name="country" required>
+                                <option value="">Select your country</option>
+                                <optgroup label="Africa">
+                                    <option value="Nigeria">Nigeria</option>
+                                    <option value="South Africa">South Africa</option>
+                                    <option value="Ghana">Ghana</option>
+                                    <option value="Kenya">Kenya</option>
+                                </optgroup>
+                                <optgroup label="Europe">
+                                    <option value="United Kingdom">United Kingdom</option>
+                                    <option value="Germany">Germany</option>
+                                </optgroup>
+                                <optgroup label="Americas">
+                                    <option value="United States">United States</option>
+                                </optgroup>
+                                <option value="Other">Other Country</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Currency</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons business_money-coins"></i></span>
+                            </div>
+                            <select class="form-control" id="currency" name="currency" required>
+                                <option value="">Select your currency</option>
+                                <optgroup label="African Currencies">
+                                    <option value="ZAR">South African Rand (ZAR)</option>
+                                    <option value="NGN">Nigerian Naira (NGN)</option>
+                                    <option value="GHS">Ghanaian Cedi (GHS)</option>
+                                    <option value="KES">Kenyan Shilling (KES)</option>
+                                </optgroup>
+                                <optgroup label="European Currencies">
+                                    <option value="GBP">British Pound (GBP)</option>
+                                    <option value="EUR">Euro (EUR)</option>
+                                </optgroup>
+                                <optgroup label="Other Currencies">
+                                    <option value="USD">US Dollar (USD)</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Username</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons users_circle-08"></i></span>
+                            </div>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username..." required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons objects_key-25"></i></span>
+                            </div>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Create a password..." required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Business Logo (Optional)</label>
+                        <div class="file-upload">
+                            <label class="file-upload-label" for="logo">
+                                <i class="now-ui-icons files_single-copy-04"></i> Click to upload logo
+                            </label>
+                            <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" style="text-align: center;">
+                        <button type="submit" class="btn btn-round btn-lg btn-create-account">
+                            Create Account
+                        </button>
+                    </div>
+                </form>
                 
-                <button type="submit">Create Account</button>
-            </form>
-            
-            <div class="login-link">
-                Already have an account? <a href="/admin-login">Sign in here</a>
+                <div class="login-link">
+                    Already have an account? <a href="/admin-login">Sign in here</a>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Now UI Kit JS -->
+    <script src="assets/js/core/jquery.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/now-ui-kit.js"></script>
 
     <script>
         // Auto-select currency based on country
@@ -385,21 +413,17 @@
             
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files.length > 0) {
-                    fileLabel.textContent = this.files[0].name;
-                    fileLabel.style.color = '#2c3e50';
-                    fileLabel.style.borderColor = '#27ae60';
-                    fileLabel.style.backgroundColor = '#e8f8ef';
+                    fileLabel.innerHTML = `<i class="now-ui-icons files_single-copy-04"></i> ${this.files[0].name}`;
+                    fileLabel.style.borderColor = 'rgba(255, 255, 255, 0.8)';
+                    fileLabel.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
                 } else {
-                    fileLabel.textContent = 'Click to upload logo (Optional)';
-                    fileLabel.style.color = '#7f8c8d';
-                    fileLabel.style.borderColor = '#bdc3c7';
-                    fileLabel.style.backgroundColor = '#f8f9fa';
+                    fileLabel.innerHTML = '<i class="now-ui-icons files_single-copy-04"></i> Click to upload logo';
+                    fileLabel.style.borderColor = 'rgba(255, 255, 255, 0.4)';
+                    fileLabel.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
                 }
             });
         });
-    </script>
 
-    <script>
         if (typeof navigator.serviceWorker !== 'undefined') {
             navigator.serviceWorker.register('/sw.js', { scope: '/' });
         }
