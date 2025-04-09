@@ -1,208 +1,500 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Customers | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
     <title>Customers</title>
-    <link rel="stylesheet" href="/style.css">
+    
+    <!-- Now UI Kit CSS -->
+    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
+
     <style>
-      /* Compact Action Buttons */
-      .customer-actions {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      
-      .customer-actions button {
-        padding: 6px 12px;
-        font-size: 14px;
-        border-radius: 4px;
-        cursor: pointer;
-        border: none;
-        font-weight: 500;
-        transition: all 0.2s;
-        white-space: nowrap;
-      }
-      
-      .view-btn {
-        background-color: #3498db;
-        color: white;
-      }
-      
-      .edit-btn {
-        background-color: #f39c12;
-        color: white;
-      }
-      
-      .delete-btn {
-        background-color: #e74c3c;
-        color: white;
-      }
-      
-      .customer-actions button:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      }
-      
-      .customer-actions button:active {
-        transform: translateY(0);
-      }
-      
-      /* Responsive adjustments */
-      @media (max-width: 768px) {
-        .customer-actions {
-          flex-direction: column;
-          gap: 6px;
+        :root {
+            --primary-color: #466c7b;
+            --secondary-color: #4CAF50;
+            --accent-color: #3498db;
+            --text-color: #333;
+            --light-bg: #f9f9f9;
+            --dark-bg: #2c3e50;
+            --table-band-color: #f1f1f1;
+        }
+
+        body {
+            background-image: url('/images/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            transition: all 0.3s;
+            z-index: 1000;
+            box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding-top: 75px;
         }
         
-        .customer-actions button {
-          width: 100%;
-          padding: 8px;
+        .sidebar.collapsed {
+            width: 80px;
+            overflow: hidden;
         }
-      }
-    </style>
+        
+        .sidebar.collapsed .logo-container img {
+            max-width: 50px;
+        }
+        
+        .sidebar.collapsed h2,
+        .sidebar.collapsed a span {
+            display: none;
+        }
+        
+        .sidebar.collapsed a {
+            text-align: center;
+            padding: 12px 5px;
+        }
+        
+        .sidebar.collapsed a i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
+        
+        .sidebar .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .sidebar .logo-container img {
+            max-width: 80%;
+            height: auto;
+            transition: all 0.3s;
+        }
+        
+        .sidebar h2 {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .sidebar a i {
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        
+        .sidebar a:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .sidebar a.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Main content */
+        .main-content {
+            margin-left: 250px;
+            transition: all 0.3s;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .sidebar.collapsed + .main-content {
+            margin-left: 80px;
+        }
+        
+        /* Toggle button */
+        .toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1100;
+            background: var(--dark-bg);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .sidebar.collapsed + .main-content .toggle-btn {
+            left: 20px;
+        }
+        
+        /* Search Section */
+        .search-section {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .search-section .form-group {
+            margin-bottom: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .search-section input {
+            flex-grow: 1;
+        }
+        
+        /* Button styling */
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #3e8e41;
+            border-color: #3e8e41;
+        }
+        
+        .btn-info {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .btn-info:hover {
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        
+        .btn-warning {
+            background-color: #f39c12;
+            border-color: #f39c12;
+        }
+        
+        .btn-warning:hover {
+            background-color: #e08e0b;
+            border-color: #e08e0b;
+        }
 
-  </head>
-  <body>
+        /* Content Logo Container with Round Frame */
+        .content-logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .content-logo-frame {
+            display: inline-block;
+            width: 100px;
+            height: 100px;
+            background-color: white;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .content-logo-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        /* Table section styling */
+        .table-section {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        /* Banded Table Styling */
+        .table tbody tr:nth-child(odd) {
+            background-color: var(--light-bg);
+        }
+        .table tbody tr:nth-child(even) {
+            background-color: var(--table-band-color);
+        }
+        .table tbody tr:hover {
+            background-color: #e9ecef;
+            transition: background-color 0.2s;
+        }
+
+        /* Customer Actions */
+        .customer-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .sidebar {
+                left: -250px;
+            }
+            
+            .sidebar.visible {
+                left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            
+            .sidebar.collapsed {
+                width: 250px;
+            }
+            
+            .sidebar.collapsed h2,
+            .sidebar.collapsed a span {
+                display: block;
+            }
+            
+            .sidebar.collapsed a {
+                text-align: left;
+                padding: 12px 15px;
+            }
+            
+            .sidebar.collapsed a i {
+                margin-right: 10px;
+            }
+            
+            .search-section .form-group {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-section .btn {
+                width: 100%;
+            }
+            
+            .customer-actions {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
-      <div class="logo-container">
-        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-      </div>
-      <h2>Welcome, <%= username %>!</h2>
-      <a href="/pos">Point of Sale</a>
-      <a href="/update-stock">Manage Inventory</a>
-      <a href="/invoices">Generate Invoice</a>
-      <a href="/transactions">View Transactions</a>
-      <a href="/customers" class="active">Customers</a>
-      <a href="/home">Manage Outlets</a>
-      <a href="/admin-logout">Log Out</a>
+        <div class="nav-content">
+            <div class="logo-container">
+                <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+            </div>
+            <h2 class="text-white">Welcome, <%= username %>!</h2>
+            <a href="/pos"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+            <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+            <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+            <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+            <a href="/customers" class="active"><i class="fas fa-users"></i> <span>Customers</span></a>
+            <a href="/home"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+            <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+        </div>
     </div>
 
     <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">☰</button>
+    <button class="toggle-btn" id="toggleBtn">
+        <i class="fas fa-bars"></i>
+    </button>
 
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
-      <div class="container">
-        <div class="content-logo-container">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-        </div>
-        <h1>Customers</h1>
+        <div class="container">
+            <div class="content-logo-container">
+                <div class="content-logo-frame">
+                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+                </div>
+            </div>
+            <h1 class="text-center" style="color: #f9f9f9;">Customers</h1>
 
-        <!-- Customers Table -->
-        <div class="table-section">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Phone</th>
-                <th>Email</th>
-                <th>Total Value</th>
-                <th>Last Purchase</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% customers.forEach(customer => { %>
-                <tr id="customer-<%= customer._id %>">
-                  <td><%= customer.name %></td>
-                  <td><%= customer.phone || 'N/A' %></td>
-                  <td><%= customer.email || 'N/A' %></td>
-                  <td>
-                    <%= admin.currency || '$' %><%= customer.totalValue ? formatCurrency(customer.totalValue) : '0.00' %>
-                  </td>
-                  <td>
-                    <% if (customer.lastPurchaseDate) { %>
-                      <%= new Date(customer.lastPurchaseDate).toLocaleDateString() %>
-                    <% } else { %>
-                      Never
+            <!-- Search Section -->
+            <div class="search-section">
+                <form method="GET" action="/customers" class="form-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search by customer name" value="<%= search || '' %>">
+                    <button type="submit" class="btn btn-primary btn-round">
+                        <i class="fas fa-search mr-1"></i> Search
+                    </button>
+                    <% if (search) { %>
+                        <a href="/customers" class="btn btn-danger btn-round">
+                            <i class="fas fa-times mr-1"></i> Clear
+                        </a>
                     <% } %>
-                  </td>
-                  <td>
-                    <div class="customer-actions">
-                      <button class="view-btn" onclick="viewCustomer('<%= customer._id %>')">View</button>
-                      <button class="edit-btn" onclick="editCustomer('<%= customer._id %>')">Edit</button>
-                      <button class="delete-btn" onclick="deleteCustomer('<%= customer._id %>')">Delete</button>
-                    </div>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+                </form>
+            </div>
+
+            <!-- Customers Table -->
+            <div class="table-section">
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead class="text-primary">
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Total Value</th>
+                                <th>Last Purchase</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% customers.forEach(customer => { %>
+                                <tr id="customer-<%= customer._id %>">
+                                    <td><%= customer.name %></td>
+                                    <td><%= customer.phone || 'N/A' %></td>
+                                    <td><%= customer.email || 'N/A' %></td>
+                                    <td>
+                                        <%= admin.currency || '$' %><%= customer.totalValue ? formatCurrency(customer.totalValue) : '0.00' %>
+                                    </td>
+                                    <td>
+                                        <% if (customer.lastPurchaseDate) { %>
+                                            <%= new Date(customer.lastPurchaseDate).toLocaleDateString() %>
+                                        <% } else { %>
+                                            Never
+                                        <% } %>
+                                    </td>
+                                    <td>
+                                        <div class="customer-actions">
+                                            <button class="btn btn-info btn-round btn-sm" onclick="viewCustomer('<%= customer._id %>')">
+                                                <i class="fas fa-eye mr-1"></i> View
+                                            </button>
+                                            <button class="btn btn-warning btn-round btn-sm" onclick="editCustomer('<%= customer._id %>')">
+                                                <i class="fas fa-edit mr-1"></i> Edit
+                                            </button>
+                                            <button class="btn btn-danger btn-round btn-sm" onclick="deleteCustomer('<%= customer._id %>')">
+                                                <i class="fas fa-trash mr-1"></i> Delete
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
 
-    <!-- JavaScript for sidebar toggle and customer actions -->
+    <!-- Now UI Kit JS -->
+    <script src="assets/js/core/jquery.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/now-ui-kit.js"></script>
+
     <script>
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const mainContent = document.getElementById('mainContent');
 
-      // Toggle sidebar visibility (only active on small screens)
-      toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('visible');
-        sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
-        } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        }
-      });
-
-      // View Customer Details
-      function viewCustomer(customerId) {
-        window.location.href = `/customer-details/${customerId}`;
-      }
-
-      // Edit Customer Details
-      function editCustomer(customerId) {
-        window.location.href = `/edit-customer/${customerId}`;
-      }
-
-      // Delete Customer
-      async function deleteCustomer(customerId) {
-        if (confirm('Are you sure you want to delete this customer?')) {
-          try {
-            const response = await fetch(`/delete-customer/${customerId}`, { method: 'POST' });
-            if (response.ok) {
-              window.location.reload(); // Reload the page after deletion
+        // Toggle sidebar visibility and collapse state
+        let isCollapsed = false;
+        
+        toggleBtn.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                // Mobile behavior - simple toggle
+                sidebar.classList.toggle('visible');
             } else {
-              alert('Failed to delete customer.');
+                // Desktop behavior - collapse/expand
+                isCollapsed = !isCollapsed;
+                if (isCollapsed) {
+                    sidebar.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('collapsed');
+                }
             }
-          } catch (error) {
-            console.error('Error deleting customer:', error);
-            alert('An error occurred while deleting the customer.');
-          }
-        }
-      }
+        });
 
-      // Set initial sidebar state
-      function setSidebarState() {
-        if (window.innerWidth <= 768) {
-          sidebar.classList.add('hidden');
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        } else {
-          sidebar.classList.remove('hidden');
-          sidebar.classList.remove('visible');
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
+        // Set initial sidebar state
+        function setSidebarState() {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('collapsed');
+                sidebar.classList.remove('visible');
+            } else {
+                sidebar.classList.remove('collapsed');
+                isCollapsed = false;
+            }
         }
-      }
-      setSidebarState();
-      window.addEventListener('resize', setSidebarState);
+        setSidebarState();
+        window.addEventListener('resize', setSidebarState);
+
+        // View Customer Details
+        function viewCustomer(customerId) {
+            window.location.href = `/customer-details/${customerId}`;
+        }
+
+        // Edit Customer Details
+        function editCustomer(customerId) {
+            window.location.href = `/edit-customer/${customerId}`;
+        }
+
+        // Delete Customer
+        async function deleteCustomer(customerId) {
+            if (confirm('Are you sure you want to delete this customer?')) {
+                try {
+                    const response = await fetch(`/delete-customer/${customerId}`, { method: 'POST' });
+                    if (response.ok) {
+                        window.location.reload(); // Reload the page after deletion
+                    } else {
+                        alert('Failed to delete customer.');
+                    }
+                } catch (error) {
+                    console.error('Error deleting customer:', error);
+                    alert('An error occurred while deleting the customer.');
+                }
+            }
+        }
     </script>
-  </body>
+</body>
 </html>

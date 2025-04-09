@@ -684,10 +684,10 @@ app.get('/', (req, res) => res.render('landing', { error: null }));
 app.get('/transactions', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const { startDate, endDate } = req.query;
+    const { startDate, endDate, search } = req.query;
     const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
     
-    // Create filter to get both direct admin sales and outlet sales
+    // Base filter for admin and outlet transactions
     const filter = { 
       $or: [
         { adminId: admin._id }, // Direct admin sales
@@ -695,11 +695,32 @@ app.get('/transactions', isAuthenticated, async (req, res) => {
       ]
     };
     
+    // Add date range filter if provided
     if (startDate && endDate) {
       filter.date = { 
         $gte: new Date(startDate), 
         $lte: new Date(`${endDate}T23:59:59.999Z`) // Include entire end day
       };
+    }
+
+    // Add search filter if provided
+    if (search && search.trim() !== '') {
+      const searchRegex = new RegExp(search.trim(), 'i'); // Case-insensitive search
+      filter.$or = [
+        { customerName: searchRegex }, // Search by customer name
+        { 'items.itemName': searchRegex }, // Search by item name in items array
+        { itemName: searchRegex } // Search by item name for older single-item transactions
+      ];
+      
+      // Combine with existing admin/outlet filter
+      filter.$and = [
+        { $or: filter.$or }, // Search conditions
+        { $or: [
+          { adminId: admin._id },
+          { 'outlet.adminId': admin._id }
+        ]} // Admin/outlet ownership
+      ];
+      delete filter.$or; // Remove standalone $or to avoid conflict
     }
     
     // Get sales with outlet information populated
@@ -721,7 +742,6 @@ app.get('/transactions', isAuthenticated, async (req, res) => {
       ...sale,
       totalAmount: sale.totalAmount || 0,
       items: sale.items || [],
-      // Add outlet name if this is an outlet sale
       outletName: sale.outlet ? sale.outlet.name : null
     }));
     
@@ -730,8 +750,9 @@ app.get('/transactions', isAuthenticated, async (req, res) => {
       admin, 
       username: req.session.admin,
       inventory,
-      startDate: startDate || '', // Pass empty string if not provided
-      endDate: endDate || '' // Pass empty string if not provided
+      startDate: startDate || '',
+      endDate: endDate || '',
+      search: search || '' // Pass search term to template
     });
   } catch (error) {
     console.error('Error fetching transactions:', error);
@@ -807,10 +828,35 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 });
 
 app.get('/update-stock', isAuthenticated, async (req, res) => {
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
-  const username = req.session.admin;
-  res.render('update-stock', { inventory, admin, username, formatCurrency });
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const { search } = req.query;
+
+    // Base filter for admin's inventory
+    const filter = { adminId: admin._id };
+
+    // Add search filter if provided
+    if (search && search.trim() !== '') {
+      filter.name = new RegExp(search.trim(), 'i'); // Case-insensitive search by product name
+    }
+
+    const inventory = await db.collection('inventory')
+      .find(filter)
+      .sort({ name: 1 }) // Sort alphabetically by name
+      .toArray();
+
+    const username = req.session.admin;
+    res.render('update-stock', { 
+      inventory, 
+      admin, 
+      username, 
+      formatCurrency,
+      search: search || '' // Pass search term to template
+    });
+  } catch (error) {
+    console.error('Error fetching inventory for update-stock:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.post('/update-stock', isAuthenticated, async (req, res) => {
@@ -1162,6 +1208,8 @@ app.get('/home', isAuthenticated, async (req, res) => {
     const admin = await db.collection('admins').findOne({ _id: new ObjectId(req.session.adminId) });
     if (!admin) throw new Error('Admin not found');
     console.log('Admin found:', admin.username);
+
+    
 
     let outlets = await db.collection('outlets').find({ adminId: new ObjectId(req.session.adminId) }).toArray();
     console.log('Outlets found:', outlets.length);
@@ -2294,9 +2342,45 @@ app.post('/invoices/mark-paid/:saleId', isAuthenticated, async (req, res) => {
 app.get('/customers', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const customers = await db.collection('customers').find({ adminId: admin._id }).toArray();
-    const username = req.session.admin;
-    res.render('customers', { customers, admin, username });
+    const { search } = req.query;
+
+    // Base filter for admin's customers
+    const filter = { adminId: admin._id };
+
+    // Add search filter if provided
+    if (search && search.trim() !== '') {
+      filter.name = new RegExp(search.trim(), 'i'); // Case-insensitive search by customer name
+    }
+
+    const customers = await db.collection('customers')
+      .find(filter)
+      .sort({ name: 1 }) // Sort alphabetically by name
+      .toArray();
+
+    // Enrich customers with totalValue and lastPurchaseDate
+    for (let customer of customers) {
+      const sales = await db.collection('sales')
+        .find({ 
+          $or: [
+            { adminId: admin._id, customerId: customer._id }, // Admin sales
+            { 'outlet.adminId': admin._id, customerId: customer._id } // Outlet sales
+          ]
+        })
+        .toArray();
+      
+      customer.totalValue = sales.reduce((sum, sale) => sum + (sale.totalAmount || 0), 0);
+      customer.lastPurchaseDate = sales.length > 0 
+        ? Math.max(...sales.map(sale => new Date(sale.date).getTime()))
+        : null;
+    }
+
+    res.render('customers', { 
+      customers, 
+      admin, 
+      username: req.session.admin,
+      formatCurrency,
+      search: search || '' // Pass search term to template
+    });
   } catch (error) {
     console.error('Error fetching customers:', error);
     res.status(500).send('Internal Server Error');

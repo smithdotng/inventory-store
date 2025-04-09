@@ -7,24 +7,28 @@
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="https://img.shed.ng/status.jpg" />
     <title>Admin Login - Shed</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    
+    <!-- Now UI Kit CSS -->
+    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/favicons/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/favicons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/favicons/favicon-16x16.png">
+    <link rel="manifest" href="assets/favicons/site.webmanifest">
 
     <style>
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            background-image: url('/images/bg.jpg');
+            background-image: url('images/bg.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
             position: relative;
+            min-height: 100vh;
         }
         
         body::before {
@@ -38,239 +42,149 @@
             z-index: -1;
         }
         
-        .container {
+        .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
-            width: 100%;
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
-            box-sizing: border-box;
+            background-image: url('images/bg.jpg');
         }
         
-        .login-box {
+        .login-card {
             width: 100%;
             max-width: 500px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.3);
             position: relative;
+            overflow: hidden;
+            background-color: darkcyan;
         }
         
         .logo-container {
             text-align: center;
             margin-bottom: 25px;
+            padding-top: 20px;
         }
         
         .logo-container img {
             height: 60px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
             max-width: 100%;
         }
         
-        .logo-container h1 {
-            margin: 0;
-            color: #2c3e50;
-            font-size: 24px;
+        .card-body {
+            padding: 30px;
         }
         
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 8px;
-        }
-        
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="text"]:focus,
-        input[type="password"]:focus {
-            border-color: #3498db;
-            outline: none;
-        }
-        
-        button {
-            background-color: #27ae60;
-            color: white;
-            padding: 14px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: background-color 0.3s;
-        }
-        
-        button:hover {
-            background-color: #2ecc71;
-        }
-        
-        .error {
-            color: #e74c3c;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #fadbd8;
-            border-radius: 4px;
-            text-align: center;
-        }
-        
-        .links-container {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .link {
-            color: #3498db;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            margin: 5px 0;
-        }
-        
-        .link:hover {
-            text-decoration: underline;
-        }
-
         .outlet-login {
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 1px solid #eee;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
         }
 
         .outlet-login-text {
-            color: #7f8c8d;
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 10px;
             font-size: 14px;
         }
 
-        .outlet-login-btn {
-            background: none;
-            border: 1px solid #3498db;
-            color: #3498db;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-            display: inline-block;
-        }
-
-        .outlet-login-btn:hover {
-            background-color: #3498db;
-            color: white;
-        }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .login-box {
+            .card-body {
                 padding: 25px;
             }
             
             .logo-container img {
                 height: 50px;
             }
-            
-            input[type="text"],
-            input[type="password"] {
-                padding: 10px 12px;
-            }
-            
-            button {
-                padding: 12px;
-            }
         }
         
         @media (max-width: 480px) {
-            .login-box {
+            .card-body {
                 padding: 20px;
             }
             
             .logo-container img {
                 height: 45px;
             }
-            
-            .logo-container h1 {
-                font-size: 20px;
-            }
-            
-            input[type="text"],
-            input[type="password"] {
-                padding: 10px;
-                font-size: 14px;
-            }
-            
-            button {
-                padding: 12px;
-                font-size: 15px;
-            }
-            
-            .links-container {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="login-box">
-            <div class="logo-container">
-                <img src="/images/logo.png" alt="Shed Logo">
-                <h1>Admin Login</h1>
-            </div>
-            
-            <% if (error) { %>
-                <div class="error"><%= error %></div>
-            <% } %>
-
-            <form id="loginForm" action="/admin-login" method="POST">
-                <div class="form-group">
-                    <label for="usernameOrEmail">Username or Email</label>
-                    <input type="text" id="usernameOrEmail" name="usernameOrEmail" required>
+    <div class="login-container">
+        <div class="card login-card">
+            <div class="card-body">
+                <div class="logo-container">
+                    <img src="images/logo-a.png" alt="Shed Logo">
+                    <h4 class="text-white">Login to your Shed</h4>
                 </div>
                 
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                
-                <button type="submit">Login</button>
-            </form>
-            
-            <div class="links-container">
-                <a href="/admin-register" class="link">Create admin account</a>
-                <a href="/forgot-password" class="link">Forgot password?</a>
-            </div>
+                <% if (error) { %>
+                    <div class="alert alert-danger">
+                        <div class="container">
+                            <div class="alert-icon">
+                                <i class="now-ui-icons ui-1_bell-53"></i>
+                            </div>
+                            <%= error %>
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">
+                                    <i class="now-ui-icons ui-1_simple-remove"></i>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                <% } %>
 
-            <div class="outlet-login">
-                <div class="outlet-login-text">Need to access an outlet account?</div>
-                <button class="outlet-login-btn" id="outletLoginBtn">Outlet Login</button>
+                <form id="loginForm" action="/admin-login" method="POST">
+                    <div class="form-group">
+                        <label class="text-white">Username or Email</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons users_circle-08"></i></span>
+                            </div>
+                            <input type="text" class="form-control" id="usernameOrEmail" name="usernameOrEmail" placeholder="Enter username or email..." required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="text-white">Password</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons objects_key-25"></i></span>
+                            </div>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Enter password..." required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-neutral btn-round btn-lg btn-block" style="background-color: rgb(224, 235, 17); width: 30%; justify-self: center; ">Login</button>
+                    </div>
+                </form>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <a href="/admin-register" class="text-light"><small>Create admin account</small></a>
+                    </div>
+                    <div class="col-md-6 text-right">
+                        <a href="/forgot-password" class="text-light"><small>Forgot password?</small></a>
+                    </div>
+                </div>
+
+                <div class="outlet-login">
+                    <div class="outlet-login-text">Need to access an outlet account?</div>
+                    <button class="btn btn-outline-neutral btn-round" id="outletLoginBtn">Outlet Login</button>
+                </div>
             </div>
         </div>
     </div>
+
+    <!-- Now UI Kit JS -->
+    <script src="assets/js/core/jquery.min.js"></script>
+    <script src="assets/js/core/popper.min.js"></script>
+    <script src="assets/js/core/bootstrap.min.js"></script>
+    <script src="assets/js/now-ui-kit.js"></script>
 
     <script>
         // Outlet login button handler
