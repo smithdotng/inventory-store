@@ -473,6 +473,17 @@
                 </div>
             </div>
 
+            <!-- Storefront Promotion Div -->
+            <div class="storefront-promo" style="background: var(--light-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center;">
+                <h3 style="color: var(--primary-color); margin-bottom: 15px;">Go Online with Your Inventory!</h3>
+                <p style="color: var(--text-color); margin-bottom: 20px;">
+                    Publish your inventory online and start selling directly to customers. Share your unique store link to reach more people!
+                </p>
+                <button id="shareStoreBtn" class="btn btn-info btn-round" onclick="shareStorefrontLink()">
+                    <i class="fas fa-share-alt mr-1"></i> Share Your Storefront
+                </button>
+            </div>
+
             <!-- Form Section (Hidden by Default) -->
             <div class="form-section" id="addProductForm">
                 <h2 class="h4 mb-4">Add New Product</h2>
@@ -683,6 +694,28 @@
             editBtn.style.display = 'inline-block';
             updateBtn.style.display = 'none';
             cancelBtn.style.display = 'none';
+        }
+
+        // Share Storefront Link Function
+        function shareStorefrontLink() {
+            const storeUrl = `${window.location.origin}/store/<%= username %>`;
+            if (navigator.share) {
+                // Use Web Share API if available (mobile devices)
+                navigator.share({
+                    title: '<%= admin.businessName || "My Store" %> - Shop Now',
+                    text: 'Check out my online store on Shed!',
+                    url: storeUrl
+                }).then(() => console.log('Storefront shared successfully'))
+                  .catch((error) => console.error('Error sharing storefront:', error));
+            } else {
+                // Fallback: Copy to clipboard
+                navigator.clipboard.writeText(storeUrl).then(() => {
+                    alert('Storefront link copied to clipboard: ' + storeUrl);
+                }).catch((error) => {
+                    console.error('Error copying link:', error);
+                    alert('Failed to copy link. Your store URL is: ' + storeUrl);
+                });
+            }
         }
     </script>
 </body>

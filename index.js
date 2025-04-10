@@ -1115,6 +1115,8 @@ app.get('/store-view', isAuthenticated, async (req, res) => {
   res.render('store-view', { inventory, admin, username });
 });
 
+
+
 app.post('/delete-product', isAuthenticated, async (req, res) => {
   const productId = req.body.id;
   try {
@@ -1918,6 +1920,121 @@ app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
 
 app.get('/landing', (req, res) => {
   res.render('landing', { admin: { currency: '$' } }); // Default currency for display
+});
+
+// Public Storefront Route
+app.get('/store/:adminUsername', async (req, res) => {
+  try {
+    const adminUsername = req.params.adminUsername;
+    const admin = await db.collection('admins').findOne({ username: adminUsername });
+    if (!admin) {
+      return res.status(404).render('404', { message: 'Store not found' });
+    }
+
+    // Fetch inventory items with available stock
+    const inventory = await db.collection('inventory')
+      .find({ adminId: admin._id, stock: { $gt: 0 } })
+      .sort({ name: 1 })
+      .toArray();
+
+    res.render('storefront', {
+      admin,
+      inventory,
+      currency: admin.currency || '$',
+      formatCurrency
+    });
+  } catch (error) {
+    console.error('Error loading storefront:', error);
+    res.status(500).render('500', { message: 'Internal Server Error' });
+  }
+});
+
+
+// Checkout Route
+app.post('/store/:adminUsername/checkout', async (req, res) => {
+  try {
+    const adminUsername = req.params.adminUsername;
+    const { customerName, phoneNumber, email, cartItems } = req.body;
+    const admin = await db.collection('admins').findOne({ username: adminUsername });
+    if (!admin) return res.status(404).render('404', { message: 'Store not found' });
+
+    const parsedCart = JSON.parse(cartItems);
+    if (!Array.isArray(parsedCart) || parsedCart.length === 0) {
+      return res.status(400).send('No items in cart');
+    }
+
+    // Store customer in customers collection
+    const customer = {
+      adminId: admin._id,
+      name: customerName,
+      phone: phoneNumber,
+      email,
+      createdAt: new Date()
+    };
+    const customerResult = await db.collection('customers').insertOne(customer);
+
+    // Process sale items
+    const saleItems = [];
+    let totalAmount = 0;
+
+    for (const cartItem of parsedCart) {
+      const item = await db.collection('inventory').findOne({ 
+        _id: new ObjectId(cartItem.id),
+        adminId: admin._id
+      });
+      if (!item || item.stock < cartItem.quantity) {
+        return res.status(400).send(`Insufficient stock for ${cartItem.name}`);
+      }
+
+      const totalCost = item.cost * cartItem.quantity;
+      saleItems.push({
+        itemId: item._id,
+        itemName: item.name,
+        quantity: cartItem.quantity,
+        unitCost: item.cost,
+        totalCost
+      });
+      totalAmount += totalCost;
+
+      // Update inventory stock
+      await db.collection('inventory').updateOne(
+        { _id: item._id },
+        { $inc: { stock: -cartItem.quantity } }
+      );
+    }
+
+    // Record sale
+    const sale = {
+      adminId: admin._id,
+      customerId: customerResult.insertedId,
+      customerName,
+      phoneNumber,
+      email,
+      items: saleItems,
+      totalAmount,
+      paymentMethod: 'Online', // Default for storefront
+      paymentStatus: 'Pending',
+      date: new Date(),
+      source: 'storefront'
+    };
+    const saleResult = await db.collection('sales').insertOne(sale);
+
+    // Render confirmation page
+    res.render('storefront-confirmation', {
+      admin,
+      customerName,
+      phoneNumber,
+      email,
+      saleItems,
+      totalAmount,
+      saleId: saleResult.insertedId,
+      currency: admin.currency || '$',
+      formatCurrency
+    });
+  } catch (error) {
+    console.error('Error processing checkout:', error);
+    res.status(500).render('500', { message: 'Internal Server Error' });
+  }
 });
 
 app.get('/outlet-transactions/:outletId', isAuthenticated, async (req, res) => {

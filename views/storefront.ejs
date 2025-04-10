@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:title" content="<%= admin.businessName %> Storefront" />
+  <meta property="og:description" content="Shop the latest inventory from <%= admin.businessName %> with ease." />
+  <meta property="og:image" content="<%= admin.logo || 'https://img.shed.ng/status.jpg' %>" />
+  <title><%= admin.businessName %> Storefront</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #3498db;
+      --secondary-color: #2c3e50;
+      --accent-color: #27ae60;
+      --light-bg: #f8f9fa;
+      --dark-text: #343a40;
+      --text-muted: #6c757d;
+      --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.15);
+      --transition: all 0.3s ease;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: var(--dark-text);
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8eb 100%);
+      line-height: 1.6;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Glossy Top Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 8px;
+      background: linear-gradient(135deg, #466c7b 0%, #3a5a6b 100%);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .content-logo-container {
+      margin-bottom: 10px;
+      position: relative;
+      width: 150px;
+      height: 150px;
+      background: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .content-logo-container img {
+      max-width: 120px;
+      max-height: 120px;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
+      transition: var(--transition);
+    }
+
+    .content-logo-container img:hover {
+      transform: scale(1.05);
+    }
+
+    .cta-section {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+    }
+
+    /* Glossy Buttons */
+    .cta-btn {
+      padding: 8px 20px;
+      background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+      color: white;
+      border: none;
+      border-radius: 50px;
+      font-size: 1rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      box-shadow: 
+        0 4px 15px rgba(0,0,0,0.2),
+        inset 0 1px 1px rgba(255,255,255,0.4);
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .cta-btn.secondary {
+      background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+    }
+
+    .cta-btn.checked {
+      background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+    }
+
+    .cta-btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+      );
+      transition: 0.5s;
+    }
+
+    .cta-btn:hover::before {
+      left: 100%;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 
+        0 6px 20px rgba(0,0,0,0.3),
+        inset 0 1px 1px rgba(255,255,255,0.4);
+    }
+
+    .cta-btn i {
+      margin-left: 8px;
+      transition: var(--transition);
+    }
+
+    .cta-btn:hover i {
+      transform: translateX(5px);
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      padding: 180px 20px 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .main-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(255,255,255,0.8) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Store Header */
+    .store-header {
+      margin-bottom: 50px;
+      animation: fadeIn 1s ease;
+      width: 100%;
+      position: relative;
+    }
+
+    .store-header::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+      border-radius: 3px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 3rem;
+      color: var(--secondary-color);
+      font-weight: 700;
+      margin-bottom: 15px;
+      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+      background: linear-gradient(135deg, #2c3e50, #466c7b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .tagline {
+      font-size: 1.4rem;
+      color: var(--text-muted);
+      font-weight: 300;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Inventory Grid */
+    .inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      width: 80%;
+      justify-items: center;
+      margin-bottom: 50px;
+    }
+
+    .inventory-item {
+      background: rgba(255,255,255,0.9);
+      padding: 35px;
+      border-radius: 15px;
+      box-shadow: 
+        0 5px 15px rgba(0,0,0,0.1),
+        inset 0 1px 1px rgba(255,255,255,0.8);
+      text-align: center;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      max-width: 350px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .inventory-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 
+        0 15px 30px rgba(0,0,0,0.15),
+        inset 0 1px 1px rgba(255,255,255,0.8);
+    }
+
+    .inventory-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .inventory-item h3 {
+      font-size: 1.6rem;
+      color: var(--secondary-color);
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    .inventory-item p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      margin-bottom: 10px;
+    }
+
+    .quantity-input {
+      width: 80px;
+      padding: 8px;
+      margin: 10px 0;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 5px;
+      font-size: 1rem;
+      text-align: center;
+      background: var(--light-bg);
+    }
+
+    /* Checkout Form */
+    .checkout-form {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255,255,255,0.95);
+      padding: 35px;
+      border-radius: 15px;
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      max-width: 400px;
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.3);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--secondary-color);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 5px;
+      font-size: 1rem;
+      background: var(--light-bg);
+      transition: var(--transition);
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary-color);
+      outline: none;
+      box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 50px 20px;
+      background: linear-gradient(135deg, #2c3e50 0%, #1a2a3a 100%);
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 0.9rem;
+      width: 100%;
+      position: relative;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .footer a {
+      color: var(--accent-color);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .footer a:hover {
+      color: white;
+    }
+
+    /* Responsive */
+    @media (min-width: 768px) {
+      .top-bar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .content-logo-container {
+        margin-bottom: 0;
+      }
+    }
+
+    @media (max-width: 992px) {
+      h1 { font-size: 2.5rem; }
+      .tagline { font-size: 1.2rem; }
+    }
+
+    @media (max-width: 768px) {
+      .inventory-grid { grid-template-columns: 1fr; }
+      h1 { font-size: 2.2rem; }
+      .tagline { font-size: 1.1rem; }
+      .content-logo-container { width: 120px; height: 120px; }
+      .content-logo-container img { max-width: 100px; max-height: 100px; }
+    }
+
+    @media (max-width: 480px) {
+      .inventory-item { padding: 25px; }
+      h1 { font-size: 1.8rem; }
+      .top-bar { padding: 15px 8px; }
+      .content-logo-container { width: 100px; height: 100px; }
+      .content-logo-container img { max-width: 80px; max-height: 80px; }
+      .cta-btn { padding: 10px 16px; font-size: 0.9rem; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Glossy Top Bar -->
+  <div class="top-bar">
+    <div class="content-logo-container">
+      <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="<%= admin.businessName %> Logo">
+    </div>
+    <div class="cta-section">
+      <button class="cta-btn" onclick="showCheckoutForm()">
+        Checkout (<span id="cartCount">0</span>) <i class="fas fa-shopping-cart"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <div class="container">
+      <div class="store-header">
+        <h1><%= admin.businessName || 'Store' %></h1>
+        <p class="tagline">Browse and purchase our latest inventory items below.</p>
+      </div>
+
+      <!-- Inventory Grid -->
+      <div class="inventory-grid" id="inventoryGrid">
+        <% inventory.forEach(item => { %>
+          <div class="inventory-item" data-item-id="<%= item._id %>">
+            <h3><%= item.name %></h3>
+            <p>Price: <%= currency %><%= formatCurrency(item.cost) %></p>
+            <p>Stock: <%= item.stock %></p>
+            <input type="number" class="quantity-input" min="1" max="<%= item.stock %>" value="1">
+            <button class="cta-btn check-btn" onclick="addToCart('<%= item._id %>', '<%= item.name %>', <%= item.cost %>, <%= item.stock %>, this)">
+              Check <i class="fas fa-check"></i>
+            </button>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Checkout Form -->
+  <div class="overlay" id="overlay" onclick="hideCheckoutForm()"></div>
+  <div class="checkout-form" id="checkoutForm">
+    <h2>Checkout</h2>
+    <form id="checkoutFormSubmit" action="/store/<%= admin.username %>/checkout" method="POST">
+      <div class="form-group">
+        <label for="customerName">Name</label>
+        <input type="text" id="customerName" name="customerName" required>
+      </div>
+      <div class="form-group">
+        <label for="phoneNumber">Phone Number</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
+      </div>
+      <input type="hidden" id="cartItems" name="cartItems">
+      <div class="form-group">
+        <button type="submit" class="cta-btn">
+          Submit Order <i class="fas fa-check"></i>
+        </button>
+        <button type="button" class="cta-btn secondary" onclick="hideCheckoutForm()">
+          Cancel <i class="fas fa-times"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Glossy Footer -->
+  <footer class="footer">
+    <p>© 2025 Shedfactory Limited. <a href="mailto:hello@shed.ng">Contact Us</a></p>
+  </footer>
+
+  <script>
+    let cart = [];
+
+    function addToCart(itemId, itemName, itemCost, maxStock, button) {
+      const quantityInput = document.querySelector(`.inventory-item[data-item-id="${itemId}"] .quantity-input`);
+      const quantity = parseInt(quantityInput.value);
+      if (quantity <= 0 || quantity > maxStock) {
+        alert('Please enter a valid quantity within available stock.');
+        return;
+      }
+
+      const existingItem = cart.find(item => item.id === itemId);
+      if (existingItem) {
+        existingItem.quantity = quantity;
+      } else {
+        cart.push({ id: itemId, name: itemName, cost: itemCost, quantity });
+        button.classList.add('checked');
+        button.innerHTML = 'Checked <i class="fas fa-check"></i>';
+      }
+      updateCartCount();
+    }
+
+    function updateCartCount() {
+      const cartCount = document.getElementById('cartCount');
+      cartCount.textContent = cart.length;
+    }
+
+    function showCheckoutForm() {
+      if (cart.length === 0) {
+        alert('Please add items to your cart before checking out.');
+        return;
+      }
+      document.getElementById('overlay').style.display = 'block';
+      document.getElementById('checkoutForm').style.display = 'block';
+      document.getElementById('cartItems').value = JSON.stringify(cart);
+    }
+
+    function hideCheckoutForm() {
+      document.getElementById('overlay').style.display = 'none';
+      document.getElementById('checkoutForm').style.display = 'none';
+    }
+
+    function adjustMainPadding() {
+      const topBar = document.querySelector('.top-bar');
+      const mainContent = document.querySelector('.main-content');
+      if (topBar && mainContent) {
+        const height = topBar.offsetHeight;
+        mainContent.style.paddingTop = `${height + 50}px`;
+      }
+    }
+
+    window.addEventListener('resize', adjustMainPadding);
+    adjustMainPadding();
+  </script>
+</body>
+</html>
