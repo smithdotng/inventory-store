@@ -2037,13 +2037,36 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
   }
 });
 
-app.get('/outlet-transactions/:outletId', isAuthenticated, async (req, res) => {
-  const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
-  if (!outlet) return res.status(404).send('Outlet not found');
-  const transactions = await db.collection('sales').find({ outletId: new ObjectId(outletId) }).toArray();
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('outlet-transactions', { outlet, transactions, admin });
+app.get('/outlet-transactions/:outletId', isOutletAuthenticated, async (req, res) => {
+  try {
+    const outletId = req.params.outletId;
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+    
+    // Verify the session matches the outlet
+    if (!outlet || outlet._id.toString() !== req.session.outletId) {
+      return res.redirect('/outlet-login');
+    }
+
+    const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+    const transactions = await db.collection('sales')
+      .find({ outletId: new ObjectId(outletId) })
+      .sort({ date: -1 })
+      .toArray();
+
+    res.render('outlet-transactions', { 
+      outlet, 
+      transactions, 
+      admin: {
+        logo: admin?.logo || '/images/logo.jpg',
+        businessName: admin?.businessName || 'Shed',
+        currency: admin?.currency || '$'
+      },
+      formatCurrency
+    });
+  } catch (error) {
+    console.error('Error fetching outlet transactions:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/commission-reports', isAuthenticated, async (req, res) => {
@@ -2105,25 +2128,53 @@ app.get('/commission-reports', isAuthenticated, async (req, res) => {
   }
 });
 
-app.get('/outlet-customers/:outletId', isAuthenticated, async (req, res) => {
-  const outletId = req.params.outletId;
-  const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
-  if (!outlet) return res.status(404).send('Outlet not found');
-  const sales = await db.collection('sales').find({ outletId: new ObjectId(outletId) }).toArray();
-  const customerMap = new Map();
-  sales.forEach(sale => {
-    const key = `${sale.customerName}-${sale.phoneNumber}-${sale.email || 'N/A'}`;
-    if (!customerMap.has(key)) {
-      customerMap.set(key, {
-        customerName: sale.customerName,
-        phoneNumber: sale.phoneNumber,
-        email: sale.email || 'N/A'
-      });
+app.get('/outlet-customers/:outletId', isOutletAuthenticated, async (req, res) => {
+  try {
+    const outletId = req.params.outletId;
+    const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
+
+    // Verify the session matches the outlet
+    if (!outlet || outlet._id.toString() !== req.session.outletId) {
+      return res.redirect('/outlet-login');
     }
-  });
-  const customers = Array.from(customerMap.values());
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  res.render('outlet-customers', { outlet, customers, admin, formatCurrency });
+
+    // Fetch sales for this outlet to derive customers
+    const sales = await db.collection('sales')
+      .find({ outletId: new ObjectId(outletId) })
+      .sort({ date: -1 })
+      .toArray();
+
+    // Build unique customer list from sales
+    const customerMap = new Map();
+    sales.forEach(sale => {
+      const key = `${sale.customerName}-${sale.phoneNumber}-${sale.email || 'N/A'}`;
+      if (!customerMap.has(key)) {
+        customerMap.set(key, {
+          customerName: sale.customerName,
+          phoneNumber: sale.phoneNumber,
+          email: sale.email || 'N/A'
+        });
+      }
+    });
+    const customers = Array.from(customerMap.values());
+
+    // Fetch admin details for branding/currency
+    const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+
+    res.render('outlet-customers', { 
+      outlet, 
+      customers, 
+      admin: {
+        logo: admin?.logo || '/images/logo.jpg',
+        businessName: admin?.businessName || 'Shed',
+        currency: admin?.currency || '$'
+      },
+      formatCurrency
+    });
+  } catch (error) {
+    console.error('Error fetching outlet customers:', error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 app.get('/invoices', isAuthenticated, async (req, res) => {
