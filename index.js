@@ -1184,6 +1184,29 @@ app.post('/update-customer/:customerId', isAuthenticated, async (req, res) => {
   }
 });
 
+// Add this to your server.js file
+app.post('/add-customer', isAuthenticated, async (req, res) => {
+  const { name, phone, email } = req.body;
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) return res.status(404).send('Admin not found.');
+    
+    const newCustomer = {
+      adminId: admin._id,
+      name,
+      phone: phone || 'N/A',
+      email: email || 'N/A',
+      createdAt: new Date()
+    };
+
+    await db.collection('customers').insertOne(newCustomer);
+    res.redirect('/customers');
+  } catch (error) {
+    console.error('Error adding customer:', error);
+    res.status(500).send('Error adding customer.');
+  }
+});
+
 app.post('/superadmin/edit-admin/:id', upload.single('logo'), async (req, res) => {
   const adminId = req.params.id;
   const { username, password, role } = req.body;

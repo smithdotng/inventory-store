@@ -169,18 +169,24 @@
             left: 20px;
         }
         
+        /* Search and Add Customer Container */
+        .search-add-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
         /* Search Section */
         .search-section {
             background: var(--light-bg);
             padding: 15px;
             border-radius: 8px;
-            margin-bottom: 20px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            flex-grow: 1;
             max-width: 600px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-left: auto;
-            margin-right: auto;
         }
         
         .search-section .form-group {
@@ -192,6 +198,31 @@
         
         .search-section input {
             flex-grow: 1;
+        }
+        
+        /* Add Customer Button */
+        .add-customer-btn {
+            background: var(--light-bg);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        /* Form Section Styling */
+        .form-section {
+            background: var(--light-bg);
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-left: auto;
+            margin-right: auto;
+            display: none; /* Hidden by default */
         }
         
         /* Button styling */
@@ -247,6 +278,61 @@
             object-fit: contain;
             padding: 10px;
             box-sizing: border-box;
+        }
+
+        /* Business Details Section */
+        .business-details-container {
+            display: flex;
+            justify-content: space-between;
+            background-color: rgba(0, 139, 139, 0.85);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            color: white;
+            margin-bottom: 50px;
+            border-left: 5px solid #4CAF50;
+            transition: all 0.3s ease;
+        }
+
+        .business-details-container:hover {
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .business-logo {
+            width: 80px;
+            height: 80px;
+            background-color: white;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .business-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .business-info {
+            flex-grow: 0;
+            text-align: right;
+        }
+
+        .business-info p {
+            margin: 5px 0;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .business-info p strong {
+            min-width: 120px;
+            display: inline-block;
+            color: #e0f7fa;
+            margin-left: 10px;
         }
 
         /* Table section styling */
@@ -320,6 +406,41 @@
                 width: 100%;
             }
             
+            .search-add-container {
+                flex-direction: column;
+            }
+            
+            .search-section, .add-customer-btn {
+                width: 100%;
+                max-width: 100%;
+            }
+            
+            .business-details-container {
+                flex-direction: column;
+                text-align: center;
+                justify-content: center;
+            }
+            
+            .business-logo {
+                margin: 0 auto 15px;
+            }
+            
+            .business-info {
+                text-align: center;
+                width: 100%;
+            }
+            
+            .business-info p {
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .business-info p strong {
+                min-width: auto;
+                margin: 0 0 5px 0;
+            }
+            
             .customer-actions {
                 flex-direction: column;
                 gap: 8px;
@@ -353,25 +474,68 @@
     <!-- Main Content -->
     <div class="main-content" id="mainContent">
         <div class="container">
-            <div class="content-logo-container">
-                <div class="content-logo-frame">
-                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+            <!-- Business Details Container -->
+            <div class="business-details-container">
+                <div class="business-logo">
+                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
+                </div>
+                <div class="business-info">
+                    <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
+                    <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
+                    <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
                 </div>
             </div>
             <h1 class="text-center" style="color: #f9f9f9;">Customers</h1>
 
-            <!-- Search Section -->
-            <div class="search-section">
-                <form method="GET" action="/customers" class="form-group">
-                    <input type="text" name="search" class="form-control" placeholder="Search by customer name" value="<%= search || '' %>">
-                    <button type="submit" class="btn btn-primary btn-round">
-                        <i class="fas fa-search mr-1"></i> Search
+            <!-- Search and Add Customer Container -->
+            <div class="search-add-container">
+                <!-- Search Section -->
+                <div class="search-section">
+                    <form method="GET" action="/customers" class="form-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search by customer name" value="<%= search || '' %>">
+                        <button type="submit" class="btn btn-primary btn-round">
+                            <i class="fas fa-search mr-1"></i> Search
+                        </button>
+                        <% if (search) { %>
+                            <a href="/customers" class="btn btn-danger btn-round">
+                                <i class="fas fa-times mr-1"></i> Clear
+                            </a>
+                        <% } %>
+                    </form>
+                </div>
+
+                <!-- Add Customer Button -->
+                <div class="add-customer-btn">
+                    <button id="addCustomerBtn" class="btn btn-primary btn-round">
+                        <i class="fas fa-plus mr-1"></i> Add Customer
                     </button>
-                    <% if (search) { %>
-                        <a href="/customers" class="btn btn-danger btn-round">
-                            <i class="fas fa-times mr-1"></i> Clear
-                        </a>
-                    <% } %>
+                </div>
+            </div>
+
+            <!-- Add Customer Form (Hidden by Default) -->
+            <div class="form-section" id="addCustomerForm">
+                <h2 class="h4 mb-4">Add New Customer</h2>
+                <form action="/add-customer" method="POST">
+                    <div class="form-group">
+                        <label>Customer Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="Customer Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" name="phone" class="form-control" placeholder="Phone Number">
+                    </div>
+                    <div class="form-group">
+                        <label>Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="Email Address">
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success btn-round">
+                            <i class="fas fa-plus mr-1"></i> Add Customer
+                        </button>
+                        <button type="button" id="cancelAddBtn" class="btn btn-danger btn-round ml-2">
+                            <i class="fas fa-times mr-1"></i> Cancel
+                        </button>
+                    </div>
                 </form>
             </div>
 
@@ -437,6 +601,9 @@
         const sidebar = document.getElementById('sidebar');
         const toggleBtn = document.getElementById('toggleBtn');
         const mainContent = document.getElementById('mainContent');
+        const addCustomerBtn = document.getElementById('addCustomerBtn');
+        const addCustomerForm = document.getElementById('addCustomerForm');
+        const cancelAddBtn = document.getElementById('cancelAddBtn');
 
         // Toggle sidebar visibility and collapse state
         let isCollapsed = false;
@@ -468,6 +635,18 @@
         }
         setSidebarState();
         window.addEventListener('resize', setSidebarState);
+
+        // Toggle Add Customer form visibility
+        addCustomerBtn.addEventListener('click', () => {
+            addCustomerForm.style.display = 'block';
+            addCustomerBtn.style.display = 'none';
+        });
+
+        cancelAddBtn.addEventListener('click', () => {
+            addCustomerForm.style.display = 'none';
+            addCustomerBtn.style.display = 'block';
+            addCustomerForm.querySelector('form').reset(); // Reset form fields
+        });
 
         // View Customer Details
         function viewCustomer(customerId) {

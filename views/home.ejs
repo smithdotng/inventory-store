@@ -168,6 +168,61 @@
     .sidebar.collapsed + .main-content .toggle-btn {
       left: 20px;
     }
+
+    /* Business Details Section */
+    .business-details-container {
+      display: flex;
+      justify-content: space-between;
+      background-color: rgba(0, 139, 139, 0.85);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      color: white;
+      margin-bottom: 50px;
+      border-left: 5px solid #4CAF50;
+      transition: all 0.3s ease;
+    }
+
+    .business-details-container:hover {
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .business-logo {
+      width: 80px;
+      height: 80px;
+      background-color: white;
+      border-radius: 50%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .business-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    .business-info {
+      flex-grow: 0;
+      text-align: right;
+    }
+
+    .business-info p {
+      margin: 5px 0;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .business-info p strong {
+      min-width: 120px;
+      display: inline-block;
+      color: #e0f7fa;
+      margin-left: 10px;
+    }
     
     /* Form Section Styling */
     .form-section {
@@ -203,30 +258,6 @@
     .btn-info:hover {
       background-color: #2980b9;
       border-color: #2980b9;
-    }
-
-    /* Content Logo Container with Round Frame */
-    .content-logo-container {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
-    .content-logo-frame {
-      display: inline-block;
-      width: 100px;
-      height: 100px;
-      background-color: white;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .content-logo-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 10px;
-      box-sizing: border-box;
     }
 
     /* Outlet-specific styles */
@@ -362,6 +393,32 @@
         margin-right: 10px;
       }
       
+      .business-details-container {
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+      }
+      
+      .business-logo {
+        margin: 0 auto 15px;
+      }
+      
+      .business-info {
+        text-align: center;
+        width: 100%;
+      }
+      
+      .business-info p {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      
+      .business-info p strong {
+        min-width: auto;
+        margin: 0 0 5px 0;
+      }
+      
       .commission-cell {
         flex-direction: column;
         align-items: flex-start;
@@ -400,21 +457,18 @@
   <!-- Main Content -->
   <div class="main-content" id="mainContent">
     <div class="container">
-      <div class="content-logo-container">
-        <div class="content-logo-frame">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
+      <!-- Business Details Container -->
+      <div class="business-details-container">
+        <div class="business-logo">
+          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
+        </div>
+        <div class="business-info">
+          <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
+          <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
+          <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
         </div>
       </div>
       <h1 class="text-center" style="color: #f9f9f9;">Manage Outlets</h1>
-
-      <!-- Business Details -->
-      <div class="card mb-4" style="background: var(--light-bg);">
-        <div class="card-body">
-          <p><strong>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-          <p><strong>Email:</strong> <%= admin.email || 'N/A' %></p>
-          <p><strong>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-        </div>
-      </div>
 
       <!-- Create Outlet Button -->
       <div class="action-bar">
@@ -669,7 +723,7 @@
       notification.innerHTML = `
         <span>${message}</span>
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
+          <span aria-hidden="true">×</span>
         </button>
       `;
       
