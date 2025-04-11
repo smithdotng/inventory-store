@@ -886,7 +886,7 @@ app.post('/update-stock', isAuthenticated, async (req, res) => {
   }
 });;
 
-app.post('/add-product', isAuthenticated, async (req, res) => {
+app.post('/add-product', isAuthenticated, upload.single('productImage'), async (req, res) => {
   const { name, stock, cost, commission } = req.body;
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
@@ -899,6 +899,11 @@ app.post('/add-product', isAuthenticated, async (req, res) => {
       adminId: admin._id,
       createdAt: new Date()
     };
+    
+    // Add image path if uploaded
+    if (req.file) {
+      newProduct.image = `/uploads/${req.file.filename}`;
+    }
     
     // Add commission if provided
     if (commission !== undefined && commission !== '') {
@@ -1963,7 +1968,7 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
       return res.status(400).send('No items in cart');
     }
 
-    // Store customer in customers collection
+    // Store customer
     const customer = {
       adminId: admin._id,
       name: customerName,
@@ -1976,7 +1981,6 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
     // Process sale items
     const saleItems = [];
     let totalAmount = 0;
-
     for (const cartItem of parsedCart) {
       const item = await db.collection('inventory').findOne({ 
         _id: new ObjectId(cartItem.id),
@@ -1996,7 +2000,6 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
       });
       totalAmount += totalCost;
 
-      // Update inventory stock
       await db.collection('inventory').updateOne(
         { _id: item._id },
         { $inc: { stock: -cartItem.quantity } }
@@ -2012,14 +2015,24 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
       email,
       items: saleItems,
       totalAmount,
-      paymentMethod: 'Online', // Default for storefront
+      paymentMethod: 'Online',
       paymentStatus: 'Pending',
       date: new Date(),
       source: 'storefront'
     };
     const saleResult = await db.collection('sales').insertOne(sale);
 
-    // Render confirmation page
+    // Generate temporary invoice token
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = Date.now() + 3600000; // 1 hour expiration
+    await db.collection('invoice_tokens').insertOne({
+      saleId: saleResult.insertedId,
+      token,
+      expires
+    });
+
+    // Render confirmation page with download link
+    const invoiceUrl = `/store/invoice/${saleResult.insertedId}?token=${token}`;
     res.render('storefront-confirmation', {
       admin,
       customerName,
@@ -2029,11 +2042,112 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
       totalAmount,
       saleId: saleResult.insertedId,
       currency: admin.currency || '$',
-      formatCurrency
+      formatCurrency,
+      invoiceUrl // Pass the URL to the template
     });
   } catch (error) {
     console.error('Error processing checkout:', error);
     res.status(500).render('500', { message: 'Internal Server Error' });
+  }
+});
+
+app.get('/store/invoice/:saleId', async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const token = req.query.token; // Temporary access token for security
+
+    // Fetch the sale without requiring admin authentication
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId) });
+    if (!sale || sale.source !== 'storefront') {
+      return res.status(404).render('404', { message: 'Invoice not found' });
+    }
+
+    // Verify token (optional, if you implement it in checkout)
+    const resetEntry = await db.collection('invoice_tokens').findOne({ saleId: sale._id, token });
+    if (!resetEntry || resetEntry.expires < Date.now()) {
+      return res.status(403).render('403', { message: 'Invalid or expired invoice link' });
+    }
+
+    const admin = await db.collection('admins').findOne({ _id: sale.adminId });
+    if (!admin) {
+      return res.status(404).render('404', { message: 'Store not found' });
+    }
+
+    // Generate PDF
+    const doc = new PDFDocument({ margin: 50 });
+    const filename = `invoice-${saleId}.pdf`;
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-type', 'application/pdf');
+    doc.pipe(res);
+
+    // Header
+    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
+    doc.moveTo(50, 45).lineTo(550, 45).stroke();
+    doc.moveDown(2);
+
+    if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
+      doc.image(path.join(__dirname, 'public', admin.logo), 50, 60, { width: 100 });
+      doc.moveDown(5);
+    }
+
+    doc.fontSize(20).text('Invoice', { align: 'right' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Business: ${admin.businessName || 'N/A'}`, { align: 'left' });
+    doc.text(`Email: ${admin.email || 'N/A'}`, { align: 'left' });
+    doc.text(`Invoice Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
+    doc.moveDown();
+
+    // Customer Details
+    doc.fontSize(12).text('Customer Details:', { underline: true });
+    doc.text(`Name: ${sale.customerName || 'N/A'}`);
+    doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
+    doc.text(`Email: ${sale.email || 'N/A'}`);
+    doc.moveDown();
+
+    // Sale Details
+    doc.fontSize(12).text('Purchase Details:', { underline: true });
+    doc.moveDown(0.5);
+
+    const tableTop = doc.y;
+    const tableLeft = 50;
+    const colWidths = [200, 70, 100, 100];
+    const rowHeight = 20;
+
+    doc.fontSize(10).font('Helvetica-Bold');
+    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
+    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
+    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
+    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
+
+    doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
+    doc.font('Helvetica');
+
+    let y = tableTop + rowHeight;
+    if (sale.items && Array.isArray(sale.items)) {
+      sale.items.forEach(item => {
+        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
+        doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
+        doc.text(`${admin.currency || '$'} ${formatCurrency(item.unitCost || 0)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+        doc.text(`${admin.currency || '$'} ${formatCurrency(item.totalCost || 0)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+        y += rowHeight;
+      });
+    }
+
+    doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
+    doc.font('Helvetica-Bold');
+    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
+    doc.text(`${admin.currency || '$'} ${formatCurrency(sale.totalAmount || 0)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
+    doc.font('Helvetica');
+
+    // Footer
+    const footerY = doc.page.height - 50;
+    doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
+    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
+
+    doc.end();
+  } catch (error) {
+    console.error('Error generating storefront invoice:', error);
+    res.status(500).render('500', { message: 'Error generating invoice' });
   }
 });
 
@@ -2420,6 +2534,114 @@ app.get('*', (req, res, next) => {
   }
   next();
 });
+
+// Public invoice download route
+app.get('/public-invoice/:saleId', async (req, res) => {
+  try {
+    const saleId = req.params.saleId;
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId) });
+    
+    if (!sale) {
+      return res.status(404).send('Invoice not found');
+    }
+
+    // Get admin info for the sale
+    const admin = await db.collection('admins').findOne({ _id: sale.adminId });
+    
+    const doc = new PDFDocument({ margin: 50 });
+    const filename = `invoice-${saleId}.pdf`;
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-type', 'application/pdf');
+    doc.pipe(res);
+
+    // Your existing PDF generation code here...
+    // (Same as your current /receipt/:saleId route but without auth checks)
+
+    
+    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-type', 'application/pdf');
+    doc.pipe(res);
+
+    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
+    doc.moveTo(50, 45).lineTo(550, 45).stroke();
+    doc.moveDown(2);
+
+    if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
+      doc.image(path.join(__dirname, 'public', admin.logo), 50, 60, { width: 100 });
+      doc.moveDown(5);
+    }
+
+    doc.fontSize(20).text('Invoice', { align: 'right' });
+    doc.moveDown();
+    doc.fontSize(12).text(`Business: ${admin.businessName}`, { align: 'left' });
+    doc.text(`Email: ${admin.email}`, { align: 'left' });
+    doc.text(`Invoice Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
+    doc.moveDown();
+
+    doc.fontSize(12).text('Customer Details:', { underline: true });
+    doc.text(`Name: ${sale.customerName}`);
+    doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
+    doc.text(`Email: ${sale.email || 'N/A'}`);
+    doc.moveDown();
+
+    doc.fontSize(12).text('Sale Details:', { underline: true });
+    doc.moveDown(0.5);
+
+    const tableTop = doc.y;
+    const tableLeft = 50;
+    const colWidths = [200, 70, 100, 100];
+    const rowHeight = 20;
+
+    doc.fontSize(10).font('Helvetica-Bold');
+    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
+    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
+    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
+    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
+
+    doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
+    doc.font('Helvetica');
+
+    let y = tableTop + rowHeight;
+
+    if (sale.items && Array.isArray(sale.items)) {
+      sale.items.forEach(item => {
+        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
+        doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
+        doc.text(`${admin.currency} ${(Number(item.unitCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+        doc.text(`${admin.currency} ${(Number(item.totalCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+        y += rowHeight;
+      });
+    } else {
+      doc.text('No items found', tableLeft, y, { width: colWidths[0], align: 'left' });
+      y += rowHeight;
+    }
+
+    doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
+    doc.font('Helvetica-Bold');
+    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
+    doc.text(`${admin.currency} ${(parseFloat(sale.totalAmount) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
+    doc.font('Helvetica');
+
+    doc.moveDown(2);
+    doc.fontSize(12).text('Payment Information:', 50, doc.y, { underline: true });
+    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`, 50, doc.y);
+    if (sale.bankDetails) {
+      doc.text(`Bank Name: ${sale.bankDetails.bankName || 'N/A'}`, 50, doc.y);
+      doc.text(`Bank Account Name: ${sale.bankDetails.bankAccountName || 'N/A'}`, 50, doc.y);
+      doc.text(`Account Number: ${sale.bankDetails.accountNumber || 'N/A'}`, 50, doc.y);
+    }
+    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`, 50, doc.y);
+
+    doc.moveDown(2);
+    doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
+    
+    doc.end();
+  } catch (error) {
+    console.error('Error generating public invoice:', error);
+    res.status(500).send('Error generating invoice');
+  }
+});
+
 
 app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
   try {
