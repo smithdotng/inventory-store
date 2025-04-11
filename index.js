@@ -947,6 +947,14 @@ app.get('/profile', isAuthenticated, async (req, res) => {
   }
 });
 
+// Middleware to trim whitespace from social media URLs
+app.use((req, res, next) => {
+  if (req.body.facebook) req.body.facebook = req.body.facebook.trim();
+  if (req.body.instagram) req.body.instagram = req.body.instagram.trim();
+  if (req.body.twitter) req.body.twitter = req.body.twitter.trim();
+  next();
+});
+
 // POST /profile/update
 app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, res) => {
   try {
@@ -967,7 +975,10 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       primaryBankName,
       secondaryBankAccountName,
       secondaryAccountNumber,
-      secondaryBankName
+      secondaryBankName,
+      facebook,
+      instagram,
+      twitter
     } = req.body;
 
     // Prepare the update data object
@@ -977,6 +988,9 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       country: country || admin.country,
       phone: phone || admin.phone,
       address: address || admin.address,
+      facebook: facebook || admin.facebook || null,
+      instagram: instagram || admin.instagram || null,
+      twitter: twitter || admin.twitter || null,
       updatedAt: new Date()
     };
 
@@ -1007,6 +1021,20 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       updateData.secondaryAccount = secondaryAccount;
     }
 
+    // Validate social media URLs if provided
+    if (facebook && !isValidUrl(facebook)) {
+      req.session.error = 'Please enter a valid Facebook URL';
+      return res.redirect('/profile');
+    }
+    if (instagram && !isValidUrl(instagram)) {
+      req.session.error = 'Please enter a valid Instagram URL';
+      return res.redirect('/profile');
+    }
+    if (twitter && !isValidUrl(twitter)) {
+      req.session.error = 'Please enter a valid Twitter URL';
+      return res.redirect('/profile');
+    }
+
     // Perform the update
     await db.collection('admins').updateOne(
       { _id: admin._id },
@@ -1021,6 +1049,16 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
     res.redirect('/profile');
   }
 });
+
+// Helper function to validate URLs
+function isValidUrl(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
 
 app.post('/create-outlet', isAuthenticated, async (req, res) => {
   const { name, location, mobile, username, password } = req.body;

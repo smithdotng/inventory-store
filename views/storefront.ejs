@@ -420,6 +420,82 @@
       color: white;
     }
 
+    .social-media-section {
+      margin: 50px 0;
+      text-align: center;
+      width: 100%;
+      animation: fadeIn 1s ease;
+    }
+
+    .social-media-section h2 {
+      font-size: 2rem;
+      color: var(--secondary-color);
+      margin-bottom: 20px;
+      position: relative;
+      display: inline-block;
+    }
+
+    .social-media-section h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+      border-radius: 3px;
+    }
+
+    .social-links {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 30px;
+    }
+
+    .social-link {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .social-link:hover {
+      transform: translateY(-5px) scale(1.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+
+    .facebook {
+      background: linear-gradient(135deg, #3b5998, #4267B2);
+    }
+
+    .instagram {
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    }
+
+    .twitter {
+      background: linear-gradient(135deg, #1DA1F2, #1DA1F2);
+    }
+
+    @media (max-width: 768px) {
+      .social-links {
+        gap: 15px;
+      }
+      
+      .social-link {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+      }
+    }
+
     /* Responsive */
     @media (min-width: 768px) {
       .top-bar {
@@ -470,7 +546,8 @@
   </div>
 
   <!-- Main Content -->
-  <div class="main-content">
+   <!-- Main Content -->
+   <div class="main-content">
     <div class="container">
       <div class="store-header">
         <h1><%= admin.businessName || 'Store' %></h1>
@@ -500,6 +577,30 @@
           </div>
         <% }) %>
       </div>
+
+      <!-- Social Media Section -->
+      <% if (admin.facebook || admin.instagram || admin.twitter) { %>
+      <div class="social-media-section">
+        <h2>Connect With Us</h2>
+        <div class="social-links">
+          <% if (admin.facebook) { %>
+            <a href="<%= admin.facebook %>" target="_blank" class="social-link facebook">
+              <i class="fab fa-facebook-f"></i>
+            </a>
+          <% } %>
+          <% if (admin.instagram) { %>
+            <a href="<%= admin.instagram %>" target="_blank" class="social-link instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+          <% } %>
+          <% if (admin.twitter) { %>
+            <a href="<%= admin.twitter %>" target="_blank" class="social-link twitter">
+              <i class="fab fa-twitter"></i>
+            </a>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
     </div>
   </div>
 
