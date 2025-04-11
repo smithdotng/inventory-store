@@ -956,19 +956,58 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       return res.redirect('/profile');
     }
 
-    const { businessName, currency, phone, address, country } = req.body;
+    const { 
+      businessName, 
+      currency, 
+      phone, 
+      address, 
+      country,
+      primaryBankAccountName,
+      primaryAccountNumber,
+      primaryBankName,
+      secondaryBankAccountName,
+      secondaryAccountNumber,
+      secondaryBankName
+    } = req.body;
+
+    // Prepare the update data object
     const updateData = {
       businessName: businessName || admin.businessName,
       currency: currency || admin.currency,
       country: country || admin.country,
       phone: phone || admin.phone,
-      address: address || admin.address
+      address: address || admin.address,
+      updatedAt: new Date()
     };
 
+    // Handle logo upload if present
     if (req.file) {
       updateData.logo = `/uploads/${req.file.filename}`;
     }
 
+    // Prepare bank account updates
+    const primaryAccount = {
+      bankAccountName: primaryBankAccountName || (admin.primaryAccount?.bankAccountName || ''),
+      accountNumber: primaryAccountNumber || (admin.primaryAccount?.accountNumber || ''),
+      bankName: primaryBankName || (admin.primaryAccount?.bankName || '')
+    };
+
+    const secondaryAccount = {
+      bankAccountName: secondaryBankAccountName || (admin.secondaryAccount?.bankAccountName || ''),
+      accountNumber: secondaryAccountNumber || (admin.secondaryAccount?.accountNumber || ''),
+      bankName: secondaryBankName || (admin.secondaryAccount?.bankName || '')
+    };
+
+    // Only update accounts if at least one field is provided
+    if (primaryBankAccountName || primaryAccountNumber || primaryBankName) {
+      updateData.primaryAccount = primaryAccount;
+    }
+
+    if (secondaryBankAccountName || secondaryAccountNumber || secondaryBankName) {
+      updateData.secondaryAccount = secondaryAccount;
+    }
+
+    // Perform the update
     await db.collection('admins').updateOne(
       { _id: admin._id },
       { $set: updateData }
@@ -2138,6 +2177,51 @@ app.get('/store/invoice/:saleId', async (req, res) => {
     doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
     doc.text(`${admin.currency || '$'} ${formatCurrency(sale.totalAmount || 0)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
     doc.font('Helvetica');
+
+    // Payment Details Section
+    doc.moveDown(2);
+    doc.fontSize(12).text('Payment Details:', { underline: true });
+    doc.moveDown(0.5);
+
+    // Add payment instructions
+    doc.fontSize(10).text('Please use the following bank details for payment:', { align: 'left' });
+    doc.moveDown(0.5);
+
+    // Primary Account
+    if (admin.primaryAccount && (admin.primaryAccount.bankAccountName || admin.primaryAccount.accountNumber || admin.primaryAccount.bankName)) {
+      doc.fontSize(10).font('Helvetica-Bold').text('Primary Account:', { align: 'left' });
+      doc.font('Helvetica');
+      if (admin.primaryAccount.bankAccountName) {
+        doc.text(`Account Name: ${admin.primaryAccount.bankAccountName}`, { align: 'left' });
+      }
+      if (admin.primaryAccount.accountNumber) {
+        doc.text(`Account Number: ${admin.primaryAccount.accountNumber}`, { align: 'left' });
+      }
+      if (admin.primaryAccount.bankName) {
+        doc.text(`Bank Name: ${admin.primaryAccount.bankName}`, { align: 'left' });
+      }
+      doc.moveDown(0.5);
+    }
+
+    // Secondary Account
+    if (admin.secondaryAccount && (admin.secondaryAccount.bankAccountName || admin.secondaryAccount.accountNumber || admin.secondaryAccount.bankName)) {
+      doc.fontSize(10).font('Helvetica-Bold').text('Secondary Account:', { align: 'left' });
+      doc.font('Helvetica');
+      if (admin.secondaryAccount.bankAccountName) {
+        doc.text(`Account Name: ${admin.secondaryAccount.bankAccountName}`, { align: 'left' });
+      }
+      if (admin.secondaryAccount.accountNumber) {
+        doc.text(`Account Number: ${admin.secondaryAccount.accountNumber}`, { align: 'left' });
+      }
+      if (admin.secondaryAccount.bankName) {
+        doc.text(`Bank Name: ${admin.secondaryAccount.bankName}`, { align: 'left' });
+      }
+      doc.moveDown(0.5);
+    }
+
+    // Add payment reference note
+    doc.moveDown(0.5);
+    doc.fontSize(10).text(`Please include the invoice number (${saleId}) as payment reference.`, { align: 'left' });
 
     // Footer
     const footerY = doc.page.height - 50;
