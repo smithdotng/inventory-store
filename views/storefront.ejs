@@ -572,7 +572,7 @@
             <p>Stock: <%= item.stock %></p>
             <input type="number" class="quantity-input" min="1" max="<%= item.stock %>" value="1">
             <button class="cta-btn check-btn" onclick="addToCart('<%= item._id %>', '<%= item.name %>', <%= item.cost %>, <%= item.stock %>, this)">
-              Check <i class="fas fa-check"></i>
+              Add to Cart <i class="fas fa-check"></i>
             </button>
           </div>
         <% }) %>
