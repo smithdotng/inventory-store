@@ -11,6 +11,7 @@ const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
+const { setupBroadcastRoute } = require('./utils/emailBroadcast');
 
 const app = express();
 const port = 3000;
@@ -2970,10 +2971,150 @@ app.get('/health', async (req, res) => {
   }
 });
 
+app.post('/admin/broadcast-social-update', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    // Verify superadmin status again for extra security
+    const admin = await db.collection('admins').findOne({ 
+      username: req.session.admin,
+      role: 'superadmin' 
+    });
+    
+    if (!admin) {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized: Only superadmins can broadcast'
+      });
+    }
+
+    // Get all active admins (excluding test accounts)
+    const users = await db.collection('admins').find({ 
+      email: { $exists: true, $ne: '' },
+      status: { $ne: 'test' } // Optional: filter out test accounts
+    }).toArray();
+
+    if (users.length === 0) {
+      return res.json({
+        success: true,
+        message: 'No valid users found to broadcast to',
+        successCount: 0,
+        failCount: 0,
+        skipped: 0
+      });
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+    const failedEmails = [];
+    const batchSize = 5; // Process 5 emails at a time
+    const delayBetweenBatches = 3000; // 3 seconds between batches
+
+    // Start broadcast log
+    await db.collection('broadcast_logs').insertOne({
+      type: 'social_update',
+      initiatedBy: admin._id,
+      startTime: new Date(),
+      totalRecipients: users.length,
+      status: 'processing'
+    });
+
+    // Process in batches to avoid overwhelming the SMTP server
+    for (let i = 0; i < users.length; i += batchSize) {
+      const batch = users.slice(i, i + batchSize);
+      const batchPromises = batch.map(async (user) => {
+        try {
+          const mailOptions = {
+            from: `"Shedfactory" <${process.env.EMAIL_USER}>`,
+            to: user.email,
+            subject: '🌟 New Feature: Social Media Integration!',
+            html: `...` // Your email template here
+          };
+
+          await transporter.sendMail(mailOptions);
+          successCount++;
+          return { success: true, email: user.email };
+        } catch (err) {
+          console.error(`Failed to send to ${user.email}:`, err);
+          failCount++;
+          failedEmails.push(user.email);
+          return { success: false, email: user.email, error: err.message };
+        }
+      });
+
+      // Wait for current batch to complete
+      const batchResults = await Promise.all(batchPromises);
+      
+      // Log batch progress
+      await db.collection('broadcast_progress').insertOne({
+        broadcastId: broadcastLog._id,
+        batchIndex: i / batchSize,
+        processed: batch.length,
+        successes: batchResults.filter(r => r.success).length,
+        failures: batchResults.filter(r => !r.success).length,
+        timestamp: new Date()
+      });
+
+      // Add delay between batches unless it's the last one
+      if (i + batchSize < users.length) {
+        await new Promise(resolve => setTimeout(resolve, delayBetweenBatches));
+      }
+    }
+
+    // Update broadcast log
+    await db.collection('broadcast_logs').updateOne(
+      { _id: broadcastLog._id },
+      { 
+        $set: { 
+          endTime: new Date(),
+          status: 'completed',
+          successCount,
+          failCount,
+          failedEmails
+        } 
+      }
+    );
+
+    res.json({
+      success: true,
+      message: `Broadcast completed successfully to ${successCount} users`,
+      successCount,
+      failCount,
+      failedEmails: failedEmails.length > 0 ? failedEmails : undefined
+    });
+
+  } catch (error) {
+    console.error('Broadcast failed:', error);
+    
+    // Update broadcast log if error occurs
+    if (broadcastLog?._id) {
+      await db.collection('broadcast_logs').updateOne(
+        { _id: broadcastLog._id },
+        { 
+          $set: { 
+            endTime: new Date(),
+            status: 'failed',
+            error: error.message
+          } 
+        }
+      );
+    }
+
+    res.status(500).json({
+      success: false,
+      message: 'Broadcast failed',
+      error: error.message
+    });
+  }
+});
+
+setupBroadcastRoute(app);
+
+
 // Start server
 async function startServer() {
   await connectToMongo();
   app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
 }
+
+
 
 startServer();
