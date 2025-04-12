@@ -3023,7 +3023,7 @@ app.post('/admin/broadcast-social-update', isAuthenticated, isSuperAdmin, async 
       const batchPromises = batch.map(async (user) => {
         try {
           const mailOptions = {
-            from: `"Shedfactory" <${process.env.EMAIL_USER}>`,
+            from: `"Stanley [at] Shed" <${process.env.EMAIL_USER}>`,
             to: user.email,
             subject: '🌟 New Feature: Social Media Integration!',
             html: `...` // Your email template here
