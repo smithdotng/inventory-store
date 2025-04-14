@@ -314,9 +314,29 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
   const referralCode = req.query.ref;
 
   try {
+    // Validate password strength
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.render('admin-register', { 
+        error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+        businessName,
+        email,
+        currency,
+        username,
+        country
+      });
+    }
+
     const existingAdmin = await db.collection('admins').findOne({ $or: [{ username }, { email }] });
     if (existingAdmin) {
-      return res.render('admin-register', { error: 'Username or email already exists.' });
+      return res.render('admin-register', { 
+        error: 'Username or email already exists.',
+        businessName,
+        email,
+        currency,
+        username,
+        country
+      });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -330,7 +350,6 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       logo: logoPath,
       role: 'admin',
       createdAt: new Date(),
-      
     };
 
     const result = await db.collection('admins').insertOne(newAdmin);
@@ -348,12 +367,17 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       }
     }
 
-
-
     res.redirect('/admin-login');
   } catch (error) {
     console.error('Error during registration:', error);
-    res.render('admin-register', { error: 'An error occurred during registration. Please try again.' });
+    res.render('admin-register', { 
+      error: 'An error occurred during registration. Please try again.',
+      businessName,
+      email,
+      currency,
+      username,
+      country
+    });
   }
 });
 

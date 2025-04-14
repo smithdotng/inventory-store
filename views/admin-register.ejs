@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
-
       gtag('config', 'G-GJRGT3KCZ7');
     </script>
     <meta charset="UTF-8">
@@ -17,13 +15,14 @@
     <meta property="og:image" content="https://img.shed.ng/status.jpg" />
     <title>Signup - Shed</title>
     
-    <!-- Now UI Kit CSS -->
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
     <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
     <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
     <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
     
-    <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -47,7 +46,6 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.5);
             z-index: -1;
         }
         
@@ -63,10 +61,11 @@
             width: 100%;
             max-width: 600px;
             border-radius: 10px;
-            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
             background-color: darkcyan;
+            border: 1px solid #e0e0e0;
         }
         
         .logo-container {
@@ -83,71 +82,74 @@
         
         .card-body {
             padding: 30px;
+            
         }
         
         .form-group label {
-            color: rgba(255, 255, 255, 0.9);
+            color: white;
             margin-bottom: 8px;
             display: block;
+            font-weight: 500;
         }
         
         .input-group-text {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: white;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            color: #495057;
         }
         
         .form-control {
-            background-color: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #495057;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
         }
         
         .form-control:focus {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border-color: rgba(255, 255, 255, 0.4);
+            background-color: white;
+            color: #495057;
+            border-color: rgb(224, 235, 17);
+            outline: 0;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
         
         .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: #6c757d;
+            opacity: 1;
         }
         
-        /* Custom dropdown styling */
         select.form-control {
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23495057' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: right 0.75rem center;
             background-size: 16px 12px;
         }
         
-        /* Dropdown options styling */
         select option {
-            background-color: #006666;
-            color: white;
+            background-color: white;
+            color: #212529;
         }
         
-        /* Dropdown hover/focus states */
         select option:hover {
-            background-color: #008080;
+            background-color: #f8f9fa;
         }
         
         select option:checked {
-            background-color: #004d4d;
+            background-color: #e9ecef;
         }
         
         .login-link {
             text-align: center;
             margin-top: 20px;
-            color: rgba(255, 255, 255, 0.8);
+            color: #6c757d;
         }
         
         .login-link a {
-            color: white;
-            font-weight: 600;
+            color: rgb(224, 235, 17);
+            font-weight: 500;
             text-decoration: none;
         }
         
@@ -168,44 +170,106 @@
             right: 0;
             top: 0;
             cursor: pointer;
+            
         }
         
         .file-upload-label {
             display: block;
             padding: 10px 12px;
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px dashed rgba(255, 255, 255, 0.4);
+            background: #f8f9fa;
+            border: 1px dashed #adb5bd;
             border-radius: 6px;
             text-align: center;
             cursor: pointer;
-            color: rgba(255, 255, 255, 0.8);
+            color: #495057;
             transition: all 0.3s;
         }
         
         .file-upload-label:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: #e9ecef;
+            border-color: #6c757d;
         }
 
-        /* Create Account Button Styling */
         .btn-create-account {
             background-color: rgb(224, 235, 17);
-            color: #333;
             width: 50%;
             transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
         }
         
         .btn-create-account:hover {
             background-color: rgb(240, 245, 100);
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            color: white;
         }
         
         .btn-create-account:active {
             transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        /* Responsive adjustments */
+        .password-requirements {
+            margin-top: 5px;
+            font-size: 12px;
+            color: white;
+        }
+        
+        .password-requirements ul {
+            padding-left: 20px;
+            margin-bottom: 0;
+            
+        }
+        
+        .password-requirements li {
+            list-style-type: none;
+            position: relative;
+        }
+        
+        .password-requirements li:before {
+            content: "•";
+            position: absolute;
+            left: -15px;
+            color: white;
+        }
+        
+        .password-requirements li.valid {
+            color: rgb(224, 235, 17);
+        }
+        
+        .password-requirements li.invalid {
+            color: white;
+        }
+        
+        #confirmPasswordFeedback {
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        #confirmPasswordFeedback.valid {
+            color: rgb(224, 235, 17);
+            display: block;
+        }
+        
+        #confirmPasswordFeedback.invalid {
+            color: #dc3545;
+            display: block;
+        }
+
+        .password-requirements li i {
+            margin-right: 5px;
+        }
+
+        .password-requirements li.valid i {
+            color: rgb(224, 235, 17);
+        }
+
+        .password-requirements li.invalid i {
+            color: #dc3545;
+        }
+
         @media (max-width: 768px) {
             .card-body {
                 padding: 25px;
@@ -241,7 +305,7 @@
             <div class="card-body">
                 <div class="logo-container">
                     <img src="images/logo-a.png" alt="Shed Logo">
-                    <h4 class="text-white">Create your Shed</h4>
+                    <h4 style="color: white;">Create your Shed</h4>
                 </div>
                 
                 <% if (error) { %>
@@ -261,15 +325,13 @@
                 <% } %>
 
                 <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
-                    <!-- Form fields remain unchanged from previous version -->
-                    <!-- ... -->
                     <div class="form-group">
                         <label>Business Name</label>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="now-ui-icons business_bank"></i></span>
                             </div>
-                            <input type="text" class="form-control" id="businessName" name="businessName" placeholder="Enter business name..." required>
+                            <input type="text" class="form-control" id="businessName" name="businessName" placeholder="Enter business name..." required value="<%= typeof businessName !== 'undefined' ? businessName : '' %>">
                         </div>
                     </div>
                     
@@ -279,7 +341,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="now-ui-icons ui-1_email-85"></i></span>
                             </div>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address..." required>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address..." required value="<%= typeof email !== 'undefined' ? email : '' %>">
                         </div>
                     </div>
                     
@@ -292,19 +354,19 @@
                             <select class="form-control" id="country" name="country" required>
                                 <option value="">Select your country</option>
                                 <optgroup label="Africa">
-                                    <option value="Nigeria">Nigeria</option>
-                                    <option value="South Africa">South Africa</option>
-                                    <option value="Ghana">Ghana</option>
-                                    <option value="Kenya">Kenya</option>
+                                    <option value="Nigeria" <%= typeof country !== 'undefined' && country === 'Nigeria' ? 'selected' : '' %>>Nigeria</option>
+                                    <option value="South Africa" <%= typeof country !== 'undefined' && country === 'South Africa' ? 'selected' : '' %>>South Africa</option>
+                                    <option value="Ghana" <%= typeof country !== 'undefined' && country === 'Ghana' ? 'selected' : '' %>>Ghana</option>
+                                    <option value="Kenya" <%= typeof country !== 'undefined' && country === 'Kenya' ? 'selected' : '' %>>Kenya</option>
                                 </optgroup>
                                 <optgroup label="Europe">
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="Germany">Germany</option>
+                                    <option value="United Kingdom" <%= typeof country !== 'undefined' && country === 'United Kingdom' ? 'selected' : '' %>>United Kingdom</option>
+                                    <option value="Germany" <%= typeof country !== 'undefined' && country === 'Germany' ? 'selected' : '' %>>Germany</option>
                                 </optgroup>
                                 <optgroup label="Americas">
-                                    <option value="United States">United States</option>
+                                    <option value="United States" <%= typeof country !== 'undefined' && country === 'United States' ? 'selected' : '' %>>United States</option>
                                 </optgroup>
-                                <option value="Other">Other Country</option>
+                                <option value="Other" <%= typeof country !== 'undefined' && country === 'Other' ? 'selected' : '' %>>Other Country</option>
                             </select>
                         </div>
                     </div>
@@ -318,17 +380,17 @@
                             <select class="form-control" id="currency" name="currency" required>
                                 <option value="">Select your currency</option>
                                 <optgroup label="African Currencies">
-                                    <option value="ZAR">South African Rand (ZAR)</option>
-                                    <option value="NGN">Nigerian Naira (NGN)</option>
-                                    <option value="GHS">Ghanaian Cedi (GHS)</option>
-                                    <option value="KES">Kenyan Shilling (KES)</option>
+                                    <option value="ZAR" <%= typeof currency !== 'undefined' && currency === 'ZAR' ? 'selected' : '' %>>South African Rand (ZAR)</option>
+                                    <option value="NGN" <%= typeof currency !== 'undefined' && currency === 'NGN' ? 'selected' : '' %>>Nigerian Naira (NGN)</option>
+                                    <option value="GHS" <%= typeof currency !== 'undefined' && currency === 'GHS' ? 'selected' : '' %>>Ghanaian Cedi (GHS)</option>
+                                    <option value="KES" <%= typeof currency !== 'undefined' && currency === 'KES' ? 'selected' : '' %>>Kenyan Shilling (KES)</option>
                                 </optgroup>
                                 <optgroup label="European Currencies">
-                                    <option value="GBP">British Pound (GBP)</option>
-                                    <option value="EUR">Euro (EUR)</option>
+                                    <option value="GBP" <%= typeof currency !== 'undefined' && currency === 'GBP' ? 'selected' : '' %>>British Pound (GBP)</option>
+                                    <option value="EUR" <%= typeof currency !== 'undefined' && currency === 'EUR' ? 'selected' : '' %>>Euro (EUR)</option>
                                 </optgroup>
                                 <optgroup label="Other Currencies">
-                                    <option value="USD">US Dollar (USD)</option>
+                                    <option value="USD" <%= typeof currency !== 'undefined' && currency === 'USD' ? 'selected' : '' %>>US Dollar (USD)</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -340,7 +402,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text"><i class="now-ui-icons users_circle-08"></i></span>
                             </div>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username..." required>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username..." required value="<%= typeof username !== 'undefined' ? username : '' %>">
                         </div>
                     </div>
                     
@@ -352,13 +414,35 @@
                             </div>
                             <input type="password" class="form-control" id="password" name="password" placeholder="Create a password..." required>
                         </div>
+                        
+                        <div class="password-requirements">
+                            <p>Password must meet the following requirements:</p>
+                            <ul>
+                                <li id="length" class="invalid"><i class="fas fa-times"></i> At least 8 characters</li>
+                                <li id="uppercase" class="invalid"><i class="fas fa-times"></i> At least one uppercase letter</li>
+                                <li id="lowercase" class="invalid"><i class="fas fa-times"></i> At least one lowercase letter</li>
+                                <li id="number" class="invalid"><i class="fas fa-times"></i> At least one number</li>
+                                <li id="special" class="invalid"><i class="fas fa-times"></i> At least one special character</li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text"><i class="now-ui-icons objects_key-25"></i></span>
+                            </div>
+                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password..." required>
+                        </div>
+                        <div id="confirmPasswordFeedback"></div>
                     </div>
                     
                     <div class="form-group">
                         <label>Business Logo (Optional)</label>
                         <div class="file-upload">
-                            <label class="file-upload-label" for="logo">
-                                <i class="now-ui-icons files_single-copy-04"></i> Click to upload logo
+                            <label class="file-upload-label" for="logo" style="color: #6c757d;">
+                                <i class="fa-solid fa-file-import"></i>  Click to upload logo
                             </label>
                             <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
                         </div>
@@ -366,26 +450,24 @@
                     
                     <div class="form-group" style="text-align: center;">
                         <button type="submit" class="btn btn-round btn-lg btn-create-account">
-                            Create Account
+                            Create Account <i class="fa-solid fa-user-plus"></i>
                         </button>
                     </div>
                 </form>
                 
                 <div class="login-link">
-                    Already have an account? <a href="/admin-login">Sign in here</a>
+                   <span style="color: white;">Already have an account?</span>  <a href="/admin-login">Sign in here</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Now UI Kit JS -->
     <script src="assets/js/core/jquery.min.js"></script>
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
     <script src="assets/js/now-ui-kit.js"></script>
 
     <script>
-        // Auto-select currency based on country
         document.getElementById('country').addEventListener('change', function() {
             const currencySelect = document.getElementById('currency');
             const country = this.value;
@@ -423,14 +505,83 @@
             fileInput.addEventListener('change', function() {
                 if (this.files && this.files.length > 0) {
                     fileLabel.innerHTML = `<i class="now-ui-icons files_single-copy-04"></i> ${this.files[0].name}`;
-                    fileLabel.style.borderColor = 'rgba(255, 255, 255, 0.8)';
-                    fileLabel.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
+                    fileLabel.style.borderColor = '#495057';
+                    fileLabel.style.backgroundColor = '#e9ecef';
                 } else {
                     fileLabel.innerHTML = '<i class="now-ui-icons files_single-copy-04"></i> Click to upload logo';
-                    fileLabel.style.borderColor = 'rgba(255, 255, 255, 0.4)';
-                    fileLabel.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+                    fileLabel.style.borderColor = '#adb5bd';
+                    fileLabel.style.backgroundColor = '#f8f9fa';
                 }
             });
+        });
+
+       
+
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const lengthValid = password.length >= 8;
+            const uppercaseValid = /[A-Z]/.test(password);
+            const lowercaseValid = /[a-z]/.test(password);
+            const numberValid = /[0-9]/.test(password);
+            const specialValid = /[^A-Za-z0-9]/.test(password);
+
+            updateRequirement('length', lengthValid);
+            updateRequirement('uppercase', uppercaseValid);
+            updateRequirement('lowercase', lowercaseValid);
+            updateRequirement('number', numberValid);
+            updateRequirement('special', specialValid);
+        });
+
+       function updateRequirement(id, isValid) {
+            const element = document.getElementById(id);
+            if (isValid) {
+               element.className = 'valid';
+               element.innerHTML = '<i class="fas fa-check"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+            } else {
+               element.className = 'invalid';
+               element.innerHTML = '<i class="fas fa-times"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+            }
+        }
+
+        document.getElementById('confirmPassword').addEventListener('input', function() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = this.value;
+            const feedback = document.getElementById('confirmPasswordFeedback');
+            
+            if (confirmPassword === '') {
+                feedback.style.display = 'none';
+            } else if (password === confirmPassword) {
+                feedback.textContent = 'Passwords match!';
+                feedback.className = 'valid';
+            } else {
+                feedback.textContent = 'Passwords do not match!';
+                feedback.className = 'invalid';
+            }
+        });
+
+        document.querySelector('form').addEventListener('submit', function(e) {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                e.preventDefault();
+                document.getElementById('confirmPasswordFeedback').textContent = 'Passwords must match!';
+                document.getElementById('confirmPasswordFeedback').className = 'invalid';
+                document.getElementById('confirmPassword').focus();
+                return;
+            }
+            
+            const isStrong = password.length >= 8 && 
+                            /[A-Z]/.test(password) && 
+                            /[a-z]/.test(password) && 
+                            /[0-9]/.test(password) && 
+                            /[^A-Za-z0-9]/.test(password);
+            
+            if (!isStrong) {
+                e.preventDefault();
+                alert('Please ensure your password meets all the requirements.');
+                document.getElementById('password').focus();
+            }
         });
 
         if (typeof navigator.serviceWorker !== 'undefined') {
