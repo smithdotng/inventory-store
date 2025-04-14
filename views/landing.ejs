@@ -526,6 +526,31 @@
       width: 100%;
     }
 
+    .login-link {
+            text-align: center;
+            margin-top: 15px;
+            color: #6c757d;
+            font-size: 13px;
+        }
+        
+        .login-link a {
+            color: rgb(235, 166, 17);
+            font-weight: 500;
+            text-decoration: none;
+            font-size: 13px;
+        }
+        
+        .btn-create-account {
+            background-color: rgb(235, 166, 17);
+            width: 100%;
+            max-width: 300px;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+        }
+
     /* Responsive */
     @media (min-width: 768px) {
       .top-bar {
@@ -590,8 +615,8 @@
       <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
     </div>
     <div class="cta-section">
-      <a href="/admin-register" class="btn">Create your Shed account <i class="fas fa-user-plus"></i></a>
-      <a href="/admin-login" class="btn secondary">Log In <i class="fas fa-sign-in-alt"></i></a>
+      <a href="/admin-register" class="btn btn-create-account">Create your Shed account <i class="fas fa-user-plus"></i></a>
+      <a href="/admin-login" class="btn btn-create-account" style="background-color: darkcyan;"> Log In <i class="fas fa-sign-in-alt"></i></a>
       
     </div>
   </div>
