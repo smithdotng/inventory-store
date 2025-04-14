@@ -309,11 +309,25 @@ app.get('/referrals/logout', (req, res) => {
 
 // In your /admin-register POST route
 app.post('/admin-register', upload.single('logo'), async (req, res) => {
-  const { businessName, email, currency, username, password, country } = req.body;
+  const { businessName, email, currency, username, password, country, firstName, lastName } = req.body;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
   const referralCode = req.query.ref;
 
   try {
+    // Validate required fields
+    if (!firstName || !lastName) {
+      return res.render('admin-register', { 
+        error: 'First name and last name are required.',
+        businessName,
+        email,
+        currency,
+        username,
+        country,
+        firstName,
+        lastName
+      });
+    }
+
     // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
@@ -323,10 +337,13 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
         email,
         currency,
         username,
-        country
+        country,
+        firstName,
+        lastName
       });
     }
 
+    // Check for existing username or email
     const existingAdmin = await db.collection('admins').findOne({ $or: [{ username }, { email }] });
     if (existingAdmin) {
       return res.render('admin-register', { 
@@ -335,10 +352,13 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
         email,
         currency,
         username,
-        country
+        country,
+        firstName,
+        lastName
       });
     }
 
+    // Hash password and create new admin
     const hashedPassword = await bcrypt.hash(password, 10);
     const newAdmin = {
       businessName,
@@ -347,14 +367,20 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       country,
       username,
       password: hashedPassword,
+      firstName,
+      lastName,
       logo: logoPath,
       role: 'admin',
       createdAt: new Date(),
     };
 
+    // Insert new admin into database
     const result = await db.collection('admins').insertOne(newAdmin);
+    
+    // Send welcome email
     await sendWelcomeEmail(email, username, businessName);
 
+    // Handle referral code
     if (referralCode) {
       const referrer = await db.collection('affiliates').findOne({ referralCode });
       if (referrer) {
@@ -367,6 +393,7 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       }
     }
 
+    // Redirect to login page
     res.redirect('/admin-login');
   } catch (error) {
     console.error('Error during registration:', error);
@@ -376,7 +403,9 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       email,
       currency,
       username,
-      country
+      country,
+      firstName,
+      lastName
     });
   }
 });

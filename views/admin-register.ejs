@@ -17,11 +17,14 @@
     
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <!-- Cropper.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 
     <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
     <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
     
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -37,6 +40,8 @@
             background-repeat: no-repeat;
             position: relative;
             min-height: 100vh;
+            font-size: 14px;
+            margin: 0;
         }
         
         body::before {
@@ -49,18 +54,45 @@
             z-index: -1;
         }
         
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .image-container {
+            flex: 0 0 40%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border-radius: 10px 0 0 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
         .registration-container {
+            flex: 0 0 60%;
+            max-width: 600px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
             padding: 20px;
         }
         
         .registration-card {
             width: 100%;
-            max-width: 600px;
-            border-radius: 10px;
+            border-radius: 0 10px 10px 0;
             box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
@@ -70,32 +102,31 @@
         
         .logo-container {
             text-align: center;
-            margin-bottom: 25px;
-            padding-top: 20px;
+            margin-bottom: 15px;
+            padding-top: 15px;
         }
         
         .logo-container img {
-            height: 60px;
-            margin-bottom: 15px;
+            height: 50px;
+            margin-bottom: 10px;
             max-width: 100%;
         }
         
         .card-body {
-            padding: 30px;
-            
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
         }
         
         .form-group label {
             color: white;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: block;
             font-weight: 500;
-        }
-        
-        .input-group-text {
-            background-color: #f8f9fa;
-            border: 1px solid #ced4da;
-            color: #495057;
+            font-size: 13px;
+            padding-top: 10px;
         }
         
         .form-control {
@@ -103,361 +134,478 @@
             border: 1px solid #ced4da;
             color: #495057;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: calc(1.5em + 0.75rem + 2px);
+            width: 100%;
+            box-sizing: border-box;
+            
         }
         
-        .form-control:focus {
-            background-color: white;
-            color: #495057;
-            border-color: rgb(224, 235, 17);
-            outline: 0;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -5px;
+            margin-left: -5px;
         }
         
-        .form-control::placeholder {
-            color: #6c757d;
-            opacity: 1;
-        }
-        
-        select.form-control {
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23495057' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 0.75rem center;
-            background-size: 16px 12px;
-        }
-        
-        select option {
-            background-color: white;
-            color: #212529;
-        }
-        
-        select option:hover {
-            background-color: #f8f9fa;
-        }
-        
-        select option:checked {
-            background-color: #e9ecef;
+        .form-col {
+            flex: 1;
+            padding-right: 5px;
+            padding-left: 5px;
+            min-width: 0;
         }
         
         .login-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
             color: #6c757d;
+            font-size: 13px;
         }
         
         .login-link a {
             color: rgb(224, 235, 17);
             font-weight: 500;
             text-decoration: none;
-        }
-        
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-        
-        .file-upload {
-            position: relative;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        
-        .file-upload-input {
-            position: absolute;
-            font-size: 100px;
-            opacity: 0;
-            right: 0;
-            top: 0;
-            cursor: pointer;
-            
+            font-size: 13px;
         }
         
         .file-upload-label {
-            display: block;
-            padding: 10px 12px;
-            background: #f8f9fa;
-            border: 1px dashed #adb5bd;
-            border-radius: 6px;
-            text-align: center;
+            display: inline-block;
+            font-size: 13px;
+            padding: 10px 20px;
+            background-color: rgb(224, 235, 17);
+            color: #333333;
+            border: 2px solid #ffffff;
+            border-radius: 5px;
             cursor: pointer;
-            color: #495057;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+            width: 100%;
+            max-width: 200px;
         }
         
         .file-upload-label:hover {
-            background: #e9ecef;
-            border-color: #6c757d;
+            background-color: #ffffff;
+            color: rgb(224, 235, 17);
+            border-color: rgb(224, 235, 17);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .file-upload-label.uploaded {
+            background-color: #e9ecef;
+            border-color: #495057;
+            color: #495057;
+        }
+        
+        .file-upload-label.uploaded:hover {
+            background-color: #d3d7db;
         }
 
         .btn-create-account {
             background-color: rgb(224, 235, 17);
-            width: 50%;
+            width: 100%;
+            max-width: 300px;
             transition: all 0.3s ease;
             border: none;
             font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
         }
         
-        .btn-create-account:hover {
-            background-color: rgb(240, 245, 100);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            color: white;
-        }
-        
-        .btn-create-account:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
         .password-requirements {
             margin-top: 5px;
             font-size: 12px;
-            color: white;
         }
         
         .password-requirements ul {
-            padding-left: 20px;
+            padding-left: 15px;
             margin-bottom: 0;
-            
-        }
-        
-        .password-requirements li {
-            list-style-type: none;
-            position: relative;
-        }
-        
-        .password-requirements li:before {
-            content: "•";
-            position: absolute;
-            left: -15px;
             color: white;
         }
         
-        .password-requirements li.valid {
-            color: rgb(224, 235, 17);
+        .password-requirements .valid {
+            color: #90EE90;
         }
         
-        .password-requirements li.invalid {
+        .password-requirements .invalid {
             color: white;
         }
         
-        #confirmPasswordFeedback {
-            font-size: 12px;
-            margin-top: 5px;
-            display: none;
+        .password-requirements .error {
+            color: #FF0000;
         }
         
         #confirmPasswordFeedback.valid {
-            color: rgb(224, 235, 17);
-            display: block;
+            color: #90EE90;
         }
         
         #confirmPasswordFeedback.invalid {
-            color: #dc3545;
+            color: #FF0000;
+        }
+        
+        /* Cropper Modal Styles */
+        .cropper-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .cropper-modal-content {
+            background: #ffffff;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            overflow: hidden;
+            padding: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            transform: scale(1);
+        }
+        
+        .cropper-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 10px;
+            background: #ffffff;
+        }
+        
+        .cropper-header h3 {
+            margin: 0;
+            font-size: 16px;
+            color: #333333;
+            font-weight: 500;
+        }
+        
+        .close-cropper {
+            cursor: pointer;
+            font-size: 20px;
+            color: #333333;
+        }
+        
+        .cropper-body {
+            margin-bottom: 15px;
+            background: #ffffff;
+        }
+        
+        .cropper-body img {
             display: block;
+            max-width: 100%;
+            height: auto;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
+        .cropper-footer {
+            text-align: right;
+            background: #ffffff;
+        }
+        
+        .cropper-footer .btn {
+            font-size: 14px;
+            padding: 8px 16px;
+        }
+        
+        #logoPreview {
+            max-width: 120px;
+            max-height: 120px;
+            display: none;
         }
 
-        .password-requirements li i {
-            margin-right: 5px;
-        }
-
-        .password-requirements li.valid i {
-            color: rgb(224, 235, 17);
-        }
-
-        .password-requirements li.invalid i {
-            color: #dc3545;
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .image-container {
+                flex: 0 0 100%;
+                max-width: 100%;
+                height: 200px; /* Reduced from 300px for tablets */
+                border-radius: 10px 10px 0 0;
+                margin-bottom: 20px;
+            }
+            
+            .registration-container {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .registration-card {
+                border-radius: 0 0 10px 10px;
+            }
         }
 
         @media (max-width: 768px) {
-            .card-body {
-                padding: 25px;
+            .form-col {
+                flex: 0 0 100%;
+                max-width: 100%;
             }
             
-            .logo-container img {
-                height: 50px;
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+            
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: calc(1.5em + 0.6rem + 2px);
+            }
+            
+            .file-upload-label {
+                font-size: 12px;
+                padding: 8px 16px;
+                max-width: 100%;
             }
             
             .btn-create-account {
-                width: 60%;
+                font-size: 13px;
+                padding: 8px 16px;
+            }
+            
+            .password-requirements {
+                font-size: 11px;
+            }
+            
+            .login-link {
+                font-size: 12px;
+            }
+            
+            .cropper-modal-content {
+                width: 95%;
+                padding: 10px;
+            }
+            
+            .cropper-header h3 {
+                font-size: 14px;
+            }
+            
+            .close-cropper {
+                font-size: 18px;
+            }
+            
+            .cropper-footer .btn {
+                font-size: 12px;
+                padding: 6px 12px;
             }
         }
-        
-        @media (max-width: 480px) {
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+            }
+            
+            .image-container {
+                display: none; /* Short height for mobile screens */
+            }
+            
+            .registration-container {
+                padding: 10px;
+            }
+            
             .card-body {
-                padding: 20px;
-            }
-            
-            .logo-container img {
-                height: 45px;
-            }
-            
-            .btn-create-account {
-                width: 80%;
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="registration-container">
-        <div class="card registration-card">
-            <div class="card-body">
-                <div class="logo-container">
-                    <img src="images/logo-a.png" alt="Shed Logo">
-                    <h4 style="color: white;">Create your Shed</h4>
-                </div>
-                
-                <% if (error) { %>
-                    <div class="alert alert-danger">
-                        <div class="container">
-                            <div class="alert-icon">
-                                <i class="now-ui-icons ui-1_bell-53"></i>
-                            </div>
-                            <%= error %>
-                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                <span aria-hidden="true">
-                                    <i class="now-ui-icons ui-1_simple-remove"></i>
-                                </span>
-                            </button>
-                        </div>
+    <div class="main-container">
+        <div class="image-container">
+            <img src="assets/img/promo.jpg" alt="Promotional Image">
+        </div>
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="images/logo-a.png" alt="Shed Logo">
+                        <h4 style="color: white; font-size: 16px;">Create your Shed</h4>
                     </div>
-                <% } %>
-
-                <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>Business Name</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons business_bank"></i></span>
+                    
+                    <% if (error) { %>
+                        <div class="alert alert-danger" style="font-size: 13px;">
+                            <div class="container">
+                                <div class="alert-icon">
+                                    <i class="fa-solid fa-bell"></i>
+                                </div>
+                                <%= error %>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </button>
                             </div>
+                        </div>
+                    <% } %>
+
+                    <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
+                        <!-- Business Name (full width) -->
+                        <div class="form-group">
+                            <label>Business Name <i class="fa-solid fa-building"></i></label>
                             <input type="text" class="form-control" id="businessName" name="businessName" placeholder="Enter business name..." required value="<%= typeof businessName !== 'undefined' ? businessName : '' %>">
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons ui-1_email-85"></i></span>
-                            </div>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address..." required value="<%= typeof email !== 'undefined' ? email : '' %>">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Country</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons location_pin"></i></span>
-                            </div>
-                            <select class="form-control" id="country" name="country" required>
-                                <option value="">Select your country</option>
-                                <optgroup label="Africa">
-                                    <option value="Nigeria" <%= typeof country !== 'undefined' && country === 'Nigeria' ? 'selected' : '' %>>Nigeria</option>
-                                    <option value="South Africa" <%= typeof country !== 'undefined' && country === 'South Africa' ? 'selected' : '' %>>South Africa</option>
-                                    <option value="Ghana" <%= typeof country !== 'undefined' && country === 'Ghana' ? 'selected' : '' %>>Ghana</option>
-                                    <option value="Kenya" <%= typeof country !== 'undefined' && country === 'Kenya' ? 'selected' : '' %>>Kenya</option>
-                                </optgroup>
-                                <optgroup label="Europe">
-                                    <option value="United Kingdom" <%= typeof country !== 'undefined' && country === 'United Kingdom' ? 'selected' : '' %>>United Kingdom</option>
-                                    <option value="Germany" <%= typeof country !== 'undefined' && country === 'Germany' ? 'selected' : '' %>>Germany</option>
-                                </optgroup>
-                                <optgroup label="Americas">
-                                    <option value="United States" <%= typeof country !== 'undefined' && country === 'United States' ? 'selected' : '' %>>United States</option>
-                                </optgroup>
-                                <option value="Other" <%= typeof country !== 'undefined' && country === 'Other' ? 'selected' : '' %>>Other Country</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Currency</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons business_money-coins"></i></span>
-                            </div>
-                            <select class="form-control" id="currency" name="currency" required>
-                                <option value="">Select your currency</option>
-                                <optgroup label="African Currencies">
-                                    <option value="ZAR" <%= typeof currency !== 'undefined' && currency === 'ZAR' ? 'selected' : '' %>>South African Rand (ZAR)</option>
-                                    <option value="NGN" <%= typeof currency !== 'undefined' && currency === 'NGN' ? 'selected' : '' %>>Nigerian Naira (NGN)</option>
-                                    <option value="GHS" <%= typeof currency !== 'undefined' && currency === 'GHS' ? 'selected' : '' %>>Ghanaian Cedi (GHS)</option>
-                                    <option value="KES" <%= typeof currency !== 'undefined' && currency === 'KES' ? 'selected' : '' %>>Kenyan Shilling (KES)</option>
-                                </optgroup>
-                                <optgroup label="European Currencies">
-                                    <option value="GBP" <%= typeof currency !== 'undefined' && currency === 'GBP' ? 'selected' : '' %>>British Pound (GBP)</option>
-                                    <option value="EUR" <%= typeof currency !== 'undefined' && currency === 'EUR' ? 'selected' : '' %>>Euro (EUR)</option>
-                                </optgroup>
-                                <optgroup label="Other Currencies">
-                                    <option value="USD" <%= typeof currency !== 'undefined' && currency === 'USD' ? 'selected' : '' %>>US Dollar (USD)</option>
-                                </optgroup>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Username</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons users_circle-08"></i></span>
-                            </div>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Choose a username..." required value="<%= typeof username !== 'undefined' ? username : '' %>">
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Password</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons objects_key-25"></i></span>
-                            </div>
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Create a password..." required>
+                        
+                        <!-- Username (full width) -->
+                        <div class="form-group">
+                            <label>Username <i class="fa-solid fa-user"></i></label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username..." required value="<%= typeof username !== 'undefined' ? username : '' %>">
                         </div>
                         
-                        <div class="password-requirements">
-                            <p>Password must meet the following requirements:</p>
-                            <ul>
-                                <li id="length" class="invalid"><i class="fas fa-times"></i> At least 8 characters</li>
-                                <li id="uppercase" class="invalid"><i class="fas fa-times"></i> At least one uppercase letter</li>
-                                <li id="lowercase" class="invalid"><i class="fas fa-times"></i> At least one lowercase letter</li>
-                                <li id="number" class="invalid"><i class="fas fa-times"></i> At least one number</li>
-                                <li id="special" class="invalid"><i class="fas fa-times"></i> At least one special character</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Confirm Password</label>
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text"><i class="now-ui-icons objects_key-25"></i></span>
+                        <!-- First Name and Last Name (side by side) -->
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>First Name <i class="fa-solid fa-user"></i></label>
+                                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name..." required value="<%= typeof firstName !== 'undefined' ? firstName : '' %>">
+                                </div>
                             </div>
-                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password..." required>
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Last Name <i class="fa-solid fa-user"></i></label>
+                                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter last name..." required value="<%= typeof lastName !== 'undefined' ? lastName : '' %>">
+                                </div>
+                            </div>
                         </div>
-                        <div id="confirmPasswordFeedback"></div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Business Logo (Optional)</label>
-                        <div class="file-upload">
-                            <label class="file-upload-label" for="logo" style="color: #6c757d;">
-                                <i class="fa-solid fa-file-import"></i>  Click to upload logo
-                            </label>
-                            <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
+                        
+                        <!-- Email Address (full width) -->
+                        <div class="form-group">
+                            <label>Email Address <i class="fa-solid fa-envelope"></i></label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address..." required value="<%= typeof email !== 'undefined' ? email : '' %>">
                         </div>
-                    </div>
+                        
+                        <!-- Country and Currency (side by side) -->
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Country <i class="fa-solid fa-globe"></i></label>
+                                    <select class="form-control" id="country" name="country" style="height: 50px;" required>
+                                        <option value="">Select your country</option>
+                                        <optgroup label="Africa">
+                                            <option value="Nigeria" <%= typeof country !== 'undefined' && country === 'Nigeria' ? 'selected' : '' %>>Nigeria</option>
+                                            <option value="South Africa" <%= typeof country !== 'undefined' && country === 'South Africa' ? 'selected' : '' %>>South Africa</option>
+                                            <option value="Ghana" <%= typeof country !== 'undefined' && country === 'Ghana' ? 'selected' : '' %>>Ghana</option>
+                                            <option value="Kenya" <%= typeof country !== 'undefined' && country === 'Kenya' ? 'selected' : '' %>>Kenya</option>
+                                        </optgroup>
+                                        <optgroup label="Europe">
+                                            <option value="United Kingdom" <%= typeof country !== 'undefined' && country === 'United Kingdom' ? 'selected' : '' %>>United Kingdom</option>
+                                            <option value="Germany" <%= typeof country !== 'undefined' && country === 'Germany' ? 'selected' : '' %>>Germany</option>
+                                        </optgroup>
+                                        <optgroup label="Americas">
+                                            <option value="United States" <%= typeof country !== 'undefined' && country === 'United States' ? 'selected' : '' %>>United States</option>
+                                        </optgroup>
+                                        <optgroup label="Other">
+                                            <option value="Other" <%= typeof country !== 'undefined' && country === 'Other' ? 'selected' : '' %>>Other Country</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Currency <i class="fa-solid fa-coins"></i></label>
+                                    <select class="form-control" id="currency" name="currency" style="height: 50px;" required>
+                                        <option value="">Select your currency</option>
+                                        <optgroup label="African Currencies">
+                                            <option value="ZAR" <%= typeof currency !== 'undefined' && currency === 'ZAR' ? 'selected' : '' %>>South African Rand (ZAR)</option>
+                                            <option value="NGN" <%= typeof currency !== 'undefined' && currency === 'NGN' ? 'selected' : '' %>>Nigerian Naira (NGN)</option>
+                                            <option value="GHS" <%= typeof currency !== 'undefined' && currency === 'GHS' ? 'selected' : '' %>>Ghanaian Cedi (GHS)</option>
+                                            <option value="KES" <%= typeof currency !== 'undefined' && currency === 'KES' ? 'selected' : '' %>>Kenyan Shilling (KES)</option>
+                                        </optgroup>
+                                        <optgroup label="European Currencies">
+                                            <option value="GBP" <%= typeof currency !== 'undefined' && currency === 'GBP' ? 'selected' : '' %>>British Pound (GBP)</option>
+                                            <option value="EUR" <%= typeof currency !== 'undefined' && currency === 'EUR' ? 'selected' : '' %>>Euro (EUR)</option>
+                                        </optgroup>
+                                        <optgroup label="Other Currencies">
+                                            <option value="USD" <%= typeof currency !== 'undefined' && currency === 'USD' ? 'selected' : '' %>>US Dollar (USD)</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Logo Upload (full width) -->
+                        <div class="form-group">
+                            <label>Business Logo (Optional)</label>
+                            <div class="file-upload">
+                                <label class="file-upload-label" for="logo">
+                                    <i class="fa-solid fa-file-import"></i> Click to upload logo
+                                </label>
+                                <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
+                            </div>
+                            <div class="logo-preview-container">
+                                <img id="logoPreview" class="logo-preview" alt="Logo preview">
+                            </div>
+                            <input type="hidden" id="croppedImageData" name="croppedImageData">
+                        </div>
+                        
+                        <!-- Password and Confirm Password (side by side) -->
+                        <div class="form-row">
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Password <i class="fa-solid fa-lock"></i></label>
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Create a password..." required>
+                                    <div class="password-requirements">
+                                        <p style="margin-bottom: 5px; font-size: 12px;">Password must meet the following requirements:</p>
+                                        <ul>
+                                            <li id="length" class="invalid"><i class="fa-solid fa-xmark"></i> At least 8 characters</li>
+                                            <li id="uppercase" class="invalid"><i class="fa-solid fa-xmark"></i> At least one uppercase letter</li>
+                                            <li id="lowercase" class="invalid"><i class="fa-solid fa-xmark"></i> At least one lowercase letter</li>
+                                            <li id="number" class="invalid"><i class="fa-solid fa-xmark"></i> At least one number</li>
+                                            <li id="special" class="invalid"><i class="fa-solid fa-xmark"></i> At least one special character</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-col">
+                                <div class="form-group">
+                                    <label>Confirm Password <i class="fa-solid fa-lock"></i></label>
+                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password..." required>
+                                    <div id="confirmPasswordFeedback" style="font-size: 12px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="text-align: center; margin-top: 15px;">
+                            <button type="submit" class="btn btn-round btn-lg btn-create-account">
+                                Create Account <i class="fa-solid fa-user-plus"></i>
+                            </button>
+                        </div>
+                    </form>
                     
-                    <div class="form-group" style="text-align: center;">
-                        <button type="submit" class="btn btn-round btn-lg btn-create-account">
-                            Create Account <i class="fa-solid fa-user-plus"></i>
-                        </button>
+                    <div class="login-link">
+                        <span style="color: white;">Already have an account?</span> <a href="/admin-login">Sign in here</a>
                     </div>
-                </form>
-                
-                <div class="login-link">
-                   <span style="color: white;">Already have an account?</span>  <a href="/admin-login">Sign in here</a>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Centered Cropper Modal -->
+    <div class="cropper-modal" id="cropperModal">
+        <div class="cropper-modal-content">
+            <div class="cropper-header">
+                <h3>Crop your logo</h3>
+                <span class="close-cropper">×</span>
+            </div>
+            <div class="cropper-body">
+                <img id="imageToCrop" src="" alt="Image to crop">
+            </div>
+            <div class="cropper-footer">
+                <button id="cancelCrop" class="btn btn-secondary">Cancel</button>
+                <button id="saveCrop" class="btn btn-primary">Save</button>
             </div>
         </div>
     </div>
@@ -465,7 +613,13 @@
     <script src="assets/js/core/jquery.min.js"></script>
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-kit.js"></script>
+    <script src="assets/js/now-ui-dashboard.js"></script>
+    <script src="assets/js/now-ui-dashboard.js.map"></script>
+    <script src="assets/js/now-ui-dashboard.min.js"></script>
+    <script src="assets/js/bootstrap.min.js.map"></script>
+
+    <!-- Cropper.js Library -->
+    <script src="assets/js/cropper.min.js"></script>
 
     <script>
         document.getElementById('country').addEventListener('change', function() {
@@ -483,7 +637,8 @@
                 'Kenya': 'KES',
                 'United Kingdom': 'GBP',
                 'Germany': 'EUR',
-                'United States': 'USD'
+                'United States': 'USD',
+                'Other': ''
             };
             
             if (countryToCurrency[country]) {
@@ -499,24 +654,124 @@
                 countrySelect.dispatchEvent(new Event('change'));
             }
             
+            // Initialize variables for image cropping
+            let cropper;
             const fileInput = document.getElementById('logo');
             const fileLabel = document.querySelector('.file-upload-label');
+            const logoPreview = document.getElementById('logoPreview');
+            const cropperModal = document.getElementById('cropperModal');
+            const imageToCrop = document.getElementById('imageToCrop');
+            const cancelCrop = document.getElementById('cancelCrop');
+            const saveCrop = document.getElementById('saveCrop');
+            const closeCropper = document.querySelector('.close-cropper');
+            const croppedImageData = document.getElementById('croppedImageData');
             
-            fileInput.addEventListener('change', function() {
+            // Ensure modal is hidden on page load
+            cropperModal.style.display = 'none';
+            
+            // File input change handler
+            fileInput.addEventListener('change', function(e) {
                 if (this.files && this.files.length > 0) {
-                    fileLabel.innerHTML = `<i class="now-ui-icons files_single-copy-04"></i> ${this.files[0].name}`;
-                    fileLabel.style.borderColor = '#495057';
-                    fileLabel.style.backgroundColor = '#e9ecef';
+                    const file = this.files[0];
+                    
+                    // Check if the file is an image
+                    if (!file.type.match('image.*')) {
+                        alert('Please select an image file');
+                        return;
+                    }
+                    
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        // Show the cropper modal
+                        cropperModal.style.display = 'flex';
+                        imageToCrop.src = event.target.result;
+                        
+                        // Initialize cropper
+                        if (cropper) {
+                            cropper.destroy();
+                        }
+                        
+                        cropper = new Cropper(imageToCrop, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 0.8,
+                            responsive: true,
+                            background: false
+                        });
+                    };
+                    reader.readAsDataURL(file);
                 } else {
-                    fileLabel.innerHTML = '<i class="now-ui-icons files_single-copy-04"></i> Click to upload logo';
-                    fileLabel.style.borderColor = '#adb5bd';
-                    fileLabel.style.backgroundColor = '#f8f9fa';
+                    fileLabel.innerHTML = '<i class="fa-solid fa-file-import"></i> Click to upload logo';
+                    fileLabel.classList.remove('uploaded');
+                    logoPreview.style.display = 'none';
+                    croppedImageData.value = '';
+                }
+            });
+            
+            // Close button
+            closeCropper.addEventListener('click', function() {
+                cropperModal.style.display = 'none';
+                if (cropper) {
+                    cropper.destroy();
+                }
+                fileInput.value = '';
+                fileLabel.innerHTML = '<i class="fa-solid fa-file-import"></i> Click to upload logo';
+                fileLabel.classList.remove('uploaded');
+                logoPreview.style.display = 'none';
+                croppedImageData.value = '';
+            });
+            
+            // Cancel button
+            cancelCrop.addEventListener('click', function() {
+                cropperModal.style.display = 'none';
+                if (cropper) {
+                    cropper.destroy();
+                }
+                fileInput.value = '';
+                fileLabel.innerHTML = '<i class="fa-solid fa-file-import"></i> Click to upload logo';
+                fileLabel.classList.remove('uploaded');
+                logoPreview.style.display = 'none';
+                croppedImageData.value = '';
+            });
+            
+            // Save button
+            saveCrop.addEventListener('click', function() {
+                if (cropper) {
+                    // Get the cropped canvas
+                    const canvas = cropper.getCroppedCanvas({
+                        width: 500,
+                        height: 500,
+                        minWidth: 256,
+                        minHeight: 256,
+                        fillColor: '#fff',
+                        imageSmoothingEnabled: true,
+                        imageSmoothingQuality: 'high'
+                    });
+                    
+                    if (canvas) {
+                        // Convert to data URL
+                        const croppedDataUrl = canvas.toDataURL('image/png');
+                        
+                        // Set the preview
+                        logoPreview.src = croppedDataUrl;
+                        logoPreview.style.display = 'block';
+                        
+                        // Store the cropped image data in hidden input
+                        croppedImageData.value = croppedDataUrl;
+                        
+                        // Update the file label
+                        fileLabel.innerHTML = `<i class="fa-solid fa-image"></i> ${fileInput.files[0].name}`;
+                        fileLabel.classList.add('uploaded');
+                        
+                        // Hide the cropper
+                        cropperModal.style.display = 'none';
+                        cropper.destroy();
+                    }
                 }
             });
         });
 
-       
-
+        // Password validation functions
         document.getElementById('password').addEventListener('input', function() {
             const password = this.value;
             const lengthValid = password.length >= 8;
@@ -532,14 +787,14 @@
             updateRequirement('special', specialValid);
         });
 
-       function updateRequirement(id, isValid) {
+        function updateRequirement(id, isValid) {
             const element = document.getElementById(id);
             if (isValid) {
-               element.className = 'valid';
-               element.innerHTML = '<i class="fas fa-check"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+                element.className = 'valid';
+                element.innerHTML = '<i class="fa-solid fa-check"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
             } else {
-               element.className = 'invalid';
-               element.innerHTML = '<i class="fas fa-times"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+                element.className = 'invalid';
+                element.innerHTML = '<i class="fa-solid fa-xmark"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
             }
         }
 
@@ -553,9 +808,11 @@
             } else if (password === confirmPassword) {
                 feedback.textContent = 'Passwords match!';
                 feedback.className = 'valid';
+                feedback.style.display = 'block';
             } else {
                 feedback.textContent = 'Passwords do not match!';
                 feedback.className = 'invalid';
+                feedback.style.display = 'block';
             }
         });
 
@@ -567,20 +824,34 @@
                 e.preventDefault();
                 document.getElementById('confirmPasswordFeedback').textContent = 'Passwords must match!';
                 document.getElementById('confirmPasswordFeedback').className = 'invalid';
+                document.getElementById('confirmPasswordFeedback').style.display = 'block';
                 document.getElementById('confirmPassword').focus();
                 return;
             }
             
-            const isStrong = password.length >= 8 && 
-                            /[A-Z]/.test(password) && 
-                            /[a-z]/.test(password) && 
-                            /[0-9]/.test(password) && 
-                            /[^A-Za-z0-9]/.test(password);
+            const validations = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[^A-Za-z0-9]/.test(password)
+            };
+            
+            const isStrong = Object.values(validations).every(v => v);
             
             if (!isStrong) {
                 e.preventDefault();
+                // Highlight unsatisfied requirements in red
+                Object.keys(validations).forEach(id => {
+                    const element = document.getElementById(id);
+                    if (!validations[id]) {
+                        element.className = 'error';
+                        element.innerHTML = '<i class="fa-solid fa-xmark"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+                    }
+                });
                 alert('Please ensure your password meets all the requirements.');
                 document.getElementById('password').focus();
+                return;
             }
         });
 
