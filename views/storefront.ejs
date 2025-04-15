@@ -8,18 +8,15 @@
   <meta property="og:image" content="<%= admin.logo || 'https://img.shed.ng/status.jpg' %>" />
   <title><%= admin.businessName %> Storefront</title>
 
-   <!-- Font Awesome -->
-   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     
-   <!-- Now UI Dashboard CSS -->
-   <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-   <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-   <link href="assets/css/now-ui-dashboard.css" rel="stylesheet" />
-   <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Now UI Dashboard CSS -->
+  <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
+  <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+  <link href="assets/css/now-ui-dashboard.css" rel="stylesheet" />
+  <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
 
-
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary-color: #4f46e5;
@@ -155,15 +152,18 @@
     .product-image-container {
       position: relative;
       width: 100%;
-      height: 150px;
+      height: 200px;
       background: #f3f4f6;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .product-image {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
     }
 
     .no-image-placeholder {
@@ -206,7 +206,7 @@
     }
 
     .description.active {
-      max-height: 200px; /* Adjust based on content */
+      max-height: 200px;
     }
 
     .quantity-input {
@@ -255,7 +255,7 @@
     .modal-content {
       background: var(--card-bg);
       border-radius: 0.5rem;
-      max-width: 600px;
+      max-width: 800px;
       width: 90%;
       position: relative;
       padding: 1rem;
@@ -264,12 +264,16 @@
     .modal-slider {
       position: relative;
       width: 100%;
-      height: 300px;
+      height: 400px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     .modal-image {
-      width: 100%;
-      height: 100%;
+      max-width: 100%;
+      max-height: 100%;
       object-fit: contain;
       display: none;
     }
@@ -284,17 +288,19 @@
       transform: translateY(-50%);
       background: rgba(0, 0, 0, 0.5);
       color: white;
-      padding: 0.5rem;
+      padding: 1rem;
       cursor: pointer;
       user-select: none;
+      font-size: 1.5rem;
+      border-radius: 50%;
     }
 
     .prev {
-      left: 0;
+      left: 1rem;
     }
 
     .next {
-      right: 0;
+      right: 1rem;
     }
 
     .close {
@@ -304,6 +310,7 @@
       font-size: 1.5rem;
       cursor: pointer;
       color: var(--text-muted);
+      z-index: 10;
     }
 
     /* Checkout Form */
@@ -456,7 +463,8 @@
       .store-header h1 { font-size: 1.5rem; }
       .inventory-grid { grid-template-columns: 1fr; }
       .modal-content { max-width: 90%; }
-      .modal-slider { height: 200px; }
+      .modal-slider { height: 300px; }
+      .product-image-container { height: 150px; }
     }
 
     @media (max-width: 480px) {
@@ -464,6 +472,7 @@
       .logo-container img { width: 30px; height: 30px; }
       .logo-container span { font-size: 1rem; }
       .cart-button { font-size: 0.75rem; padding: 0.4rem 0.8rem; }
+      .modal-slider { height: 200px; }
     }
   </style>
 </head>
@@ -489,10 +498,10 @@
     <!-- Inventory Grid -->
     <div class="inventory-grid" id="inventoryGrid">
       <% inventory.forEach(item => { %>
-        <div class="inventory-item" data-item-id="<%= item._id %>">
+        <div class="inventory-item" data-item-id="<%= item._id %>" data-images="<%= JSON.stringify(item.images) %>">
           <div class="product-image-container" onclick="openModal('<%= item._id %>')">
-            <% if (item.image) { %>
-              <img src="<%= item.image %>" class="product-image" alt="<%= item.name %>">
+            <% if (item.images && item.images.length > 0) { %>
+              <img src="<%= item.images[0] %>" class="product-image" alt="<%= item.name %>">
             <% } else { %>
               <div class="no-image-placeholder">
                 <i class="fas fa-image"></i> No Image
@@ -540,7 +549,7 @@
     <% } %>
   </div>
 
-  <!-- Modal -->
+  <!-- Image Modal -->
   <div class="modal" id="imageModal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
@@ -580,11 +589,11 @@
     <p>© 2025 Shedfactory Limited. <a href="mailto:hello@shed.ng">Contact Us</a></p>
   </footer>
 
-     <!-- Now UI Dashboard JS -->
-     <script src="assets/js/core/jquery.min.js"></script>
-     <script src="assets/js/core/popper.min.js"></script>
-     <script src="assets/js/core/bootstrap.min.js"></script>
-     <script src="assets/js/now-ui-dashboard.js"></script>
+  <!-- Now UI Dashboard JS -->
+  <script src="assets/js/core/jquery.min.js"></script>
+  <script src="assets/js/core/popper.min.js"></script>
+  <script src="assets/js/core/bootstrap.min.js"></script>
+  <script src="assets/js/now-ui-dashboard.js"></script>
 
   <script>
     let cart = [];
@@ -594,15 +603,23 @@
     function addToCart(itemId, itemName, itemCost, maxStock, button) {
       const quantityInput = document.querySelector(`.inventory-item[data-item-id="${itemId}"] .quantity-input`);
       const quantity = parseInt(quantityInput.value);
+      
       if (quantity <= 0 || quantity > maxStock) {
         alert('Please enter a valid quantity within available stock.');
         return;
       }
+      
       const existingItem = cart.find(item => item.id === itemId);
       if (existingItem) {
         existingItem.quantity = quantity;
       } else {
-        cart.push({ id: itemId, name: itemName, cost: itemCost, quantity });
+        cart.push({ 
+          id: itemId, 
+          name: itemName, 
+          cost: itemCost, 
+          quantity: quantity,
+          image: document.querySelector(`.inventory-item[data-item-id="${itemId}"] .product-image`)?.src || ''
+        });
         button.classList.add('checked');
         button.textContent = 'Added';
       }
@@ -611,7 +628,7 @@
 
     function updateCartCount() {
       const cartCount = document.getElementById('cartCount');
-      cartCount.textContent = cart.length;
+      cartCount.textContent = cart.reduce((total, item) => total + item.quantity, 0);
     }
 
     function showCheckoutForm() {
@@ -636,12 +653,14 @@
 
     function openModal(itemId) {
       const item = document.querySelector(`.inventory-item[data-item-id="${itemId}"]`);
-      const image = item.querySelector('.product-image');
-      currentImages = image ? [image.src] : ['/images/placeholder.png'];
+      const images = item.dataset.images ? JSON.parse(item.dataset.images) : [];
+      currentImages = images.length > 0 ? images : ['/images/placeholder.png'];
+      
       const slider = document.getElementById('modalSlider');
       slider.innerHTML = currentImages.map((src, index) => `
-        <img src="${src}" class="modal-image ${index === 0 ? 'active' : ''}">
+        <img src="${src}" class="modal-image ${index === 0 ? 'active' : ''}" alt="Product Image ${index + 1}">
       `).join('');
+      
       currentSlide = 0;
       document.getElementById('imageModal').style.display = 'flex';
     }
@@ -652,16 +671,42 @@
 
     function changeSlide(direction) {
       const images = document.querySelectorAll('.modal-image');
+      if (images.length === 0) return;
+      
       currentSlide = (currentSlide + direction + images.length) % images.length;
       images.forEach((img, index) => {
         img.classList.toggle('active', index === currentSlide);
       });
     }
 
+    // Close modal when clicking outside
     window.addEventListener('click', (e) => {
       if (e.target.classList.contains('modal')) {
         closeModal();
       }
+    });
+
+    // Prevent event propagation for clicks inside product details
+    document.querySelectorAll('.product-details').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    // Initialize quantity inputs to prevent form submission
+    document.querySelectorAll('.quantity-input').forEach(input => {
+      input.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+    });
+
+    // Prevent form submission for demo purposes
+    document.getElementById('checkoutFormSubmit').addEventListener('submit', (e) => {
+      e.preventDefault();
+      alert('Order submitted successfully!');
+      cart = [];
+      updateCartCount();
+      hideCheckoutForm();
     });
   </script>
 </body>
