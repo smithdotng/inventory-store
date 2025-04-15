@@ -149,19 +149,64 @@ const logger = winston.createLogger({
   ]
 });
 
+
+
 // Ensure uploads directory exists
 const uploadsDir = path.join(__dirname, 'public', 'uploads');
 if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
 
-// Configure multer for file uploads
+// Multer storage configuration
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadsDir),
+  destination: (req, file, cb) => {
+    cb(null, 'public/uploads/');
+  },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
+    const username = req.session.admin || 'unknown';
+    const timestamp = Date.now();
+    const fileExt = path.extname(file.originalname);
+    cb(null, `${file.fieldname}-${username}-${timestamp}${fileExt}`);
   }
 });
-const upload = multer({ storage });
+
+// File filter for images
+const fileFilter = (req, file, cb) => {
+  const filetypes = /jpeg|jpg|png|gif|pdf/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+  if (extname && mimetype) {
+    cb(null, true);
+  } else {
+    cb(new Error('Only image and PDF files are allowed!'), false);
+  }
+};
+
+// Multer instance for multiple product images
+const uploadProductImages = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+}).array('productImages', 4);
+
+// Multer instance for single logo upload
+const uploadLogo = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+}).single('logo');
+
+// Multer instance for single invoice file upload
+const uploadInvoiceFile = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  }
+}).single('file');
+
 
 // Connect to MongoDB
 async function connectToMongo() {
@@ -307,11 +352,10 @@ app.get('/referrals/logout', (req, res) => {
 
 
 
-// In your /admin-register POST route
-app.post('/admin-register', upload.single('logo'), async (req, res) => {
+app.post('/admin-register', uploadLogo, async (req, res) => {
   const { businessName, email, currency, username, password, country, firstName, lastName } = req.body;
-  const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
   const referralCode = req.query.ref;
+  const logoPath = req.file ? `/uploads/${req.file.filename}` : '/images/default-logo.png'; // Default logo if none uploaded
 
   try {
     // Validate required fields
@@ -324,7 +368,8 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
         username,
         country,
         firstName,
-        lastName
+        lastName,
+        referralCode
       });
     }
 
@@ -339,7 +384,8 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
         username,
         country,
         firstName,
-        lastName
+        lastName,
+        referralCode
       });
     }
 
@@ -354,7 +400,8 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
         username,
         country,
         firstName,
-        lastName
+        lastName,
+        referralCode
       });
     }
 
@@ -405,7 +452,8 @@ app.post('/admin-register', upload.single('logo'), async (req, res) => {
       username,
       country,
       firstName,
-      lastName
+      lastName,
+      referralCode
     });
   }
 });
@@ -833,7 +881,7 @@ app.get('/superadmin/create-admin', isAuthenticated, isSuperAdmin, (req, res) =>
   res.render('create-admin', { error: null });
 });
 
-app.post('/superadmin/create-admin', upload.single('logo'), async (req, res) => {
+app.post('/superadmin/create-admin', isAuthenticated, isSuperAdmin, uploadLogo, async (req, res) => {
   const { username, password, role } = req.body;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
   const existingAdmin = await db.collection('admins').findOne({ username });
@@ -881,6 +929,9 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
   res.redirect('/home');
 });
 
+
+
+// GET /update-stock
 app.get('/update-stock', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
@@ -905,58 +956,122 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       admin, 
       username, 
       formatCurrency,
-      search: search || '' // Pass search term to template
+      search: search || '',
+      error: null,
+      success: null
     });
   } catch (error) {
     console.error('Error fetching inventory for update-stock:', error);
-    res.status(500).send('Internal Server Error');
+    res.render('update-stock', {
+      inventory: [],
+      admin: null,
+      username: req.session.admin,
+      formatCurrency,
+      search: '',
+      error: 'Failed to load inventory. Please try again.',
+      success: null
+    });
   }
 });
 
+// POST /update-stock
 app.post('/update-stock', isAuthenticated, async (req, res) => {
-  const { id, stock, cost, commission } = req.body;
+  const { _id, stock, cost, commission, search = '' } = req.body;
+  
   try {
-    const objectId = new ObjectId(id);
-    const updateData = {
-      stock: parseInt(stock),
-      cost: parseFloat(cost)
-    };
+    if (!_id) throw new Error('Item ID is required.');
     
-    // Only update commission if it's provided and not empty
-    if (commission !== undefined && commission !== '') {
-      updateData.commission = parseFloat(commission);
-    }
+    const stockNum = parseInt(stock);
+    const costNum = parseFloat(cost);
+    const commissionNum = commission !== undefined && commission !== '' ? parseFloat(commission) : null;
+
+    if (isNaN(stockNum) || stockNum < 0) throw new Error('Stock must be a non-negative number.');
+    if (isNaN(costNum) || costNum < 0) throw new Error('Cost must be a non-negative number.');
+    if (commissionNum !== null && (commissionNum < 0 || commissionNum > 100)) throw new Error('Commission must be between 0 and 100.');
+
+    const objectId = new ObjectId(_id);
+    const updateData = { stock: stockNum, cost: costNum };
+    if (commissionNum !== null) updateData.commission = commissionNum;
+
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) throw new Error('Admin not found.');
+
+    const item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
+    if (!item) throw new Error('Item not found or you do not have permission to update it.');
 
     const result = await db.collection('inventory').updateOne(
       { _id: objectId },
       { $set: updateData }
     );
-    
-    if (result.matchedCount === 0) return res.status(404).send('Item not found');
-    res.redirect('/update-stock');
+
+    if (result.matchedCount === 0) throw new Error('Item not found.');
+
+    res.redirect(`/update-stock?success=Item updated successfully${search ? `&search=${encodeURIComponent(search)}` : ''}`);
   } catch (error) {
     console.error('Error updating item:', error);
-    res.status(500).send('Error updating item');
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    let inventory = [];
+    if (admin) {
+      const query = { adminId: admin._id };
+      if (search) query.name = { $regex: search, $options: 'i' };
+      inventory = await db.collection('inventory').find(query).toArray();
+    }
+    res.render('update-stock', {
+      inventory,
+      admin: admin || null,
+      username: req.session.admin,
+      formatCurrency,
+      search: search || '',
+      error: error.message,
+      success: null
+    });
   }
-});;
+});
 
-app.post('/add-product', isAuthenticated, upload.single('productImage'), async (req, res) => {
-  const { name, stock, cost, commission } = req.body;
+// POST /add-product
+app.post('/add-product', isAuthenticated, uploadProductImages, async (req, res) => {
+  const { name, description, stock, cost, commission } = req.body;
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    if (!admin) return res.status(404).send('Admin not found.');
+    if (!admin) {
+      return res.render('update-stock', {
+        inventory: [],
+        admin: null,
+        username: req.session.admin,
+        formatCurrency,
+        search: '',
+        error: 'Admin not found.',
+        success: null
+      });
+    }
     
+    // Validate description length
+    if (description && description.length > 400) {
+      return res.render('update-stock', {
+        inventory: [],
+        admin: null,
+        username: req.session.admin,
+        formatCurrency,
+        search: '',
+        error: 'Description cannot exceed 400 characters.',
+        success: null
+      });
+    }
+
     const newProduct = {
       name,
+      description: description || '',
       stock: parseInt(stock),
       cost: parseFloat(cost),
       adminId: admin._id,
       createdAt: new Date()
     };
     
-    // Add image path if uploaded
-    if (req.file) {
-      newProduct.image = `/uploads/${req.file.filename}`;
+    // Add image paths if uploaded
+    if (req.files && req.files.length > 0) {
+      newProduct.images = req.files.map(file => `/uploads/${file.filename}`);
+    } else {
+      newProduct.images = [];
     }
     
     // Add commission if provided
@@ -968,7 +1083,40 @@ app.post('/add-product', isAuthenticated, upload.single('productImage'), async (
     res.redirect('/update-stock');
   } catch (error) {
     console.error('Error adding product:', error);
-    res.status(500).send('Error adding product.');
+    res.render('update-stock', {
+      inventory: [],
+      admin: null,
+      username: req.session.admin,
+      formatCurrency,
+      search: '',
+      error: 'Error adding product.',
+      success: null
+    });
+  }
+});
+
+app.post('/delete-stock', isAuthenticated, async (req, res) => {
+  const { _id } = req.body;
+  try {
+    const objectId = new ObjectId(_id);
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) throw new Error('Admin not found.');
+    const result = await db.collection('inventory').deleteOne({ _id: objectId, adminId: admin._id });
+    if (result.deletedCount === 0) throw new Error('Item not found or you do not have permission.');
+    res.redirect('/update-stock?success=Item deleted successfully');
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const inventory = admin ? await db.collection('inventory').find({ adminId: admin._id }).toArray() : [];
+    res.render('update-stock', {
+      inventory,
+      admin: admin || null,
+      username: req.session.admin,
+      formatCurrency,
+      search: '',
+      error: error.message,
+      success: null
+    });
   }
 });
 
@@ -976,6 +1124,16 @@ app.get('/create-outlet', isAuthenticated, async (req, res) => {
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   const username = req.session.admin;
   res.render('create-outlet', { error: null, admin, username });
+});
+
+app.post('/update-description', async (req, res) => {
+  try {
+      const { _id, description } = req.body;
+      await Product.findByIdAndUpdate(_id, { description });
+      res.json({ success: true });
+  } catch (error) {
+      res.status(500).json({ error: error.message });
+  }
 });
 
 // GET /profile
@@ -1010,7 +1168,7 @@ app.use((req, res, next) => {
 });
 
 // POST /profile/update
-app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, res) => {
+app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!admin) {
@@ -1019,6 +1177,8 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
     }
 
     const { 
+      firstName,
+      lastName,
       businessName, 
       currency, 
       phone, 
@@ -1032,11 +1192,14 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       secondaryBankName,
       facebook,
       instagram,
-      twitter
+      twitter,
+      croppedImageData // Added to handle cropped images
     } = req.body;
 
     // Prepare the update data object
     const updateData = {
+      firstName: firstName || admin.firstName,
+      lastName: lastName || admin.lastName,
       businessName: businessName || admin.businessName,
       currency: currency || admin.currency,
       country: country || admin.country,
@@ -1048,9 +1211,36 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       updatedAt: new Date()
     };
 
-    // Handle logo upload if present
+    // Handle logo update - prioritize file upload over cropped data
     if (req.file) {
+      // Delete old logo if it exists
+      if (admin.logo) {
+        const oldLogoPath = path.join(__dirname, 'public', admin.logo);
+        if (fs.existsSync(oldLogoPath)) {
+          fs.unlinkSync(oldLogoPath);
+        }
+      }
       updateData.logo = `/uploads/${req.file.filename}`;
+    } else if (croppedImageData) {
+      // Handle base64 image data from cropper
+      const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
+      const buffer = Buffer.from(base64Data, 'base64');
+      const username = req.session.admin || 'unknown';
+      const timestamp = Date.now();
+      const filename = `logo-${username}-${timestamp}.png`;
+      const filePath = path.join(uploadsDir, filename);
+
+      // Delete old logo if it exists
+      if (admin.logo) {
+        const oldLogoPath = path.join(__dirname, 'public', admin.logo);
+        if (fs.existsSync(oldLogoPath)) {
+          fs.unlinkSync(oldLogoPath);
+        }
+      }
+
+      // Save new logo
+      fs.writeFileSync(filePath, buffer);
+      updateData.logo = `/uploads/${filename}`;
     }
 
     // Prepare bank account updates
@@ -1076,6 +1266,15 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
     }
 
     // Validate social media URLs if provided
+    const isValidUrl = (url) => {
+      try {
+        new URL(url);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+
     if (facebook && !isValidUrl(facebook)) {
       req.session.error = 'Please enter a valid Facebook URL';
       return res.redirect('/profile');
@@ -1094,6 +1293,11 @@ app.post('/profile/update', isAuthenticated, upload.single('logo'), async (req, 
       { _id: admin._id },
       { $set: updateData }
     );
+
+    // Update session with new logo if changed
+    if (updateData.logo) {
+      req.session.adminLogo = updateData.logo;
+    }
 
     req.session.success = 'Profile updated successfully!';
     res.redirect('/profile');
@@ -1345,7 +1549,7 @@ app.post('/add-customer', isAuthenticated, async (req, res) => {
   }
 });
 
-app.post('/superadmin/edit-admin/:id', upload.single('logo'), async (req, res) => {
+app.post('/superadmin/edit-admin/:id', isAuthenticated, isSuperAdmin, uploadLogo, async (req, res) => {
   const adminId = req.params.id;
   const { username, password, role } = req.body;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : null;
@@ -2645,10 +2849,16 @@ app.get('/invoices/upload', isAuthenticated, (req, res) => {
   res.render('invoices-upload', { username: req.session.admin });
 });
 
-app.post('/invoices/upload', isAuthenticated, upload.single('file'), async (req, res) => {
+app.post('/invoices/upload', isAuthenticated, uploadInvoiceFile, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      return res.status(401).send('Unauthorized');
+    }
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!filePath) {
+      return res.status(400).send('No file uploaded');
+    }
     console.log('File uploaded:', filePath);
     res.redirect('/invoices');
   } catch (error) {
@@ -2657,11 +2867,16 @@ app.post('/invoices/upload', isAuthenticated, upload.single('file'), async (req,
   }
 });
 
-// Share target handler
-app.post('/invoices/share', isAuthenticated, upload.single('file'), async (req, res) => {
+app.post('/invoices/share', isAuthenticated, uploadInvoiceFile, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      return res.status(401).send('Unauthorized');
+    }
     const filePath = req.file ? `/uploads/${req.file.filename}` : null;
+    if (!filePath) {
+      return res.status(400).send('No file uploaded');
+    }
     console.log('File shared:', filePath);
     res.redirect('/invoices');
   } catch (error) {

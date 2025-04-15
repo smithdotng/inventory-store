@@ -1,22 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Profile | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
     <title>Profile</title>
-    
-    <!-- Now UI Kit CSS -->
-    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     
+    <!-- Cropper.js -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
+    
+    <!-- Now UI Dashboard CSS -->
+    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
+    <link href="assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
+
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -24,88 +35,75 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        :root {
-            --primary-color: #466c7b;
-            --secondary-color: #4CAF50;
-            --accent-color: #3498db;
-            --text-color: #333;
-            --light-bg: #f9f9f9;
-            --dark-bg: #2c3e50;
-            --table-band-color: #f1f1f1;
-        }
-
         body {
-            background-image: url('/images/bg.jpg');
+            background-image: url('images/bg.jpg');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
             margin: 0;
-            padding: 0;
         }
-
-        /* Sidebar styling */
-        .sidebar {
+        
+        /* New Sidebar */
+        .new-sidebar {
             width: 250px;
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
-            background: var(--primary-color);
+            background: darkcyan;
             color: white;
-            padding: 20px;
-            transition: all 0.3s;
-            z-index: 1000;
-            box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-top: 75px;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
         
-        .sidebar.collapsed {
+        .new-sidebar.collapsed {
             width: 80px;
-            overflow: hidden;
         }
         
-        .sidebar.collapsed .logo-container img {
+        .new-sidebar.collapsed .logo img {
             max-width: 50px;
         }
         
-        .sidebar.collapsed h2,
-        .sidebar.collapsed a span {
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
             display: none;
         }
         
-        .sidebar.collapsed a {
-            text-align: center;
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
             padding: 12px 5px;
         }
         
-        .sidebar.collapsed a i {
+        .new-sidebar.collapsed .nav-link i {
             margin-right: 0;
             font-size: 1.2rem;
         }
         
-        .sidebar .logo-container {
+        .new-sidebar .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
-        .sidebar .logo-container img {
+        .new-sidebar .logo img {
             max-width: 80%;
             height: auto;
-            transition: all 0.3s;
+            transition: max-width 0.3s ease;
         }
         
-        .sidebar h2 {
-            color: white;
+        .new-sidebar .greeting {
             font-size: 1.2rem;
-            margin-bottom: 30px;
             text-align: center;
-            transition: all 0.3s;
+            margin-bottom: 20px;
+            color: white;
         }
         
-        .sidebar a {
+        .new-sidebar .nav-link {
             display: flex;
             align-items: center;
             color: rgba(255, 255, 255, 0.8);
@@ -113,45 +111,33 @@
             margin-bottom: 5px;
             border-radius: 4px;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
-        .sidebar a i {
+        .new-sidebar .nav-link i {
             margin-right: 10px;
             font-size: 1rem;
         }
         
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+        .new-sidebar .nav-link:hover {
+            background: rgb(224, 235, 17);
+            color: darkcyan;
         }
         
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        .new-sidebar .nav-link.active {
+            background: rgb(224, 235, 17);
+            color: darkcyan;
             font-weight: bold;
         }
         
-        /* Main content */
-        .main-content {
-            margin-left: 250px;
-            transition: all 0.3s;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .sidebar.collapsed + .main-content {
-            margin-left: 80px;
-        }
-        
-        /* Toggle button */
-        .toggle-btn {
+        /* New Toggle Button */
+        .new-toggle-btn {
             position: fixed;
             top: 10px;
             left: 10px;
-            z-index: 1100;
-            background: var(--dark-bg);
-            color: white;
+            z-index: 3100;
+            background: rgb(224, 235, 17);
+            color: darkcyan;
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -162,637 +148,845 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            transition: left 0.3s ease;
         }
         
-        .sidebar.collapsed + .main-content .toggle-btn {
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
             left: 20px;
         }
-
-        /* Business Details Section */
-        .business-details-container {
+        
+        /* Main Container */
+        .main-container {
             display: flex;
-            justify-content: space-between;
-            background-color: rgba(0, 139, 139, 0.85);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            color: white;
-            margin-bottom: 50px;
-            border-left: 5px solid #4CAF50;
-            transition: all 0.3s ease;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: stretch;
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1000;
         }
-
-        .business-details-container:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-2px);
+        
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
         }
-
-        .business-logo {
-            width: 80px;
-            height: 80px;
-            background-color: white;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .business-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        .business-info {
-            flex-grow: 0;
-            text-align: right;
-        }
-
-        .business-info p {
-            margin: 5px 0;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .business-info p strong {
-            min-width: 120px;
-            display: inline-block;
-            color: #e0f7fa;
-            margin-left: 10px;
-        }
-
-        /* Profile Section */
-        .profile-section {
-            background: var(--light-bg);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .profile-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-
-        .profile-field {
-            margin-bottom: 15px;
-        }
-
-        .profile-field label {
-            display: block;
-            font-weight: 600;
-            color: var(--secondary-color);
-            margin-bottom: 5px;
-        }
-
-        .profile-field .value {
-            padding: 10px;
-            background: white;
-            border-radius: 4px;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
-        }
-
-        .profile-image-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .profile-image-frame {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            margin-bottom: 15px;
-        }
-
-        .profile-image-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-        }
-
-        .edit-form {
+        
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
             display: none;
-            margin-top: 30px;
         }
-
+        
+        .image-container {
+            flex: 0 0 40%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border-radius: 10px 0 0 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .registration-container {
+            flex: 0 0 60%;
+            max-width: 600px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .registration-card {
+            width: 100%;
+            border-radius: 0 10px 10px 0;
+            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: darkcyan;
+            border: 1px solid #e0e0e0;
+            z-index: 1000;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+        }
+        
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
         .form-group {
             margin-bottom: 15px;
         }
-
+        
         .form-group label {
+            color: white;
+            margin-bottom: 6px;
             display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
         }
-
-        .form-group input,
-        .form-group select {
+        
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #495057;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: calc(1.5em + 0.75rem + 2px);
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+            box-sizing: border-box;
         }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: var(--accent-color);
-            outline: none;
-            box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+        
+        .btn-create-account {
+            background-color: rgb(224, 235, 17);
+            width: 100%;
+            max-width: 300px;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
         }
-
-        .form-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .error-message {
-            color: #e74c3c;
-            background-color: #fdecea;
-            padding: 10px;
-            border-radius: 4px;
+        
+        .profile-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            border-left: 4px solid #e74c3c;
         }
-
-        .success-message {
-            color: #27ae60;
-            background-color: #e8f5e9;
+        
+        .profile-details .form-group {
+            margin-bottom: 10px;
+        }
+        
+        .profile-details .value {
+            background: #f8f9fa;
             padding: 10px;
             border-radius: 4px;
-            margin-bottom: 20px;
-            border-left: 4px solid #27ae60;
+            font-size: 13px;
+            color: #495057;
         }
-
-        /* Account Information Section */
+        
         .account-section {
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-top: 30px;
-        }
-
-        .account-section h3 {
-            color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
         }
-
-        .account-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
+        
+        .account-info .form-group {
+            margin-bottom: 10px;
         }
-
-        .account-card {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 6px;
-            border-left: 4px solid var(--accent-color);
+        
+        .social-links {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
         }
-
-        .account-card.primary {
-            border-left-color: var(--secondary-color);
+        
+        .social-links a {
+            color: rgb(224, 235, 17);
+            text-decoration: none;
+            margin: 0 10px;
         }
-
-        .account-card.secondary {
-            border-left-color: var(--accent-color);
-        }
-
-        .account-card h4 {
-            margin-top: 0;
-            color: var(--dark-bg);
+        
+        .form-actions {
             display: flex;
-            align-items: center;
-        }
-
-        .account-card h4 i {
-            margin-right: 8px;
-        }
-
-        .account-detail {
-            margin-bottom: 8px;
-        }
-
-        .account-detail label {
-            font-weight: 600;
-            color: var(--text-color);
-            display: block;
-            margin-bottom: 3px;
-        }
-
-        .account-detail .value {
-            padding: 8px;
-            background: white;
-            border-radius: 4px;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-        }
-
-        /* Social Media Links */
-        .social-media-links {
-            display: flex;
-            gap: 15px;
+            justify-content: center;
+            gap: 10px;
             margin-top: 20px;
+        }
+        
+        /* Cropper Modal */
+        .modal {
+            display: none;
+            z-index: 1050 !important; /* Higher than backdrop */
+        }
+        
+        .modal.show {
+            display: block;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            z-index: 3200;
+        }
+        
+        .modal-backdrop {
+            
+            z-index: 1040 !important; /* Lower than modal */
+        }
+        
+        .modal-header {
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .modal-title {
+            color: #495057;
+        }
+        
+        .modal-body img {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+        
+        .modal-footer {
+            border-top: 1px solid #e0e0e0;
             justify-content: center;
         }
-
-        .social-media-links a {
-            color: var(--primary-color);
-            font-size: 1.5rem;
-            transition: all 0.3s;
+        
+        /* Alerts */
+        .alert {
+            z-index: 1500;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .main-container {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .image-container {
+                flex: 0 0 100%;
+                max-width: 100%;
+                height: 200px;
+                border-radius: 10px 10px 0 0;
+                margin-bottom: 20px;
+            }
+            
+            .registration-container {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .registration-card {
+                border-radius: 0 0 10px 10px;
+            }
         }
 
-        .social-media-links a:hover {
-            transform: translateY(-3px);
-            opacity: 0.8;
-        }
-
-        .social-media-links .facebook:hover {
-            color: #3b5998;
-        }
-
-        .social-media-links .twitter:hover {
-            color: #1DA1F2;
-        }
-
-        .social-media-links .instagram:hover {
-            color: #E1306C;
-        }
-
-        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .sidebar {
+            .new-sidebar {
                 left: -250px;
             }
             
-            .sidebar.visible {
+            .new-sidebar.open {
                 left: 0;
             }
             
-            .main-content {
-                margin-left: 0 !important;
-                width: 100% !important;
-            }
-            
-            .sidebar.collapsed {
-                width: 250px;
-            }
-            
-            .sidebar.collapsed h2,
-            .sidebar.collapsed a span {
+            .new-sidebar.open + .main-container::before {
                 display: block;
             }
             
-            .sidebar.collapsed a {
-                text-align: left;
-                padding: 12px 15px;
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
+                width: 100%;
+                padding: 15px;
             }
             
-            .sidebar.collapsed a i {
-                margin-right: 10px;
+            .registration-container {
+                padding: 15px;
             }
             
-            .business-details-container {
+            .form-group label {
+                font-size: 14px;
+                padding-top: 8px;
+            }
+            
+            .form-control {
+                font-size: 14px;
+                padding: 0.5rem 0.75rem;
+                height: calc(1.5em + 1rem + 2px);
+            }
+            
+            .btn-create-account {
+                font-size: 14px;
+                padding: 10px 20px;
+            }
+            
+            .profile-details .value {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                min-width: 95%;
+                margin: 0 auto;
+            }
+
+            .image-container {
+                display: none;
+            }
+            
+            .registration-container {
+                padding: 10px;
+            }
+            
+            .registration-card {
+                border-radius: 10px;
+            }
+            
+            .card-body {
+                padding: 25px;
+            }
+            
+            .logo-container img {
+                height: 60px;
+            }
+            
+            .form-actions {
                 flex-direction: column;
-                text-align: center;
+                gap: 15px;
             }
             
-            .business-info {
-                text-align: center;
+            .btn-create-account {
+                max-width: 100%;
+                padding: 12px 20px;
             }
             
-            .business-info p {
-                justify-content: center;
+            .profile-details,
+            .account-section {
+                padding: 25px;
+            }
+            
+            .social-links {
+                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="nav-content">
-            <div class="logo-container">
-                <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-            </div>
-            <h2 class="text-white">Welcome, <%= username %>!</h2>
-            <a href="/pos"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-            <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-            <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-            <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-            <a href="/customers"><i class="fas fa-users"></i> <span>Customers</span></a>
-            <a href="/home"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-            <a href="/profile" class="active"><i class="fas fa-user"></i> <span>Profile</span></a>
-            <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    <!-- New Sidebar -->
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
         </div>
-    </div>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/profile" class="nav-link active"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
 
-    <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">
+    <!-- New Toggle Button -->
+    <button class="new-toggle-btn" id="newToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="container">
-            <!-- Business Details Container -->
-            <div class="business-details-container">
-                <div class="business-logo">
-                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
-                </div>
-                <div class="business-info">
-                    <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-                    <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
-                    <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-                </div>
-            </div>
-            <h1 class="text-center" style="color: #f9f9f9;">Profile Settings</h1>
-
-            <!-- Profile Section -->
-            <div class="profile-section">
-                <% if (error) { %>
-                    <div class="error-message"><%= error %></div>
-                <% } %>
-                <% if (success) { %>
-                    <div class="success-message"><%= success %></div>
-                <% } %>
-
-                <!-- View Mode -->
-                <div id="profileView">
-                    <div class="profile-image-container">
-                        <div class="profile-image-frame">
-                            <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Profile Logo">
-                        </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: white; font-size: 16px;">Profile Settings</h4>
                     </div>
 
-                    <div class="profile-details">
-                        <div class="profile-field">
-                            <label>Username</label>
-                            <div class="value"><%= admin.username %></div>
+                    <!-- Error/Success Messages -->
+                    <% if (error) { %>
+                        <div class="alert alert-danger" style="font-size: 13px;">
+                            <div class="container">
+                                <div class="alert-icon">
+                                    <i class="fa-solid fa-bell"></i>
+                                </div>
+                                <%= error %>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="profile-field">
-                            <label>Email</label>
-                            <div class="value"><%= admin.email %></div>
+                    <% } %>
+                    <% if (success) { %>
+                        <div class="alert alert-success" style="font-size: 13px;">
+                            <div class="container">
+                                <div class="alert-icon">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <%= success %>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </button>
+                            </div>
                         </div>
-                        <div class="profile-field">
-                            <label>Business Name</label>
-                            <div class="value"><%= admin.businessName || 'N/A' %></div>
-                        </div>
-                        <div class="profile-field">
-                            <label>Currency</label>
-                            <div class="value"><%= admin.currency || 'N/A' %></div>
-                        </div>
-                        <div class="profile-field">
-                            <label>Phone</label>
-                            <div class="value"><%= admin.phone || 'N/A' %></div>
-                        </div>
-                        <div class="profile-field">
-                            <label>Address</label>
-                            <div class="value"><%= admin.address || 'N/A' %></div>
-                        </div>
-                        <div class="profile-field">
-                            <label>Facebook</label>
-                            <div class="value"><%= admin.facebook || 'N/A' %></div>
-                        </div>
-                        <div class="profile-field">
-                            <label>Instagram</label>
-                            <div class="value"><%= admin.instagram || 'N/A' %></div>
-                        </div>
-                        <div class="profile-field">
-                            <label>Twitter</label>
-                            <div class="value"><%= admin.twitter || 'N/A' %></div>
-                        </div>
-                    </div>
-
-                    <!-- Social Media Links (if available) -->
-                    <% if (admin.facebook || admin.instagram || admin.twitter) { %>
-                    <div class="social-media-links">
-                        <% if (admin.facebook) { %>
-                            <a href="<%= admin.facebook %>" class="facebook" target="_blank"><i class="fab fa-facebook"></i></a>
-                        <% } %>
-                        <% if (admin.instagram) { %>
-                            <a href="<%= admin.instagram %>" class="instagram" target="_blank"><i class="fab fa-instagram"></i></a>
-                        <% } %>
-                        <% if (admin.twitter) { %>
-                            <a href="<%= admin.twitter %>" class="twitter" target="_blank"><i class="fab fa-twitter"></i></a>
-                        <% } %>
-                    </div>
                     <% } %>
 
-                    <!-- Account Information Section -->
-                    <div class="account-section">
-                        <h3><i class="fas fa-university"></i> Bank Account Information</h3>
-                        
-                        <div class="account-info">
-                            <!-- Primary Account -->
-                            <div class="account-card primary">
-                                <h4><i class="fas fa-star"></i> Primary Account</h4>
-                                <div class="account-detail">
-                                    <label>Account Name</label>
+                    <!-- View Mode -->
+                    <div id="profileView">
+                        <div class="profile-details">
+                            <div class="form-group">
+                                <label>First Name <i class="fa-solid fa-user"></i></label>
+                                <div class="value"><%= admin.firstName || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name <i class="fa-solid fa-user"></i></label>
+                                <div class="value"><%= admin.lastName || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Username <i class="fa-solid fa-user"></i></label>
+                                <div class="value"><%= admin.username %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Email <i class="fa-solid fa-envelope"></i></label>
+                                <div class="value"><%= admin.email %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Business Name <i class="fa-solid fa-building"></i></label>
+                                <div class="value"><%= admin.businessName || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Currency <i class="fa-solid fa-money-bill-wave"></i></label>
+                                <div class="value"><%= admin.currency || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone <i class="fa-solid fa-phone"></i></label>
+                                <div class="value"><%= admin.phone || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Address <i class="fa-solid fa-map-marker-alt"></i></label>
+                                <div class="value"><%= admin.address || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Facebook <i class="fa-brands fa-facebook"></i></label>
+                                <div class="value"><%= admin.facebook || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Instagram <i class="fa-brands fa-instagram"></i></label>
+                                <div class="value"><%= admin.instagram || 'N/A' %></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Twitter <i class="fa-brands fa-twitter"></i></label>
+                                <div class="value"><%= admin.twitter || 'N/A' %></div>
+                            </div>
+                        </div>
+
+                        <!-- Social Media Links -->
+                        <div class="social-links">
+                            <% if (admin.facebook) { %>
+                                <a href="<%= admin.facebook %>" target="_blank">Facebook</a>
+                            <% } %>
+                            <% if (admin.instagram) { %>
+                                <a href="<%= admin.instagram %>" target="_blank">Instagram</a>
+                            <% } %>
+                            <% if (admin.twitter) { %>
+                                <a href="<%= admin.twitter %>" target="_blank">Twitter</a>
+                            <% } %>
+                        </div>
+
+                        <!-- Account Information -->
+                        <div class="account-section">
+                            <h5 style="color: #495057; font-size: 14px; margin-bottom: 15px;">Bank Account Information</h5>
+                            <div class="account-info">
+                                <div class="form-group">
+                                    <label>Primary Account Name <i class="fa-solid fa-university"></i></label>
                                     <div class="value"><%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : 'N/A' %></div>
                                 </div>
-                                <div class="account-detail">
-                                    <label>Account Number</label>
+                                <div class="form-group">
+                                    <label>Primary Account Number <i class="fa-solid fa-university"></i></label>
                                     <div class="value"><%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : 'N/A' %></div>
                                 </div>
-                                <div class="account-detail">
-                                    <label>Bank Name</label>
+                                <div class="form-group">
+                                    <label>Primary Bank Name <i class="fa-solid fa-university"></i></label>
                                     <div class="value"><%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : 'N/A' %></div>
                                 </div>
-                            </div>
-                            
-                            <!-- Secondary Account -->
-                            <div class="account-card secondary">
-                                <h4><i class="fas fa-star-half-alt"></i> Secondary Account</h4>
-                                <div class="account-detail">
-                                    <label>Account Name</label>
+                                <div class="form-group">
+                                    <label>Secondary Account Name <i class="fa-solid fa-university"></i></label>
                                     <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : 'N/A' %></div>
                                 </div>
-                                <div class="account-detail">
-                                    <label>Account Number</label>
+                                <div class="form-group">
+                                    <label>Secondary Account Number <i class="fa-solid fa-university"></i></label>
                                     <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : 'N/A' %></div>
                                 </div>
-                                <div class="account-detail">
-                                    <label>Bank Name</label>
+                                <div class="form-group">
+                                    <label>Secondary Bank Name <i class="fa-solid fa-university"></i></label>
                                     <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : 'N/A' %></div>
                                 </div>
                             </div>
                         </div>
+
+                        <div class="form-actions">
+                            <button class="btn btn-round btn-create-account" id="editProfileBtn">
+                                Edit Profile <i class="fa-solid fa-edit"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="form-buttons">
-                        <button class="btn btn-primary btn-round" id="editProfileBtn">
-                            <i class="fas fa-edit mr-1"></i> Edit Profile
-                        </button>
+                    <!-- Edit Mode -->
+                    <div class="edit-form" id="profileEdit" style="display: none;">
+                        <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>First Name <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="firstName" class="form-control" value="<%= admin.firstName || '' %>" placeholder="First Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="lastName" class="form-control" value="<%= admin.lastName || '' %>" placeholder="Last Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Business Name <i class="fa-solid fa-building"></i></label>
+                                <input type="text" name="businessName" class="form-control" value="<%= admin.businessName || '' %>" placeholder="Business Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Currency <i class="fa-solid fa-money-bill-wave"></i></label>
+                                <select name="currency" class="form-control">
+                                    <option value="">Select Currency</option>
+                                    <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD</option>
+                                    <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
+                                    <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
+                                    <option value="NGN" <%= admin.currency === 'NGN' ? 'selected' : '' %>>NGN</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone <i class="fa-solid fa-phone"></i></label>
+                                <input type="text" name="phone" class="form-control" value="<%= admin.phone || '' %>" placeholder="Phone">
+                            </div>
+                            <div class="form-group">
+                                <label>Address <i class="fa-solid fa-map-marker-alt"></i></label>
+                                <input type="text" name="address" class="form-control" value="<%= admin.address || '' %>" placeholder="Address">
+                            </div>
+                            <div class="form-group">
+                                <label>Facebook URL <i class="fa-brands fa-facebook"></i></label>
+                                <input type="url" name="facebook" class="form-control" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/yourbusiness">
+                            </div>
+                            <div class="form-group">
+                                <label>Instagram URL <i class="fa-brands fa-instagram"></i></label>
+                                <input type="url" name="instagram" class="form-control" value="<%= admin.instagram || '' %>" placeholder="https://instagram.com/yourbusiness">
+                            </div>
+                            <div class="form-group">
+                                <label>Twitter URL <i class="fa-brands fa-twitter"></i></label>
+                                <input type="url" name="twitter" class="form-control" value="<%= admin.twitter || '' %>" placeholder="https://twitter.com/yourbusiness">
+                            </div>
+                            <div class="form-group">
+                                <label>Business Logo <i class="fa-solid fa-camera"></i></label>
+                                <div class="image-preview-container">
+                                    <div class="image-placeholder" id="imagePlaceholder">
+                                        <span>No image selected</span>
+                                    </div>
+                                    <img id="imagePreview" class="image-preview" src="<%= admin.logo || '#' %>" alt="Logo Preview" style="<%= admin.logo ? 'display: block;' : 'display: none;' %>">
+                                    <input type="file" id="logoInput" accept="image/*" class="d-none">
+                                    <input type="hidden" name="croppedImageData" id="croppedImageData">
+                                    <button type="button" class="btn btn-round btn-create-account" onclick="document.getElementById('logoInput').click()">
+                                        Choose Logo <i class="fa-solid fa-upload"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Primary Account Name <i class="fa-solid fa-university"></i></label>
+                                <input type="text" name="primaryBankAccountName" class="form-control" value="<%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : '' %>" placeholder="Account Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Primary Account Number <i class="fa-solid fa-university"></i></label>
+                                <input type="text" name="primaryAccountNumber" class="form-control" value="<%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : '' %>" placeholder="Account Number">
+                            </div>
+                            <div class="form-group">
+                                <label>Primary Bank Name <i class="fa-solid fa-university"></i></label>
+                                <input type="text" name="primaryBankName" class="form-control" value="<%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : '' %>" placeholder="Bank Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Account Name <i class="fa-solid fa-university"></i></label>
+                                <input type="text" name="secondaryBankAccountName" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : '' %>" placeholder="Account Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Account Number <i class="fa-solid fa-university"></i></label>
+                                <input type="text" name="secondaryAccountNumber" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : '' %>" placeholder="Account Number">
+                            </div>
+                            <div class="form-group">
+                                <label>Secondary Bank Name <i class="fa-solid fa-university"></i></label>
+                                <input type="text" name="secondaryBankName" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : '' %>" placeholder="Bank Name">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-round btn-create-account">
+                                    Save Changes <i class="fa-solid fa-save"></i>
+                                </button>
+                                <button type="button" class="btn btn-round btn-create-account" id="cancelEditBtn">
+                                    Cancel <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <!-- Edit Mode -->
-                <div class="edit-form" id="profileEdit">
-                    <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="businessName">Business Name</label>
-                            <input type="text" id="businessName" name="businessName" value="<%= admin.businessName || '' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="currency">Currency</label>
-                            <select id="currency" name="currency">
-                                <option value="">Select Currency</option>
-                                <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD</option>
-                                <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
-                                <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
-                                <option value="NGN" <%= admin.currency === 'NGN' ? 'selected' : '' %>>NGN</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone">Phone</label>
-                            <input type="text" id="phone" name="phone" value="<%= admin.phone || '' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Address</label>
-                            <input type="text" id="address" name="address" value="<%= admin.address || '' %>">
-                        </div>
-                        <div class="form-group">
-                            <label for="facebook">Facebook URL</label>
-                            <input type="url" id="facebook" name="facebook" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/yourbusiness">
-                        </div>
-                        <div class="form-group">
-                            <label for="instagram">Instagram URL</label>
-                            <input type="url" id="instagram" name="instagram" value="<%= admin.instagram || '' %>" placeholder="https://instagram.com/yourbusiness">
-                        </div>
-                        <div class="form-group">
-                            <label for="twitter">Twitter URL</label>
-                            <input type="url" id="twitter" name="twitter" value="<%= admin.twitter || '' %>" placeholder="https://twitter.com/yourbusiness">
-                        </div>
-                        <div class="form-group">
-                            <label for="logo">Business Logo</label>
-                            <input type="file" id="logo" name="logo" accept="image/*">
-                        </div>
-                        
-                        <!-- Primary Account Edit Fields -->
-                        <div class="account-section">
-                            <h3><i class="fas fa-university"></i> Primary Account</h3>
-                            <div class="form-group">
-                                <label for="primaryBankAccountName">Account Name</label>
-                                <input type="text" id="primaryBankAccountName" name="primaryBankAccountName" 
-                                       value="<%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : '' %>">
-                            </div>
-                            <div class="form-group">
-                                <label for="primaryAccountNumber">Account Number</label>
-                                <input type="text" id="primaryAccountNumber" name="primaryAccountNumber" 
-                                       value="<%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : '' %>">
-                            </div>
-                            <div class="form-group">
-                                <label for="primaryBankName">Bank Name</label>
-                                <input type="text" id="primaryBankName" name="primaryBankName" 
-                                       value="<%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : '' %>">
-                            </div>
-                        </div>
-                        
-                        <!-- Secondary Account Edit Fields -->
-                        <div class="account-section">
-                            <h3><i class="fas fa-university"></i> Secondary Account</h3>
-                            <div class="form-group">
-                                <label for="secondaryBankAccountName">Account Name</label>
-                                <input type="text" id="secondaryBankAccountName" name="secondaryBankAccountName" 
-                                       value="<%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : '' %>">
-                            </div>
-                            <div class="form-group">
-                                <label for="secondaryAccountNumber">Account Number</label>
-                                <input type="text" id="secondaryAccountNumber" name="secondaryAccountNumber" 
-                                       value="<%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : '' %>">
-                            </div>
-                            <div class="form-group">
-                                <label for="secondaryBankName">Bank Name</label>
-                                <input type="text" id="secondaryBankName" name="secondaryBankName" 
-                                       value="<%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : '' %>">
-                            </div>
-                        </div>
-                        
-                        <div class="form-buttons">
-                            <button type="submit" class="btn btn-success btn-round">
-                                <i class="fas fa-save mr-1"></i> Save Changes
-                            </button>
-                            <button type="button" class="btn btn-danger btn-round" id="cancelEditBtn">
-                                <i class="fas fa-times mr-1"></i> Cancel
-                            </button>
-                        </div>
-                    </form>
+        <div class="image-container">
+            <img src="assets/img/promo.jpg" alt="Promotional Image">
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div class="modal" id="cropModal" tabindex="-1" role="dialog" aria-labelledby="cropModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="cropModalLabel">Crop Logo</h5>
+                    <button type="button" class="close" id="cropModalCloseBtn" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <img id="imageToCrop" src="#" alt="Image to crop">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-round btn-create-account" id="cropButton">Crop & Save</button>
+                    <button type="button" class="btn btn-round btn-create-account" id="cropCancelButton">Cancel</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Now UI Kit JS -->
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/perfect-scrollbar/1.5.5/perfect-scrollbar.min.js"></script>
     <script src="assets/js/core/jquery.min.js"></script>
     <script src="assets/js/core/popper.min.js"></script>
     <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-kit.js"></script>
+    <script src="assets/js/now-ui-dashboard.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const mainContent = document.getElementById('mainContent');
-        const editProfileBtn = document.getElementById('editProfileBtn');
-        const cancelEditBtn = document.getElementById('cancelEditBtn');
-        const profileView = document.getElementById('profileView');
-        const profileEdit = document.getElementById('profileEdit');
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('newSidebar');
+            const toggleBtn = document.getElementById('newToggleBtn');
+            const mainContainer = document.querySelector('.main-container');
+            const editProfileBtn = document.getElementById('editProfileBtn');
+            const cancelEditBtn = document.getElementById('cancelEditBtn');
+            const profileView = document.getElementById('profileView');
+            const profileEdit = document.getElementById('profileEdit');
 
-        // Toggle sidebar visibility and collapse state
-        let isCollapsed = false;
-        
-        toggleBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                // Mobile behavior - simple toggle
-                sidebar.classList.toggle('visible');
-            } else {
-                // Desktop behavior - collapse/expand
-                isCollapsed = !isCollapsed;
-                if (isCollapsed) {
-                    sidebar.classList.add('collapsed');
+            let isCollapsed = false;
+            let isOpenOnMobile = false;
+
+            // Toggle sidebar
+            toggleBtn.addEventListener('click', () => {
+                if (window.innerWidth <= 768) {
+                    isOpenOnMobile = !isOpenOnMobile;
+                    if (isOpenOnMobile) {
+                        sidebar.classList.add('open');
+                        toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                    } else {
+                        sidebar.classList.remove('open');
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
                 } else {
+                    isCollapsed = !isCollapsed;
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                    }
+                }
+            });
+
+            // Close sidebar on outside click (mobile only)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                    if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                }
+            });
+
+            // Set initial sidebar state on load and resize
+            function setSidebarState() {
+                if (window.innerWidth <= 768) {
                     sidebar.classList.remove('collapsed');
+                    if (!isOpenOnMobile) {
+                        sidebar.classList.remove('open');
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                } else {
+                    sidebar.classList.remove('open');
+                    isOpenOnMobile = false;
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                    }
                 }
             }
-        });
+            setSidebarState();
+            window.addEventListener('resize', setSidebarState);
 
-        // Set initial sidebar state
-        function setSidebarState() {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('collapsed');
-                sidebar.classList.remove('visible');
+            // Toggle edit mode
+            editProfileBtn.addEventListener('click', () => {
+                profileView.style.display = 'none';
+                profileEdit.style.display = 'block';
+            });
+
+            cancelEditBtn.addEventListener('click', () => {
+                profileEdit.style.display = 'none';
+                profileView.style.display = 'block';
+                document.getElementById('updateProfileForm').reset();
+                document.getElementById('imagePreview').style.display = '<%= admin.logo ? "block" : "none" %>';
+                document.getElementById('imagePreview').src = '<%= admin.logo || "#" %>';
+                document.getElementById('imagePlaceholder').style.display = '<%= admin.logo ? "none" : "flex" %>';
+                document.getElementById('croppedImageData').value = '';
+            });
+
+            // Cropper.js logic
+            let cropper;
+            const cropModal = document.getElementById('cropModal');
+            const logoInput = document.getElementById('logoInput');
+            const imageToCrop = document.getElementById('imageToCrop');
+            const imagePreview = document.getElementById('imagePreview');
+            const imagePlaceholder = document.getElementById('imagePlaceholder');
+            const croppedImageData = document.getElementById('croppedImageData');
+
+            // Function to show modal
+const showModal = () => {
+    cropModal.style.display = 'block';
+    cropModal.classList.add('show');
+    cropModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    const backdrop = document.createElement('div');
+    backdrop.className = 'modal-backdrop fade show';
+    backdrop.style.zIndex = '1040'; // Lower than modal's z-index
+    backdrop.addEventListener('click', closeModal); // Close when clicking backdrop
+    document.body.appendChild(backdrop);
+};
+
+// Function to close modal
+const closeModal = () => {
+    cropModal.style.display = 'none';
+    cropModal.classList.remove('show');
+    cropModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    const backdrop = document.querySelector('.modal-backdrop');
+    if (backdrop) {
+        backdrop.remove();
+    }
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+};
+            logoInput.addEventListener('change', function(e) {
+                console.log('Logo input changed');
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        imageToCrop.src = event.target.result;
+                        showModal();
+                        setTimeout(() => {
+                            console.log('Initializing Cropper.js');
+                            if (cropper) {
+                                cropper.destroy();
+                            }
+                            cropper = new Cropper(imageToCrop, {
+                                aspectRatio: 1,
+                                viewMode: 1,
+                                autoCropArea: 0.8,
+                                responsive: true,
+                                zoomable: true,
+                                scalable: true,
+                                movable: true,
+                                background: true,
+                                minContainerHeight: 300,
+                            });
+                            console.log('Cropper.js initialized');
+                        }, 500);
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
+            });
+
+            // Event delegation for button clicks
+           // Handle crop button click
+document.addEventListener('click', function(e) {
+    if (e.target.closest('#cropButton')) {
+        console.log('Crop & Save button clicked');
+        try {
+            if (cropper) {
+                const canvas = cropper.getCroppedCanvas({
+                    width: 200,
+                    height: 200,
+                    imageSmoothingEnabled: true,
+                    imageSmoothingQuality: 'high',
+                });
+                const croppedDataUrl = canvas.toDataURL('image/png');
+                imagePreview.src = croppedDataUrl;
+                imagePreview.style.display = 'block';
+                imagePlaceholder.style.display = 'none';
+                croppedImageData.value = croppedDataUrl;
+                closeModal();
+                cropper.destroy();
+                cropper = null;
+                console.log('Image cropped and modal closed');
             } else {
-                sidebar.classList.remove('collapsed');
-                isCollapsed = false;
+                console.error('Cropper instance not found');
             }
+        } catch (error) {
+            console.error('Error in Crop & Save:', error);
         }
-        setSidebarState();
-        window.addEventListener('resize', setSidebarState);
+        return;
+    }
 
-        // Toggle edit mode
-        editProfileBtn.addEventListener('click', () => {
-            profileView.style.display = 'none';
-            profileEdit.style.display = 'block';
-        });
+    if (e.target.closest('#cropCancelButton') || e.target.closest('#cropModalCloseBtn')) {
+        console.log('Cancel button clicked');
+        closeModal();
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        imageToCrop.src = '#';
+        logoInput.value = '';
+        console.log('Crop modal hidden');
+        return;
+    }
+});
 
-        cancelEditBtn.addEventListener('click', () => {
-            profileEdit.style.display = 'none';
-            profileView.style.display = 'block';
+            // Debug all clicks to ensure they’re registering
+            document.addEventListener('click', (e) => {
+                console.log('Document clicked:', e.target);
+            });
         });
     </script>
 </body>

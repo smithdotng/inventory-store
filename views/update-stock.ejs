@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Update Stock | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
     <title>Update Stock</title>
-    
-    <!-- Now UI Kit CSS -->
-    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
     
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -24,88 +33,85 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        :root {
-            --primary-color: #466c7b;
-            --secondary-color: #4CAF50;
-            --accent-color: #3498db;
-            --text-color: #333;
-            --light-bg: #f9f9f9;
-            --dark-bg: #2c3e50;
-            --table-band-color: #f1f1f1;
-        }
-
         body {
             background-image: url('/images/bg.jpg');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
             margin: 0;
-            padding: 0;
         }
-
-        /* Sidebar styling */
-        .sidebar {
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+        
+        /* Sidebar */
+        .new-sidebar {
             width: 250px;
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
-            background: var(--primary-color);
+            background: darkcyan;
             color: white;
-            padding: 20px;
-            transition: all 0.3s;
-            z-index: 1000;
-            box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-top: 75px;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
         
-        .sidebar.collapsed {
+        .new-sidebar.collapsed {
             width: 80px;
-            overflow: hidden;
         }
         
-        .sidebar.collapsed .logo-container img {
+        .new-sidebar.collapsed .logo img {
             max-width: 50px;
         }
         
-        .sidebar.collapsed h2,
-        .sidebar.collapsed a span {
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
             display: none;
         }
         
-        .sidebar.collapsed a {
-            text-align: center;
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
             padding: 12px 5px;
         }
         
-        .sidebar.collapsed a i {
+        .new-sidebar.collapsed .nav-link i {
             margin-right: 0;
             font-size: 1.2rem;
         }
         
-        .sidebar .logo-container {
+        .new-sidebar .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
-        .sidebar .logo-container img {
+        .new-sidebar .logo img {
             max-width: 80%;
             height: auto;
-            transition: all 0.3s;
+            transition: max-width 0.3s ease;
         }
         
-        .sidebar h2 {
-            color: white;
+        .new-sidebar .greeting {
             font-size: 1.2rem;
-            margin-bottom: 30px;
             text-align: center;
-            transition: all 0.3s;
+            margin-bottom: 20px;
+            color: white;
         }
         
-        .sidebar a {
+        .new-sidebar .nav-link {
             display: flex;
             align-items: center;
             color: rgba(255, 255, 255, 0.8);
@@ -113,100 +119,33 @@
             margin-bottom: 5px;
             border-radius: 4px;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
-        .sidebar a i {
+        .new-sidebar .nav-link i {
             margin-right: 10px;
             font-size: 1rem;
         }
         
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+        .new-sidebar .nav-link:hover {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
         }
         
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        .new-sidebar .nav-link.active {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
             font-weight: bold;
         }
         
-        /* Main content */
-        .main-content {
-            margin-left: 250px;
-            transition: all 0.3s;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .sidebar.collapsed + .main-content {
-            margin-left: 80px;
-        }
-
-        /* Business Details Section */
-        .business-details-container {
-            display: flex;
-            justify-content: space-between;
-            background-color: rgba(0, 139, 139, 0.85);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            color: white;
-            margin-bottom: 50px;
-            border-left: 5px solid #4CAF50;
-            transition: all 0.3s ease;
-        }
-
-        .business-details-container:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .business-logo {
-            width: 80px;
-            height: 80px;
-            background-color: white;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .business-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        .business-info {
-            flex-grow: 0;
-            text-align: right;
-        }
-
-        .business-info p {
-            margin: 5px 0;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .business-info p strong {
-            min-width: 120px;
-            display: inline-block;
-            color: #e0f7fa;
-            margin-left: 10px;
-        }
-        
-        /* Toggle button */
-        .toggle-btn {
+        /* Toggle Button */
+        .new-toggle-btn {
             position: fixed;
             top: 10px;
             left: 10px;
-            z-index: 1100;
-            background: var(--dark-bg);
-            color: white;
+            z-index: 3100;
+            background: rgb(235, 166, 17);
+            color: darkcyan;
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -217,86 +156,317 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            transition: left 0.3s ease;
         }
         
-        .sidebar.collapsed + .main-content .toggle-btn {
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
             left: 20px;
         }
         
-        /* Search and Add Product Container */
-        .search-add-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 15px;
+        /* Main Container */
+        .main-container {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1000;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
-        /* Search Section */
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
+        }
+        
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .registration-container {
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .registration-card {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+        }
+        
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
+        }
+        
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: 38px;
+            width: 100%;
+            box-sizing: border-box;
+            border-right: none;
+        }
+        
+        .btn-create-account {
+            background-color: rgb(235, 166, 17); /* Primary button color */
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14); /* Darker orange for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.add-product-btn {
+            background-color: rgb(255, 204, 0); /* Bright yellow for Add Product */
+            color: #333;
+        }
+        
+        .btn-create-account.add-product-btn:hover {
+            background-color: rgb(230, 184, 0); /* Darker yellow for hover */
+            color: #333;
+        }
+        
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69); /* Green for Update */
+            color: #fff;
+        }
+        
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57); /* Darker green for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn {
+            background-color: rgb(220, 53, 69); /* Red for Delete */
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn:hover {
+            background-color: rgb(200, 48, 63); /* Darker red for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn {
+            background-color: rgb(108, 117, 125); /* Gray for Cancel */
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn:hover {
+            background-color: rgb(90, 98, 104); /* Darker gray for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.search-button {
+            background-color: rgb(0, 123, 255); /* Blue for Search */
+            color: #fff;
+            border: 1px solid #ced4da;
+            border-left: none;
+        }
+        
+        .btn-create-account.search-button:hover {
+            background-color: rgb(0, 105, 217); /* Darker blue for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.image-upload-btn {
+            background-color: rgb(111, 66, 193); /* Purple for Image Upload */
+            color: #fff;
+        }
+        
+        .btn-create-account.image-upload-btn:hover {
+            background-color: rgb(95, 56, 165); /* Darker purple for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.share-store-btn {
+            background-color: rgb(23, 162, 184); /* Cyan for Share Storefront */
+            color: #fff;
+        }
+        
+        .btn-create-account.share-store-btn:hover {
+            background-color: rgb(19, 138, 157); /* Darker cyan for hover */
+            color: #fff;
+        }
+        
+        .btn-create-account.edit-btn {
+            background-color: rgb(255, 193, 7); /* Amber for Edit */
+            color: #333;
+        }
+        
+        .btn-create-account.edit-btn:hover {
+            background-color: rgb(230, 174, 6); /* Darker amber for hover */
+            color: #333;
+        }
+        
+        .btn-create-account.clear-btn {
+            background-color: rgb(52, 58, 64); /* Dark gray for Clear */
+            color: #fff;
+        }
+        
+        .btn-create-account.clear-btn:hover {
+            background-color: rgb(44, 49, 54); /* Darker gray for hover */
+            color: #fff;
+        }
+        
         .search-section {
-            background: var(--light-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex-grow: 1;
-            max-width: 600px;
+            margin-bottom: 20px;
+        }
+        
+        .search-section form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
         }
         
         .search-section .form-group {
+            flex: 1;
             margin-bottom: 0;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+            position: relative;
         }
         
-        .search-section input {
-            flex-grow: 1;
-        }
-        
-        /* Add Product Button */
-        .add-product-btn {
-            background: var(--light-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
-        }
-        
-        /* Form Section Styling */
-        .form-section {
-            background: var(--light-bg);
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 600px;
+        .search-section .form-control {
             width: 100%;
-            box-sizing: border-box;
-            margin-left: auto;
-            margin-right: auto;
-            display: none; /* Hidden by default */
+            padding-right: 40px;
         }
         
-        /* Image preview styling */
+        .search-section .btn-create-account {
+            width: auto;
+            min-width: 100px;
+        }
+        
+        .search-button {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            color: #333;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .table td {
+            background-color: white;
+        }
+        
+        .product-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        
         .image-preview-container {
             margin-bottom: 20px;
             text-align: center;
         }
         
         .image-preview {
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 100px;
+            max-height: 100px;
             border-radius: 4px;
             border: 1px solid #ddd;
+            margin: 5px;
             display: none;
         }
         
         .image-placeholder {
             width: 200px;
-            height: 200px;
+            height: 100px;
             background-color: #f5f5f5;
             border: 2px dashed #ccc;
             border-radius: 4px;
@@ -312,407 +482,605 @@
             margin: 10px auto;
         }
         
-        /* Button styling */
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: #3e8e41;
-            border-color: #3e8e41;
-        }
-        
-        .btn-info {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-        
-        .btn-info:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-
-        /* Table section styling */
-        .table-section {
-            background: var(--light-bg);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        /* Product image thumbnail in table */
-        .product-thumbnail {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 10px;
-        }
-
-        /* Banded Table Styling */
-        .table tbody tr:nth-child(odd) {
-            background-color: var(--light-bg);
-        }
-        .table tbody tr:nth-child(even) {
-            background-color: var(--table-band-color);
-        }
-        .table tbody tr:hover {
-            background-color: #e9ecef;
-            transition: background-color 0.2s;
-        }
-
-        /* Form actions styling */
         .form-actions {
             display: flex;
             justify-content: center;
+            gap: 10px;
             margin-top: 20px;
         }
+        
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .description-input {
+            height: 60px;
+            resize: vertical;
+        }
+        
+        .image-previews {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-content h5 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-content p {
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
 
-        /* Responsive adjustments */
+        /* Description cell styling */
+        .description-cell {
+            cursor: pointer;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .description-cell:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+
+        /* Description modal styling */
+        .description-modal textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: vertical;
+        }
+        
+        /* Description Modal Styles */
+        #descriptionModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #descriptionModal .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        #descriptionModal textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        #descriptionModal .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .sidebar {
+            .new-sidebar {
                 left: -250px;
             }
             
-            .sidebar.visible {
+            .new-sidebar.open {
                 left: 0;
             }
             
-            .main-content {
-                margin-left: 0 !important;
-                width: 100% !important;
-            }
-            
-            .sidebar.collapsed {
-                width: 250px;
-            }
-            
-            .sidebar.collapsed h2,
-            .sidebar.collapsed a span {
+            .new-sidebar.open + .main-container::before {
                 display: block;
             }
             
-            .sidebar.collapsed a {
-                text-align: left;
-                padding: 12px 15px;
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
+                width: 100%;
+                padding: 15px;
             }
             
-            .sidebar.collapsed a i {
-                margin-right: 10px;
+            .registration-container {
+                padding: 15px;
+            }
+            
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+            
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
+            }
+            
+            .btn-create-account {
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
+            }
+            
+            .search-button {
+                width: 34px;
+                height: 34px;
+            }
+            
+            .table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .table th, .table td {
+                padding: 8px;
+                min-width: 100px; /* Ensure columns are wide enough */
+            }
+            
+            .table th:first-child, .table td:first-child {
+                min-width: 120px; /* Slightly wider for product name */
+            }
+            
+            .table th:nth-child(2), .table td:nth-child(2) {
+                min-width: 90px; /* Wider for description */
+            }
+            
+            .table th:nth-child(3), .table td:nth-child(3) {
+                min-width: 120px; /* For images */
+            }
+            
+            .table th:nth-child(7), .table td:nth-child(7) {
+                min-width: 150px; /* Wider for action buttons */
+            }
+            
+            .product-thumbnail {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .modal-content {
+                width: 95%;
+            }
+        }
+    
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                margin: 0 auto;
+            }
+            
+            .registration-container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .search-section form {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
             }
             
             .search-section .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
+                position: relative;
+                margin-bottom: 10px; /* Add space below the search input */
             }
             
-            .search-section .btn {
+            .search-section .form-control {
+                padding-right: 40px;
+                margin-bottom: 40px;
+            }
+            
+            .search-section .btn-create-account {
+                width: 100%;
+                min-width: unset;
+            }
+
+            .search-section .btn-create-account.clear-btn {
+                margin-top: 10px; /* Add space above the clear button */
+            }
+            
+            .search-button {
+                position: absolute;
+                right: 0;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .table th, .table td {
+                padding: 6px;
+                min-width: 90px; /* Slightly smaller but still wide enough */
+            }
+            
+            .table th:first-child, .table td:first-child {
+                min-width: 90px; /* Product name */
+            }
+            
+            .table th:nth-child(2), .table td:nth-child(2) {
+                min-width: 50px; /* Description */
+                max-width: 100px; /* Ensure it doesn't get too wide */
+                text-wrap: normal;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            
+            .table th:nth-child(3), .table td:nth-child(3) {
+                min-width: 150px; /* Images */
+            }
+            
+            .table th:nth-child(7), .table td:nth-child(7) {
+                min-width: 90px; /* Action buttons */
+            }
+    
+            .table th:nth-child(6), .table td:nth-child(6) {
+                max-width: 60px; /* Commission */
+            }
+            
+            .product-thumbnail {
+                width: 35px;
+                height: 35px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .button-group .btn-create-account {
                 width: 100%;
             }
             
-            .search-add-container {
-                flex-direction: column;
-            }
-            
-            .search-section, .add-product-btn {
-                width: 100%;
-                max-width: 100%;
-            }
-            
-            .business-details-container {
-                flex-direction: column;
-                text-align: center;
-                justify-content: center;
-            }
-            
-            .business-logo {
-                margin: 0 auto 15px;
-            }
-            
-            .business-info {
-                text-align: center;
-                width: 100%;
-            }
-            
-            .business-info p {
+            .image-previews {
                 flex-direction: column;
                 align-items: center;
-                justify-content: center;
             }
             
-            .business-info p strong {
-                min-width: auto;
-                margin: 0 0 5px 0;
+            .modal-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .modal-buttons .btn-create-account {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="nav-content">
-            <div class="logo-container">
-                <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-            </div>
-            <h2 class="text-white">Welcome, <%= username %>!</h2>
-            <a href="/pos"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-            <a href="/update-stock" class="active"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-            <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-            <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-            <a href="/customers"><i class="fas fa-users"></i> <span>Customers</span></a>
-            <a href="/home"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-            <a href="/profile"><i class="fas fa-user"></i> <span>Profile</span></a>
-            <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
         </div>
-    </div>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link active"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
 
     <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">
+    <button class="new-toggle-btn" id="newToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="container">
-            <!-- Business Details Container -->
-            <div class="business-details-container">
-                <div class="business-logo">
-                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
-                </div>
-                <div class="business-info">
-                    <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-                    <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
-                    <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-                </div>
-            </div>
-            <h1 class="text-center" style="color: #f9f9f9;">Update Stock</h1>
-
-            <!-- Search and Add Product Container -->
-            <div class="search-add-container">
-                <!-- Search Section -->
-                <div class="search-section">
-                    <form method="GET" action="/update-stock" class="form-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search by product name" value="<%= search || '' %>">
-                        <button type="submit" class="btn btn-primary btn-round">
-                            <i class="fas fa-search mr-1"></i> Search
-                        </button>
-                        <% if (search) { %>
-                            <a href="/update-stock" class="btn btn-danger btn-round">
-                                <i class="fas fa-times mr-1"></i> Clear
-                            </a>
-                        <% } %>
-                    </form>
-                </div>
-
-                <!-- Add Product Button -->
-                <div class="add-product-btn">
-                    <button id="addProductBtn" class="btn btn-primary btn-round">
-                        <i class="fas fa-plus mr-1"></i> Add Product
-                    </button>
-                </div>
-            </div>
-
-            <!-- Storefront Promotion Div -->
-            <div class="storefront-promo" style="background: var(--light-bg); padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 30px; text-align: center;">
-                <h3 style="color: var(--primary-color); margin-bottom: 15px;">Go Online with Your Inventory!</h3>
-                <p style="color: var(--text-color); margin-bottom: 20px;">
-                    Publish your inventory online and start selling directly to customers. Share your unique store link to reach more people!
-                </p>
-                <button id="shareStoreBtn" class="btn btn-info btn-round" onclick="shareStorefrontLink()">
-                    <i class="fas fa-share-alt mr-1"></i> Share Your Storefront
-                </button>
-            </div>
-
-            <!-- Form Section (Hidden by Default) -->
-            <div class="form-section" id="addProductForm">
-                <h2 class="h4 mb-4">Add New Product</h2>
-                <form action="/add-product" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>Product Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="Product Name" required>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: #333; font-size: 16px;">Update Stock for <%= admin.businessName || 'Your Business' %></h4>
+                        <p style="color: #333; font-size: 13px;">
+                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                        </p>
                     </div>
-                    
-                    <!-- Image Upload Section -->
-                    <div class="form-group">
-                        <label>Product Image</label>
-                        <div class="image-preview-container">
-                            <div class="image-placeholder" id="imagePlaceholder">
-                                <span>No image selected</span>
+
+                    <!-- Error/Success Messages -->
+                    <% if (error) { %>
+                        <div class="alert alert-danger" style="font-size: 13px;">
+                            <div class="container">
+                                <div class="alert-icon">
+                                    <i class="fa-solid fa-bell"></i>
+                                </div>
+                                <%= error %>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </button>
                             </div>
-                            <img id="imagePreview" class="image-preview" src="#" alt="Product Preview">
-                            <input type="file" name="productImage" id="productImage" class="d-none" accept="image/*">
-                            <button type="button" class="btn btn-info btn-round image-upload-btn" onclick="document.getElementById('productImage').click()">
-                                <i class="fas fa-upload mr-1"></i> Choose Image
-                            </button>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Initial Stock</label>
-                        <input type="number" name="stock" class="form-control" placeholder="Initial Stock" min="0" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Cost</label>
-                        <input type="number" name="cost" class="form-control" placeholder="Cost" min="0" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Commission %</label>
-                        <input type="number" name="commission" class="form-control" placeholder="Commission %" min="0" max="100" step="0.01">
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-success btn-round">
-                            <i class="fas fa-plus mr-1"></i> Add Product
-                        </button>
-                        <button type="button" id="cancelAddBtn" class="btn btn-danger btn-round ml-2">
-                            <i class="fas fa-times mr-1"></i> Cancel
-                        </button>
-                    </div>
-                </form>
-            </div>
+                    <% } %>
+                    <% if (success) { %>
+                        <div class="alert alert-success" style="font-size: 13px;">
+                            <div class="container">
+                                <div class="alert-icon">
+                                    <i class="fa-solid fa-check"></i>
+                                </div>
+                                <%= success %>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+                    <% } %>
 
-            <!-- Table Section -->
-            <div class="table-section">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="text-primary">
-                            <tr>
-                                <th>Product</th>
-                                <th>Stock</th>
-                                <th>Cost</th>
-                                <th>Commission</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% inventory.forEach(item => { %>
-                                <tr id="row-<%= item._id %>">
-                                    <td>
-                                        <% if (item.image) { %>
-                                            <img src="<%= item.image %>" class="product-thumbnail" alt="<%= item.name %>">
-                                        <% } %>
-                                        <%= item.name %>
-                                    </td>
-                                    <td>
-                                        <input type="number" class="form-control stock-input" value="<%= item.stock %>" disabled>
-                                    </td>
-                                    <td>
-                                        <span class="cost-display"><%= admin.currency %><%= formatCurrency(item.cost) %></span>
-                                        <input type="number" class="form-control cost-input" value="<%= item.cost %>" step="0.01" disabled style="display: none;">
-                                    </td>
-                                    <td>
-                                        <span class="commission-display"><%= item.commission || '0' %>%</span>
-                                        <input type="number" class="form-control commission-input" value="<%= item.commission || '' %>" min="0" max="100" step="0.01" disabled style="display: none;">
-                                    </td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-info btn-sm btn-round edit-btn" onclick="toggleEdit('<%= item._id %>')">
-                                                <i class="fas fa-edit mr-1"></i> Edit
-                                            </button>
-                                            <form action="/update-stock" method="POST" style="display:inline;">
-                                                <input type="hidden" name="id" value="<%= item._id %>">
-                                                <input type="hidden" name="stock" class="stock-input" value="<%= item.stock %>">
-                                                <input type="hidden" name="cost" class="cost-input" value="<%= item.cost %>">
-                                                <input type="hidden" name="commission" class="commission-input" value="<%= item.commission || '' %>">
-                                                <button type="button" class="btn btn-success btn-sm btn-round update-btn" style="display:none;" onclick="updateHiddenInputs('<%= item._id %>')">
-                                                    <i class="fas fa-check mr-1"></i> Update
-                                                </button>
-                                            </form>
-                                            <button class="btn btn-danger btn-sm btn-round cancel-btn" style="display:none;" onclick="cancelEdit('<%= item._id %>', '<%= item.stock %>', '<%= item.cost %>', '<%= item.commission || "" %>')">
-                                                <i class="fas fa-times mr-1"></i> Cancel
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
+                    <!-- Search Section -->
+                    <div class="search-section">
+                        <form method="GET" action="/update-stock">
+                            <div class="form-group">
+                                <label>Search Products <i class="fa-solid fa-search"></i></label>
+                                <div style="position: relative; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                    <div style="position: relative; flex: 1;">
+                                        <input type="text" name="search" class="form-control" placeholder="Search by product name" value="<%= search || '' %>">
+                                        <button type="submit" class="btn btn-round btn-create-account search-button">
+                                            <i class="fa-solid fa-search"></i>
+                                        </button>
+                                    </div>
+                                    <% if (search) { %>
+                                        <a href="/update-stock" class="btn btn-round btn-create-account clear-btn">
+                                            Clear <i class="fa-solid fa-times"></i>
+                                        </a>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Form Section (Hidden by Default) -->
+                    <div class="form-section" id="addProductForm" style="display: none;">
+                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Add New Product</h5>
+                        <form action="/add-product" method="POST" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label>Product Name <i class="fa-solid fa-box"></i></label>
+                                <input type="text" name="name" class="form-control" placeholder="Product Name" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Description (max 400 characters) <i class="fa-solid fa-info-circle"></i></label>
+                                <textarea name="description" class="form-control description-input" placeholder="Product description" maxlength="400"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Product Images (up to 4) <i class="fa-solid fa-camera"></i></label>
+                                <div class="image-preview-container">
+                                    <div class="image-placeholder" id="imagePlaceholder">
+                                        <span>No images selected</span>
+                                    </div>
+                                    <div class="image-previews" id="imagePreviews">
+                                        <img id="imagePreview1" class="image-preview" src="#" alt="Product Preview 1">
+                                        <img id="imagePreview2" class="image-preview" src="#" alt="Product Preview 2">
+                                        <img id="imagePreview3" class="image-preview" src="#" alt="Product Preview 3">
+                                        <img id="imagePreview4" class="image-preview" src="#" alt="Product Preview 4">
+                                    </div>
+                                    <input type="file" name="productImages" id="productImages" class="d-none" accept="image/*" multiple>
+                                    <button type="button" class="btn btn-round btn-create-account image-upload-btn" onclick="document.getElementById('productImages').click()">
+                                        Choose Images <i class="fa-solid fa-upload"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Initial Stock <i class="fa-solid fa-cubes"></i></label>
+                                <input type="number" name="stock" class="form-control" placeholder="Initial Stock" min="0" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Cost <i class="fa-solid fa-money-bill"></i></label>
+                                <input type="number" name="cost" class="form-control" placeholder="Cost" min="0" step="0.01" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Commission % <i class="fa-solid fa-percentage"></i></label>
+                                <input type="number" name="commission" class="form-control" placeholder="Commission %" min="0" max="100" step="0.01">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-round btn-create-account add-product-btn">
+                                    Add Product <i class="fa-solid fa-plus"></i>
+                                </button>
+                                <button type="button" id="cancelAddBtn" class="btn btn-round btn-create-account cancel-btn">
+                                    Cancel <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Add Product and Storefront Buttons -->
+                    <div class="button-group">
+                        <button id="addProductBtn" class="btn btn-round btn-create-account add-product-btn">
+                            Add Product <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <button id="shareStoreBtn" class="btn btn-round btn-create-account share-store-btn">
+                            Share Your Storefront <i class="fa-solid fa-share-alt"></i>
+                        </button>
+                    </div>
+
+                    <!-- Table Section -->
+                    <div class="table-section">
+                        <% if (inventory && inventory.length > 0) { %>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Product</th>
+                                        <th>Description</th>
+                                        <th>Images</th>
+                                        <th>Stock</th>
+                                        <th>Cost</th>
+                                        <th>Commission</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% inventory.forEach(item => { %>
+                                        <tr id="row-<%= item._id %>">
+                                            <td><%= item.name || 'N/A' %></td>
+                                            <td class="description-cell" data-id="<%= item._id %>" data-description="<%= item.description || '' %>">
+                                                <%= item.description ? (item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description) : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <% if (item.images && item.images.length > 0) { %>
+                                                    <% item.images.forEach(image => { %>
+                                                        <img src="<%= image %>" class="product-thumbnail" alt="<%= item.name || 'Product' %>">
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    No images
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <input type="number" class="form-control stock-input" value="<%= item.stock %>" min="0" disabled>
+                                            </td>
+                                            <td>
+                                                <span class="cost-display"><%= admin.currency || '' %><%= formatCurrency(item.cost) %></span>
+                                                <input type="number" class="form-control cost-input" value="<%= item.cost %>" min="0" step="0.01" disabled style="display: none;">
+                                            </td>
+                                            <td>
+                                                <span class="commission-display"><%= item.commission || '0' %>%</span>
+                                                <input type="number" class="form-control commission-input" value="<%= item.commission || '0' %>" min="0" max="100" step="0.01" disabled style="display: none;">
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <button class="btn btn-round btn-create-account edit-btn" data-id="<%= item._id %>">
+                                                        Edit <i class="fa-solid fa-edit"></i>
+                                                    </button>
+                                                    <form action="/update-stock" method="POST" class="update-form">
+                                                        <input type="hidden" name="_id" value="<%= item._id %>">
+                                                        <input type="hidden" name="stock" class="hidden-stock">
+                                                        <input type="hidden" name="cost" class="hidden-cost">
+                                                        <input type="hidden" name="commission" class="hidden-commission">
+                                                        <input type="hidden" name="search" value="<%= search || '' %>">
+                                                        <button type="submit" class="btn btn-round btn-create-account update-btn" style="display: none;">
+                                                            Update <i class="fa-solid fa-check"></i>
+                                                        </button>
+                                                        <button type="button" class="btn btn-round btn-create-account cancel-btn" style="display: none;" data-stock="<%= item.stock %>" data-cost="<%= item.cost %>" data-commission="<%= item.commission || '0' %>">
+                                                            Cancel <i class="fa-solid fa-times"></i>
+                                                        </button>
+                                                    </form>
+                                                    <button class="btn btn-round btn-create-account delete-btn" data-id="<%= item._id %>" data-name="<%= item.name ? item.name.replace(/'/g, "\\'") : 'Item' %>">
+                                                        Delete <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <p style="text-align: center; color: #333;">No inventory items found.</p>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Now UI Kit JS -->
-    <script src="assets/js/core/jquery.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-kit.js"></script>
+    <!-- Description Modal -->
+    <div id="descriptionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h5>Edit Description</h5>
+            <div class="description-modal">
+                <textarea id="descriptionTextarea" class="form-control" maxlength="400"></textarea>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cancelDescriptionEdit">
+                    Cancel <i class="fa-solid fa-times"></i>
+                </button>
+                <button type="button" class="btn btn-round btn-create-account update-btn" id="saveDescription">
+                    Save <i class="fa-solid fa-check"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
 
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const mainContent = document.getElementById('mainContent');
-        const addProductBtn = document.getElementById('addProductBtn');
-        const addProductForm = document.getElementById('addProductForm');
-        const cancelAddBtn = document.getElementById('cancelAddBtn');
-
-        // Toggle sidebar visibility and collapse state
-        let isCollapsed = false;
-        
-        toggleBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                // Mobile behavior - simple toggle
-                sidebar.classList.toggle('visible');
-            } else {
-                // Desktop behavior - collapse/expand
-                isCollapsed = !isCollapsed;
-                if (isCollapsed) {
-                    sidebar.classList.add('collapsed');
-                } else {
-                    sidebar.classList.remove('collapsed');
-                }
-            }
-        });
-
-        // Set initial sidebar state
-        function setSidebarState() {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('collapsed');
-                sidebar.classList.remove('visible');
-            } else {
-                sidebar.classList.remove('collapsed');
-                isCollapsed = false;
-            }
-        }
-        setSidebarState();
-        window.addEventListener('resize', setSidebarState);
-
-        // Toggle Add Product form visibility
-        addProductBtn.addEventListener('click', () => {
-            addProductForm.style.display = 'block';
-            addProductBtn.style.display = 'none';
-        });
-
-        cancelAddBtn.addEventListener('click', () => {
-            addProductForm.style.display = 'none';
-            addProductBtn.style.display = 'block';
-            addProductForm.querySelector('form').reset(); // Reset form fields
-            // Reset image preview
-            document.getElementById('imagePreview').style.display = 'none';
-            document.getElementById('imagePreview').src = '#';
-            document.getElementById('imagePlaceholder').style.display = 'flex';
-        });
-
-        // Image preview functionality
-        document.getElementById('productImage').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const preview = document.getElementById('imagePreview');
-                    preview.src = event.target.result;
-                    preview.style.display = 'block';
-                    document.getElementById('imagePlaceholder').style.display = 'none';
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-
         // Table editing functions
         function toggleEdit(id) {
             const row = document.getElementById(`row-${id}`);
+            if (!row) return;
             const stockInput = row.querySelector('.stock-input');
             const costDisplay = row.querySelector('.cost-display');
             const costInput = row.querySelector('.cost-input');
@@ -722,9 +1090,12 @@
             const updateBtn = row.querySelector('.update-btn');
             const cancelBtn = row.querySelector('.cancel-btn');
 
+            // Enable inputs
             stockInput.disabled = false;
             costInput.disabled = false;
             commissionInput.disabled = false;
+
+            // Toggle visibility
             costDisplay.style.display = 'none';
             costInput.style.display = 'inline-block';
             commissionDisplay.style.display = 'none';
@@ -732,26 +1103,29 @@
             editBtn.style.display = 'none';
             updateBtn.style.display = 'inline-block';
             cancelBtn.style.display = 'inline-block';
+
+            // Initialize hidden inputs
+            updateHiddenInputs(id);
         }
 
         function updateHiddenInputs(id) {
             const row = document.getElementById(`row-${id}`);
+            if (!row) return;
             const stockInput = row.querySelector('.stock-input');
             const costInput = row.querySelector('.cost-input');
             const commissionInput = row.querySelector('.commission-input');
-            const hiddenStock = row.querySelector('input[name="stock"]');
-            const hiddenCost = row.querySelector('input[name="cost"]');
-            const hiddenCommission = row.querySelector('input[name="commission"]');
-            const form = row.querySelector('form');
+            const hiddenStock = row.querySelector('.hidden-stock');
+            const hiddenCost = row.querySelector('.hidden-cost');
+            const hiddenCommission = row.querySelector('.hidden-commission');
 
             hiddenStock.value = stockInput.value;
             hiddenCost.value = costInput.value;
-            hiddenCommission.value = commissionInput.value;
-            form.submit();
+            hiddenCommission.value = commissionInput.value || '0';
         }
 
-        function cancelEdit(id, originalStock, originalCost, originalCommission) {
+        function cancelEdit(id) {
             const row = document.getElementById(`row-${id}`);
+            if (!row) return;
             const stockInput = row.querySelector('.stock-input');
             const costDisplay = row.querySelector('.cost-display');
             const costInput = row.querySelector('.cost-input');
@@ -761,16 +1135,21 @@
             const updateBtn = row.querySelector('.update-btn');
             const cancelBtn = row.querySelector('.cancel-btn');
 
-            stockInput.value = originalStock;
-            costInput.value = originalCost;
-            commissionInput.value = originalCommission;
+            // Revert inputs using data attributes
+            stockInput.value = cancelBtn.dataset.stock;
+            costInput.value = cancelBtn.dataset.cost;
+            commissionInput.value = cancelBtn.dataset.commission;
+
+            // Disable inputs
             stockInput.disabled = true;
             costInput.disabled = true;
             commissionInput.disabled = true;
-            costDisplay.textContent = '<%= admin.currency %>' + Number(originalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            // Toggle visibility
+            costDisplay.textContent = '<%= admin.currency || '' %>' + Number(cancelBtn.dataset.cost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             costDisplay.style.display = 'inline';
             costInput.style.display = 'none';
-            commissionDisplay.textContent = (originalCommission || '0') + '%';
+            commissionDisplay.textContent = (cancelBtn.dataset.commission || '0') + '%';
             commissionDisplay.style.display = 'inline';
             commissionInput.style.display = 'none';
             editBtn.style.display = 'inline-block';
@@ -778,19 +1157,40 @@
             cancelBtn.style.display = 'none';
         }
 
-        // Share Storefront Link Function
+        function showDeleteModal(id, name) {
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h5>Delete ${name}?</h5>
+                    <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+                    <div class="modal-buttons">
+                        <button class="btn btn-round btn-create-account cancel-btn" type="button">Cancel <i class="fa-solid fa-times"></i></button>
+                        <form action="/delete-stock" method="POST">
+                            <input type="hidden" name="_id" value="${id}">
+                            <input type="hidden" name="search" value="<%= search || '' %>">
+                            <button type="submit" class="btn btn-round btn-create-account delete-btn">Delete <i class="fa-solid fa-trash"></i></button>
+                        </form>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Add event listener for Cancel button
+            modal.querySelector('.modal-buttons button[type="button"]').addEventListener('click', () => {
+                modal.remove();
+            });
+        }
+
         function shareStorefrontLink() {
             const storeUrl = `${window.location.origin}/store/<%= username %>`;
             if (navigator.share) {
-                // Use Web Share API if available (mobile devices)
                 navigator.share({
                     title: '<%= admin.businessName || "My Store" %> - Shop Now',
                     text: 'Check out my online store on Shed!',
                     url: storeUrl
-                }).then(() => console.log('Storefront shared successfully'))
-                  .catch((error) => console.error('Error sharing storefront:', error));
+                }).catch((error) => console.error('Error sharing storefront:', error));
             } else {
-                // Fallback: Copy to clipboard
                 navigator.clipboard.writeText(storeUrl).then(() => {
                     alert('Storefront link copied to clipboard: ' + storeUrl);
                 }).catch((error) => {
@@ -799,6 +1199,282 @@
                 });
             }
         }
+
+        // Description modal functionality
+        let currentDescriptionId = null;
+
+        function showDescriptionModal(id, description) {
+            currentDescriptionId = id;
+            const modal = document.getElementById('descriptionModal');
+            const textarea = document.getElementById('descriptionTextarea');
+            textarea.value = description || '';
+            modal.style.display = 'flex';
+        }
+
+        function hideDescriptionModal() {
+            const modal = document.getElementById('descriptionModal');
+            modal.style.display = 'none';
+            currentDescriptionId = null;
+        }
+
+        function saveDescription() {
+            if (!currentDescriptionId) return;
+            
+            const textarea = document.getElementById('descriptionTextarea');
+            const newDescription = textarea.value;
+            
+            // Update the display in the table
+            const descriptionCell = document.querySelector(`.description-cell[data-id="${currentDescriptionId}"]`);
+            if (descriptionCell) {
+                descriptionCell.dataset.description = newDescription;
+                descriptionCell.textContent = newDescription ? 
+                    (newDescription.length > 50 ? newDescription.substring(0, 50) + '...' : newDescription) : 
+                    'N/A';
+            }
+            
+            // Send update to server
+            fetch('/update-description', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    _id: currentDescriptionId,
+                    description: newDescription,
+                    search: '<%= search || "" %>'
+                })
+            }).then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update description');
+                }
+                return response.json();
+            }).then(data => {
+                if (data.error) {
+                    alert('Error updating description: ' + data.error);
+                } else {
+                    hideDescriptionModal();
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+                alert('Error updating description');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const sidebar = document.getElementById('newSidebar');
+                const toggleBtn = document.getElementById('newToggleBtn');
+                const addProductBtn = document.getElementById('addProductBtn');
+                const addProductForm = document.getElementById('addProductForm');
+                const cancelAddBtn = document.getElementById('cancelAddBtn');
+                const productImagesInput = document.getElementById('productImages');
+                const imagePreviewsContainer = document.getElementById('imagePreviews');
+                const imagePlaceholder = document.getElementById('imagePlaceholder');
+                const shareStoreBtn = document.getElementById('shareStoreBtn');
+
+                let isCollapsed = false;
+                let isOpenOnMobile = false;
+
+                // Toggle sidebar
+                if (toggleBtn && sidebar) {
+                    toggleBtn.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            isOpenOnMobile = !isOpenOnMobile;
+                            if (isOpenOnMobile) {
+                                sidebar.classList.add('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            } else {
+                                sidebar.classList.remove('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                            }
+                        } else {
+                            isCollapsed = !isCollapsed;
+                            if (isCollapsed) {
+                                sidebar.classList.add('collapsed');
+                            } else {
+                                sidebar.classList.remove('collapsed');
+                            }
+                        }
+                    });
+                }
+
+                // Close sidebar on outside click (mobile only)
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                            isOpenOnMobile = false;
+                            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    }
+                });
+
+                // Set initial sidebar state
+                function setSidebarState() {
+                    if (!sidebar || !toggleBtn) return;
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('collapsed');
+                        if (!isOpenOnMobile) {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    } else {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
+                    }
+                }
+                setSidebarState();
+                window.addEventListener('resize', setSidebarState);
+
+                // Toggle Add Product form
+                if (addProductBtn && addProductForm) {
+                    addProductBtn.addEventListener('click', () => {
+                        addProductForm.style.display = 'block';
+                        document.querySelector('.button-group').style.display = 'none';
+                        document.querySelector('.search-section form').style.display = 'none';
+                    });
+                }
+
+                if (cancelAddBtn && addProductForm) {
+                    cancelAddBtn.addEventListener('click', () => {
+                        addProductForm.style.display = 'none';
+                        document.querySelector('.button-group').style.display = 'flex';
+                        document.querySelector('.search-section form').style.display = 'flex';
+                        addProductForm.querySelector('form').reset();
+                        if (imagePreviewsContainer) {
+                            for (let i = 1; i <= 4; i++) {
+                                const preview = document.getElementById(`imagePreview${i}`);
+                                if (preview) {
+                                    preview.style.display = 'none';
+                                    preview.src = '#';
+                                }
+                            }
+                        }
+                        if (imagePlaceholder) imagePlaceholder.style.display = 'flex';
+                        if (productImagesInput) productImagesInput.value = '';
+                    });
+                }
+
+                // Image preview
+                if (productImagesInput && imagePreviewsContainer && imagePlaceholder) {
+                    productImagesInput.addEventListener('change', function(e) {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                            const validFiles = Array.from(files).slice(0, 4);
+                            if (validFiles.length > 0) {
+                                imagePlaceholder.style.display = 'none';
+                            }
+                            for (let i = 0; i < 4; i++) {
+                                const preview = document.getElementById(`imagePreview${i + 1}`);
+                                if (!preview) continue;
+                                if (i < validFiles.length) {
+                                    const reader = new FileReader();
+                                    reader.onload = function(event) {
+                                        preview.src = event.target.result;
+                                        preview.style.display = 'block';
+                                    };
+                                    reader.readAsDataURL(validFiles[i]);
+                                } else {
+                                    preview.style.display = 'none';
+                                    preview.src = '#';
+                                }
+                            }
+                        } else {
+                            imagePlaceholder.style.display = 'flex';
+                            for (let i = 1; i <= 4; i++) {
+                                const preview = document.getElementById(`imagePreview${i}`);
+                                if (preview) preview.style.display = 'none';
+                            }
+                        }
+                    });
+                }
+
+                // Edit buttons
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.dataset.id;
+                        toggleEdit(id);
+                    });
+                });
+
+                // Cancel buttons
+                document.querySelectorAll('.cancel-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.closest('tr').id.replace('row-', '');
+                        cancelEdit(id);
+                    });
+                });
+
+                // Delete buttons
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        const id = button.dataset.id;
+                        const name = button.dataset.name;
+                        showDeleteModal(id, name);
+                    });
+                });
+
+                // Update hidden inputs on change
+                document.querySelectorAll('.stock-input, .cost-input, .commission-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const row = this.closest('tr');
+                        if (row) {
+                            const id = row.id.replace('row-', '');
+                            updateHiddenInputs(id);
+                        }
+                    });
+                });
+
+                // Client-side validation for updates
+                document.querySelectorAll('.update-form').forEach(form => {
+                    form.addEventListener('submit', (e) => {
+                        const stockInput = form.querySelector('.stock-input');
+                        const costInput = form.querySelector('.cost-input');
+                        const commissionInput = form.querySelector('.commission-input');
+                        if (!stockInput || !costInput || !commissionInput) return;
+                        const stock = stockInput.value;
+                        const cost = costInput.value;
+                        const commission = commissionInput.value;
+                        if (stock < 0) {
+                            alert('Stock cannot be negative.');
+                            e.preventDefault();
+                        }
+                        if (cost < 0) {
+                            alert('Cost cannot be negative.');
+                            e.preventDefault();
+                        }
+                        if (commission && (commission < 0 || commission > 100)) {
+                            alert('Commission must be between 0 and 100.');
+                            e.preventDefault();
+                        }
+                    });
+                });
+
+                // Share storefront
+                if (shareStoreBtn) {
+                    shareStoreBtn.addEventListener('click', shareStorefrontLink);
+                }
+
+                // Description cell click handlers
+                document.querySelectorAll('.description-cell').forEach(cell => {
+                    cell.addEventListener('click', () => {
+                        showDescriptionModal(cell.dataset.id, cell.dataset.description);
+                    });
+                });
+
+                // Description modal buttons
+                document.getElementById('cancelDescriptionEdit')?.addEventListener('click', hideDescriptionModal);
+                document.getElementById('saveDescription')?.addEventListener('click', saveDescription);
+            } catch (error) {
+                console.error('Error initializing scripts:', error);
+            }
+        });
     </script>
 </body>
 </html>
