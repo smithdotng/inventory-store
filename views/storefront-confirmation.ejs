@@ -1,122 +1,396 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Order Confirmation - <%= admin.businessName %>" />
+    <meta property="og:description" content="Your order confirmation from <%= admin.businessName %>" />
+    <meta property="og:image" content="<%= admin.logo || '/android-chrome-512x512.png' %>" />
     <title>Order Confirmation - <%= admin.businessName %></title>
-    
-    <!-- Now UI Kit CSS -->
-    <link href="/assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="/assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-kit.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
-    <style>
-        :root {
-            --primary-color: #466c7b;
-            --secondary-color: #4CAF50;
-            --accent-color: #3498db;
-            --text-color: #333;
-            --light-bg: #f9f9f9;
-            --dark-bg: #2c3e50;
-        }
 
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
         body {
             background-image: url('/images/bg.jpg');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
             margin: 0;
-            padding: 20px;
-            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
         }
 
-        .confirmation-container {
-            background: rgba(255, 255, 255, 0.9);
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 800px;
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+
+        /* Navbar */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 150px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            margin: 0;
+        }
+
+        .logo-container img {
+            max-width: 200px;
+            max-height: 100px;
+            width: auto;
+            height: auto;
+            justify-self: center;
+        }
+
+        /* Main Container */
+        .main-container {
+            flex: 1;
+            padding: 4rem 1rem 2rem;
+            max-width: 1200px;
             margin: 0 auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
 
-        .item-list {
-            margin: 20px 0;
+        /* Confirmation Page Styles */
+        .confirmation-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .item-list table {
+        .confirmation-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .confirmation-header .icon {
+            font-size: 4rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+        }
+
+        .confirmation-header h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .confirmation-header p {
+            color: #666;
+            font-size: 1.1rem;
+        }
+
+        .order-details {
+            margin-bottom: 2rem;
+        }
+
+        .order-details h2 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 0.5rem;
+        }
+
+        .customer-info, .order-summary {
+            margin-bottom: 2rem;
+        }
+
+        .customer-info h3, .order-summary h3 {
+            font-size: 1.2rem;
+            color: #444;
+            margin-bottom: 1rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .info-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item strong {
+            display: block;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .info-item span {
+            font-size: 1rem;
+        }
+
+        .order-items {
             width: 100%;
             border-collapse: collapse;
+            margin-bottom: 1.5rem;
         }
 
-        .item-list th, .item-list td {
-            padding: 10px;
+        .order-items th {
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            padding: 0.75rem;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
         }
 
-        .item-list th {
-            background: var(--light-bg);
+        .order-items td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #dee2e6;
         }
 
-        .btn-primary {
-            display: inline-block;
-            padding: 10px 20px;
+        .order-items tr:last-child td {
+            border-bottom: none;
+        }
+
+        .order-total {
+            text-align: right;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 1rem;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn-download {
             background-color: #007bff;
             color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
             text-decoration: none;
-            border-radius: 5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-       .btn-primary:hover {
-           background-color: #0056b3;
+
+        .btn-download:hover {
+            background-color: #0069d9;
+            color: white;
+        }
+
+        .btn-continue {
+            background-color: #6c757d;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-continue:hover {
+            background-color: #5a6268;
+            color: white;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: darkcyan;
+            color: white;
+            font-size: 13px;
+            margin-top: 2rem;
+        }
+
+        .footer a {
+            color: rgb(235, 166, 17);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .confirmation-container {
+                padding: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-download, .btn-continue {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .order-items {
+                display: block;
+                overflow-x: auto;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="confirmation-container">
-        <h1>Thank You for Your Purchase!</h1>
-        <p>Dear <%= customerName %>,</p>
-        <p>Your order has been successfully placed with <%= admin.businessName || 'Shed' %>.</p>
-        
-        <!-- Sale Details -->
-        <h2>Order Summary</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Quantity</th>
-              <th>Unit Cost</th>
-              <th>Total Cost</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% saleItems.forEach(item => { %>
-              <tr>
-                <td><%= item.itemName %></td>
-                <td><%= item.quantity %></td>
-                <td><%= currency %> <%= formatCurrency(item.unitCost) %></td>
-                <td><%= currency %> <%= formatCurrency(item.totalCost) %></td>
-              </tr>
-            <% }); %>
-          </tbody>
-          <tfoot>
-            <tr>
-              <th colspan="3">Total Amount</th>
-              <td><%= currency %> <%= formatCurrency(totalAmount) %></td>
-            </tr>
-          </tfoot>
-        </table>
-      
-        <!-- Download Invoice Button -->
-        <% if (invoiceUrl) { %>
-          <p><a href="<%= invoiceUrl %>" class="btn btn-primary" download>Download Your Invoice</a></p>
-          <p>This link expires in 1 hour for your security.</p>
-        <% } %>
-      
-        <p>We’ll notify <%= admin.businessName || 'the store' %> to process your order. For inquiries, contact <%= admin.email || 'support@shedfactory.co' %>.</p>
-      </div>
+    <!-- Navbar -->
+    <div class="navbar">
+        <div class="logo-container" style="width: 300px; height: 100%;">
+            <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="<%= admin.businessName %> Logo">
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="confirmation-container">
+            <div class="confirmation-header">
+                <div class="icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1>Thank You For Your Order!</h1>
+                <p>Your order has been received and is being processed.</p>
+            </div>
+
+            <div class="order-details">
+                <h2>Order Details</h2>
+                
+                <div class="customer-info">
+                    <h3>Customer Information</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>Order Number</strong>
+                            <span>#<%= saleId %></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Date</strong>
+                            <span><%= new Date().toLocaleDateString() %></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Name</strong>
+                            <span><%= customerName %></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Email</strong>
+                            <span><%= email %></span>
+                        </div>
+                        <div class="info-item">
+                            <strong>Phone</strong>
+                            <span><%= phoneNumber %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <table class="order-items">
+                        <thead>
+                            <tr>
+                                <th>Item</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% saleItems.forEach(item => { %>
+                                <tr>
+                                    <td><%= item.itemName %></td>
+                                    <td><%= item.quantity %></td>
+                                    <td><%= currency %><%= formatCurrency(item.unitCost) %></td>
+                                    <td><%= currency %><%= formatCurrency(item.totalCost) %></td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
+                    <div class="order-total">
+                        <strong>Total: <%= currency %><%= formatCurrency(totalAmount) %></strong>
+                    </div>
+                </div>
+
+                <% if (admin.paymentInstructions) { %>
+                    <div class="payment-instructions">
+                        <h3>Payment Instructions</h3>
+                        <p><%= admin.paymentInstructions %></p>
+                    </div>
+                <% } %>
+
+                <div class="action-buttons">
+                    <% if (invoiceUrl) { %>
+                        <a href="<%= invoiceUrl %>" class="btn-download">
+                            <i class="fas fa-file-download mr-2"></i> Download Invoice
+                        </a>
+                    <% } %>
+                    <a href="/store/<%= admin.username %>" class="btn-continue">
+                        <i class="fas fa-shopping-bag mr-2"></i> Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 Shedfactory Limited. <a href="mailto:hello@shed.ng">Contact Us</a></p>
+    </footer>
+
+    <!-- JavaScript Dependencies -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
 </body>
 </html>

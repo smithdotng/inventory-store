@@ -23,11 +23,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
     
     <!-- Now UI Dashboard CSS -->
-    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
+    
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -36,7 +37,7 @@
 
     <style>
         body {
-            background-image: url('images/bg.jpg');
+            background-image: url('/images/bg.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -47,7 +48,17 @@
             margin: 0;
         }
         
-        /* New Sidebar */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+        
+        /* Sidebar */
         .new-sidebar {
             width: 250px;
             position: fixed;
@@ -120,23 +131,23 @@
         }
         
         .new-sidebar .nav-link:hover {
-            background: rgb(224, 235, 17);
+            background: rgb(235, 166, 17);
             color: darkcyan;
         }
         
         .new-sidebar .nav-link.active {
-            background: rgb(224, 235, 17);
+            background: rgb(235, 166, 17);
             color: darkcyan;
             font-weight: bold;
         }
         
-        /* New Toggle Button */
+        /* Toggle Button */
         .new-toggle-btn {
             position: fixed;
             top: 10px;
             left: 10px;
             z-index: 3100;
-            background: rgb(224, 235, 17);
+            background: rgb(235, 166, 17);
             color: darkcyan;
             border: none;
             border-radius: 50%;
@@ -157,18 +168,16 @@
         
         /* Main Container */
         .main-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: stretch;
             min-height: 100vh;
             padding: 20px;
-            max-width: 1200px;
+            max-width: 1000px;
             margin-left: 250px;
             margin-right: 20px;
             transition: margin-left 0.3s ease;
             position: relative;
-            z-index: 1000;
+            z-index: 100            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
         
         .new-sidebar.collapsed + .main-container {
@@ -188,40 +197,19 @@
             display: none;
         }
         
-        .image-container {
-            flex: 0 0 40%;
-            max-width: 400px;
-            background-color: #ffffff;
-            border-radius: 10px 0 0 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        
         .registration-container {
-            flex: 0 0 60%;
-            max-width: 600px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%;
             padding: 20px;
         }
         
         .registration-card {
             width: 100%;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
-            background-color: darkcyan;
+            background-color: white;
             border: 1px solid #e0e0e0;
-            z-index: 1000;
         }
         
         .logo-container {
@@ -245,7 +233,7 @@
         }
         
         .form-group label {
-            color: white;
+            color: #333;
             margin-bottom: 6px;
             display: block;
             font-weight: 500;
@@ -256,24 +244,106 @@
         .form-control {
             background-color: white;
             border: 1px solid #ced4da;
-            color: #495057;
+            color: #333;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
             font-size: 13px;
             padding: 0.375rem 0.75rem;
-            height: calc(1.5em + 0.75rem + 2px);
+            height: 38px;
             width: 100%;
             box-sizing: border-box;
         }
         
         .btn-create-account {
-            background-color: rgb(224, 235, 17);
-            width: 100%;
-            max-width: 300px;
+            background-color: rgb(235, 166, 17);
+            color: #fff;
             transition: all 0.3s ease;
             border: none;
             font-weight: 500;
             font-size: 14px;
             padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14);
+            color: #fff;
+        }
+        
+        .btn-create-account.add-product-btn {
+            background-color: rgb(255, 204, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.add-product-btn:hover {
+            background-color: rgb(230, 184, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn:hover {
+            background-color: rgb(200, 48, 63);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn:hover {
+            background-color: rgb(90, 98, 104);
+            color: #fff;
+        }
+        
+        .btn-create-account.search-button {
+            background-color: rgb(0, 123, 255);
+            color: #fff;
+            border: 1px solid #ced4da;
+            border-left: none;
+        }
+        
+        .btn-create-account.search-button:hover {
+            background-color: rgb(0, 105, 217);
+            color: #fff;
+        }
+        
+        .btn-create-account.image-upload-btn {
+            background-color: rgb(111, 66, 193);
+            color: #fff;
+        }
+        
+        .btn-create-account.image-upload-btn:hover {
+            background-color: rgb(95, 56, 165);
+            color: #fff;
+        }
+        
+        .btn-create-account.edit-btn {
+            background-color: rgb(255, 193, 7);
+            color: #333;
+        }
+        
+        .btn-create-account.edit-btn:hover {
+            background-color: rgb(230, 174, 6);
+            color: #333;
         }
         
         .profile-details {
@@ -284,16 +354,12 @@
             margin-bottom: 20px;
         }
         
-        .profile-details .form-group {
-            margin-bottom: 10px;
-        }
-        
         .profile-details .value {
             background: #f8f9fa;
             padding: 10px;
             border-radius: 4px;
             font-size: 13px;
-            color: #495057;
+            color: #333;
         }
         
         .account-section {
@@ -304,10 +370,6 @@
             margin-bottom: 20px;
         }
         
-        .account-info .form-group {
-            margin-bottom: 10px;
-        }
-        
         .social-links {
             text-align: center;
             margin-top: 15px;
@@ -315,9 +377,13 @@
         }
         
         .social-links a {
-            color: rgb(224, 235, 17);
+            color: rgb(235, 166, 17);
             text-decoration: none;
             margin: 0 10px;
+        }
+        
+        .social-links a:hover {
+            text-decoration: underline;
         }
         
         .form-actions {
@@ -327,33 +393,72 @@
             margin-top: 20px;
         }
         
+        .image-preview-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .image-placeholder {
+            width: 100px;
+            height: 100px;
+            background: #f8f9fa;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #6c757d;
+        }
+        
+        .image-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        
         /* Cropper Modal */
         .modal {
             display: none;
-            z-index: 1050 !important; /* Higher than backdrop */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
         }
         
         .modal.show {
-            display: block;
+            display: flex;
         }
         
         .modal-content {
-            background-color: white;
-            border-radius: 10px;
-            z-index: 3200;
-        }
-        
-        .modal-backdrop {
-            
-            z-index: 1040 !important; /* Lower than modal */
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
         
         .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
         }
         
         .modal-title {
-            color: #495057;
+            color: #333;
+            font-size: 16px;
         }
         
         .modal-body img {
@@ -364,39 +469,42 @@
         
         .modal-footer {
             border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+            display: flex;
             justify-content: center;
+            gap: 10px;
+        }
+        
+        .close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: #333;
         }
         
         /* Alerts */
-        .alert {
-            z-index: 1500;
+        .error {
+            color: #d32f2f;
+            background-color: #fde8e8;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            font-size: 13px;
+        }
+        
+        .success {
+            color: #388e3c;
+            background-color: #e8f5e9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            font-size: 13px;
         }
         
         /* Responsive Design */
-        @media (max-width: 992px) {
-            .main-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .image-container {
-                flex: 0 0 100%;
-                max-width: 100%;
-                height: 200px;
-                border-radius: 10px 10px 0 0;
-                margin-bottom: 20px;
-            }
-            
-            .registration-container {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-            
-            .registration-card {
-                border-radius: 0 0 10px 10px;
-            }
-        }
-
         @media (max-width: 768px) {
             .new-sidebar {
                 left: -250px;
@@ -422,77 +530,69 @@
             }
             
             .form-group label {
-                font-size: 14px;
+                font-size: 12px;
                 padding-top: 8px;
             }
             
             .form-control {
-                font-size: 14px;
-                padding: 0.5rem 0.75rem;
-                height: calc(1.5em + 1rem + 2px);
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
             }
             
             .btn-create-account {
-                font-size: 14px;
-                padding: 10px 20px;
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
             }
             
             .profile-details .value {
-                font-size: 14px;
+                font-size: 12px;
+            }
+            
+            .social-links {
+                font-size: 12px;
+            }
+            
+            .image-preview,
+            .image-placeholder {
+                width: 80px;
+                height: 80px;
             }
         }
-
+    
         @media (max-width: 576px) {
             .main-container {
                 padding: 10px;
                 width: 95%;
-                min-width: 95%;
                 margin: 0 auto;
-            }
-
-            .image-container {
-                display: none;
             }
             
             .registration-container {
                 padding: 10px;
             }
             
-            .registration-card {
-                border-radius: 10px;
-            }
-            
             .card-body {
-                padding: 25px;
-            }
-            
-            .logo-container img {
-                height: 60px;
+                padding: 15px;
             }
             
             .form-actions {
                 flex-direction: column;
-                gap: 15px;
+                align-items: stretch;
             }
             
             .btn-create-account {
-                max-width: 100%;
-                padding: 12px 20px;
+                width: 100%;
             }
             
-            .profile-details,
-            .account-section {
-                padding: 25px;
-            }
-            
-            .social-links {
-                font-size: 14px;
+            .modal-content {
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- New Sidebar -->
+    <!-- Sidebar -->
     <nav class="new-sidebar" id="newSidebar">
         <div class="logo">
             <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
@@ -508,51 +608,30 @@
         <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
     </nav>
 
-    <!-- New Toggle Button -->
+    <!-- Toggle Button -->
     <button class="new-toggle-btn" id="newToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
 
     <!-- Main Container -->
     <div class="main-container">
-        
         <div class="registration-container">
             <div class="card registration-card">
                 <div class="card-body">
                     <div class="logo-container">
                         <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
-                        <h4 style="color: white; font-size: 16px;">Profile Settings</h4>
+                        <h4 style="color: #333; font-size: 16px;">Profile Settings</h4>
                     </div>
 
                     <!-- Error/Success Messages -->
                     <% if (error) { %>
-                        <div class="alert alert-danger" style="font-size: 13px;">
-                            <div class="container">
-                                <div class="alert-icon">
-                                    <i class="fa-solid fa-bell"></i>
-                                </div>
-                                <%= error %>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </span>
-                                </button>
-                            </div>
+                        <div class="error">
+                            <i class="fa-solid fa-exclamation-circle mr-2"></i><%= error %>
                         </div>
                     <% } %>
                     <% if (success) { %>
-                        <div class="alert alert-success" style="font-size: 13px;">
-                            <div class="container">
-                                <div class="alert-icon">
-                                    <i class="fa-solid fa-check"></i>
-                                </div>
-                                <%= success %>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </span>
-                                </button>
-                            </div>
+                        <div class="success">
+                            <i class="fa-solid fa-check-circle mr-2"></i><%= success %>
                         </div>
                     <% } %>
 
@@ -620,7 +699,7 @@
 
                         <!-- Account Information -->
                         <div class="account-section">
-                            <h5 style="color: #495057; font-size: 14px; margin-bottom: 15px;">Bank Account Information</h5>
+                            <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Bank Account Information</h5>
                             <div class="account-info">
                                 <div class="form-group">
                                     <label>Primary Account Name <i class="fa-solid fa-university"></i></label>
@@ -650,7 +729,7 @@
                         </div>
 
                         <div class="form-actions">
-                            <button class="btn btn-round btn-create-account" id="editProfileBtn">
+                            <button class="btn btn-round btn-create-account edit-btn" id="editProfileBtn">
                                 Edit Profile <i class="fa-solid fa-edit"></i>
                             </button>
                         </div>
@@ -704,13 +783,13 @@
                             <div class="form-group">
                                 <label>Business Logo <i class="fa-solid fa-camera"></i></label>
                                 <div class="image-preview-container">
-                                    <div class="image-placeholder" id="imagePlaceholder">
+                                    <div class="image-placeholder" id="imagePlaceholder" style="<%= admin.logo ? 'display: none;' : 'display: flex;' %>">
                                         <span>No image selected</span>
                                     </div>
                                     <img id="imagePreview" class="image-preview" src="<%= admin.logo || '#' %>" alt="Logo Preview" style="<%= admin.logo ? 'display: block;' : 'display: none;' %>">
-                                    <input type="file" id="logoInput" accept="image/*" class="d-none">
+                                    <input type="file" id="logoInput" name="logo" accept="image/*" class="d-none">
                                     <input type="hidden" name="croppedImageData" id="croppedImageData">
-                                    <button type="button" class="btn btn-round btn-create-account" onclick="document.getElementById('logoInput').click()">
+                                    <button type="button" class="btn btn-round btn-create-account image-upload-btn" onclick="document.getElementById('logoInput').click()">
                                         Choose Logo <i class="fa-solid fa-upload"></i>
                                     </button>
                                 </div>
@@ -740,10 +819,10 @@
                                 <input type="text" name="secondaryBankName" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : '' %>" placeholder="Bank Name">
                             </div>
                             <div class="form-actions">
-                                <button type="submit" class="btn btn-round btn-create-account">
+                                <button type="submit" class="btn btn-round btn-create-account update-btn">
                                     Save Changes <i class="fa-solid fa-save"></i>
                                 </button>
-                                <button type="button" class="btn btn-round btn-create-account" id="cancelEditBtn">
+                                <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cancelEditBtn">
                                     Cancel <i class="fa-solid fa-times"></i>
                                 </button>
                             </div>
@@ -751,10 +830,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <div class="image-container">
-            <img src="assets/img/promo.jpg" alt="Promotional Image">
         </div>
     </div>
 
@@ -765,33 +840,38 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="cropModalLabel">Crop Logo</h5>
                     <button type="button" class="close" id="cropModalCloseBtn" aria-label="Close">
-                        <span aria-hidden="true">×</span>
+                        <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <img id="imageToCrop" src="#" alt="Image to crop">
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-round btn-create-account" id="cropButton">Crop & Save</button>
-                    <button type="button" class="btn btn-round btn-create-account" id="cropCancelButton">Cancel</button>
+                    <button type="button" class="btn btn-round btn-create-account update-btn" id="cropButton">
+                        Crop & Save <i class="fa-solid fa-crop"></i>
+                    </button>
+                    <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cropCancelButton">
+                        Cancel <i class="fa-solid fa-times"></i>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/perfect-scrollbar/1.5.5/perfect-scrollbar.min.js"></script>
-    <script src="assets/js/core/jquery.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('newSidebar');
             const toggleBtn = document.getElementById('newToggleBtn');
-            const mainContainer = document.querySelector('.main-container');
             const editProfileBtn = document.getElementById('editProfileBtn');
             const cancelEditBtn = document.getElementById('cancelEditBtn');
             const profileView = document.getElementById('profileView');
@@ -801,30 +881,32 @@
             let isOpenOnMobile = false;
 
             // Toggle sidebar
-            toggleBtn.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
-                    isOpenOnMobile = !isOpenOnMobile;
-                    if (isOpenOnMobile) {
-                        sidebar.classList.add('open');
-                        toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        isOpenOnMobile = !isOpenOnMobile;
+                        if (isOpenOnMobile) {
+                            sidebar.classList.add('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        } else {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
                     } else {
-                        sidebar.classList.remove('open');
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        isCollapsed = !isCollapsed;
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
                     }
-                } else {
-                    isCollapsed = !isCollapsed;
-                    if (isCollapsed) {
-                        sidebar.classList.add('collapsed');
-                    } else {
-                        sidebar.classList.remove('collapsed');
-                    }
-                }
-            });
+                });
+            }
 
             // Close sidebar on outside click (mobile only)
             document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
-                    if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                    if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
                         sidebar.classList.remove('open');
                         isOpenOnMobile = false;
                         toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
@@ -832,8 +914,9 @@
                 }
             });
 
-            // Set initial sidebar state on load and resize
+            // Set initial sidebar state
             function setSidebarState() {
+                if (!sidebar || !toggleBtn) return;
                 if (window.innerWidth <= 768) {
                     sidebar.classList.remove('collapsed');
                     if (!isOpenOnMobile) {
@@ -855,20 +938,24 @@
             window.addEventListener('resize', setSidebarState);
 
             // Toggle edit mode
-            editProfileBtn.addEventListener('click', () => {
-                profileView.style.display = 'none';
-                profileEdit.style.display = 'block';
-            });
+            if (editProfileBtn && profileView && profileEdit) {
+                editProfileBtn.addEventListener('click', () => {
+                    profileView.style.display = 'none';
+                    profileEdit.style.display = 'block';
+                });
+            }
 
-            cancelEditBtn.addEventListener('click', () => {
-                profileEdit.style.display = 'none';
-                profileView.style.display = 'block';
-                document.getElementById('updateProfileForm').reset();
-                document.getElementById('imagePreview').style.display = '<%= admin.logo ? "block" : "none" %>';
-                document.getElementById('imagePreview').src = '<%= admin.logo || "#" %>';
-                document.getElementById('imagePlaceholder').style.display = '<%= admin.logo ? "none" : "flex" %>';
-                document.getElementById('croppedImageData').value = '';
-            });
+            if (cancelEditBtn && profileView && profileEdit) {
+                cancelEditBtn.addEventListener('click', () => {
+                    profileEdit.style.display = 'none';
+                    profileView.style.display = 'block';
+                    document.getElementById('updateProfileForm').reset();
+                    document.getElementById('imagePreview').style.display = '<%= admin.logo ? "block" : "none" %>';
+                    document.getElementById('imagePreview').src = '<%= admin.logo || "#" %>';
+                    document.getElementById('imagePlaceholder').style.display = '<%= admin.logo ? "none" : "flex" %>';
+                    document.getElementById('croppedImageData').value = '';
+                });
+            }
 
             // Cropper.js logic
             let cropper;
@@ -880,113 +967,102 @@
             const croppedImageData = document.getElementById('croppedImageData');
 
             // Function to show modal
-const showModal = () => {
-    cropModal.style.display = 'block';
-    cropModal.classList.add('show');
-    cropModal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('modal-open');
-    const backdrop = document.createElement('div');
-    backdrop.className = 'modal-backdrop fade show';
-    backdrop.style.zIndex = '1040'; // Lower than modal's z-index
-    backdrop.addEventListener('click', closeModal); // Close when clicking backdrop
-    document.body.appendChild(backdrop);
-};
+            const showModal = () => {
+                cropModal.style.display = 'flex';
+                cropModal.classList.add('show');
+                cropModal.setAttribute('aria-hidden', 'false');
+                document.body.classList.add('modal-open');
+                const backdrop = document.createElement('div');
+                backdrop.className = 'modal-backdrop fade show';
+                document.body.appendChild(backdrop);
+            };
 
-// Function to close modal
-const closeModal = () => {
-    cropModal.style.display = 'none';
-    cropModal.classList.remove('show');
-    cropModal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('modal-open');
-    const backdrop = document.querySelector('.modal-backdrop');
-    if (backdrop) {
-        backdrop.remove();
-    }
-    if (cropper) {
-        cropper.destroy();
-        cropper = null;
-    }
-};
-            logoInput.addEventListener('change', function(e) {
-                console.log('Logo input changed');
-                const files = e.target.files;
-                if (files && files.length > 0) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        imageToCrop.src = event.target.result;
-                        showModal();
-                        setTimeout(() => {
-                            console.log('Initializing Cropper.js');
-                            if (cropper) {
-                                cropper.destroy();
-                            }
-                            cropper = new Cropper(imageToCrop, {
-                                aspectRatio: 1,
-                                viewMode: 1,
-                                autoCropArea: 0.8,
-                                responsive: true,
-                                zoomable: true,
-                                scalable: true,
-                                movable: true,
-                                background: true,
-                                minContainerHeight: 300,
-                            });
-                            console.log('Cropper.js initialized');
-                        }, 500);
-                    };
-                    reader.readAsDataURL(files[0]);
+            // Function to close modal
+            const closeModal = () => {
+                cropModal.style.display = 'none';
+                cropModal.classList.remove('show');
+                cropModal.setAttribute('aria-hidden', 'true');
+                document.body.classList.remove('modal-open');
+                const backdrop = document.querySelector('.modal-backdrop');
+                if (backdrop) {
+                    backdrop.remove();
                 }
-            });
+                if (cropper) {
+                    cropper.destroy();
+                    cropper = null;
+                }
+            };
 
-            // Event delegation for button clicks
-           // Handle crop button click
-document.addEventListener('click', function(e) {
-    if (e.target.closest('#cropButton')) {
-        console.log('Crop & Save button clicked');
-        try {
-            if (cropper) {
-                const canvas = cropper.getCroppedCanvas({
-                    width: 200,
-                    height: 200,
-                    imageSmoothingEnabled: true,
-                    imageSmoothingQuality: 'high',
+            if (logoInput) {
+                logoInput.addEventListener('change', function(e) {
+                    const files = e.target.files;
+                    if (files && files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = function(event) {
+                            imageToCrop.src = event.target.result;
+                            showModal();
+                            setTimeout(() => {
+                                if (cropper) {
+                                    cropper.destroy();
+                                }
+                                cropper = new Cropper(imageToCrop, {
+                                    aspectRatio: 1,
+                                    viewMode: 1,
+                                    autoCropArea: 0.8,
+                                    responsive: true,
+                                    zoomable: true,
+                                    scalable: true,
+                                    movable: true,
+                                    background: true,
+                                    minContainerHeight: 300,
+                                });
+                            }, 500);
+                        };
+                        reader.readAsDataURL(files[0]);
+                    }
                 });
-                const croppedDataUrl = canvas.toDataURL('image/png');
-                imagePreview.src = croppedDataUrl;
-                imagePreview.style.display = 'block';
-                imagePlaceholder.style.display = 'none';
-                croppedImageData.value = croppedDataUrl;
-                closeModal();
-                cropper.destroy();
-                cropper = null;
-                console.log('Image cropped and modal closed');
-            } else {
-                console.error('Cropper instance not found');
             }
-        } catch (error) {
-            console.error('Error in Crop & Save:', error);
-        }
-        return;
-    }
 
-    if (e.target.closest('#cropCancelButton') || e.target.closest('#cropModalCloseBtn')) {
-        console.log('Cancel button clicked');
-        closeModal();
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-        imageToCrop.src = '#';
-        logoInput.value = '';
-        console.log('Crop modal hidden');
-        return;
-    }
-});
+            // Crop button
+            const cropButton = document.getElementById('cropButton');
+            if (cropButton) {
+                cropButton.addEventListener('click', () => {
+                    if (cropper) {
+                        const canvas = cropper.getCroppedCanvas({
+                            width: 200,
+                            height: 200,
+                            imageSmoothingEnabled: true,
+                            imageSmoothingQuality: 'high',
+                        });
+                        const croppedDataUrl = canvas.toDataURL('image/png');
+                        imagePreview.src = croppedDataUrl;
+                        imagePreview.style.display = 'block';
+                        imagePlaceholder.style.display = 'none';
+                        croppedImageData.value = croppedDataUrl;
+                        closeModal();
+                    }
+                });
+            }
 
-            // Debug all clicks to ensure they’re registering
-            document.addEventListener('click', (e) => {
-                console.log('Document clicked:', e.target);
-            });
+            // Cancel crop button
+            const cropCancelButton = document.getElementById('cropCancelButton');
+            if (cropCancelButton) {
+                cropCancelButton.addEventListener('click', () => {
+                    closeModal();
+                    imageToCrop.src = '#';
+                    logoInput.value = '';
+                });
+            }
+
+            // Close modal button
+            const cropModalCloseBtn = document.getElementById('cropModalCloseBtn');
+            if (cropModalCloseBtn) {
+                cropModalCloseBtn.addEventListener('click', () => {
+                    closeModal();
+                    imageToCrop.src = '#';
+                    logoInput.value = '';
+                });
+            }
         });
     </script>
 </body>

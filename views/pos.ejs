@@ -1,701 +1,769 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:title" content="POS | Shed: Inventory, Invoices and More" />
-  <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-  <meta property="og:image" content="/android-chrome-512x512.png" />
-  <title>Point of Sale</title>
-  
-  <!-- Now UI Kit CSS -->
-  <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-  <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-  <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-  <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-  
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  
-  <!-- Favicons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="POS | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Point of Sale</title>
 
-  <style>
-    :root {
-      --primary-color: #466c7b;
-      --secondary-color: #4CAF50;
-      --accent-color: #3498db;
-      --text-color: #333;
-      --light-bg: #f9f9f9;
-      --dark-bg: #2c3e50;
-      --table-band-color: #f1f1f1;
-    }
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-    body {
-      background-image: url('/images/bg.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      margin: 0;
-      padding: 0;
-    }
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
 
-    /* Sidebar styling */
-    .sidebar {
-      width: 250px;
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      background: var(--primary-color);
-      color: white;
-      padding: 20px;
-      transition: all 0.3s;
-      z-index: 1000;
-      box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding-top: 75px;
-    }
-    
-    .sidebar.collapsed {
-      width: 80px;
-      overflow: hidden;
-    }
-    
-    .sidebar.collapsed .logo-container img {
-      max-width: 50px;
-    }
-    
-    .sidebar.collapsed h2,
-    .sidebar.collapsed a span {
-      display: none;
-    }
-    
-    .sidebar.collapsed a {
-      text-align: center;
-      padding: 12px 5px;
-    }
-    
-    .sidebar.collapsed a i {
-      margin-right: 0;
-      font-size: 1.2rem;
-    }
-    
-    .sidebar .logo-container {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
-    .sidebar .logo-container img {
-      max-width: 80%;
-      height: auto;
-      transition: all 0.3s;
-    }
-    
-    .sidebar h2 {
-      color: white;
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      color: rgba(255, 255, 255, 0.8);
-      padding: 12px 15px;
-      margin-bottom: 5px;
-      border-radius: 4px;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-    
-    .sidebar a i {
-      margin-right: 10px;
-      font-size: 1rem;
-    }
-    
-    .sidebar a:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-    
-    .sidebar a.active {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      font-weight: bold;
-    }
-    
-    /* Main content */
-    .main-content {
-      margin-left: 250px;
-      transition: all 0.3s;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .sidebar.collapsed + .main-content {
-      margin-left: 80px;
-    }
-    
-    /* Toggle button */
-    .toggle-btn {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 1100;
-      background: var(--dark-bg);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s;
-    }
-    
-    .sidebar.collapsed + .main-content .toggle-btn {
-      left: 20px;
-    }
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 
-    /* Business Details Section */
-    .business-details-container {
-      display: flex;
-      justify-content: space-between;
-      background-color: rgba(0, 139, 139, 0.85);
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      color: white;
-      margin-bottom: 50px;
-      border-left: 5px solid #4CAF50;
-      transition: all 0.3s ease;
-    }
+    <style>
+        body {
+            background-image: url('/images/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
+            margin: 0;
+        }
 
-    .business-details-container:hover {
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-    }
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
 
-    .business-logo {
-      width: 80px;
-      height: 80px;
-      background-color: white;
-      border-radius: 50%;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
+        /* Sidebar */
+        .new-sidebar {
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: darkcyan;
+            color: white;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        }
 
-    .business-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 10px;
-      box-sizing: border-box;
-    }
+        .new-sidebar.collapsed {
+            width: 80px;
+        }
 
-    .business-info {
-      flex-grow: 0;
-      text-align: right;
-    }
+        .new-sidebar.collapsed .logo img {
+            max-width: 50px;
+        }
 
-    .business-info p {
-      margin: 5px 0;
-      display: flex;
-      justify-content: flex-end;
-    }
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
+            display: none;
+        }
 
-    .business-info p strong {
-      min-width: 120px;
-      display: inline-block;
-      color: #e0f7fa;
-      margin-left: 10px;
-    }
-    
-    /* Form Section Styling */
-    .form-section {
-      background: var(--light-bg);
-      padding: 25px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 100%;
-      box-sizing: border-box;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    
-    /* Button styling */
-    .btn-primary {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-    }
-    
-    .btn-primary:hover {
-      background-color: #3e8e41;
-      border-color: #3e8e41;
-    }
-    
-    .btn-info {
-      background-color: var(--accent-color);
-      border-color: var(--accent-color);
-    }
-    
-    .btn-info:hover {
-      background-color: #2980b9;
-      border-color: #2980b9;
-    }
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px 5px;
+        }
 
-    /* Content Logo Container with Round Frame */
-    .content-logo-container {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
-    .content-logo-frame {
-      display: inline-block;
-      width: 100px;
-      height: 100px;
-      background-color: white;
-      border-radius: 50%;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    
-    .content-logo-frame img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 10px;
-      box-sizing: border-box;
-    }
+        .new-sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
 
-    /* POS-specific styles */
-    .item-row {
-      position: relative;
-      margin-bottom: 15px;
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    
-    .error-message {
-      color: red;
-      margin-bottom: 10px;
-      font-weight: bold;
-      padding: 5px;
-      background-color: #ffe6e6;
-      border: 1px solid red;
-    }
-    
-    .field-error {
-      color: red;
-      font-size: 0.9em;
-      margin-top: 5px;
-      display: none;
-    }
+        .new-sidebar .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
-    /* Form actions styling */
-    .form-actions {
-      display: flex;
-      justify-content: center; /* Center the button horizontally */
-      margin-top: 20px; /* Add space above the Record Sale button */
-    }
+        .new-sidebar .logo img {
+            max-width: 80%;
+            height: auto;
+            transition: max-width 0.3s ease;
+        }
 
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .sidebar {
-        left: -250px;
-      }
-      
-      .sidebar.visible {
-        left: 0;
-      }
-      
-      .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-      }
-      
-      .sidebar.collapsed {
-        width: 250px;
-      }
-      
-      .sidebar.collapsed h2,
-      .sidebar.collapsed a span {
-        display: block;
-      }
-      
-      .sidebar.collapsed a {
-        text-align: left;
-        padding: 12px 15px;
-      }
-      
-      .sidebar.collapsed a i {
-        margin-right: 10px;
-      }
-      
-      .item-row {
-        flex-direction: column;
-        gap: 10px;
-      }
-      
-      .business-details-container {
-        flex-direction: column;
-        text-align: center;
-        justify-content: center;
-      }
-      
-      .business-logo {
-        margin: 0 auto 15px;
-      }
+        .new-sidebar .greeting {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
 
-      .business-info {
-        text-align: center;
-        width: 100%;
-      }
-      
-      .business-info p {
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .business-info p strong {
-        min-width: auto;
-        margin: 0 0 5px 0;
-      }
-    }
-  </style>
+        .new-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .new-sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+
+        .new-sidebar .nav-link:hover {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+        }
+
+        .new-sidebar .nav-link.active {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+            font-weight: bold;
+        }
+
+        /* Toggle Button */
+        .new-toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 3100;
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+        }
+
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
+            left: 20px;
+        }
+
+        /* Main Container */
+        .main-container {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1000;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
+        }
+
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+
+        .registration-container {
+            width: 100%;
+            padding: 20px;
+        }
+
+        .registration-card {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+        }
+
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
+        }
+
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: 38px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .btn-create-account {
+            background-color: rgb(235, 166, 17);
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14);
+            color: #fff;
+        }
+
+        .btn-create-account.add-product-btn {
+            background-color: rgb(255, 204, 0);
+            color: #333;
+        }
+
+        .btn-create-account.add-product-btn:hover {
+            background-color: rgb(230, 184, 0);
+            color: #333;
+        }
+
+        .btn-create-account.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+
+        .btn-create-account.delete-btn:hover {
+            background-color: rgb(200, 48, 63);
+            color: #fff;
+        }
+
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57);
+            color: #fff;
+        }
+
+        .error {
+            color: #d32f2f;
+            background-color: #fde8e8;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            font-size: 13px;
+        }
+
+        .field-error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .item-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .item-row select,
+        .item-row input[type="number"] {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .new-sidebar {
+                left: -250px;
+            }
+
+            .new-sidebar.open {
+                left: 0;
+            }
+
+            .new-sidebar.open + .main-container::before {
+                display: block;
+            }
+
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
+                width: 100%;
+                padding: 15px;
+            }
+
+            .registration-container {
+                padding: 15px;
+            }
+
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
+            }
+
+            .btn-create-account {
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
+            }
+
+            .item-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .item-row select,
+            .item-row input[type="number"] {
+                min-width: 100%;
+            }
+
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .error,
+            .field-error {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                margin: 0 auto;
+            }
+
+            .registration-container {
+                padding: 10px;
+            }
+
+            .card-body {
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="nav-content">
-      <div class="logo-container">
-        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-      </div>
-      <h2 class="text-white">Welcome, <%= username %>!</h2>
-      <a href="/pos" class="active"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-      <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-      <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-      <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-      <a href="/customers"><i class="fas fa-users"></i> <span>Customers</span></a>
-      <a href="/home"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-      <a href="/profile"><i class="fas fa-user"></i> <span>Profile</span></a>
-      <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </div>
-  </div>
-
-  <!-- Toggle Button -->
-  <button class="toggle-btn" id="toggleBtn">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="container">
-      <!-- Business Details Container -->
-      <div class="business-details-container">
-        <div class="business-logo">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
+    <!-- Sidebar -->
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
         </div>
-        <div class="business-info">
-          <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-          <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
-          <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-        </div>
-      </div>
-      <h1 class="text-center" style="color: #f9f9f9;">Point of Sale</h1>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link active"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
 
-      <!-- POS Form Section -->
-      <div class="form-section" style="width: 100%;">
-        <form id="salesForm" action="/admin/sales-form" method="POST">
-          <% if (typeof error !== 'undefined' && error) { %>
-            <div class="alert alert-danger">
-              <div class="container">
-                <div class="alert-icon">
-                  <i class="fas fa-exclamation-circle"></i>
+    <!-- Toggle Button -->
+    <button class="new-toggle-btn" id="newToggleBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: #333; font-size: 16px;">Point of Sale</h4>
+                        <p style="color: #333; font-size: 13px;">
+                            Business: <%= admin.businessName || 'N/A' %> | Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                        </p>
+                    </div>
+
+                    <!-- POS Form Section -->
+                    <div class="form-section">
+                        <form id="salesForm" action="/admin/sales-form" method="POST">
+                            <% if (typeof error !== 'undefined' && error) { %>
+                                <div class="error">
+                                    <i class="fa-solid fa-exclamation-circle mr-2"></i><%= error %>
+                                </div>
+                            <% } %>
+
+                            <!-- Customer Details -->
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-user mr-2"></i>Customer Name</label>
+                                <input type="text" name="customerName" class="form-control" placeholder="Customer Name" required>
+                                <div class="field-error" id="customerNameError"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-phone mr-2"></i>Phone Number</label>
+                                <input type="text" name="phoneNumber" class="form-control" placeholder="Phone Number">
+                            </div>
+
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-envelope mr-2"></i>Email Address</label>
+                                <input type="email" name="email" class="form-control" placeholder="Email Address">
+                            </div>
+
+                            <!-- Payment Method -->
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-credit-card mr-2"></i>Payment Method</label>
+                                <select name="paymentMethod" class="form-control" required>
+                                    <option value="">Select Payment Method</option>
+                                    <option value="Cash">Cash</option>
+                                    <option value="Bank Transfer">Bank Transfer</option>
+                                    <option value="Card">Card</option>
+                                </select>
+                                <div class="field-error" id="paymentMethodError"></div>
+                            </div>
+
+                            <!-- Items Section -->
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-boxes mr-2"></i>Items</label>
+                                <div id="itemsContainer">
+                                    <div class="item-row" data-index="0">
+                                        <select name="items[itemId][]" class="form-control" required>
+                                            <option value="">Select Product</option>
+                                            <% inventory.forEach(item => { %>
+                                                <% if (item.stock > 0) { %>
+                                                    <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>">
+                                                        <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
+                                                    </option>
+                                                <% } %>
+                                            <% }) %>
+                                        </select>
+                                        <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
+                                        <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn" style="display: none;">
+                                            <i class="fa-solid fa-minus"></i>
+                                        </button>
+                                        <div class="field-error" id="itemError0"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Add Item Button -->
+                            <div class="form-actions">
+                                <button type="button" id="addItemBtn" class="btn btn-round btn-create-account add-product-btn">
+                                    <i class="fa-solid fa-plus mr-2"></i>Add Another Item
+                                </button>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-round btn-create-account update-btn">
+                                    <i class="fa-solid fa-shopping-bag mr-2"></i>Record Sale
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <span><%= error %></span>
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                  <span aria-hidden="true">
-                    <i class="fas fa-times"></i>
-                  </span>
-                </button>
-              </div>
             </div>
-          <% } %>
-
-          <!-- Customer Details -->
-          <div class="form-group">
-            <label>Customer Name</label>
-            <input type="text" name="customerName" class="form-control" placeholder="Customer Name" required>
-            <div class="field-error" id="customerNameError"></div>
-          </div>
-          
-          <div class="form-group">
-            <label>Phone Number</label>
-            <input type="text" name="phoneNumber" class="form-control" placeholder="Phone Number">
-          </div>
-          
-          <div class="form-group">
-            <label>Email Address</label>
-            <input type="email" name="email" class="form-control" placeholder="Email Address">
-          </div>
-
-          <!-- Payment Method -->
-          <div class="form-group">
-            <label>Payment Method</label>
-            <select name="paymentMethod" class="form-control" required>
-              <option value="">Select Payment Method</option>
-              <option value="Cash">Cash</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Card">Card</option>
-            </select>
-            <div class="field-error" id="paymentMethodError"></div>
-          </div>
-
-          <!-- Items Section -->
-          <div class="form-group">
-            <label>Items</label>
-            <div id="itemsContainer">
-              <div class="item-row" data-index="0">
-                <select name="items[itemId][]" class="form-control" required>
-                  <option value="">Select Product</option>
-                  <% inventory.forEach(item => { %>
-                    <% if (item.stock > 0) { %>
-                      <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>">
-                        <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
-                      </option>
-                    <% } %>
-                  <% }) %>
-                </select>
-                <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
-                <button type="button" class="btn btn-danger btn-round remove-btn" style="display: none;">
-                  <i class="fas fa-minus"></i>
-                </button>
-                <div class="field-error" id="itemError0"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Add Item Button -->
-          <button type="button" id="addItemBtn" class="btn btn-secondary btn-round">
-            <i class="fas fa-plus mr-1"></i> Add Another Item
-          </button>
-
-          <!-- Submit Button -->
-          <div class="form-actions">
-            <button type="submit" class="btn btn-success btn-round">
-              <i class="fas fa-shopping-bag mr-1"></i> Record Sale
-            </button>
-          </div>
-        </form>
-      </div>
+        </div>
     </div>
-  </div>
 
-  <!-- Now UI Kit JS -->
-  <script src="assets/js/core/jquery.min.js"></script>
-  <script src="assets/js/core/popper.min.js"></script>
-  <script src="assets/js/core/bootstrap.min.js"></script>
-  <script src="assets/js/now-ui-kit.js"></script>
+    <!-- JavaScript Dependencies -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const mainContent = document.getElementById('mainContent');
-    const itemsContainer = document.getElementById('itemsContainer');
-    const addItemBtn = document.getElementById('addItemBtn');
-    const salesForm = document.getElementById('salesForm');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const sidebar = document.getElementById('newSidebar');
+                const toggleBtn = document.getElementById('newToggleBtn');
+                const itemsContainer = document.getElementById('itemsContainer');
+                const addItemBtn = document.getElementById('addItemBtn');
+                const salesForm = document.getElementById('salesForm');
 
-    // Toggle sidebar visibility and collapse state
-    let isCollapsed = false;
-    
-    toggleBtn.addEventListener('click', () => {
-      if (window.innerWidth <= 768) {
-        // Mobile behavior - simple toggle
-        sidebar.classList.toggle('visible');
-      } else {
-        // Desktop behavior - collapse/expand
-        isCollapsed = !isCollapsed;
-        if (isCollapsed) {
-          sidebar.classList.add('collapsed');
-        } else {
-          sidebar.classList.remove('collapsed');
-        }
-      }
-    });
+                let isCollapsed = false;
+                let isOpenOnMobile = false;
 
-    // Set initial sidebar state
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove('collapsed');
-        sidebar.classList.remove('visible');
-      } else {
-        // Desktop - start expanded by default
-        sidebar.classList.remove('collapsed');
-        isCollapsed = false;
-      }
-    }
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
+                // Toggle sidebar
+                if (toggleBtn && sidebar) {
+                    toggleBtn.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            isOpenOnMobile = !isOpenOnMobile;
+                            if (isOpenOnMobile) {
+                                sidebar.classList.add('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            } else {
+                                sidebar.classList.remove('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                            }
+                        } else {
+                            isCollapsed = !isCollapsed;
+                            if (isCollapsed) {
+                                sidebar.classList.add('collapsed');
+                            } else {
+                                sidebar.classList.remove('collapsed');
+                            }
+                        }
+                    });
+                }
 
-    // Add new item row
-    let itemIndex = 1;
-    addItemBtn.addEventListener('click', () => {
-      const newRow = document.createElement('div');
-      newRow.className = 'item-row';
-      newRow.dataset.index = itemIndex;
-      newRow.innerHTML = `
-        <select name="items[itemId][]" class="form-control" required>
-          <option value="">Select Product</option>
-          <% inventory.forEach(item => { %>
-            <% if (item.stock > 0) { %>
-              <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>">
-                <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
-              </option>
-            <% } %>
-          <% }) %>
-        </select>
-        <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
-        <button type="button" class="btn btn-danger btn-round remove-btn">
-          <i class="fas fa-minus"></i>
-        </button>
-        <div class="field-error" id="itemError${itemIndex}"></div>
-      `;
-      itemsContainer.appendChild(newRow);
-      itemIndex++;
-      updateRemoveButtons();
-      attachItemValidation(newRow);
-    });
+                // Close sidebar on outside click (mobile only)
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                            isOpenOnMobile = false;
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    }
+                });
 
-    // Update remove buttons visibility
-    function updateRemoveButtons() {
-      const rows = itemsContainer.querySelectorAll('.item-row');
-      rows.forEach((row, index) => {
-        const removeBtn = row.querySelector('.remove-btn');
-        removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'block';
-        removeBtn.onclick = () => {
-          if (rows.length > 1) {
-            row.remove();
-            updateRemoveButtons();
-            validateItems();
-          }
-        };
-      });
-    }
+                // Set initial sidebar state
+                function setSidebarState() {
+                    if (!sidebar || !toggleBtn) return;
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('collapsed');
+                        if (!isOpenOnMobile) {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    } else {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
+                    }
+                }
+                setSidebarState();
+                window.addEventListener('resize', setSidebarState);
 
-    // Attach validation to item row
-    function attachItemValidation(row) {
-      const select = row.querySelector('select');
-      const quantityInput = row.querySelector('input[type="number"]');
-      const errorElement = row.querySelector('.field-error');
-      
-      select.addEventListener('change', () => {
-        if (select.value) {
-          const stock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock'));
-          quantityInput.setAttribute('max', stock);
-        }
-        validateItems();
-      });
-      
-      quantityInput.addEventListener('input', validateItems);
-    }
+                // Add new item row
+                let itemIndex = 1;
+                if (addItemBtn) {
+                    addItemBtn.addEventListener('click', () => {
+                        const newRow = document.createElement('div');
+                        newRow.className = 'item-row';
+                        newRow.dataset.index = itemIndex;
+                        newRow.innerHTML = `
+                            <select name="items[itemId][]" class="form-control" required>
+                                <option value="">Select Product</option>
+                                <% inventory.forEach(item => { %>
+                                    <% if (item.stock > 0) { %>
+                                        <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>">
+                                            <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
+                                        </option>
+                                    <% } %>
+                                <% }) %>
+                            </select>
+                            <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
+                            <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <div class="field-error" id="itemError${itemIndex}"></div>
+                        `;
+                        itemsContainer.appendChild(newRow);
+                        itemIndex++;
+                        updateRemoveButtons();
+                        attachItemValidation(newRow);
+                    });
+                }
 
-    // Validate all items
-    function validateItems() {
-      let isValid = true;
-      const rows = itemsContainer.querySelectorAll('.item-row');
-      
-      rows.forEach(row => {
-        const select = row.querySelector('select');
-        const quantityInput = row.querySelector('input[type="number"]');
-        const errorElement = row.querySelector('.field-error');
-        
-        if (!select.value) {
-          errorElement.textContent = 'Please select an item.';
-          errorElement.style.display = 'block';
-          isValid = false;
-        } else {
-          const stock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock'));
-          const quantity = parseInt(quantityInput.value) || 0;
-          
-          if (quantity <= 0) {
-            errorElement.textContent = 'Quantity must be greater than 0.';
-            errorElement.style.display = 'block';
-            isValid = false;
-          } else if (quantity > stock) {
-            errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
-            errorElement.style.display = 'block';
-            isValid = false;
-          } else {
-            errorElement.style.display = 'none';
-          }
-        }
-      });
-      
-      return isValid;
-    }
+                // Update remove buttons visibility
+                function updateRemoveButtons() {
+                    const rows = itemsContainer.querySelectorAll('.item-row');
+                    rows.forEach((row, index) => {
+                        const removeBtn = row.querySelector('.remove-btn');
+                        removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'block';
+                        removeBtn.onclick = () => {
+                            if (rows.length > 1) {
+                                row.remove();
+                                updateRemoveButtons();
+                                validateItems();
+                            }
+                        };
+                    });
+                }
 
-    // Validate customer name
-    function validateCustomer() {
-      const customerName = salesForm.querySelector('input[name="customerName"]');
-      const errorElement = document.getElementById('customerNameError');
-      
-      if (!customerName.value.trim()) {
-        errorElement.textContent = 'Customer name is required.';
-        errorElement.style.display = 'block';
-        return false;
-      } else {
-        errorElement.style.display = 'none';
-        return true;
-      }
-    }
+                // Attach validation to item row
+                function attachItemValidation(row) {
+                    const select = row.querySelector('select');
+                    const quantityInput = row.querySelector('input[type="number"]');
+                    const errorElement = row.querySelector('.field-error');
 
-    // Validate payment method
-    function validatePaymentMethod() {
-      const paymentMethod = salesForm.querySelector('select[name="paymentMethod"]');
-      const errorElement = document.getElementById('paymentMethodError');
-      
-      if (!paymentMethod.value) {
-        errorElement.textContent = 'Please select a payment method.';
-        errorElement.style.display = 'block';
-        return false;
-      } else {
-        errorElement.style.display = 'none';
-        return true;
-      }
-    }
+                    select.addEventListener('change', () => {
+                        if (select.value) {
+                            const stock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock'));
+                            quantityInput.setAttribute('max', stock);
+                        }
+                        validateItems();
+                    });
 
-    // Form submission
-    salesForm.addEventListener('submit', (e) => {
-      const isCustomerValid = validateCustomer();
-      const isPaymentMethodValid = validatePaymentMethod();
-      const areItemsValid = validateItems();
-      
-      if (!isCustomerValid || !isPaymentMethodValid || !areItemsValid) {
-        e.preventDefault();
-      }
-    });
+                    quantityInput.addEventListener('input', validateItems);
+                }
 
-    // Initial setup
-    updateRemoveButtons();
-    attachItemValidation(itemsContainer.querySelector('.item-row'));
-  </script>
+                // Validate all items
+                function validateItems() {
+                    let isValid = true;
+                    const rows = itemsContainer.querySelectorAll('.item-row');
+
+                    rows.forEach(row => {
+                        const select = row.querySelector('select');
+                        const quantityInput = row.querySelector('input[type="number"]');
+                        const errorElement = row.querySelector('.field-error');
+
+                        if (!select.value) {
+                            errorElement.textContent = 'Please select an item.';
+                            errorElement.style.display = 'block';
+                            isValid = false;
+                        } else {
+                            const stock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock'));
+                            const quantity = parseInt(quantityInput.value) || 0;
+
+                            if (quantity <= 0) {
+                                errorElement.textContent = 'Quantity must be greater than 0.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (quantity > stock) {
+                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else {
+                                errorElement.style.display = 'none';
+                            }
+                        }
+                    });
+
+                    return isValid;
+                }
+
+                // Validate customer name
+                function validateCustomer() {
+                    const customerName = salesForm.querySelector('input[name="customerName"]');
+                    const errorElement = document.getElementById('customerNameError');
+
+                    if (!customerName.value.trim()) {
+                        errorElement.textContent = 'Customer name is required.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else {
+                        errorElement.style.display = 'none';
+                        return true;
+                    }
+                }
+
+                // Validate payment method
+                function validatePaymentMethod() {
+                    const paymentMethod = salesForm.querySelector('select[name="paymentMethod"]');
+                    const errorElement = document.getElementById('paymentMethodError');
+
+                    if (!paymentMethod.value) {
+                        errorElement.textContent = 'Please select a payment method.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else {
+                        errorElement.style.display = 'none';
+                        return true;
+                    }
+                }
+
+                // Form submission
+                if (salesForm) {
+                    salesForm.addEventListener('submit', (e) => {
+                        const isCustomerValid = validateCustomer();
+                        const isPaymentMethodValid = validatePaymentMethod();
+                        const areItemsValid = validateItems();
+
+                        if (!isCustomerValid || !isPaymentMethodValid || !areItemsValid) {
+                            e.preventDefault();
+                        }
+                    });
+                }
+
+                // Initial setup
+                updateRemoveButtons();
+                attachItemValidation(itemsContainer.querySelector('.item-row'));
+            } catch (error) {
+                console.error('Error initializing scripts:', error);
+            }
+        });
+    </script>
 </body>
 </html>

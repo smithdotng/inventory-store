@@ -1,22 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Store View | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
     <title>Success</title>
-    
-    <!-- Now UI Kit CSS -->
-    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
+
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
+
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -24,88 +33,85 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        :root {
-            --primary-color: #466c7b;
-            --secondary-color: #4CAF50;
-            --accent-color: #3498db;
-            --text-color: #333;
-            --light-bg: #f9f9f9;
-            --dark-bg: #2c3e50;
-            --table-band-color: #f1f1f1;
-        }
-
         body {
             background-image: url('/images/bg.jpg');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
             margin: 0;
-            padding: 0;
         }
 
-        /* Sidebar styling */
-        .sidebar {
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+
+        /* Sidebar */
+        .new-sidebar {
             width: 250px;
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
-            background: var(--primary-color);
+            background: darkcyan;
             color: white;
-            padding: 20px;
-            transition: all 0.3s;
-            z-index: 1000;
-            box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-top: 75px;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
-        
-        .sidebar.collapsed {
+
+        .new-sidebar.collapsed {
             width: 80px;
-            overflow: hidden;
         }
-        
-        .sidebar.collapsed .logo-container img {
+
+        .new-sidebar.collapsed .logo img {
             max-width: 50px;
         }
-        
-        .sidebar.collapsed h2,
-        .sidebar.collapsed a span {
+
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
             display: none;
         }
-        
-        .sidebar.collapsed a {
-            text-align: center;
+
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
             padding: 12px 5px;
         }
-        
-        .sidebar.collapsed a i {
+
+        .new-sidebar.collapsed .nav-link i {
             margin-right: 0;
             font-size: 1.2rem;
         }
-        
-        .sidebar .logo-container {
+
+        .new-sidebar .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-        
-        .sidebar .logo-container img {
+
+        .new-sidebar .logo img {
             max-width: 80%;
             height: auto;
-            transition: all 0.3s;
+            transition: max-width 0.3s ease;
         }
-        
-        .sidebar h2 {
-            color: white;
+
+        .new-sidebar .greeting {
             font-size: 1.2rem;
-            margin-bottom: 30px;
             text-align: center;
-            transition: all 0.3s;
+            margin-bottom: 20px;
+            color: white;
         }
-        
-        .sidebar a {
+
+        .new-sidebar .nav-link {
             display: flex;
             align-items: center;
             color: rgba(255, 255, 255, 0.8);
@@ -113,45 +119,33 @@
             margin-bottom: 5px;
             border-radius: 4px;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
-        
-        .sidebar a i {
+
+        .new-sidebar .nav-link i {
             margin-right: 10px;
             font-size: 1rem;
         }
-        
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+
+        .new-sidebar .nav-link:hover {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
         }
-        
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+
+        .new-sidebar .nav-link.active {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
             font-weight: bold;
         }
-        
-        /* Main content */
-        .main-content {
-            margin-left: 250px;
-            transition: all 0.3s;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .sidebar.collapsed + .main-content {
-            margin-left: 80px;
-        }
-        
-        /* Toggle button */
-        .toggle-btn {
+
+        /* Toggle Button */
+        .new-toggle-btn {
             position: fixed;
             top: 10px;
             left: 10px;
-            z-index: 1100;
-            background: var(--dark-bg);
-            color: white;
+            z-index: 3100;
+            background: rgb(235, 166, 17);
+            color: darkcyan;
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -162,102 +156,146 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            transition: left 0.3s ease;
         }
-        
-        .sidebar.collapsed + .main-content .toggle-btn {
+
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
             left: 20px;
         }
 
-        /* Business Details Section */
-        .business-details-container {
-            display: flex;
-            justify-content: space-between;
-            background-color: rgba(0, 139, 139, 0.85);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            color: white;
-            margin-bottom: 50px;
-            border-left: 5px solid #4CAF50;
-            transition: all 0.3s ease;
-        }
-
-        .business-details-container:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .business-logo {
-            width: 80px;
-            height: 80px;
+        /* Main Container */
+        .main-container {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1000;
             background-color: white;
-            border-radius: 50%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
+        }
+
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+
+        .registration-container {
+            width: 100%;
+            padding: 20px;
+        }
+
+        .registration-card {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
             overflow: hidden;
-            flex-shrink: 0;
+            background-color: white;
+            border: 1px solid #e0e0e0;
         }
 
-        .business-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-            box-sizing: border-box;
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
         }
 
-        .business-info {
-            flex-grow: 0;
-            text-align: right;
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
         }
 
-        .business-info p {
-            margin: 5px 0;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .business-info p strong {
-            min-width: 120px;
-            display: inline-block;
-            color: #e0f7fa;
-            margin-left: 10px;
-        }
-
-        /* Success Container */
-        .success-container {
-            background: var(--light-bg);
-            padding: 25px;
-            border-radius: 8px;
-            margin: 50px auto;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 100%;
-            box-sizing: border-box;
+        .card-body {
+            padding: 20px;
             text-align: center;
         }
 
-        .success-container h1 {
-            color: var(--primary-color);
+        .success-message {
+            color: #333;
+            font-size: 16px;
             margin-bottom: 20px;
         }
 
-        /* Buttons */
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+        .form-group {
+            margin-bottom: 15px;
         }
 
-        /* Send Options */
+        .form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
+        }
+
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: 38px;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+
+        .btn-create-account {
+            background-color: rgb(235, 166, 17);
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14);
+            color: #fff;
+        }
+
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57);
+            color: #fff;
+        }
+
         .send-options {
-            display: none;
             margin-top: 20px;
             padding: 15px;
-            background-color: var(--table-band-color);
+            background-color: #f8f9fa;
             border-radius: 4px;
+            display: none;
         }
 
         .send-options.active {
@@ -271,212 +309,238 @@
             margin-bottom: 15px;
         }
 
-        .send-options input[type="email"] {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 100%;
-            max-width: 300px;
-            margin: 0 auto;
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
         }
 
-        /* Button styling */
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 25px;
-            text-decoration: none;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-        }
-        
-        .btn-primary:hover {
-            background-color: #3e8e41;
-            border-color: #3e8e41;
-            color: white;
-        }
-
-        /* Responsive adjustments */
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .sidebar {
+            .new-sidebar {
                 left: -250px;
             }
-            
-            .sidebar.visible {
+
+            .new-sidebar.open {
                 left: 0;
             }
-            
-            .main-content {
-                margin-left: 0 !important;
-                width: 100% !important;
-            }
-            
-            .sidebar.collapsed {
-                width: 250px;
-            }
-            
-            .sidebar.collapsed h2,
-            .sidebar.collapsed a span {
+
+            .new-sidebar.open + .main-container::before {
                 display: block;
             }
-            
-            .sidebar.collapsed a {
-                text-align: left;
-                padding: 12px 15px;
-            }
-            
-            .sidebar.collapsed a i {
-                margin-right: 10px;
-            }
-            
-            .business-details-container {
-                flex-direction: column;
-                text-align: center;
-                justify-content: center;
-            }
-            
-            .business-logo {
-                margin: 0 auto 15px;
-            }
-            
-            .business-info {
-                text-align: center;
+
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
                 width: 100%;
+                padding: 15px;
             }
-            
-            .business-info p {
+
+            .registration-container {
+                padding: 15px;
+            }
+
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
+            }
+
+            .btn-create-account {
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
+            }
+
+            .success-message {
+                font-size: 14px;
+            }
+
+            .form-actions {
                 flex-direction: column;
-                align-items: center;
-                justify-content: center;
+                align-items: stretch;
             }
-            
-            .business-info p strong {
-                min-width: auto;
-                margin: 0 0 5px 0;
-            }
-            
-            .buttons {
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .btn-primary {
-                width: 100%;
-            }
-            
+
             .send-options form {
                 align-items: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                margin: 0 auto;
+            }
+
+            .registration-container {
+                padding: 10px;
+            }
+
+            .card-body {
+                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="nav-content">
-            <div class="logo-container">
-                <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-            </div>
-            <h2 class="text-white">Welcome, <%= username %>!</h2>
-            <a href="/pos" class="active"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-            <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-            <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-            <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-            <a href="/customers"><i class="fas fa-users"></i> <span>Customers</span></a>
-            <a href="/home"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-            <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
         </div>
-    </div>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link active"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
 
     <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">
+    <button class="new-toggle-btn" id="newToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="container">
-            <!-- Business Details Container -->
-            <div class="business-details-container">
-                <div class="business-logo">
-                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
-                </div>
-                <div class="business-info">
-                    <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-                    <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
-                    <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-                </div>
-            </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: #333; font-size: 16px;">Sale Confirmed</h4>
+                        <p style="color: #333; font-size: 13px;">
+                            Business: <%= admin.businessName || 'N/A' %> | Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                        </p>
+                    </div>
 
-            <div class="success-container">
-                <h1>Your sale has been successfully posted! <i class="fas fa-check-circle" style="color: var(--secondary-color);"></i></h1>
-                <div class="buttons">
-                    <a href="/public-invoice/<%= saleId %>"><button class="btn btn-primary"><i class="fas fa-download mr-1"></i> Download Receipt</button></a>
-                    <button id="sendReceiptBtn" class="btn btn-primary"><i class="fas fa-share-alt mr-1"></i> Send Receipt</button>
-                </div>
-                <div id="sendOptions" class="send-options">
-                    <form action="/send-receipt-email/<%= sale._id %>" method="POST">
-                        <input type="email" name="email" placeholder="Enter email" value="<%= sale.email !== 'N/A' ? sale.email : '' %>" required>
-                        <button type="submit" class="btn btn-primary"><i class="fas fa-envelope mr-1"></i> Send via Email</button>
-                    </form>
-                    <a href="https://wa.me/?text=Please%20find%20your%20receipt%20here:%20http://localhost:3000/receipt/<%= sale._id %>" target="_blank">
-                        <button class="btn btn-primary"><i class="fab fa-whatsapp mr-1"></i> Send via WhatsApp</button>
-                    </a>
+                    <div class="success-message">
+                        <i class="fa-solid fa-check-circle" style="color: rgb(40, 167, 69); margin-right: 8px;"></i>
+                        Your sale has been successfully posted!
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="/public-invoice/<%= saleId %>" class="btn btn-round btn-create-account update-btn">
+                            <i class="fa-solid fa-download mr-2"></i>Download Receipt
+                        </a>
+                        <button id="sendReceiptBtn" class="btn btn-round btn-create-account">
+                            <i class="fa-solid fa-share-alt mr-2"></i>Send Receipt
+                        </button>
+                    </div>
+
+                    <div id="sendOptions" class="send-options">
+                        <form action="/send-receipt-email/<%= sale._id %>" method="POST" class="form-group">
+                            <label><i class="fa-solid fa-envelope mr-2"></i>Email Address</label>
+                            <input type="email" name="email" class="form-control" placeholder="Enter email" value="<%= sale.email !== 'N/A' ? sale.email : '' %>" required>
+                            <button type="submit" class="btn btn-round btn-create-account update-btn">
+                                <i class="fa-solid fa-envelope mr-2"></i>Send via Email
+                            </button>
+                        </form>
+                        <a href="https://wa.me/?text=Please%20find%20your%20receipt%20here:%20http://localhost:3000/receipt/<%= sale._id %>" target="_blank" class="btn btn-round btn-create-account update-btn">
+                            <i class="fa-brands fa-whatsapp mr-2"></i>Send via WhatsApp
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Now UI Kit JS -->
-    <script src="assets/js/core/jquery.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-kit.js"></script>
+    <!-- JavaScript Dependencies -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
 
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const mainContent = document.getElementById('mainContent');
-        const sendReceiptBtn = document.getElementById('sendReceiptBtn');
-        const sendOptions = document.getElementById('sendOptions');
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const sidebar = document.getElementById('newSidebar');
+                const toggleBtn = document.getElementById('newToggleBtn');
+                const sendReceiptBtn = document.getElementById('sendReceiptBtn');
+                const sendOptions = document.getElementById('sendOptions');
 
-        // Toggle sidebar visibility and collapse state
-        let isCollapsed = false;
-        
-        toggleBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                // Mobile behavior - simple toggle
-                sidebar.classList.toggle('visible');
-            } else {
-                // Desktop behavior - collapse/expand
-                isCollapsed = !isCollapsed;
-                if (isCollapsed) {
-                    sidebar.classList.add('collapsed');
-                } else {
-                    sidebar.classList.remove('collapsed');
+                let isCollapsed = false;
+                let isOpenOnMobile = false;
+
+                // Toggle sidebar
+                if (toggleBtn && sidebar) {
+                    toggleBtn.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            isOpenOnMobile = !isOpenOnMobile;
+                            if (isOpenOnMobile) {
+                                sidebar.classList.add('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            } else {
+                                sidebar.classList.remove('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                            }
+                        } else {
+                            isCollapsed = !isCollapsed;
+                            if (isCollapsed) {
+                                sidebar.classList.add('collapsed');
+                            } else {
+                                sidebar.classList.remove('collapsed');
+                            }
+                        }
+                    });
                 }
-            }
-        });
 
-        // Set initial sidebar state
-        function setSidebarState() {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('collapsed');
-                sidebar.classList.remove('visible');
-            } else {
-                sidebar.classList.remove('collapsed');
-                isCollapsed = false;
-            }
-        }
-        setSidebarState();
-        window.addEventListener('resize', setSidebarState);
+                // Close sidebar on outside click (mobile only)
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                            isOpenOnMobile = false;
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    }
+                });
 
-        // Toggle send options visibility
-        sendReceiptBtn.addEventListener('click', () => {
-            sendOptions.classList.toggle('active');
+                // Set initial sidebar state
+                function setSidebarState() {
+                    if (!sidebar || !toggleBtn) return;
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('collapsed');
+                        if (!isOpenOnMobile) {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    } else {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
+                    }
+                }
+                setSidebarState();
+                window.addEventListener('resize', setSidebarState);
+
+                // Toggle send options visibility
+                if (sendReceiptBtn && sendOptions) {
+                    sendReceiptBtn.addEventListener('click', () => {
+                        sendOptions.classList.toggle('active');
+                    });
+                }
+            } catch (error) {
+                console.error('Error initializing scripts:', error);
+            }
         });
     </script>
 </body>

@@ -25,6 +25,7 @@ let db;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static('public'));
 app.set('view engine', 'ejs');
+app.use(express.json()); // For application/json
 
 // Configure Nodemailer
 const transporter = nodemailer.createTransport({
@@ -854,11 +855,25 @@ app.get('/transactions', isAuthenticated, async (req, res) => {
       inventory,
       startDate: startDate || '',
       endDate: endDate || '',
-      search: search || '' // Pass search term to template
+      search: search || '', // Pass search term to template
+      error: null, // Add error message
+      success: null, // Add success message
+      formatCurrency
     });
   } catch (error) {
     console.error('Error fetching transactions:', error);
-    res.status(500).send('Internal Server Error');
+    // Render the template with error message
+    res.render('transactions', {
+      transactions: [],
+      admin: req.session.admin ? { username: req.session.admin } : null,
+      username: req.session.admin || '',
+      inventory: [],
+      startDate: '',
+      endDate: '',
+      search: '',
+      error: 'Failed to load transactions. Please try again.',
+      success: null
+    });
   }
 });
 
@@ -1126,13 +1141,35 @@ app.get('/create-outlet', isAuthenticated, async (req, res) => {
   res.render('create-outlet', { error: null, admin, username });
 });
 
+
+
 app.post('/update-description', async (req, res) => {
   try {
-      const { _id, description } = req.body;
-      await Product.findByIdAndUpdate(_id, { description });
+      const { _id, description, search } = req.body;
+      
+      // Validate input
+      if (!_id || !ObjectId.isValid(_id)) {
+          return res.status(400).json({ error: 'Invalid item ID' });
+      }
+      
+      if (description && description.length > 400) {
+          return res.status(400).json({ error: 'Description too long' });
+      }
+      
+      // Update in database
+      const result = await db.collection('inventory').updateOne(
+          { _id: new ObjectId(_id) },
+          { $set: { description: description || '' } }
+      );
+      
+      if (result.modifiedCount === 0) {
+          return res.status(404).json({ error: 'Item not found or no changes made' });
+      }
+      
       res.json({ success: true });
   } catch (error) {
-      res.status(500).json({ error: error.message });
+      console.error('Error updating description:', error);
+      res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -1818,7 +1855,7 @@ app.get('/sale-success/:saleId', isAuthenticated, async (req, res) => {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
     if (!sale) return res.status(404).send('Sale not found.');
-    res.render('sale-success', { sale, admin, username: req.session.admin });
+    res.render('sale-success', { sale, admin, username: req.session.admin, saleId });
   } catch (error) {
     console.error('Error loading sale success page:', error);
     res.status(500).send('Internal Server Error');
@@ -2251,7 +2288,7 @@ app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
     const outletId = req.params.outletId;
     const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
     if (!outlet) return res.status(404).send('Outlet not found');
-    res.render('outlet-details', { outlet, admin });
+    res.render('outlet-details', { outlet, admin, username: req.session.admin });
   } catch (err) {
     console.error('Error in /outlet-details/:outletId:', err.message, err.stack);
     res.status(500).send('Internal Server Error');
@@ -2262,274 +2299,522 @@ app.get('/landing', (req, res) => {
   res.render('landing', { admin: { currency: '$' } }); // Default currency for display
 });
 
-// Public Storefront Route
+
+// Storefront route (for reference, supporting confirmation within storefront)
 app.get('/store/:adminUsername', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
+    const saleId = req.query.saleId; // Optional for confirmation page
+
     const admin = await db.collection('admins').findOne({ username: adminUsername });
     if (!admin) {
       return res.status(404).render('404', { message: 'Store not found' });
     }
 
-    // Fetch inventory items with available stock
+    let sale = null;
+    if (saleId && ObjectId.isValid(saleId)) {
+      sale = await db.collection('sales').findOne({
+        _id: new ObjectId(saleId),
+        adminId: admin._id,
+        source: 'storefront'
+      });
+    }
+
     const inventory = await db.collection('inventory')
       .find({ adminId: admin._id, stock: { $gt: 0 } })
-      .sort({ name: 1 })
       .toArray();
 
-    res.render('storefront', {
+    const templateData = {
       admin,
       inventory,
       currency: admin.currency || '$',
       formatCurrency
-    });
+    };
+
+    if (sale) {
+      // Add confirmation data if sale exists
+      Object.assign(templateData, {
+        saleId: sale._id,
+        customerName: sale.customerName,
+        phoneNumber: sale.phoneNumber,
+        email: sale.email,
+        saleItems: sale.items,
+        totalAmount: sale.totalAmount,
+        invoiceUrl: `/store/${adminUsername}/confirmation/${sale._id}?token=${req.query.token}&format=pdf`,
+        paymentInstructions: admin.paymentInstructions
+      });
+    }
+
+    res.render('storefront', templateData);
   } catch (error) {
-    console.error('Error loading storefront:', error);
-    res.status(500).render('500', { message: 'Internal Server Error' });
+    console.error('Error rendering storefront:', error);
+    res.status(500).render('500', {
+      message: 'Error loading store',
+      error: process.env.NODE_ENV === 'development' ? error : undefined
+    });
   }
 });
 
-
-// Checkout Route
 app.post('/store/:adminUsername/checkout', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
     const { customerName, phoneNumber, email, cartItems } = req.body;
+
+    // Detailed validation
+    const missingFields = [];
+    if (!customerName) missingFields.push('customerName');
+    if (!phoneNumber) missingFields.push('phoneNumber');
+    if (!email) missingFields.push('email');
+    if (!cartItems) missingFields.push('cartItems');
+    
+    if (missingFields.length > 0) {
+      console.log('Missing fields:', missingFields, 'Form data:', req.body);
+      return res.status(400).json({ error: `Missing required fields: ${missingFields.join(', ')}` });
+    }
+
+    // Validate email format
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate phone number
+    if (!/[\d]{6,}/.test(phoneNumber)) {
+      return res.status(400).json({ error: 'Invalid phone number' });
+    }
+
+    // Check database connection
+    if (!db || !db.collection) {
+      throw new Error('Database connection not initialized');
+    }
+
     const admin = await db.collection('admins').findOne({ username: adminUsername });
-    if (!admin) return res.status(404).render('404', { message: 'Store not found' });
-
-    const parsedCart = JSON.parse(cartItems);
-    if (!Array.isArray(parsedCart) || parsedCart.length === 0) {
-      return res.status(400).send('No items in cart');
+    if (!admin) {
+      return res.status(404).json({ error: 'Store not found' });
     }
 
-    // Store customer
-    const customer = {
-      adminId: admin._id,
-      name: customerName,
-      phone: phoneNumber,
-      email,
-      createdAt: new Date()
-    };
-    const customerResult = await db.collection('customers').insertOne(customer);
-
-    // Process sale items
-    const saleItems = [];
-    let totalAmount = 0;
-    for (const cartItem of parsedCart) {
-      const item = await db.collection('inventory').findOne({ 
-        _id: new ObjectId(cartItem.id),
-        adminId: admin._id
-      });
-      if (!item || item.stock < cartItem.quantity) {
-        return res.status(400).send(`Insufficient stock for ${cartItem.name}`);
+    let parsedCart;
+    try {
+      parsedCart = JSON.parse(cartItems);
+      if (!Array.isArray(parsedCart)) {
+        throw new Error('Invalid cart format');
       }
-
-      const totalCost = item.cost * cartItem.quantity;
-      saleItems.push({
-        itemId: item._id,
-        itemName: item.name,
-        quantity: cartItem.quantity,
-        unitCost: item.cost,
-        totalCost
-      });
-      totalAmount += totalCost;
-
-      await db.collection('inventory').updateOne(
-        { _id: item._id },
-        { $inc: { stock: -cartItem.quantity } }
-      );
+    } catch (err) {
+      console.log('Cart parse error:', err, 'cartItems:', cartItems);
+      return res.status(400).json({ error: 'Invalid cart data' });
     }
 
-    // Record sale
-    const sale = {
-      adminId: admin._id,
-      customerId: customerResult.insertedId,
-      customerName,
-      phoneNumber,
-      email,
-      items: saleItems,
-      totalAmount,
-      paymentMethod: 'Online',
-      paymentStatus: 'Pending',
-      date: new Date(),
-      source: 'storefront'
-    };
-    const saleResult = await db.collection('sales').insertOne(sale);
+    if (parsedCart.length === 0) {
+      return res.status(400).json({ error: 'No items in cart' });
+    }
 
-    // Generate temporary invoice token
-    const token = crypto.randomBytes(32).toString('hex');
-    const expires = Date.now() + 3600000; // 1 hour expiration
-    await db.collection('invoice_tokens').insertOne({
-      saleId: saleResult.insertedId,
-      token,
-      expires
-    });
+    // Validate cart items
+    for (const item of parsedCart) {
+      if (!item.id || !item.name || !item.cost || !item.quantity) {
+        return res.status(400).json({ error: 'Invalid cart item format' });
+      }
+      if (item.quantity <= 0) {
+        return res.status(400).json({ error: `Invalid quantity for ${item.name}` });
+      }
+      if (!ObjectId.isValid(item.id)) {
+        return res.status(400).json({ error: `Invalid item ID: ${item.id}` });
+      }
+    }
 
-    // Render confirmation page with download link
-    const invoiceUrl = `/store/invoice/${saleResult.insertedId}?token=${token}`;
-    res.render('storefront-confirmation', {
-      admin,
-      customerName,
-      phoneNumber,
-      email,
-      saleItems,
-      totalAmount,
-      saleId: saleResult.insertedId,
-      currency: admin.currency || '$',
-      formatCurrency,
-      invoiceUrl // Pass the URL to the template
-    });
+    // Start transaction
+    const session = db.client.startSession();
+    try {
+      await session.withTransaction(async () => {
+        // Store customer
+        const customer = {
+          adminId: admin._id,
+          name: customerName.trim(),
+          phone: phoneNumber.trim(),
+          email: email.trim().toLowerCase(),
+          createdAt: new Date()
+        };
+        const customerResult = await db.collection('customers').insertOne(customer, { session });
+
+        // Process sale items
+        const saleItems = [];
+        let totalAmount = 0;
+        
+        for (const cartItem of parsedCart) {
+          const item = await db.collection('inventory').findOne(
+            { 
+              _id: new ObjectId(cartItem.id),
+              adminId: admin._id 
+            },
+            { session }
+          );
+          
+          if (!item) {
+            throw new Error(`Item not found: ${cartItem.name}`);
+          }
+          
+          if (item.stock < cartItem.quantity) {
+            throw new Error(`Insufficient stock for ${item.name}`);
+          }
+
+          const totalCost = item.cost * cartItem.quantity;
+          saleItems.push({
+            itemId: item._id,
+            itemName: item.name,
+            quantity: cartItem.quantity,
+            unitCost: item.cost,
+            totalCost
+          });
+          totalAmount += totalCost;
+
+          await db.collection('inventory').updateOne(
+            { _id: item._id },
+            { $inc: { stock: -cartItem.quantity } },
+            { session }
+          );
+        }
+
+        // Record sale
+        const sale = {
+          adminId: admin._id,
+          customerId: customerResult.insertedId,
+          customerName: customer.name,
+          phoneNumber: customer.phone,
+          email: customer.email,
+          items: saleItems,
+          totalAmount,
+          paymentMethod: 'Online',
+          paymentStatus: 'Pending',
+          date: new Date(),
+          source: 'storefront',
+          status: 'completed'
+        };
+
+        const saleResult = await db.collection('sales').insertOne(sale, { session });
+
+        // Generate temporary invoice token
+        const token = crypto.randomBytes(32).toString('hex');
+        const expires = Date.now() + 3600000; // 1 hour expiration
+        await db.collection('invoice_tokens').insertOne({
+          saleId: saleResult.insertedId,
+          token,
+          expires
+        }, { session });
+
+        // Send confirmation email (in background)
+        if (process.env.SENDGRID_API_KEY && typeof sendConfirmationEmail === 'function') {
+          sendConfirmationEmail({
+            to: email,
+            saleId: saleResult.insertedId,
+            customerName,
+            totalAmount,
+            currency: admin.currency || '$',
+            businessName: admin.businessName || 'Our Store'
+          }).catch(err => console.error('Email send error:', err));
+        }
+
+        // Return success with invoice URL
+        const invoiceUrl = `/store/${adminUsername}/confirmation/${saleResult.insertedId}?token=${token}`;
+        return res.json({ success: true, invoiceUrl });
+      });
+    } catch (err) {
+      throw err;
+    } finally {
+      await session.endSession();
+    }
   } catch (error) {
-    console.error('Error processing checkout:', error);
-    res.status(500).render('500', { message: 'Internal Server Error' });
+    console.error('Checkout error:', {
+      message: error.message,
+      stack: error.stack,
+      body: req.body,
+      adminUsername: req.params.adminUsername
+    });
+    return res.status(500).json({ 
+      error: 'Error processing your order',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
-app.get('/store/invoice/:saleId', async (req, res) => {
+
+
+app.get('/store/:adminUsername/confirmation/:saleId', async (req, res) => {
   try {
-    const saleId = req.params.saleId;
-    const token = req.query.token; // Temporary access token for security
+    const { adminUsername, saleId } = req.params;
+    const { token } = req.query;
 
-    // Fetch the sale without requiring admin authentication
-    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId) });
-    if (!sale || sale.source !== 'storefront') {
-      return res.status(404).render('404', { message: 'Invoice not found' });
+    // Validate saleId
+    if (!ObjectId.isValid(saleId)) {
+      return res.status(400).json({ error: 'Invalid sale ID' });
     }
 
-    // Verify token (optional, if you implement it in checkout)
-    const resetEntry = await db.collection('invoice_tokens').findOne({ saleId: sale._id, token });
-    if (!resetEntry || resetEntry.expires < Date.now()) {
-      return res.status(403).render('403', { message: 'Invalid or expired invoice link' });
+    // Check database connection
+    if (!db || !db.collection) {
+      console.error('Database not initialized');
+      throw new Error('Database connection not initialized');
     }
 
-    const admin = await db.collection('admins').findOne({ _id: sale.adminId });
+    // Verify token
+    const tokenEntry = await db.collection('invoice_tokens').findOne({ 
+      saleId: new ObjectId(saleId), 
+      token 
+    });
+    console.log('Token entry:', tokenEntry);
+    if (!tokenEntry || tokenEntry.expires < Date.now()) {
+      return res.status(403).json({ error: 'This confirmation link is invalid or has expired' });
+    }
+
+    // Fetch sale
+    const sale = await db.collection('sales').findOne({ 
+      _id: new ObjectId(saleId),
+      source: 'storefront'
+    });
+    console.log('Sale:', sale);
+    if (!sale) {
+      return res.status(404).json({ error: 'Sale not found' });
+    }
+
+    // Fetch admin
+    const admin = await db.collection('admins').findOne({ username: adminUsername });
+    console.log('Admin:', admin);
     if (!admin) {
-      return res.status(404).render('404', { message: 'Store not found' });
+      return res.status(404).json({ error: 'Store not found' });
     }
 
-    // Generate PDF
-    const doc = new PDFDocument({ margin: 50 });
-    const filename = `invoice-${saleId}.pdf`;
-    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-type', 'application/pdf');
-    doc.pipe(res);
+    // Handle PDF request
+    if (req.query.format === 'pdf') {
+      if (typeof generatePDFInvoice === 'function') {
+        return generatePDFInvoice(res, sale, admin);
+      } else {
+        console.error('generatePDFInvoice is not defined');
+        return res.status(501).json({ error: 'PDF generation not implemented' });
+      }
+    }
 
+    // Define formatCurrency
+    const formatCurrency = (amount) => Number(amount).toFixed(2);
+
+    // Render template
+    console.log('Rendering template with data:', {
+      saleId: sale._id,
+      adminEmail: admin.email,
+      email: sale.email,
+      customerName: sale.customerName,
+      saleItems: sale.items,
+      totalAmount: sale.totalAmount,
+      currency: admin.currency
+    });
+    res.render('storefront-confirmation', {
+      saleId: sale._id,
+      adminEmail: admin.email || 'N/A',
+      email: sale.email || 'N/A',
+      phoneNumber: sale.phoneNumber || 'N/A',
+      admin,
+      customerName: sale.customerName || 'N/A',
+      saleItems: sale.items || [],
+      totalAmount: sale.totalAmount || 0,
+      currency: admin.currency || '$',
+      formatCurrency,
+      invoiceUrl: `/store/${adminUsername}/confirmation/${sale._id}?token=${token}&format=pdf`
+    });
+
+  } catch (error) {
+    console.error('Confirmation error:', {
+      message: error.message,
+      stack: error.stack,
+      adminUsername: req.params.adminUsername,
+      saleId: req.params.saleId,
+      query: req.query
+    });
+    return res.status(500).json({ 
+      error: 'Error rendering confirmation',
+      details: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
+    });
+  }
+});
+
+// Helper function to generate PDF invoice
+async function generatePDFInvoice(res, sale, admin) {
+  const doc = new PDFDocument({ margin: 50, size: 'A4' });
+  const filename = `invoice-${sale._id}.pdf`;
+  
+  res.setHeader('Content-disposition', `inline; filename="${filename}"`);
+  res.setHeader('Content-type', 'application/pdf');
+  doc.pipe(res);
+
+  try {
     // Header
     doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
     doc.moveTo(50, 45).lineTo(550, 45).stroke();
     doc.moveDown(2);
 
+    // Add logo if exists
     if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
-      doc.image(path.join(__dirname, 'public', admin.logo), 50, 60, { width: 100 });
-      doc.moveDown(5);
+      try {
+        doc.image(path.join(__dirname, 'public', admin.logo), 50, 60, { width: 100 });
+        doc.moveDown(5);
+      } catch (err) {
+        console.error('Error loading logo:', err);
+      }
     }
 
-    doc.fontSize(20).text('Invoice', { align: 'right' });
-    doc.moveDown();
-    doc.fontSize(12).text(`Business: ${admin.businessName || 'N/A'}`, { align: 'left' });
-    doc.text(`Email: ${admin.email || 'N/A'}`, { align: 'left' });
-    doc.text(`Invoice Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
+    // Invoice header
+    doc.fontSize(20).text('INVOICE', { align: 'right' });
+    doc.fontSize(10).text(`Invoice #: ${sale._id}`, { align: 'right' });
+    doc.text(`Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'right' });
     doc.moveDown();
 
-    // Customer Details
-    doc.fontSize(12).text('Customer Details:', { underline: true });
-    doc.text(`Name: ${sale.customerName || 'N/A'}`);
+    // Business info
+    doc.fontSize(12).text(admin.businessName || 'Business Name', { align: 'left' });
+    if (admin.businessAddress) {
+      doc.text(admin.businessAddress, { align: 'left' });
+    }
+    if (admin.businessPhone) {
+      doc.text(`Phone: ${admin.businessPhone}`, { align: 'left' });
+    }
+    if (admin.email) {
+      doc.text(`Email: ${admin.email}`, { align: 'left' });
+    }
+    doc.moveDown(2);
+
+    // Customer info
+    doc.fontSize(12).text('BILL TO:', { underline: true });
+    doc.text(sale.customerName || 'Customer');
     doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
     doc.text(`Email: ${sale.email || 'N/A'}`);
-    doc.moveDown();
+    doc.moveDown(2);
 
-    // Sale Details
-    doc.fontSize(12).text('Purchase Details:', { underline: true });
-    doc.moveDown(0.5);
-
+    // Items table
     const tableTop = doc.y;
     const tableLeft = 50;
-    const colWidths = [200, 70, 100, 100];
+    const colWidths = [250, 80, 100, 100];
     const rowHeight = 20;
 
-    doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
-    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
-    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
-    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
-
+    // Table header
+    doc.font('Helvetica-Bold');
+    doc.text('Description', tableLeft, tableTop);
+    doc.text('Qty', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
+    doc.text('Unit Price', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
+    doc.text('Amount', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
     doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
     doc.font('Helvetica');
 
+    // Table rows
     let y = tableTop + rowHeight;
-    if (sale.items && Array.isArray(sale.items)) {
-      sale.items.forEach(item => {
-        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
-        doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
-        doc.text(`${admin.currency || '$'} ${formatCurrency(item.unitCost || 0)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
-        doc.text(`${admin.currency || '$'} ${formatCurrency(item.totalCost || 0)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
-        y += rowHeight;
-      });
-    }
+    sale.items.forEach(item => {
+      doc.text(item.itemName, tableLeft, y);
+      doc.text(String(item.quantity), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
+      doc.text(`${admin.currency || '$'} ${formatCurrency(item.unitCost)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+      doc.text(`${admin.currency || '$'} ${formatCurrency(item.totalCost)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+      y += rowHeight;
+    });
 
+    // Total
     doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
     doc.font('Helvetica-Bold');
-    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
-    doc.text(`${admin.currency || '$'} ${formatCurrency(sale.totalAmount || 0)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
+    doc.text('TOTAL', tableLeft + colWidths[0] + colWidths[1], y + 10, { width: colWidths[2], align: 'right' });
+    doc.text(`${admin.currency || '$'} ${formatCurrency(sale.totalAmount)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
     doc.font('Helvetica');
+    doc.moveDown(3);
 
-    // Payment Details Section
-    doc.moveDown(2);
-    doc.fontSize(12).text('Payment Details:', { underline: true });
-    doc.moveDown(0.5);
-
-    // Add payment instructions
-    doc.fontSize(10).text('Please use the following bank details for payment:', { align: 'left' });
-    doc.moveDown(0.5);
-
-    // Primary Account
-    if (admin.primaryAccount && (admin.primaryAccount.bankAccountName || admin.primaryAccount.accountNumber || admin.primaryAccount.bankName)) {
-      doc.fontSize(10).font('Helvetica-Bold').text('Primary Account:', { align: 'left' });
-      doc.font('Helvetica');
-      if (admin.primaryAccount.bankAccountName) {
-        doc.text(`Account Name: ${admin.primaryAccount.bankAccountName}`, { align: 'left' });
-      }
-      if (admin.primaryAccount.accountNumber) {
-        doc.text(`Account Number: ${admin.primaryAccount.accountNumber}`, { align: 'left' });
-      }
-      if (admin.primaryAccount.bankName) {
-        doc.text(`Bank Name: ${admin.primaryAccount.bankName}`, { align: 'left' });
-      }
+    // Payment instructions
+    if (admin.paymentInstructions) {
+      doc.fontSize(12).text('PAYMENT INSTRUCTIONS:', { underline: true });
       doc.moveDown(0.5);
+      doc.fontSize(10).text(admin.paymentInstructions);
+      doc.moveDown();
     }
 
-    // Secondary Account
-    if (admin.secondaryAccount && (admin.secondaryAccount.bankAccountName || admin.secondaryAccount.accountNumber || admin.secondaryAccount.bankName)) {
-      doc.fontSize(10).font('Helvetica-Bold').text('Secondary Account:', { align: 'left' });
-      doc.font('Helvetica');
-      if (admin.secondaryAccount.bankAccountName) {
-        doc.text(`Account Name: ${admin.secondaryAccount.bankAccountName}`, { align: 'left' });
-      }
-      if (admin.secondaryAccount.accountNumber) {
-        doc.text(`Account Number: ${admin.secondaryAccount.accountNumber}`, { align: 'left' });
-      }
-      if (admin.secondaryAccount.bankName) {
-        doc.text(`Bank Name: ${admin.secondaryAccount.bankName}`, { align: 'left' });
-      }
+    // Bank details
+    const hasBankDetails = admin.primaryAccount || admin.secondaryAccount;
+    if (hasBankDetails) {
+      doc.fontSize(12).text('BANK DETAILS:', { underline: true });
       doc.moveDown(0.5);
-    }
+      
+      if (admin.primaryAccount) {
+        doc.fontSize(10).font('Helvetica-Bold').text('Primary Account:');
+        doc.font('Helvetica');
+        if (admin.primaryAccount.bankAccountName) {
+          doc.text(`Account Name: ${admin.primaryAccount.bankAccountName}`);
+        }
+        if (admin.primaryAccount.accountNumber) {
+          doc.text(`Account Number: ${admin.primaryAccount.accountNumber}`);
+        }
+        if (admin.primaryAccount.bankName) {
+          doc.text(`Bank: ${admin.primaryAccount.bankName}`);
+        }
+        doc.moveDown();
+      }
 
-    // Add payment reference note
-    doc.moveDown(0.5);
-    doc.fontSize(10).text(`Please include the invoice number (${saleId}) as payment reference.`, { align: 'left' });
+      if (admin.secondaryAccount) {
+        doc.fontSize(10).font('Helvetica-Bold').text('Secondary Account:');
+        doc.font('Helvetica');
+        if (admin.secondaryAccount.bankAccountName) {
+          doc.text(`Account Name: ${admin.secondaryAccount.bankAccountName}`);
+        }
+        if (admin.secondaryAccount.accountNumber) {
+          doc.text(`Account Number: ${admin.secondaryAccount.accountNumber}`);
+        }
+        if (admin.secondaryAccount.bankName) {
+          doc.text(`Bank: ${admin.secondaryAccount.bankName}`);
+        }
+        doc.moveDown();
+      }
+    }
 
     // Footer
     const footerY = doc.page.height - 50;
     doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
-    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
+    doc.fontSize(8).text('Thank you for your business!', 50, footerY + 10, { align: 'center' });
+    doc.text('If you have any questions about this invoice, please contact us', 50, footerY + 25, { align: 'center' });
 
     doc.end();
   } catch (error) {
-    console.error('Error generating storefront invoice:', error);
-    res.status(500).render('500', { message: 'Error generating invoice' });
+    console.error('Error generating PDF:', error);
+    if (!res.headersSent) {
+      res.status(500).send('Error generating PDF invoice');
+    }
+    doc.end();
   }
-});
+}
+
+// Helper function to send confirmation email
+async function sendConfirmationEmail({ to, saleId, customerName, totalAmount, currency, businessName }) {
+  const sgMail = require('@sendgrid/mail');
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+  const msg = {
+    to,
+    from: process.env.SENDGRID_FROM_EMAIL || 'no-reply@shed.ng',
+    subject: `Your Order Confirmation from ${businessName}`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Thank you for your order, ${customerName}!</h2>
+        <p>Your order #${saleId} has been received and is being processed.</p>
+        
+        <div style="background: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Order Summary</h3>
+          <p><strong>Order Number:</strong> ${saleId}</p>
+          <p><strong>Total Amount:</strong> ${currency} ${formatCurrency(totalAmount)}</p>
+        </div>
+        
+        <p>You can view and download your invoice by clicking the link below:</p>
+        <p>
+          <a href="${process.env.BASE_URL}/store/invoice/${saleId}" 
+             style="display: inline-block; padding: 10px 20px; background: #007bff; color: white; text-decoration: none; border-radius: 5px;">
+            View Invoice
+          </a>
+        </p>
+        
+        <p>If you have any questions about your order, please reply to this email.</p>
+        
+        <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
+          &copy; ${new Date().getFullYear()} ${businessName}. All rights reserved.
+        </p>
+      </div>
+    `
+  };
+
+  await sgMail.send(msg);
+}
 
 app.get('/outlet-transactions/:outletId', isOutletAuthenticated, async (req, res) => {
   try {

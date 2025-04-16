@@ -1,759 +1,971 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:title" content="Home | Shed: Inventory, Invoices and More" />
-  <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-  <meta property="og:image" content="/android-chrome-512x512.png" />
-  <title>Manage Outlets</title>
-  
-  <!-- Now UI Kit CSS -->
-  <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-  <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-  <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-  <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-  
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-  
-  <!-- Favicons -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Home | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>Manage Outlets</title>
 
-  <style>
-    :root {
-      --primary-color: #466c7b;
-      --secondary-color: #4CAF50;
-      --accent-color: #3498db;
-      --text-color: #333;
-      --light-bg: #f9f9f9;
-      --dark-bg: #2c3e50;
-      --table-band-color: #f1f1f1;
-    }
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 
-    body {
-      background-image: url('/images/bg.jpg');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      margin: 0;
-      padding: 0;
-    }
-
-    /* Sidebar styling */
-    .sidebar {
-      width: 250px;
-      position: fixed;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      background: var(--primary-color);
-      color: white;
-      padding: 20px;
-      transition: all 0.3s;
-      z-index: 1000;
-      box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding-top: 75px;
-    }
+    <style>
+        body {
+            background-image: url('/images/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+        
+        /* Sidebar */
+        .new-sidebar {
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: darkcyan;
+            color: white;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .new-sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .new-sidebar.collapsed .logo img {
+            max-width: 50px;
+        }
+        
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
+            display: none;
+        }
+        
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px 5px;
+        }
+        
+        .new-sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
+        
+        .new-sidebar .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .new-sidebar .logo img {
+            max-width: 80%;
+            height: auto;
+            transition: max-width 0.3s ease;
+        }
+        
+        .new-sidebar .greeting {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .new-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .new-sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        
+        .new-sidebar .nav-link:hover {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+        }
+        
+        .new-sidebar .nav-link.active {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+            font-weight: bold;
+        }
+        
+        /* Toggle Button */
+        .new-toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 3100;
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+        }
+        
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
+            left: 20px;
+        }
+        
+        /* Main Container */
+        .main-container {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1000;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
+        }
+        
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .registration-container {
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .registration-card {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+        }
+        
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
+        }
+        
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: 38px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .btn-create-account {
+            background-color: rgb(235, 166, 17);
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14);
+            color: #fff;
+        }
+        
+        .btn-create-account.add-product-btn {
+            background-color: rgb(255, 204, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.add-product-btn:hover {
+            background-color: rgb(230, 184, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn:hover {
+            background-color: rgb(200, 48, 63);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn:hover {
+            background-color: rgb(90, 98, 104);
+            color: #fff;
+        }
+        
+        .btn-create-account.search-button {
+            background-color: rgb(0, 123, 255);
+            color: #fff;
+            border: 1px solid #ced4da;
+            border-left: none;
+        }
+        
+        .btn-create-account.search-button:hover {
+            background-color: rgb(0, 105, 217);
+            color: #fff;
+        }
+        
+        .btn-create-account.image-upload-btn {
+            background-color: rgb(111, 66, 193);
+            color: #fff;
+        }
+        
+        .btn-create-account.image-upload-btn:hover {
+            background-color: rgb(95, 56, 165);
+            color: #fff;
+        }
+        
+        .btn-create-account.share-store-btn {
+            background-color: rgb(23, 162, 184);
+            color: #fff;
+        }
+        
+        .btn-create-account.share-store-btn:hover {
+            background-color: rgb(19, 138, 157);
+            color: #fff;
+        }
+        
+        .btn-create-account.edit-btn {
+            background-color: rgb(255, 193, 7);
+            color: #333;
+        }
+        
+        .btn-create-account.edit-btn:hover {
+            background-color: rgb(230, 174, 6);
+            color: #333;
+        }
+        
+        .btn-create-account.clear-btn {
+            background-color: rgb(52, 58, 64);
+            color: #fff;
+        }
+        
+        .btn-create-account.clear-btn:hover {
+            background-color: rgb(44, 49, 54);
+            color: #fff;
+        }
+        
+        .btn-create-account.paid {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+            cursor: not-allowed;
+        }
+        
+        .btn-create-account.paid:hover {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        
+        .btn-create-account.pay-commission-btn {
+            background-color: rgb(0, 123, 255);
+            color: #fff;
+        }
+        
+        .btn-create-account.pay-commission-btn:hover {
+            background-color: rgb(0, 105, 217);
+            color: #fff;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            color: #333;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .table td {
+            background-color: white;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .button-group {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .form-section {
+            margin-bottom: 20px;
+        }
+        
+        /* Error/Success Messages */
+        .error {
+            color: #d32f2f;
+            background-color: #fde8e8;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            font-size: 13px;
+        }
+        
+        .success {
+            color: #388e3c;
+            background-color: #e8f5e9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            font-size: 13px;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .modal-content h5 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        .modal-content p {
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .new-sidebar {
+                left: -250px;
+            }
+            
+            .new-sidebar.open {
+                left: 0;
+            }
+            
+            .new-sidebar.open + .main-container::before {
+                display: block;
+            }
+            
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .registration-container {
+                padding: 15px;
+            }
+            
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+            
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
+            }
+            
+            .btn-create-account {
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
+            }
+            
+            .table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .table th, .table td {
+                padding: 8px;
+                min-width: 100px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
     
-    .sidebar.collapsed {
-      width: 80px;
-      overflow: hidden;
-    }
-    
-    .sidebar.collapsed .logo-container img {
-      max-width: 50px;
-    }
-    
-    .sidebar.collapsed h2,
-    .sidebar.collapsed a span {
-      display: none;
-    }
-    
-    .sidebar.collapsed a {
-      text-align: center;
-      padding: 12px 5px;
-    }
-    
-    .sidebar.collapsed a i {
-      margin-right: 0;
-      font-size: 1.2rem;
-    }
-    
-    .sidebar .logo-container {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-    
-    .sidebar .logo-container img {
-      max-width: 80%;
-      height: auto;
-      transition: all 0.3s;
-    }
-    
-    .sidebar h2 {
-      color: white;
-      font-size: 1.2rem;
-      margin-bottom: 30px;
-      text-align: center;
-      transition: all 0.3s;
-    }
-    
-    .sidebar a {
-      display: flex;
-      align-items: center;
-      color: rgba(255, 255, 255, 0.8);
-      padding: 12px 15px;
-      margin-bottom: 5px;
-      border-radius: 4px;
-      text-decoration: none;
-      transition: all 0.3s;
-    }
-    
-    .sidebar a i {
-      margin-right: 10px;
-      font-size: 1rem;
-    }
-    
-    .sidebar a:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-    }
-    
-    .sidebar a.active {
-      background: rgba(255, 255, 255, 0.2);
-      color: white;
-      font-weight: bold;
-    }
-    
-    /* Main content */
-    .main-content {
-      margin-left: 250px;
-      transition: all 0.3s;
-      min-height: 100vh;
-      padding: 20px;
-    }
-    
-    .sidebar.collapsed + .main-content {
-      margin-left: 80px;
-    }
-    
-    /* Toggle button */
-    .toggle-btn {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 1100;
-      background: var(--dark-bg);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s;
-    }
-    
-    .sidebar.collapsed + .main-content .toggle-btn {
-      left: 20px;
-    }
-
-    /* Business Details Section */
-    .business-details-container {
-      display: flex;
-      justify-content: space-between;
-      background-color: rgba(0, 139, 139, 0.85);
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      color: white;
-      margin-bottom: 50px;
-      border-left: 5px solid #4CAF50;
-      transition: all 0.3s ease;
-    }
-
-    .business-details-container:hover {
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-      transform: translateY(-2px);
-    }
-
-    .business-logo {
-      width: 80px;
-      height: 80px;
-      background-color: white;
-      border-radius: 50%;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    .business-logo img {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-      padding: 10px;
-      box-sizing: border-box;
-    }
-
-    .business-info {
-      flex-grow: 0;
-      text-align: right;
-    }
-
-    .business-info p {
-      margin: 5px 0;
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .business-info p strong {
-      min-width: 120px;
-      display: inline-block;
-      color: #e0f7fa;
-      margin-left: 10px;
-    }
-    
-    /* Form Section Styling */
-    .form-section {
-      background: var(--light-bg);
-      padding: 25px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      max-width: 600px;
-      width: 100%;
-      box-sizing: border-box;
-      margin-left: auto;
-      margin-right: auto;
-      display: none; /* Hidden by default */
-    }
-    
-    /* Button styling */
-    .btn-primary {
-      background-color: var(--secondary-color);
-      border-color: var(--secondary-color);
-    }
-    
-    .btn-primary:hover {
-      background-color: #3e8e41;
-      border-color: #3e8e41;
-    }
-    
-    .btn-info {
-      background-color: var(--accent-color);
-      border-color: var(--accent-color);
-    }
-    
-    .btn-info:hover {
-      background-color: #2980b9;
-      border-color: #2980b9;
-    }
-
-    /* Outlet-specific styles */
-    .action-bar {
-      margin-bottom: 30px;
-      text-align: center;
-    }
-    
-    .create-btn {
-      background-color: var(--secondary-color);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      border-radius: 30px;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: 500;
-      transition: all 0.3s;
-    }
-    
-    .create-btn:hover {
-      background-color: #3e8e41;
-      transform: translateY(-2px);
-    }
-    
-    .error {
-      color: #d32f2f;
-      background-color: #fde8e8;
-      padding: 12px;
-      border-radius: 6px;
-      margin-bottom: 20px;
-      border: 1px solid #f5c2c7;
-      font-size: 14px;
-    }
-    
-    .commission-cell {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-weight: bold;
-      color: #2c3e50;
-      white-space: nowrap;
-    }
-    
-    .pay-commission-btn {
-      background-color: var(--accent-color);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s;
-      flex-shrink: 0;
-    }
-    
-    .pay-commission-btn:hover {
-      background-color: #2980b9;
-    }
-    
-    .pay-commission-btn.paid {
-      background-color: var(--secondary-color);
-      cursor: default;
-    }
-    
-    .actions-dropdown {
-      padding: 6px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-      font-size: 14px;
-      background-color: #fff;
-      cursor: pointer;
-      width: 100%;
-      max-width: 150px;
-    }
-    
-    .actions-dropdown:focus {
-      border-color: var(--secondary-color);
-      outline: none;
-    }
-    
-    /* Table section styling */
-    .table-section {
-      background: var(--light-bg);
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-    }
-
-    /* Banded Table Styling */
-    .table tbody tr:nth-child(odd) {
-      background-color: var(--light-bg);
-    }
-    .table tbody tr:nth-child(even) {
-      background-color: var(--table-band-color);
-    }
-    .table tbody tr:hover {
-      background-color: #e9ecef;
-      transition: background-color 0.2s;
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .sidebar {
-        left: -250px;
-      }
-      
-      .sidebar.visible {
-        left: 0;
-      }
-      
-      .main-content {
-        margin-left: 0 !important;
-        width: 100% !important;
-      }
-      
-      .sidebar.collapsed {
-        width: 250px;
-      }
-      
-      .sidebar.collapsed h2,
-      .sidebar.collapsed a span {
-        display: block;
-      }
-      
-      .sidebar.collapsed a {
-        text-align: left;
-        padding: 12px 15px;
-      }
-      
-      .sidebar.collapsed a i {
-        margin-right: 10px;
-      }
-      
-      .business-details-container {
-        flex-direction: column;
-        text-align: center;
-        justify-content: center;
-      }
-      
-      .business-logo {
-        margin: 0 auto 15px;
-      }
-      
-      .business-info {
-        text-align: center;
-        width: 100%;
-      }
-      
-      .business-info p {
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-      }
-      
-      .business-info p strong {
-        min-width: auto;
-        margin: 0 0 5px 0;
-      }
-      
-      .commission-cell {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 5px;
-      }
-      
-      .actions-dropdown {
-        max-width: 120px;
-      }
-    }
-  </style>
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                margin: 0 auto;
+            }
+            
+            .registration-container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .table th, .table td {
+                padding: 6px;
+                min-width: 90px;
+            }
+            
+            .button-group .btn-create-account {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="nav-content">
-      <div class="logo-container">
-        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-      </div>
-      <h2 class="text-white">Welcome, <%= admin.username %>!</h2>
-      <a href="/pos"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-      <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-      <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-      <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-      <a href="/customers"><i class="fas fa-users"></i> <span>Customers</span></a>
-      <a href="/home" class="active"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-      <a href="/profile" class="active"><i class="fas fa-user"></i> <span>Profile</span></a>
-      <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </div>
-  </div>
-
-  <!-- Toggle Button -->
-  <button class="toggle-btn" id="toggleBtn">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="container">
-      <!-- Business Details Container -->
-      <div class="business-details-container">
-        <div class="business-logo">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
+    <!-- Sidebar -->
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
         </div>
-        <div class="business-info">
-          <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-          <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
-          <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-        </div>
-      </div>
-      <h1 class="text-center" style="color: #f9f9f9;">Manage Outlets</h1>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link active"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
 
-      <!-- Create Outlet Button -->
-      <div class="action-bar">
-        <button class="btn btn-primary btn-round" id="createOutletBtn">
-          <i class="fas fa-plus mr-1"></i> Create New Outlet
-        </button>
-      </div>
+    <!-- Toggle Button -->
+    <button class="new-toggle-btn" id="newToggleBtn">
+        <i class="fas fa-bars"></i>
+    </button>
 
-      <!-- Create Outlet Form (Initially Hidden) -->
-      <div class="form-section" id="createOutletForm">
-        <h2 class="h4 mb-4">Create Outlet <i class="fas fa-store ml-2"></i></h2>
-        <% if (error) { %>
-          <div class="alert alert-danger">
-            <div class="container">
-              <div class="alert-icon">
-                <i class="fas fa-exclamation-circle"></i>
-              </div>
-              <span><%= error %></span>
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">
-                  <i class="fas fa-times"></i>
-                </span>
-              </button>
-            </div>
-          </div>
-        <% } %>
-        <form action="/create-outlet" method="POST">
-          <div class="form-group">
-            <label>Outlet Name</label>
-            <input type="text" name="name" class="form-control" placeholder="Outlet Name" required>
-          </div>
-          <div class="form-group">
-            <label>Location/Address</label>
-            <input type="text" name="location" class="form-control" placeholder="Location/Address" required>
-          </div>
-          <div class="form-group">
-            <label>Mobile Number</label>
-            <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" required>
-          </div>
-          <div class="form-group">
-            <label>Username</label>
-            <input type="text" name="username" class="form-control" placeholder="Username" required>
-          </div>
-          <div class="form-group">
-            <label>Password</label>
-            <input type="password" name="password" class="form-control" placeholder="Password" required>
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-success btn-round">
-              <i class="fas fa-check mr-1"></i> Create Outlet
-            </button>
-            <button type="button" class="btn btn-danger btn-round" id="cancelCreateBtn">
-              <i class="fas fa-times mr-1"></i> Cancel
-            </button>
-          </div>
-        </form>
-      </div>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: #333; font-size: 16px;">Manage Outlets for <%= admin.businessName || 'Your Business' %></h4>
+                        <p style="color: #333; font-size: 13px;">
+                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                        </p>
+                    </div>
 
-      <!-- Outlets Table -->
-      <div class="table-section">
-        <div class="table-responsive">
-          <table class="table">
-            <thead class="text-primary">
-              <tr>
-                <th>Name</th>
-                <th>Location</th>
-                <th>Mobile</th>
-                <th>Username</th>
-                <th>Total Commission Due</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% outlets.forEach(outlet => { %>
-                <tr>
-                  <td><%= outlet.name %></td>
-                  <td><%= outlet.location %></td>
-                  <td><%= outlet.mobile %></td>
-                  <td><%= outlet.username %></td>
-                  <td class="commission-cell">
-                    <%= admin.currency || '$' %><%= (outlet.totalCommissionDue || 0).toFixed(2) %>
-                    <% if (outlet.totalCommissionDue && outlet.totalCommissionDue > 0) { %>
-                      <button class="btn btn-info btn-sm pay-commission-btn" 
-                              data-outlet-id="<%= outlet._id %>"
-                              data-outlet-name="<%= outlet.name %>"
-                              data-amount="<%= outlet.totalCommissionDue %>">
-                        <i class="fas fa-money-bill-wave mr-1"></i> Pay Commission
-                      </button>
-                    <% } else { %>
-                      <button class="btn btn-success btn-sm pay-commission-btn paid" disabled>
-                        <i class="fas fa-check mr-1"></i> Paid
-                      </button>
+                    <!-- Error/Success Messages -->
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="error">
+                            <i class="fas fa-exclamation-circle mr-2"></i><%= error %>
+                        </div>
                     <% } %>
-                  </td>
-                  <td>
-                    <select class="actions-dropdown" onchange="handleAction(this, '<%= outlet._id %>')">
-                      <option value="">Select Action</option>
-                      <option value="dispense"><i class="fas fa-truck mr-1"></i> Dispense</option>
-                      <option value="details"><i class="fas fa-info-circle mr-1"></i> View Details</option>
-                      <option value="delete"><i class="fas fa-trash mr-1"></i> Delete</option>
-                    </select>
-                  </td>
-                </tr>
-              <% }) %>
-            </tbody>
-          </table>
+                    
+                    <% if (typeof success !== 'undefined' && success) { %>
+                        <div class="success">
+                            <i class="fas fa-check-circle mr-2"></i><%= success %>
+                        </div>
+                    <% } %>
+
+                    <!-- Create Outlet Button -->
+                    <div class="button-group">
+                        <button class="btn btn-round btn-create-account add-product-btn" id="createOutletBtn">
+                            Create New Outlet <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+
+                    <!-- Create Outlet Form (Initially Hidden) -->
+                    <div class="form-section" id="createOutletForm" style="display: none;">
+                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Create New Outlet</h5>
+                        <form action="/create-outlet" method="POST">
+                            <div class="form-group">
+                                <label>Outlet Name <i class="fa-solid fa-store"></i></label>
+                                <input type="text" name="name" class="form-control" placeholder="Outlet Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Location/Address <i class="fa-solid fa-map-marker-alt"></i></label>
+                                <input type="text" name="location" class="form-control" placeholder="Location/Address" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Mobile Number <i class="fa-solid fa-phone"></i></label>
+                                <input type="text" name="mobile" class="form-control" placeholder="Mobile Number" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Username <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="username" class="form-control" placeholder="Username" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password <i class="fa-solid fa-lock"></i></label>
+                                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-round btn-create-account update-btn">
+                                    Create Outlet <i class="fa-solid fa-check"></i>
+                                </button>
+                                <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cancelCreateBtn">
+                                    Cancel <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Outlets Table -->
+                    <div class="table-section">
+                        <% if (outlets && outlets.length > 0) { %>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Location</th>
+                                        <th>Mobile</th>
+                                        <th>Username</th>
+                                        <th>Total Commission Due</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% outlets.forEach(outlet => { %>
+                                        <tr id="row-<%= outlet._id %>">
+                                            <td><%= outlet.name %></td>
+                                            <td><%= outlet.location %></td>
+                                            <td><%= outlet.mobile %></td>
+                                            <td><%= outlet.username %></td>
+                                            <td class="commission-cell">
+                                                <%= admin.currency %><%= (outlet.totalCommissionDue || 0).toFixed(2) %>
+                                                <% if (outlet.totalCommissionDue && outlet.totalCommissionDue > 0) { %>
+                                                    <button class="btn btn-round btn-create-account pay-commission-btn" 
+                                                            data-outlet-id="<%= outlet._id %>"
+                                                            data-outlet-name="<%= outlet.name %>"
+                                                            data-amount="<%= outlet.totalCommissionDue %>">
+                                                        Pay Commission <i class="fa-solid fa-money-bill-wave"></i>
+                                                    </button>
+                                                <% } else { %>
+                                                    <button class="btn btn-round btn-create-account paid" disabled>
+                                                        Paid <i class="fa-solid fa-check"></i>
+                                                    </button>
+                                                <% } %>
+                                            </td>
+                                            <td>
+                                                <div class="action-buttons">
+                                                    <a href="/dispense-to-outlet/<%= outlet._id %>" class="btn btn-round btn-create-account share-store-btn">
+                                                        Dispense <i class="fa-solid fa-truck"></i>
+                                                    </a>
+                                                    <a href="/outlet-details/<%= outlet._id %>" class="btn btn-round btn-create-account edit-btn">
+                                                        Details <i class="fa-solid fa-info-circle"></i>
+                                                    </a>
+                                                    <button class="btn btn-round btn-create-account delete-btn" 
+                                                            data-id="<%= outlet._id %>" 
+                                                            data-name="<%= outlet.name %>">
+                                                        Delete <i class="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <p style="text-align: center; color: #333; font-size: 13px;">No outlets found. Create your first outlet to get started.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 
-  <!-- Now UI Kit JS -->
-  <script src="assets/js/core/jquery.min.js"></script>
-  <script src="assets/js/core/popper.min.js"></script>
-  <script src="assets/js/core/bootstrap.min.js"></script>
-  <script src="assets/js/now-ui-kit.js"></script>
+    <!-- JavaScript Dependencies -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const mainContent = document.getElementById('mainContent');
-    const createOutletBtn = document.getElementById('createOutletBtn');
-    const createOutletForm = document.getElementById('createOutletForm');
-    const cancelCreateBtn = document.getElementById('cancelCreateBtn');
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const sidebar = document.getElementById('newSidebar');
+                const toggleBtn = document.getElementById('newToggleBtn');
+                const createOutletBtn = document.getElementById('createOutletBtn');
+                const createOutletForm = document.getElementById('createOutletForm');
+                const cancelCreateBtn = document.getElementById('cancelCreateBtn');
 
-    // Toggle sidebar visibility and collapse state
-    let isCollapsed = false;
-    
-    toggleBtn.addEventListener('click', () => {
-      if (window.innerWidth <= 768) {
-        // Mobile behavior - simple toggle
-        sidebar.classList.toggle('visible');
-      } else {
-        // Desktop behavior - collapse/expand
-        isCollapsed = !isCollapsed;
-        if (isCollapsed) {
-          sidebar.classList.add('collapsed');
-        } else {
-          sidebar.classList.remove('collapsed');
-        }
-      }
-    });
+                let isCollapsed = false;
+                let isOpenOnMobile = false;
 
-    // Set initial sidebar state
-    function setSidebarState() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove('collapsed');
-        sidebar.classList.remove('visible');
-      } else {
-        sidebar.classList.remove('collapsed');
-        isCollapsed = false;
-      }
-    }
-    setSidebarState();
-    window.addEventListener('resize', setSidebarState);
+                // Toggle sidebar
+                if (toggleBtn && sidebar) {
+                    toggleBtn.addEventListener('click', () => {
+                        if (window.innerWidth <= 768) {
+                            isOpenOnMobile = !isOpenOnMobile;
+                            if (isOpenOnMobile) {
+                                sidebar.classList.add('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                            } else {
+                                sidebar.classList.remove('open');
+                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                            }
+                        } else {
+                            isCollapsed = !isCollapsed;
+                            if (isCollapsed) {
+                                sidebar.classList.add('collapsed');
+                            } else {
+                                sidebar.classList.remove('collapsed');
+                            }
+                        }
+                    });
+                }
 
-    // Toggle create outlet form visibility
-    createOutletBtn.addEventListener('click', () => {
-      createOutletForm.style.display = 'block';
-      createOutletBtn.style.display = 'none';
-    });
+                // Close sidebar on outside click (mobile only)
+                document.addEventListener('click', (e) => {
+                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                            sidebar.classList.remove('open');
+                            isOpenOnMobile = false;
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    }
+                });
 
-    cancelCreateBtn.addEventListener('click', () => {
-      createOutletForm.style.display = 'none';
-      createOutletBtn.style.display = 'block';
-      createOutletForm.querySelector('form').reset();
-    });
+                // Set initial sidebar state
+                function setSidebarState() {
+                    if (!sidebar || !toggleBtn) return;
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.remove('collapsed');
+                        if (!isOpenOnMobile) {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    } else {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
+                    }
+                }
+                setSidebarState();
+                window.addEventListener('resize', setSidebarState);
 
-    // Pay Commission Function
-    async function payCommission(outletId) {
-      const button = document.querySelector(`button[data-outlet-id="${outletId}"]`);
-      const outletName = button.dataset.outletName;
-      const amount = button.dataset.amount;
-      
-      if (!confirm(`Are you sure you want to pay ${amount} commission to ${outletName}?`)) {
-        return;
-      }
-      
-      try {
-        button.disabled = true;
-        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Processing...';
-        
-        const response = await fetch(`/pay-commission/${outletId}`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          }
+                // Toggle create outlet form visibility
+                if (createOutletBtn && createOutletForm) {
+                    createOutletBtn.addEventListener('click', () => {
+                        createOutletForm.style.display = 'block';
+                        createOutletBtn.style.display = 'none';
+                    });
+                }
+
+                if (cancelCreateBtn && createOutletForm) {
+                    cancelCreateBtn.addEventListener('click', () => {
+                        createOutletForm.style.display = 'none';
+                        createOutletBtn.style.display = 'block';
+                        createOutletForm.querySelector('form').reset();
+                    });
+                }
+
+                // Pay commission buttons
+                document.querySelectorAll('.pay-commission-btn').forEach(btn => {
+                    btn.addEventListener('click', () => payCommission(btn.dataset.outletId));
+                });
+
+                // Delete buttons
+                document.querySelectorAll('.delete-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showDeleteModal(btn.dataset.id, btn.dataset.name);
+                    });
+                });
+
+                // Initialize form state based on error presence
+                <% if (typeof error !== 'undefined' && error) { %>
+                    createOutletForm.style.display = 'block';
+                    createOutletBtn.style.display = 'none';
+                <% } else { %>
+                    createOutletForm.style.display = 'none';
+                    createOutletBtn.style.display = 'block';
+                <% } %>
+
+                // Pay Commission Function
+                async function payCommission(outletId) {
+                    const button = document.querySelector(`button[data-outlet-id="${outletId}"]`);
+                    const outletName = button.dataset.outletName;
+                    const amount = button.dataset.amount;
+                    
+                    if (!confirm(`Are you sure you want to pay ${amount} commission to ${outletName}?`)) {
+                        return;
+                    }
+                    
+                    try {
+                        button.disabled = true;
+                        button.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Processing...';
+                        
+                        const response = await fetch(`/pay-commission/${outletId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        if (response.ok) {
+                            const result = await response.json();
+                            button.innerHTML = 'Paid <i class="fa-solid fa-check"></i>';
+                            button.classList.remove('pay-commission-btn');
+                            button.classList.add('paid');
+                            button.disabled = true;
+                            
+                            // Update the commission due display
+                            const commissionCell = button.closest('.commission-cell');
+                            if (commissionCell) {
+                                commissionCell.innerHTML = `
+                                    <%= admin.currency %>0.00
+                                    <button class="btn btn-round btn-create-account paid" disabled>
+                                        Paid <i class="fa-solid fa-check"></i>
+                                    </button>
+                                `;
+                            }
+                            
+                            // Show success notification
+                            showNotification('success', 'Commission paid successfully!');
+                        } else {
+                            throw new Error('Failed to pay commission');
+                        }
+                    } catch (error) {
+                        console.error('Error paying commission:', error);
+                        button.disabled = false;
+                        button.innerHTML = 'Pay Commission <i class="fa-solid fa-money-bill-wave"></i>';
+                        showNotification('error', 'Failed to pay commission. Please try again.');
+                    }
+                }
+
+                function showDeleteModal(id, name) {
+                    const modal = document.createElement('div');
+                    modal.className = 'modal';
+                    modal.innerHTML = `
+                        <div class="modal-content">
+                            <h5>Delete ${name}?</h5>
+                            <p>Are you sure you want to delete this outlet? This action cannot be undone.</p>
+                            <div class="modal-buttons">
+                                <button class="btn btn-round btn-create-account cancel-btn" type="button">
+                                    Cancel <i class="fa-solid fa-times"></i>
+                                </button>
+                                <form action="/delete-outlet" method="POST">
+                                    <input type="hidden" name="_id" value="${id}">
+                                    <button type="submit" class="btn btn-round btn-create-account delete-btn">
+                                        Delete <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+
+                    // Add event listener for Cancel button
+                    modal.querySelector('.modal-buttons button[type="button"]').addEventListener('click', () => {
+                        modal.remove();
+                    });
+                }
+
+                function showNotification(type, message) {
+                    const notification = document.createElement('div');
+                    notification.className = type;
+                    notification.innerHTML = `
+                        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i>
+                        ${message}
+                    `;
+                    
+                    const container = document.querySelector('.registration-container');
+                    container.prepend(notification);
+                    
+                    setTimeout(() => {
+                        notification.remove();
+                    }, 5000);
+                }
+
+                // Remove unused table editing functions
+                // toggleEdit, updateHiddenInputs, and cancelEdit are not used in this template
+            } catch (error) {
+                console.error('Error initializing scripts:', error);
+            }
         });
-        
-        if (response.ok) {
-          const result = await response.json();
-          button.innerHTML = '<i class="fas fa-check mr-1"></i> Paid';
-          button.classList.remove('btn-info');
-          button.classList.add('btn-success', 'paid');
-          
-          // Update the commission due display
-          const commissionCell = button.closest('.commission-cell');
-          if (commissionCell) {
-            commissionCell.innerHTML = `
-              <%= admin.currency || '$' %>0.00
-              <button class="btn btn-success btn-sm pay-commission-btn paid" disabled>
-                <i class="fas fa-check mr-1"></i> Paid
-              </button>
-            `;
-          }
-          
-          // Show success notification
-          showNotification('success', 'Commission paid successfully!');
-        } else {
-          throw new Error('Failed to pay commission');
-        }
-      } catch (error) {
-        console.error('Error paying commission:', error);
-        button.disabled = false;
-        button.innerHTML = '<i class="fas fa-money-bill-wave mr-1"></i> Pay Commission';
-        showNotification('danger', 'Failed to pay commission. Please try again.');
-      }
-    }
-
-    // Handle Action Dropdown
-    function handleAction(select, outletId) {
-      const action = select.value;
-      if (!action) return; // Do nothing if "Select Action" is chosen
-
-      switch (action) {
-        case 'dispense':
-          window.location.href = `/dispense-to-outlet/${outletId}`;
-          break;
-        case 'details':
-          window.location.href = `/outlet-details/${outletId}`;
-          break;
-        case 'delete':
-          if (confirm('Are you sure you want to delete this outlet?')) {
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = `/delete-outlet/${outletId}`;
-            document.body.appendChild(form);
-            form.submit();
-          }
-          break;
-      }
-
-      // Reset dropdown to "Select Action" after selection
-      select.value = '';
-    }
-
-    // Show notification
-    function showNotification(type, message) {
-      const notification = document.createElement('div');
-      notification.className = `alert alert-${type} alert-dismissible fade show`;
-      notification.role = 'alert';
-      notification.innerHTML = `
-        <span>${message}</span>
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      `;
-      
-      const container = document.querySelector('.container');
-      container.prepend(notification);
-      
-      setTimeout(() => {
-        notification.classList.add('show');
-      }, 10);
-      
-      setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 150);
-      }, 5000);
-    }
-
-    // Attach pay commission event listeners
-    document.querySelectorAll('.pay-commission-btn:not(.paid)').forEach(btn => {
-      btn.addEventListener('click', () => payCommission(btn.dataset.outletId));
-    });
-
-    // Initialize form state
-    <% if (error) { %>
-      createOutletForm.style.display = 'block';
-      createOutletBtn.style.display = 'none';
-    <% } else { %>
-      createOutletForm.style.display = 'none';
-      createOutletBtn.style.display = 'block';
-    <% } %>
-  </script>
+    </script>
 </body>
 </html>

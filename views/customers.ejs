@@ -1,21 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="Customers | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
     <title>Customers</title>
-    
-    <!-- Now UI Kit CSS -->
-    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-kit.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css" rel="stylesheet" />
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
     
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -24,88 +33,85 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        :root {
-            --primary-color: #466c7b;
-            --secondary-color: #4CAF50;
-            --accent-color: #3498db;
-            --text-color: #333;
-            --light-bg: #f9f9f9;
-            --dark-bg: #2c3e50;
-            --table-band-color: #f1f1f1;
-        }
-
         body {
             background-image: url('/images/bg.jpg');
             background-size: cover;
             background-position: center;
+            background-attachment: fixed;
             background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
             margin: 0;
-            padding: 0;
         }
-
-        /* Sidebar styling */
-        .sidebar {
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+        
+        /* Sidebar */
+        .new-sidebar {
             width: 250px;
             position: fixed;
             left: 0;
             top: 0;
             bottom: 0;
-            background: var(--primary-color);
+            background: darkcyan;
             color: white;
-            padding: 20px;
-            transition: all 0.3s;
-            z-index: 1000;
-            box-shadow: 0 2px 22px 0 rgba(0, 0, 0, 0.1), 0 4px 20px 0 rgba(0, 0, 0, 0.15);
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding-top: 75px;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
         }
         
-        .sidebar.collapsed {
+        .new-sidebar.collapsed {
             width: 80px;
-            overflow: hidden;
         }
         
-        .sidebar.collapsed .logo-container img {
+        .new-sidebar.collapsed .logo img {
             max-width: 50px;
         }
         
-        .sidebar.collapsed h2,
-        .sidebar.collapsed a span {
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
             display: none;
         }
         
-        .sidebar.collapsed a {
-            text-align: center;
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
             padding: 12px 5px;
         }
         
-        .sidebar.collapsed a i {
+        .new-sidebar.collapsed .nav-link i {
             margin-right: 0;
             font-size: 1.2rem;
         }
         
-        .sidebar .logo-container {
+        .new-sidebar .logo {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
-        .sidebar .logo-container img {
+        .new-sidebar .logo img {
             max-width: 80%;
             height: auto;
-            transition: all 0.3s;
+            transition: max-width 0.3s ease;
         }
         
-        .sidebar h2 {
-            color: white;
+        .new-sidebar .greeting {
             font-size: 1.2rem;
-            margin-bottom: 30px;
             text-align: center;
-            transition: all 0.3s;
+            margin-bottom: 20px;
+            color: white;
         }
         
-        .sidebar a {
+        .new-sidebar .nav-link {
             display: flex;
             align-items: center;
             color: rgba(255, 255, 255, 0.8);
@@ -113,45 +119,33 @@
             margin-bottom: 5px;
             border-radius: 4px;
             text-decoration: none;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
         }
         
-        .sidebar a i {
+        .new-sidebar .nav-link i {
             margin-right: 10px;
             font-size: 1rem;
         }
         
-        .sidebar a:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
+        .new-sidebar .nav-link:hover {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
         }
         
-        .sidebar a.active {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+        .new-sidebar .nav-link.active {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
             font-weight: bold;
         }
         
-        /* Main content */
-        .main-content {
-            margin-left: 250px;
-            transition: all 0.3s;
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .sidebar.collapsed + .main-content {
-            margin-left: 80px;
-        }
-        
-        /* Toggle button */
-        .toggle-btn {
+        /* Toggle Button */
+        .new-toggle-btn {
             position: fixed;
             top: 10px;
             left: 10px;
-            z-index: 1100;
-            background: var(--dark-bg);
-            color: white;
+            z-index: 3100;
+            background: rgb(235, 166, 17);
+            color: darkcyan;
             border: none;
             border-radius: 50%;
             width: 40px;
@@ -162,518 +156,634 @@
             justify-content: center;
             cursor: pointer;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            transition: left 0.3s ease;
         }
         
-        .sidebar.collapsed + .main-content .toggle-btn {
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
             left: 20px;
         }
         
-        /* Search and Add Customer Container */
-        .search-add-container {
+        /* Main Container */
+        .main-container {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 1000;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
+        }
+        
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .registration-container {
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .registration-card {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+        }
+        
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
+        }
+        
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: 38px;
+            width: 100%;
+            box-sizing: border-box;
+            border-right: none;
+        }
+        
+        .btn-create-account {
+            background-color: rgb(235, 166, 17);
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14);
+            color: #fff;
+        }
+        
+        .btn-create-account.add-product-btn {
+            background-color: rgb(255, 204, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.add-product-btn:hover {
+            background-color: rgb(230, 184, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn:hover {
+            background-color: rgb(200, 48, 63);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn:hover {
+            background-color: rgb(90, 98, 104);
+            color: #fff;
+        }
+        
+        .btn-create-account.search-button {
+            background-color: rgb(0, 123, 255);
+            color: #fff;
+            border: 1px solid #ced4da;
+            border-left: none;
+        }
+        
+        .btn-create-account.search-button:hover {
+            background-color: rgb(0, 105, 217);
+            color: #fff;
+        }
+        
+        .btn-create-account.clear-btn {
+            background-color: rgb(52, 58, 64);
+            color: #fff;
+        }
+        
+        .btn-create-account.clear-btn:hover {
+            background-color: rgb(42, 47, 52);
+            color: #fff;
+        }
+        
+        .btn-create-account.view-btn {
+            background-color: rgb(23, 162, 184);
+            color: #fff;
+        }
+        
+        .btn-create-account.view-btn:hover {
+            background-color: rgb(19, 138, 157);
+            color: #fff;
+        }
+        
+        .btn-create-account.edit-btn {
+            background-color: rgb(255, 193, 7);
+            color: #333;
+        }
+        
+        .btn-create-account.edit-btn:hover {
+            background-color: rgb(230, 174, 6);
+            color: #333;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .table-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            color: #333;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .table td {
+            background-color: white;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .button-group {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
-            gap: 15px;
         }
         
-        /* Search Section */
-        .search-section {
-            background: var(--light-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex-grow: 1;
-            max-width: 600px;
-        }
-        
-        .search-section .form-group {
-            margin-bottom: 0;
+        .search-group {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 0;
+            max-width: 500px;
+            width: 100%;
         }
         
-        .search-section input {
-            flex-grow: 1;
+        .search-group .form-control {
+            border-right: none;
+            border-radius: 4px 0 0 4px;
         }
         
-        /* Add Customer Button */
-        .add-customer-btn {
-            background: var(--light-bg);
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: flex;
-            align-items: center;
+        .search-group .btn-create-account {
+            border-radius: 0 4px 4px 0;
         }
         
-        /* Form Section Styling */
         .form-section {
-            background: var(--light-bg);
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 600px;
-            width: 100%;
-            box-sizing: border-box;
-            margin-left: auto;
-            margin-right: auto;
-            display: none; /* Hidden by default */
+            margin-bottom: 20px;
         }
         
-        /* Button styling */
-        .btn-primary {
-            background-color: var(--secondary-color);
-            border-color: var(--secondary-color);
-        }
-        
-        .btn-primary:hover {
-            background-color: #3e8e41;
-            border-color: #3e8e41;
-        }
-        
-        .btn-info {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-        
-        .btn-info:hover {
-            background-color: #2980b9;
-            border-color: #2980b9;
-        }
-        
-        .btn-warning {
-            background-color: #f39c12;
-            border-color: #f39c12;
-        }
-        
-        .btn-warning:hover {
-            background-color: #e08e0b;
-            border-color: #e08e0b;
-        }
-
-        /* Content Logo Container with Round Frame */
-        .content-logo-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .content-logo-frame {
-            display: inline-block;
-            width: 100px;
-            height: 100px;
-            background-color: white;
-            border-radius: 50%;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        
-        .content-logo-frame img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        /* Business Details Section */
-        .business-details-container {
-            display: flex;
-            justify-content: space-between;
-            background-color: rgba(0, 139, 139, 0.85);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            color: white;
-            margin-bottom: 50px;
-            border-left: 5px solid #4CAF50;
-            transition: all 0.3s ease;
-        }
-
-        .business-details-container:hover {
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .business-logo {
-            width: 80px;
-            height: 80px;
-            background-color: white;
-            border-radius: 50%;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .business-logo img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            padding: 10px;
-            box-sizing: border-box;
-        }
-
-        .business-info {
-            flex-grow: 0;
-            text-align: right;
-        }
-
-        .business-info p {
-            margin: 5px 0;
-            display: flex;
-            justify-content: flex-end;
-        }
-
-        .business-info p strong {
-            min-width: 120px;
-            display: inline-block;
-            color: #e0f7fa;
-            margin-left: 10px;
-        }
-
-        /* Table section styling */
-        .table-section {
-            background: var(--light-bg);
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
-        }
-
-        /* Banded Table Styling */
-        .table tbody tr:nth-child(odd) {
-            background-color: var(--light-bg);
-        }
-        .table tbody tr:nth-child(even) {
-            background-color: var(--table-band-color);
-        }
-        .table tbody tr:hover {
-            background-color: #e9ecef;
-            transition: background-color 0.2s;
-        }
-
-        /* Customer Actions */
-        .customer-actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        /* Responsive adjustments */
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .sidebar {
+            .new-sidebar {
                 left: -250px;
             }
             
-            .sidebar.visible {
+            .new-sidebar.open {
                 left: 0;
             }
             
-            .main-content {
-                margin-left: 0 !important;
-                width: 100% !important;
-            }
-            
-            .sidebar.collapsed {
-                width: 250px;
-            }
-            
-            .sidebar.collapsed h2,
-            .sidebar.collapsed a span {
+            .new-sidebar.open + .main-container::before {
                 display: block;
             }
             
-            .sidebar.collapsed a {
-                text-align: left;
-                padding: 12px 15px;
-            }
-            
-            .sidebar.collapsed a i {
-                margin-right: 10px;
-            }
-            
-            .search-section .form-group {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .search-section .btn {
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
                 width: 100%;
+                padding: 15px;
             }
             
-            .search-add-container {
+            .registration-container {
+                padding: 15px;
+            }
+            
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+            
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
+            }
+            
+            .btn-create-account {
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
+            }
+            
+            .table {
+                font-size: 12px;
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+            
+            .table th, .table td {
+                padding: 8px;
+                min-width: 100px;
+            }
+            
+            .button-group {
                 flex-direction: column;
+                align-items: stretch;
             }
             
-            .search-section, .add-customer-btn {
-                width: 100%;
+            .search-group {
                 max-width: 100%;
             }
+        }
+    
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                margin: 0 auto;
+            }
             
-            .business-details-container {
+            .registration-container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .action-buttons {
                 flex-direction: column;
-                text-align: center;
-                justify-content: center;
+                align-items: stretch;
             }
             
-            .business-logo {
-                margin: 0 auto 15px;
+            .table th, .table td {
+                padding: 6px;
+                min-width: 90px;
             }
             
-            .business-info {
-                text-align: center;
+            .button-group .btn-create-account {
                 width: 100%;
-            }
-            
-            .business-info p {
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .business-info p strong {
-                min-width: auto;
-                margin: 0 0 5px 0;
-            }
-            
-            .customer-actions {
-                flex-direction: column;
-                gap: 8px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <div class="nav-content">
-            <div class="logo-container">
-                <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-            </div>
-            <h2 class="text-white">Welcome, <%= username %>!</h2>
-            <a href="/pos"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-            <a href="/update-stock"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-            <a href="/invoices"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-            <a href="/transactions"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-            <a href="/customers" class="active"><i class="fas fa-users"></i> <span>Customers</span></a>
-            <a href="/home"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-            <a href="/admin-logout"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
         </div>
-    </div>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link active"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
 
     <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">
+    <button class="new-toggle-btn" id="newToggleBtn">
         <i class="fas fa-bars"></i>
     </button>
 
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-        <div class="container">
-            <!-- Business Details Container -->
-            <div class="business-details-container">
-                <div class="business-logo">
-                    <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Business Logo">
-                </div>
-                <div class="business-info">
-                    <p><strong><i class="fas fa-building mr-2"></i>Business Name:</strong> <%= admin.businessName || 'N/A' %></p>
-                    <p><strong><i class="fas fa-envelope mr-2"></i>Email:</strong> <%= admin.email || 'N/A' %></p>
-                    <p><strong><i class="fas fa-money-bill-wave mr-2"></i>Currency:</strong> <%= admin.currency || 'N/A' %></p>
-                </div>
-            </div>
-            <h1 class="text-center" style="color: #f9f9f9;">Customers</h1>
-
-            <!-- Search and Add Customer Container -->
-            <div class="search-add-container">
-                <!-- Search Section -->
-                <div class="search-section">
-                    <form method="GET" action="/customers" class="form-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search by customer name" value="<%= search || '' %>">
-                        <button type="submit" class="btn btn-primary btn-round">
-                            <i class="fas fa-search mr-1"></i> Search
-                        </button>
-                        <% if (search) { %>
-                            <a href="/customers" class="btn btn-danger btn-round">
-                                <i class="fas fa-times mr-1"></i> Clear
-                            </a>
-                        <% } %>
-                    </form>
-                </div>
-
-                <!-- Add Customer Button -->
-                <div class="add-customer-btn">
-                    <button id="addCustomerBtn" class="btn btn-primary btn-round">
-                        <i class="fas fa-plus mr-1"></i> Add Customer
-                    </button>
-                </div>
-            </div>
-
-            <!-- Add Customer Form (Hidden by Default) -->
-            <div class="form-section" id="addCustomerForm">
-                <h2 class="h4 mb-4">Add New Customer</h2>
-                <form action="/add-customer" method="POST">
-                    <div class="form-group">
-                        <label>Customer Name</label>
-                        <input type="text" name="name" class="form-control" placeholder="Customer Name" required>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: #333; font-size: 16px;">Customers for <%= admin.businessName || 'Your Business' %></h4>
+                        <p style="color: #333; font-size: 13px;">
+                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                        </p>
                     </div>
-                    <div class="form-group">
-                        <label>Phone Number</label>
-                        <input type="tel" name="phone" class="form-control" placeholder="Phone Number">
-                    </div>
-                    <div class="form-group">
-                        <label>Email Address</label>
-                        <input type="email" name="email" class="form-control" placeholder="Email Address">
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-success btn-round">
-                            <i class="fas fa-plus mr-1"></i> Add Customer
-                        </button>
-                        <button type="button" id="cancelAddBtn" class="btn btn-danger btn-round ml-2">
-                            <i class="fas fa-times mr-1"></i> Cancel
+
+                    <!-- Search and Add Customer -->
+                    <div class="button-group">
+                        <div class="search-group">
+                            <form method="GET" action="/customers" style="display: flex; width: 100%;">
+                                <input type="text" name="search" class="form-control" placeholder="Search by customer name" value="<%= search || '' %>">
+                                <button type="submit" class="btn btn-round btn-create-account search-button">
+                                    Search <i class="fa-solid fa-search"></i>
+                                </button>
+                                <% if (search) { %>
+                                    <a href="/customers" class="btn btn-round btn-create-account clear-btn">
+                                        Clear <i class="fa-solid fa-times"></i>
+                                    </a>
+                                <% } %>
+                            </form>
+                        </div>
+                        <button id="addCustomerBtn" class="btn btn-round btn-create-account add-product-btn">
+                            Add Customer <i class="fa-solid fa-plus"></i>
                         </button>
                     </div>
-                </form>
-            </div>
 
-            <!-- Customers Table -->
-            <div class="table-section">
-                <div class="table-responsive">
-                    <table class="table">
-                        <thead class="text-primary">
-                            <tr>
-                                <th>Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Total Value</th>
-                                <th>Last Purchase</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% customers.forEach(customer => { %>
-                                <tr id="customer-<%= customer._id %>">
-                                    <td><%= customer.name %></td>
-                                    <td><%= customer.phone || 'N/A' %></td>
-                                    <td><%= customer.email || 'N/A' %></td>
-                                    <td>
-                                        <%= admin.currency || '$' %><%= customer.totalValue ? formatCurrency(customer.totalValue) : '0.00' %>
-                                    </td>
-                                    <td>
-                                        <% if (customer.lastPurchaseDate) { %>
-                                            <%= new Date(customer.lastPurchaseDate).toLocaleDateString() %>
-                                        <% } else { %>
-                                            Never
-                                        <% } %>
-                                    </td>
-                                    <td>
-                                        <div class="customer-actions">
-                                            <button class="btn btn-info btn-round btn-sm" onclick="viewCustomer('<%= customer._id %>')">
-                                                <i class="fas fa-eye mr-1"></i> View
-                                            </button>
-                                            <button class="btn btn-warning btn-round btn-sm" onclick="editCustomer('<%= customer._id %>')">
-                                                <i class="fas fa-edit mr-1"></i> Edit
-                                            </button>
-                                            <button class="btn btn-danger btn-round btn-sm" onclick="deleteCustomer('<%= customer._id %>')">
-                                                <i class="fas fa-trash mr-1"></i> Delete
-                                            </button>
-                                        </div>
-                                    </td>
+                    <!-- Add Customer Form (Hidden by Default) -->
+                    <div class="form-section" id="addCustomerForm" style="display: none;">
+                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Add New Customer</h5>
+                        <form action="/add-customer" method="POST">
+                            <div class="form-group">
+                                <label>Customer Name <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="name" class="form-control" placeholder="Customer Name" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone Number <i class="fa-solid fa-phone"></i></label>
+                                <input type="tel" name="phone" class="form-control" placeholder="Phone Number">
+                            </div>
+                            <div class="form-group">
+                                <label>Email Address <i class="fa-solid fa-envelope"></i></label>
+                                <input type="email" name="email" class="form-control" placeholder="Email Address">
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-round btn-create-account update-btn">
+                                    Add Customer <i class="fa-solid fa-plus"></i>
+                                </button>
+                                <button type="button" id="cancelAddBtn" class="btn btn-round btn-create-account cancel-btn">
+                                    Cancel <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Customers Table -->
+                    <div class="table-section">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Total Value</th>
+                                    <th>Last Purchase</th>
+                                    <th>Actions</th>
                                 </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                <% customers.forEach(customer => { %>
+                                    <tr id="customer-<%= customer._id %>">
+                                        <td><%= customer.name %></td>
+                                        <td><%= customer.phone || 'N/A' %></td>
+                                        <td><%= customer.email || 'N/A' %></td>
+                                        <td>
+                                            <%= admin.currency || '$' %><%= customer.totalValue ? formatCurrency(customer.totalValue) : '0.00' %>
+                                        </td>
+                                        <td>
+                                            <% if (customer.lastPurchaseDate) { %>
+                                                <%= new Date(customer.lastPurchaseDate).toLocaleDateString() %>
+                                            <% } else { %>
+                                                Never
+                                            <% } %>
+                                        </td>
+                                        <td>
+                                            <div class="action-buttons">
+                                                <button class="btn btn-round btn-create-account view-btn" data-customer-id="<%= customer._id %>">
+                                                    View <i class="fa-solid fa-eye"></i>
+                                                </button>
+                                                <button class="btn btn-round btn-create-account edit-btn" data-customer-id="<%= customer._id %>">
+                                                    Edit <i class="fa-solid fa-edit"></i>
+                                                </button>
+                                                <button class="btn btn-round btn-create-account delete-btn" data-customer-id="<%= customer._id %>">
+                                                    Delete <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Now UI Kit JS -->
-    <script src="assets/js/core/jquery.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-kit.js"></script>
+    <!-- JavaScript Dependencies -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
 
     <script>
-        const sidebar = document.getElementById('sidebar');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const mainContent = document.getElementById('mainContent');
-        const addCustomerBtn = document.getElementById('addCustomerBtn');
-        const addCustomerForm = document.getElementById('addCustomerForm');
-        const cancelAddBtn = document.getElementById('cancelAddBtn');
-
-        // Toggle sidebar visibility and collapse state
-        let isCollapsed = false;
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('newSidebar');
+            const toggleBtn = document.getElementById('newToggleBtn');
+            const addCustomerBtn = document.getElementById('addCustomerBtn');
+            const addCustomerForm = document.getElementById('addCustomerForm');
+            const cancelAddBtn = document.getElementById('cancelAddBtn');
         
-        toggleBtn.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
-                // Mobile behavior - simple toggle
-                sidebar.classList.toggle('visible');
-            } else {
-                // Desktop behavior - collapse/expand
-                isCollapsed = !isCollapsed;
-                if (isCollapsed) {
-                    sidebar.classList.add('collapsed');
-                } else {
-                    sidebar.classList.remove('collapsed');
-                }
-            }
-        });
-
-        // Set initial sidebar state
-        function setSidebarState() {
-            if (window.innerWidth <= 768) {
-                sidebar.classList.remove('collapsed');
-                sidebar.classList.remove('visible');
-            } else {
-                sidebar.classList.remove('collapsed');
-                isCollapsed = false;
-            }
-        }
-        setSidebarState();
-        window.addEventListener('resize', setSidebarState);
-
-        // Toggle Add Customer form visibility
-        addCustomerBtn.addEventListener('click', () => {
-            addCustomerForm.style.display = 'block';
-            addCustomerBtn.style.display = 'none';
-        });
-
-        cancelAddBtn.addEventListener('click', () => {
-            addCustomerForm.style.display = 'none';
-            addCustomerBtn.style.display = 'block';
-            addCustomerForm.querySelector('form').reset(); // Reset form fields
-        });
-
-        // View Customer Details
-        function viewCustomer(customerId) {
-            window.location.href = `/customer-details/${customerId}`;
-        }
-
-        // Edit Customer Details
-        function editCustomer(customerId) {
-            window.location.href = `/edit-customer/${customerId}`;
-        }
-
-        // Delete Customer
-        async function deleteCustomer(customerId) {
-            if (confirm('Are you sure you want to delete this customer?')) {
-                try {
-                    const response = await fetch(`/delete-customer/${customerId}`, { method: 'POST' });
-                    if (response.ok) {
-                        window.location.reload(); // Reload the page after deletion
+            let isCollapsed = false;
+            let isOpenOnMobile = false;
+        
+            // Toggle sidebar
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        isOpenOnMobile = !isOpenOnMobile;
+                        if (isOpenOnMobile) {
+                            sidebar.classList.add('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        } else {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
                     } else {
-                        alert('Failed to delete customer.');
+                        isCollapsed = !isCollapsed;
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
                     }
-                } catch (error) {
-                    console.error('Error deleting customer:', error);
-                    alert('An error occurred while deleting the customer.');
+                });
+            }
+        
+            // Close sidebar on outside click (mobile only)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                    if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                }
+            });
+        
+            // Set initial sidebar state
+            function setSidebarState() {
+                if (!sidebar || !toggleBtn) return;
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('collapsed');
+                    if (!isOpenOnMobile) {
+                        sidebar.classList.remove('open');
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                } else {
+                    sidebar.classList.remove('open');
+                    isOpenOnMobile = false;
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                    }
                 }
             }
-        }
+            setSidebarState();
+            window.addEventListener('resize', setSidebarState);
+        
+            // Toggle Add Customer form visibility
+            if (addCustomerBtn && addCustomerForm) {
+                addCustomerBtn.addEventListener('click', () => {
+                    addCustomerForm.style.display = 'block';
+                    addCustomerBtn.style.display = 'none';
+                });
+            }
+        
+            // Cancel Add Customer
+            if (cancelAddBtn && addCustomerForm) {
+                cancelAddBtn.addEventListener('click', () => {
+                    addCustomerForm.style.display = 'none';
+                    addCustomerBtn.style.display = 'block';
+                    addCustomerForm.querySelector('form').reset();
+                });
+            }
+        
+            // Add event listeners for action buttons
+            document.querySelectorAll('.view-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const customerId = button.getAttribute('data-customer-id');
+                    window.location.href = `/customer-details/${customerId}`;
+                });
+            });
+        
+            document.querySelectorAll('.edit-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const customerId = button.getAttribute('data-customer-id');
+                    window.location.href = `/edit-customer/${customerId}`;
+                });
+            });
+        
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.addEventListener('click', async () => {
+                    const customerId = button.getAttribute('data-customer-id');
+                    if (confirm('Are you sure you want to delete this customer?')) {
+                        try {
+                            const response = await fetch(`/delete-customer/${customerId}`, { method: 'POST' });
+                            if (response.ok) {
+                                window.location.reload();
+                            } else {
+                                alert('Failed to delete customer.');
+                            }
+                        } catch (error) {
+                            console.error('Error deleting customer:', error);
+                            alert('An error occurred while deleting the customer.');
+                        }
+                    }
+                });
+            });
+        });
     </script>
 </body>
 </html>
