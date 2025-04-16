@@ -47,6 +47,15 @@
             flex-direction: column;
         }
 
+        .image-container {
+            flex: 0 0 40%;
+            max-width: 400px;
+            background-color: #ffffff;
+            border-radius: 10px 0 0 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
         body::before {
             content: '';
             position: absolute;
@@ -733,6 +742,10 @@
                 margin-bottom: 100px;
             }
 
+            .image-container {
+                display: none; /* Short height for mobile screens */
+            }
+
             .logo-container img {
                 max-height: 80px;
                 width: auto;
@@ -777,8 +790,13 @@
         </button>
     </div>
 
+    <div class="image-container">
+        <img src="assets/img/promo.jpg" alt="Promotional Image" style="width: 40%;">
+    </div>
+
     <!-- Main Container -->
     <div class="main-container">
+        
         <% if (typeof saleId !== 'undefined') { %>
             <!-- Confirmation Page Content -->
             <div class="confirmation-container">
