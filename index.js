@@ -2635,7 +2635,7 @@ app.get('/store/:adminUsername/confirmation/:saleId', async (req, res) => {
 async function generatePDFInvoice(res, sale, admin) {
   const doc = new PDFDocument({ margin: 50, size: 'A4' });
   const filename = `invoice-${sale._id}.pdf`;
-  
+
   res.setHeader('Content-disposition', `inline; filename="${filename}"`);
   res.setHeader('Content-type', 'application/pdf');
   doc.pipe(res);
@@ -2688,7 +2688,6 @@ async function generatePDFInvoice(res, sale, admin) {
     const colWidths = [250, 80, 100, 100];
     const rowHeight = 20;
 
-    // Table header
     doc.font('Helvetica-Bold');
     doc.text('Description', tableLeft, tableTop);
     doc.text('Qty', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
@@ -2723,48 +2722,53 @@ async function generatePDFInvoice(res, sale, admin) {
       doc.moveDown();
     }
 
-    // Bank details
+    // Bank details (side by side)
     const hasBankDetails = admin.primaryAccount || admin.secondaryAccount;
     if (hasBankDetails) {
       doc.fontSize(12).text('BANK DETAILS:', { underline: true });
       doc.moveDown(0.5);
-      
+      const leftX = 50;
+      const rightX = 300;
+      const startY = doc.y;
+
       if (admin.primaryAccount) {
-        doc.fontSize(10).font('Helvetica-Bold').text('Primary Account:');
+        doc.fontSize(10).font('Helvetica-Bold').text('Primary Account:', leftX, startY);
         doc.font('Helvetica');
+        let y1 = doc.y;
         if (admin.primaryAccount.bankAccountName) {
-          doc.text(`Account Name: ${admin.primaryAccount.bankAccountName}`);
+          doc.text(`Account Name: ${admin.primaryAccount.bankAccountName}`, leftX, y1);
+          y1 = doc.y;
         }
         if (admin.primaryAccount.accountNumber) {
-          doc.text(`Account Number: ${admin.primaryAccount.accountNumber}`);
+          doc.text(`Account Number: ${admin.primaryAccount.accountNumber}`, leftX, doc.y);
+          y1 = doc.y;
         }
         if (admin.primaryAccount.bankName) {
-          doc.text(`Bank: ${admin.primaryAccount.bankName}`);
+          doc.text(`Bank: ${admin.primaryAccount.bankName}`, leftX, doc.y);
         }
-        doc.moveDown();
       }
 
       if (admin.secondaryAccount) {
-        doc.fontSize(10).font('Helvetica-Bold').text('Secondary Account:');
+        doc.fontSize(10).font('Helvetica-Bold').text('Secondary Account:', rightX, startY);
         doc.font('Helvetica');
+        let y2 = startY + 12;
         if (admin.secondaryAccount.bankAccountName) {
-          doc.text(`Account Name: ${admin.secondaryAccount.bankAccountName}`);
+          doc.text(`Account Name: ${admin.secondaryAccount.bankAccountName}`, rightX, y2);
+          y2 = doc.y;
         }
         if (admin.secondaryAccount.accountNumber) {
-          doc.text(`Account Number: ${admin.secondaryAccount.accountNumber}`);
+          doc.text(`Account Number: ${admin.secondaryAccount.accountNumber}`, rightX, doc.y);
+          y2 = doc.y;
         }
         if (admin.secondaryAccount.bankName) {
-          doc.text(`Bank: ${admin.secondaryAccount.bankName}`);
+          doc.text(`Bank: ${admin.secondaryAccount.bankName}`, rightX, doc.y);
         }
-        doc.moveDown();
       }
+
+      doc.moveDown();
     }
 
-    // Footer
-    const footerY = doc.page.height - 50;
-    doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
-    doc.fontSize(8).text('Thank you for your business!', 50, footerY + 10, { align: 'center' });
-    doc.text('If you have any questions about this invoice, please contact us', 50, footerY + 25, { align: 'center' });
+    // Footer removed to prevent page overflow
 
     doc.end();
   } catch (error) {
@@ -2775,6 +2779,7 @@ async function generatePDFInvoice(res, sale, admin) {
     doc.end();
   }
 }
+
 
 // Helper function to send confirmation email
 async function sendConfirmationEmail({ to, saleId, customerName, totalAmount, currency, businessName }) {

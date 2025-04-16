@@ -866,7 +866,7 @@
         <% } else { %>
             <!-- Regular Storefront Content -->
             <div class="store-header">
-                <h1>Welcome to <%= admin.businessName || 'Our Store' %></h1>
+                <h1> <strong>Welcome to <%= admin.businessName || 'Our Store' %></strong> </h1>
                 <p>Explore our latest inventory and find what you love.</p>
             </div>
 
@@ -887,6 +887,7 @@
                             <h3><%= item.name %></h3>
                             <p>Price: <%= currency %><%= formatCurrency(item.cost) %></p>
                             <p>Stock: <%= item.stock %></p>
+                            <p> <strong>View Description</strong></p>
                             <div class="description">
                                 <%= item.description || 'No description available.' %>
                             </div>
