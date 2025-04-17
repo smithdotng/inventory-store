@@ -507,7 +507,7 @@ app.post('/admin-login', async (req, res) => {
     // Check if login is by email or username
     const admin = await db.collection('admins').findOne({
       $or: [
-        { username: usernameOrEmail },
+        { username: { $regex: `^${usernameOrEmail}$`, $options: 'i' } }, // Case-insensitive username check
         { email: usernameOrEmail }
       ]
     });
@@ -2306,7 +2306,9 @@ app.get('/store/:adminUsername', async (req, res) => {
     const adminUsername = req.params.adminUsername;
     const saleId = req.query.saleId; // Optional for confirmation page
 
-    const admin = await db.collection('admins').findOne({ username: adminUsername });
+    const admin = await db.collection('admins').findOne({ 
+      username: { $regex: `^${adminUsername}$`, $options: 'i' } // Case-insensitive username check
+    });
     if (!admin) {
       return res.status(404).render('404', { message: 'Store not found' });
     }
