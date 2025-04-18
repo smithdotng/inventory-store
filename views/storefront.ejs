@@ -1042,8 +1042,8 @@
     <div class="navbar">
         <div class="navbar-contact">
             <% if (admin.email) { %>
-                <a href="mailto:<%= admin.email %>"><i class="fa-solid fa-envelope mr-2"></i><%= admin.email %></a>
-            <% } %>
+                <a href="mailto:<%= admin.email %>"><i class="fa-solid fa-envelope mr-2"></i><%= admin.email %> |</a>
+            <% } %> 
             <% if (admin.phone) { %>
                 <a href="tel:<%= admin.phone %>"><i class="fa-solid fa-phone mr-2"></i><%= admin.phone %></a>
             <% } %>
