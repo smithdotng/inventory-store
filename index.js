@@ -2299,6 +2299,36 @@ app.get('/landing', (req, res) => {
   res.render('landing', { admin: { currency: '$' } }); // Default currency for display
 });
 
+app.get('/api/stores/search', async (req, res) => {
+  try {
+    const query = req.query.q ? req.query.q.trim() : '';
+    if (!query) {
+      return res.json([]);
+    }
+
+    const stores = await db.collection('admins')
+      .find({
+        $or: [
+          { businessName: { $regex: query, $options: 'i' } },
+          { username: { $regex: query, $options: 'i' } }
+        ]
+      })
+      .project({
+        _id: 1,
+        businessName: 1,
+        username: 1,
+        logo: 1
+      })
+      .limit(20) // Limit results to prevent overload
+      .toArray();
+
+    res.json(stores);
+  } catch (error) {
+    console.error('Error searching stores:', error);
+    res.status(500).json({ error: 'Error searching stores' });
+  }
+});
+
 
 // Storefront route (for reference, supporting confirmation within storefront)
 app.get('/store/:adminUsername', async (req, res) => {

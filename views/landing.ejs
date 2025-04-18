@@ -262,6 +262,68 @@
             font-size: 13px;
         }
 
+        /* Search Results Section */
+        .search-results {
+            display: none;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .store-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            padding: 1rem;
+        }
+
+        .store-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .store-card h3 {
+            font-size: 14px;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 0.5rem;
+        }
+
+        .store-card p {
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 1rem;
+        }
+
+        .store-card a {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .store-card a:hover {
+            background-color: rgb(33, 136, 56);
+        }
+
         /* Storefront Highlight Section */
         .storefront-highlight {
             background: white;
@@ -468,12 +530,11 @@
         }
 
         .facebook { background: #3b5998; }
-        .instagram { background: #e1306c; }
-        .twitter { background: #1da1f2; }
+        .linkedin { background: #0e76a8; }
 
         /* Responsive Design */
         @media (min-width: 1200px) {
-            .features {
+            .features, .search-results-grid {
                 grid-template-columns: repeat(4, 1fr);
             }
 
@@ -519,16 +580,21 @@
                 font-size: 12px;
             }
 
-            .features {
+            .features, .search-results-grid {
                 grid-template-columns: 1fr;
             }
 
-            .feature-details h2 {
+            .feature-details h2, .store-card h3 {
                 font-size: 13px;
             }
 
-            .feature-details p, .feature-description {
+            .feature-details p, .feature-description, .store-card p {
                 font-size: 12px;
+            }
+
+            .store-card a {
+                font-size: 12px;
+                padding: 6px 12px;
             }
 
             .logo-header {
@@ -677,7 +743,7 @@
         </div>
         <div class="navbar-right">
             <div class="navbar-search-container">
-                <input type="text" id="featureSearchInput" placeholder="Search features...">
+                <input type="text" id="storeSearchInput" placeholder="Search for Shed stores...">
             </div>
             <a href="/admin-login" class="login-button">
                 <i class="fa-solid fa-sign-in-alt mr-2"></i>Log In
@@ -702,8 +768,14 @@
                 <p>Organize Your Business, Like a Well-Stocked Shed</p>
             </div>
 
+            <!-- Search Results Section -->
+            <div class="search-results" id="searchResults">
+                <h2>Store Search Results</h2>
+                <div class="search-results-grid" id="searchResultsGrid"></div>
+            </div>
+
             <!-- Storefront Highlight Section -->
-            <div class="storefront-highlight">
+            <div class="storefront-highlight" id="storefrontHighlight">
                 <h2><i class="fas fa-store"></i> Your Business, Online</h2>
                 <p>Transform your inventory into a beautiful online storefront with just a few clicks. Shedfactory's integrated e-commerce solution lets you reach customers 24/7 while managing everything from one dashboard.</p>
                 <div class="storefront-features">
@@ -867,10 +939,9 @@
                     <a href="https://facebook.com/shedfactory" target="_blank" class="social-link facebook">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="https://www.linkedin.com/company/shed.ng" target="_blank" class="social-link instagram">
+                    <a href="https://www.linkedin.com/company/shed.ng" target="_blank" class="social-link linkedin">
                         <i class="fab fa-linkedin"></i>
                     </a>
-                    
                 </div>
             </div>
         </div>
@@ -911,29 +982,66 @@
             });
         });
 
-        // Real-time search for features
-        function searchFeatures() {
-            const input = document.getElementById('featureSearchInput').value.toLowerCase();
-            const grid = document.getElementById('featuresGrid');
-            const cards = grid.getElementsByClassName('feature-card');
-
-            for (let i = 0; i < cards.length; i++) {
-                const card = cards[i];
-                const name = card.querySelector('.feature-details h2').textContent.toLowerCase();
-                const description = card.querySelector('.feature-description').textContent.toLowerCase();
-                const match = name.includes(input) || description.includes(input);
-                card.style.display = match ? '' : 'none';
-            }
-        }
-
-        document.getElementById('featureSearchInput').addEventListener('input', searchFeatures);
-
         // Prevent clicks on description from closing
         document.querySelectorAll('.feature-details').forEach(el => {
             el.addEventListener('click', (e) => {
                 e.stopPropagation();
             });
         });
+
+        // Real-time search for stores
+        function searchStores() {
+            const input = document.getElementById('storeSearchInput').value.trim();
+            const searchResults = document.getElementById('searchResults');
+            const searchResultsGrid = document.getElementById('searchResultsGrid');
+            const storefrontHighlight = document.getElementById('storefrontHighlight');
+            const featuresGrid = document.getElementById('featuresGrid');
+            const socialMediaSection = document.querySelector('.social-media-section');
+
+            if (!input) {
+                searchResults.classList.remove('active');
+                storefrontHighlight.style.display = 'block';
+                featuresGrid.style.display = 'grid';
+                socialMediaSection.style.display = 'block';
+                searchResultsGrid.innerHTML = '';
+                return;
+            }
+
+            fetch(`/api/stores/search?q=${encodeURIComponent(input)}`)
+                .then(response => response.json())
+                .then(stores => {
+                    searchResultsGrid.innerHTML = '';
+                    if (stores.length === 0) {
+                        searchResultsGrid.innerHTML = '<p>No stores found.</p>';
+                    } else {
+                        stores.forEach(store => {
+                            const storeCard = document.createElement('div');
+                            storeCard.className = 'store-card';
+                            storeCard.innerHTML = `
+                                <img src="${store.logo || '/images/logo-a.png'}" alt="${store.businessName}">
+                                <h3>${store.businessName}</h3>
+                                <p>@${store.username}</p>
+                                <a href="/store/${store.username}">Visit Store</a>
+                            `;
+                            searchResultsGrid.appendChild(storeCard);
+                        });
+                    }
+                    searchResults.classList.add('active');
+                    storefrontHighlight.style.display = 'none';
+                    featuresGrid.style.display = 'none';
+                    socialMediaSection.style.display = 'none';
+                })
+                .catch(error => {
+                    console.error('Error searching stores:', error);
+                    searchResultsGrid.innerHTML = '<p>Error loading stores.</p>';
+                    searchResults.classList.add('active');
+                    storefrontHighlight.style.display = 'none';
+                    featuresGrid.style.display = 'none';
+                    socialMediaSection.style.display = 'none';
+                });
+        }
+
+        document.getElementById('storeSearchInput').addEventListener('input', searchStores);
     </script>
 
     <script>
