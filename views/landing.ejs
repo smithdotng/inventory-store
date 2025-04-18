@@ -11,11 +11,12 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Shedfactory Business Solutions | Organize Your Business" />
+    <meta property="og:title" content="Shed | Sell Anywhere. Manage Everything" />
     <meta property="og:description" content="Streamline inventory, sales, outlets, and more with Shedfactory—your all-in-one business management tool." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Shedfactory Business Solutions</title>
-
+    
+    <title>Shed | Sell Anywhere. Manage Everything</title>
+    <meta name="description" content="Shed | Sell Anywhere. Manage Everything." />
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
@@ -104,22 +105,10 @@
             height: 60px;
         }
 
-        .navbar-contact {
+        .navbar-buttons {
             display: flex;
             align-items: center;
-            gap: 15px;
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .navbar-contact a {
-            color: #ffffff;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-contact a:hover {
-            color: rgb(235, 166, 17);
+            gap: 10px;
         }
 
         .navbar-right {
@@ -130,23 +119,23 @@
 
         .navbar-search-container {
             flex: 0 0 auto;
-            max-width: 200px;
+            width: 400px;
         }
 
         .navbar-search-container input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ced4da;
+            padding: 8px 12px;
+            border: 1px solid rgb(235, 166, 17);
             border-radius: 4px;
             font-size: 14px;
-            background-color: #343a40;
-            color: #ffffff;
-            height: 38px;
+            background-color: #ffffff;
+            color: #333;
+            height: 42px;
             box-sizing: border-box;
         }
 
         .navbar-search-container input::placeholder {
-            color: #adb5bd;
+            color: #666;
         }
 
         .cart-button {
@@ -477,16 +466,13 @@
         }
 
         .footer-links a {
-            color: rgb(235, 166, 17);
+            color: #ffffff;
             text-decoration: none;
+            transition: color 0.3s ease;
         }
 
         .footer-links a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-links .separator {
-            color: #ffffff;
+            color: rgb(235, 166, 17);
         }
 
         .footer-copyright {
@@ -551,7 +537,7 @@
         @media (max-width: 768px) {
             .content-wrapper {
                 flex-direction: column;
-                padding: 12rem 1rem 1rem;
+                padding: 14.5rem 1rem 2rem;
             }
 
             .image-container {
@@ -614,31 +600,39 @@
                 top: 140px;
                 height: auto;
                 padding: 0.5rem 1rem;
-                flex-wrap: wrap;
+                flex-direction: column;
+                align-items: flex-start;
             }
 
-            .navbar-contact {
-                font-size: 13px;
-                gap: 10px;
-                order: 1;
-                flex-basis: 100%;
+            .navbar-buttons {
+                flex-wrap: wrap;
                 justify-content: center;
+                gap: 8px;
+                width: 100%;
                 margin-bottom: 0.5rem;
             }
 
             .navbar-right {
-                order: 2;
-                gap: 8px;
+                width: 100%;
+                justify-content: center;
             }
 
             .navbar-search-container {
-                max-width: 150px;
+                width: 100%;
+                max-width: none;
             }
 
             .navbar-search-container input {
                 font-size: 13px;
-                padding: 6px;
-                height: 34px;
+                padding: 8px 12px;
+                height: 42px;
+                background-color: #ffffff;
+                border: 1px solid rgb(235, 166, 17);
+                color: #333;
+            }
+
+            .navbar-search-container input::placeholder {
+                color: #666;
             }
 
             .cart-button, .login-button {
@@ -655,6 +649,12 @@
 
             .footer-links {
                 justify-content: center;
+                flex-wrap: wrap;
+            }
+
+            /* Hide image-container when search results are active */
+            .search-results-active .image-container {
+                display: none;
             }
         }
 
@@ -677,23 +677,21 @@
                 padding: 0.5rem 1rem;
             }
 
-            .navbar-contact {
-                font-size: 12px;
+            .navbar-buttons {
                 gap: 6px;
-            }
-
-            .navbar-right {
-                gap: 6px;
-            }
-
-            .navbar-search-container {
-                max-width: 120px;
             }
 
             .navbar-search-container input {
                 font-size: 12px;
-                padding: 6px;
-                height: 34px;
+                padding: 6px 10px;
+                height: 40px;
+                background-color: #ffffff;
+                border: 1px solid rgb(235, 166, 17);
+                color: #333;
+            }
+
+            .navbar-search-container input::placeholder {
+                color: #666;
             }
 
             .cart-button, .login-button {
@@ -703,7 +701,7 @@
             }
 
             .content-wrapper {
-                padding: 10rem 10px 1rem;
+                padding: 12.5rem 10px 1rem;
             }
 
             .image-container {
@@ -737,20 +735,18 @@
 
     <!-- Navbar -->
     <div class="navbar">
-        <div class="navbar-contact">
-            <a href="mailto:hello@shed.ng"><i class="fa-solid fa-envelope mr-2"></i>hello@shed.ng</a>
-            <a href="mailto:hello@shedfactory.co.za"><i class="fa-solid fa-envelope mr-2"></i>hello@shedfactory.co.za</a>
-        </div>
-        <div class="navbar-right">
-            <div class="navbar-search-container">
-                <input type="text" id="storeSearchInput" placeholder="Search for Shed stores...">
-            </div>
+        <div class="navbar-buttons">
             <a href="/admin-login" class="login-button">
                 <i class="fa-solid fa-sign-in-alt mr-2"></i>Log In
             </a>
             <a href="/admin-register" class="cart-button">
                 <i class="fa-solid fa-user-plus mr-2"></i>Create Account
             </a>
+        </div>
+        <div class="navbar-right">
+            <div class="navbar-search-container">
+                <input type="text" id="storeSearchInput" placeholder="Search for Shed stores...">
+            </div>
         </div>
     </div>
 
@@ -950,11 +946,8 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="footer-links">
-            <a href="/admin-register">Create your Store</a>
-            <span class="separator">|</span>
-            <a href="/admin-login">Sign in to your Shed</a>
-            <span class="separator">|</span>
-            <a href="/">Learn about Shed</a>
+            <a href="mailto:hello@shed.ng"><i class="fa-solid fa-envelope mr-2"></i>hello@shed.ng</a>
+            <a href="mailto:hello@shedfactory.co.za"><i class="fa-solid fa-envelope mr-2"></i>hello@shedfactory.co.za</a>
         </div>
         <div class="footer-copyright">
             <p>© 2025 Shedfactory Limited.</p>
@@ -997,6 +990,7 @@
             const storefrontHighlight = document.getElementById('storefrontHighlight');
             const featuresGrid = document.getElementById('featuresGrid');
             const socialMediaSection = document.querySelector('.social-media-section');
+            const body = document.body;
 
             if (!input) {
                 searchResults.classList.remove('active');
@@ -1004,6 +998,7 @@
                 featuresGrid.style.display = 'grid';
                 socialMediaSection.style.display = 'block';
                 searchResultsGrid.innerHTML = '';
+                body.classList.remove('search-results-active');
                 return;
             }
 
@@ -1030,6 +1025,7 @@
                     storefrontHighlight.style.display = 'none';
                     featuresGrid.style.display = 'none';
                     socialMediaSection.style.display = 'none';
+                    body.classList.add('search-results-active');
                 })
                 .catch(error => {
                     console.error('Error searching stores:', error);
@@ -1038,6 +1034,7 @@
                     storefrontHighlight.style.display = 'none';
                     featuresGrid.style.display = 'none';
                     socialMediaSection.style.display = 'none';
+                    body.classList.add('search-results-active');
                 });
         }
 
