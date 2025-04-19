@@ -57,41 +57,10 @@
             z-index: -1;
         }
 
-        /* Logo Container */
-        .logo-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 160px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1100;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-container {
-            width: 400px;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            max-width: none;
-            max-height: none;
-            object-fit: contain;
-        }
-
         /* Navbar */
         .navbar {
             position: fixed;
-            top: 160px;
+            top: 0;
             left: 0;
             right: 0;
             background: darkcyan;
@@ -172,13 +141,43 @@
             color: #fff;
         }
 
+        /* Logo Container */
+        .logo-header {
+            margin-top: 60px; /* Match navbar height */
+            left: 0;
+            right: 0;
+            height: 160px;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 900;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-container {
+            width: 400px;
+            height: 140px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            max-height: none;
+            object-fit: contain;
+        }
+
         /* Content Wrapper */
         .content-wrapper {
             display: flex;
             flex-direction: row;
             max-width: 1600px;
             margin: 0 auto;
-            padding: 14rem 1rem 2rem;
+            padding: 1rem 1rem 2rem;
             gap: 1rem;
             flex: 1;
         }
@@ -787,7 +786,6 @@
             }
 
             .navbar {
-                top: 160px;
                 height: 60px;
             }
         }
@@ -795,7 +793,7 @@
         @media (max-width: 768px) {
             .content-wrapper {
                 flex-direction: column;
-                padding: 12rem 1rem 1rem;
+                padding: 1rem 1rem 1rem;
             }
 
             .image-container {
@@ -901,7 +899,6 @@
             }
 
             .navbar {
-                top: 140px;
                 height: auto;
                 padding: 0.5rem 1rem;
                 flex-wrap: wrap;
@@ -963,43 +960,58 @@
             }
 
             .navbar {
-                top: 120px;
                 padding: 0.5rem 1rem;
+                flex-direction: column; /* Stack items vertically */
+                align-items: center;
             }
 
             .navbar-contact {
                 font-size: 12px;
                 gap: 6px;
+                margin-bottom: 0.5rem;
+                flex-wrap: wrap; /* Allow wrapping for long content */
+                justify-content: center;
+                text-align: center;
             }
 
             .navbar-right {
-                gap: 6px;
+                flex-direction: column; /* Stack search and cart vertically */
+                align-items: center;
+                gap: 10px;
+                width: 100%;
             }
 
             .navbar-search-container {
-                max-width: 120px;
+                max-width: 100%; /* Allow full width */
+                width: 80%; /* Cover 80% of the screen */
             }
 
             .navbar-search-container input {
                 font-size: 12px;
                 padding: 6px;
                 height: 34px;
+                width: 100%; /* Ensure input fills container */
             }
 
             .cart-button {
                 font-size: 12px;
                 padding: 8px 12px;
                 height: 34px;
+                width: auto; /* Allow natural width */
             }
 
             .content-wrapper {
-                padding: 10rem 10px 1rem;
+                padding: 0 10px 1rem;
             }
 
             .image-container {
                 max-width: 100%;
                 height: 400px;
                 margin-bottom: 1rem;
+            }
+
+            .image-container.hidden {
+                display: none; /* Hide when search is active */
             }
 
             .promo-text {
@@ -1031,19 +1043,14 @@
     </style>
 </head>
 <body>
-    <!-- Logo Header -->
-    <div class="logo-header">
-        <div class="logo-container">
-            <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="<%= admin.businessName %> Logo">
-        </div>
-    </div>
 
     <!-- Navbar -->
     <div class="navbar">
         <div class="navbar-contact">
+            <span><%= admin.businessName || 'Our Store' %></span>
             <% if (admin.email) { %>
                 <a href="mailto:<%= admin.email %>"><i class="fa-solid fa-envelope mr-2"></i><%= admin.email %> |</a>
-            <% } %> 
+            <% } %>
             <% if (admin.phone) { %>
                 <a href="tel:<%= admin.phone %>"><i class="fa-solid fa-phone mr-2"></i><%= admin.phone %></a>
             <% } %>
@@ -1055,6 +1062,13 @@
             <button class="cart-button" onclick="showCheckoutForm()">
                 <i class="fa-solid fa-shopping-cart mr-2"></i><span id="cartLabel">Cart</span> (<span id="cartCount">0</span>)
             </button>
+        </div>
+    </div>
+
+    <!-- Logo Header -->
+    <div class="logo-header">
+        <div class="logo-container">
+            <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="<%= admin.businessName %> Logo">
         </div>
     </div>
 
@@ -1137,7 +1151,7 @@
                         <% if (admin.paymentInstructions) { %>
                             <div class="payment-instructions">
                                 <h3>Payment Instructions</h3>
-                                <p><%= admin.paymentInstructions %></p>
+                                <p>%><%= admin.paymentInstructions %></p>
                             </div>
                         <% } %>
                         <div class="action-buttons">
@@ -1257,9 +1271,8 @@
             <a href="/admin-register">Create your Store</a>
             <span class="separator">|</span>
             <a href="/admin-login"><span>Sign in to your Shed</span></a>
-</a>
             <span class="separator">|</span>
-            <a href="/">Learn about Shed
+            <a href="/">Learn about Shed</a>
         </div>
         <div class="footer-copyright" style="align-content: right;">
             <p>© 2025 Shedfactory Limited.</p>
@@ -1382,11 +1395,21 @@
             });
         }
 
-        // Real-time search for inventory items
+        // Real-time search for inventory items and toggle image container on small screens
         function searchInventory() {
             const input = document.getElementById('inventorySearchInput').value.toLowerCase();
             const grid = document.getElementById('inventoryGrid');
             const items = grid.getElementsByClassName('inventory-item');
+            const imageContainer = document.querySelector('.image-container');
+
+            // Toggle image container visibility on small screens
+            if (window.innerWidth <= 576) {
+                if (input.length > 0) {
+                    imageContainer.classList.add('hidden');
+                } else {
+                    imageContainer.classList.remove('hidden');
+                }
+            }
 
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
