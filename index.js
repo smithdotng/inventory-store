@@ -966,12 +966,17 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       .toArray();
 
     const username = req.session.admin;
+    
+    // Define store URL
+    const storeUrl = `${req.protocol}://${req.get('host')}/store/${username}`;
+
     res.render('update-stock', { 
       inventory, 
       admin, 
       username, 
       formatCurrency,
       search: search || '',
+      storeUrl, // Add storeUrl to template data
       error: null,
       success: null
     });
@@ -983,6 +988,7 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       username: req.session.admin,
       formatCurrency,
       search: '',
+      storeUrl: '', // Provide empty storeUrl in case of error
       error: 'Failed to load inventory. Please try again.',
       success: null
     });

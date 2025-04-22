@@ -849,6 +849,9 @@
                         <p style="color: #333; font-size: 13px;">
                             Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
                         </p>
+                        <p style="text-align: center; color: #333; font-size: 13px; margin-top: 10px;">
+                            Store URL: <a href="<%= storeUrl %>" target="_blank"><%= storeUrl %></a>
+                        </p>
                     </div>
 
                     <!-- Error/Success Messages -->
@@ -967,9 +970,10 @@
                             Add Product <i class="fa-solid fa-plus"></i>
                         </button>
                         <button id="shareStoreBtn" class="btn btn-round btn-create-account share-store-btn">
-                            Share Your Storefront <i class="fa-solid fa-share-alt"></i>
+                            Invite Customers to your Store <i class="fa-solid fa-share-alt"></i>
                         </button>
                     </div>
+                    
 
                     <!-- Table Section -->
                     <div class="table-section">
