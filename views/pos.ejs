@@ -340,6 +340,43 @@
             margin-top: 20px;
         }
 
+        /* Searchable Select Styles */
+        .searchable-select {
+            position: relative;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border: 1px solid #ced4da;
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: none;
+        }
+
+        .search-result-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .search-result-item:hover {
+            background-color: #f8f9fa;
+        }
+
+        .search-result-item.highlighted {
+            background-color: #e9ecef;
+        }
+
         /* Responsive Design */
         @media (max-width: 768px) {
             .new-sidebar {
@@ -400,6 +437,10 @@
             .error,
             .field-error {
                 font-size: 12px;
+            }
+
+            .searchable-select {
+                min-width: 100%;
             }
         }
 
@@ -464,6 +505,41 @@
                                 </div>
                             <% } %>
 
+                            <!-- Items Section -->
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-boxes mr-2"></i>Items</label>
+                                <div id="itemsContainer">
+                                    <div class="item-row" data-index="0">
+                                        <div class="searchable-select">
+                                            <input type="text" class="form-control product-search" placeholder="Search products..." autocomplete="off">
+                                            <select name="items[itemId][]" class="form-control product-select" required style="display: none;">
+                                                <option value="">Select Product</option>
+                                                <% inventory.forEach(item => { %>
+                                                    <% if (item.stock > 0) { %>
+                                                        <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>" data-name="<%= item.name %>">
+                                                            <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
+                                                        </option>
+                                                    <% } %>
+                                                <% }) %>
+                                            </select>
+                                            <div class="search-results" style="display: none;"></div>
+                                        </div>
+                                        <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
+                                        <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn" style="display: none;">
+                                            <i class="fa-solid fa-minus"></i>
+                                        </button>
+                                        <div class="field-error" id="itemError0"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Add Item Button -->
+                            <div class="form-actions">
+                                <button type="button" id="addItemBtn" class="btn btn-round btn-create-account add-product-btn">
+                                    <i class="fa-solid fa-plus mr-2"></i>Add Another Item
+                                </button>
+                            </div>
+
                             <!-- Customer Details -->
                             <div class="form-group">
                                 <label><i class="fa-solid fa-user mr-2"></i>Customer Name</label>
@@ -491,37 +567,6 @@
                                     <option value="Card">Card</option>
                                 </select>
                                 <div class="field-error" id="paymentMethodError"></div>
-                            </div>
-
-                            <!-- Items Section -->
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-boxes mr-2"></i>Items</label>
-                                <div id="itemsContainer">
-                                    <div class="item-row" data-index="0">
-                                        <select name="items[itemId][]" class="form-control" required>
-                                            <option value="">Select Product</option>
-                                            <% inventory.forEach(item => { %>
-                                                <% if (item.stock > 0) { %>
-                                                    <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>">
-                                                        <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
-                                                    </option>
-                                                <% } %>
-                                            <% }) %>
-                                        </select>
-                                        <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
-                                        <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn" style="display: none;">
-                                            <i class="fa-solid fa-minus"></i>
-                                        </button>
-                                        <div class="field-error" id="itemError0"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Add Item Button -->
-                            <div class="form-actions">
-                                <button type="button" id="addItemBtn" class="btn btn-round btn-create-account add-product-btn">
-                                    <i class="fa-solid fa-plus mr-2"></i>Add Another Item
-                                </button>
                             </div>
 
                             <!-- Submit Button -->
@@ -615,6 +660,101 @@
                 setSidebarState();
                 window.addEventListener('resize', setSidebarState);
 
+                // Initialize searchable selects
+                function initializeSearchableSelects() {
+                    document.querySelectorAll('.item-row').forEach(row => {
+                        const searchInput = row.querySelector('.product-search');
+                        const selectElement = row.querySelector('.product-select');
+                        const resultsContainer = row.querySelector('.search-results');
+                        const options = Array.from(selectElement.options);
+                        
+                        // Show/hide results on focus/blur
+                        searchInput.addEventListener('focus', () => {
+                            resultsContainer.style.display = 'block';
+                            filterOptions();
+                        });
+                        
+                        searchInput.addEventListener('blur', () => {
+                            setTimeout(() => {
+                                resultsContainer.style.display = 'none';
+                            }, 200);
+                        });
+                        
+                        // Filter options as user types
+                        searchInput.addEventListener('input', filterOptions);
+                        
+                        function filterOptions() {
+                            const searchTerm = searchInput.value.toLowerCase();
+                            resultsContainer.innerHTML = '';
+                            
+                            const filteredOptions = options.filter(option => 
+                                option.textContent.toLowerCase().includes(searchTerm) && option.value
+                            );
+                            
+                            if (filteredOptions.length === 0) {
+                                const noResults = document.createElement('div');
+                                noResults.className = 'search-result-item';
+                                noResults.textContent = 'No products found';
+                                resultsContainer.appendChild(noResults);
+                                return;
+                            }
+                            
+                            filteredOptions.forEach(option => {
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'search-result-item';
+                                resultItem.textContent = option.textContent;
+                                resultItem.dataset.value = option.value;
+                                
+                                resultItem.addEventListener('mousedown', (e) => {
+                                    e.preventDefault();
+                                    selectElement.value = option.value;
+                                    searchInput.value = option.getAttribute('data-name');
+                                    resultsContainer.style.display = 'none';
+                                    
+                                    // Trigger change event for validation
+                                    const event = new Event('change');
+                                    selectElement.dispatchEvent(event);
+                                });
+                                
+                                resultsContainer.appendChild(resultItem);
+                            });
+                        }
+                        
+                        // Allow keyboard navigation
+                        searchInput.addEventListener('keydown', (e) => {
+                            const results = resultsContainer.querySelectorAll('.search-result-item');
+                            let highlighted = resultsContainer.querySelector('.highlighted');
+                            
+                            if (e.key === 'ArrowDown') {
+                                e.preventDefault();
+                                if (!highlighted) {
+                                    results[0]?.classList.add('highlighted');
+                                } else {
+                                    highlighted.classList.remove('highlighted');
+                                    const next = highlighted.nextElementSibling;
+                                    if (next) next.classList.add('highlighted');
+                                }
+                            } else if (e.key === 'ArrowUp') {
+                                e.preventDefault();
+                                if (highlighted) {
+                                    highlighted.classList.remove('highlighted');
+                                    const prev = highlighted.previousElementSibling;
+                                    if (prev) prev.classList.add('highlighted');
+                                }
+                            } else if (e.key === 'Enter' && highlighted) {
+                                e.preventDefault();
+                                selectElement.value = highlighted.dataset.value;
+                                searchInput.value = options.find(opt => opt.value === highlighted.dataset.value)?.getAttribute('data-name') || '';
+                                resultsContainer.style.display = 'none';
+                                
+                                // Trigger change event for validation
+                                const event = new Event('change');
+                                selectElement.dispatchEvent(event);
+                            }
+                        });
+                    });
+                }
+
                 // Add new item row
                 let itemIndex = 1;
                 if (addItemBtn) {
@@ -623,16 +763,20 @@
                         newRow.className = 'item-row';
                         newRow.dataset.index = itemIndex;
                         newRow.innerHTML = `
-                            <select name="items[itemId][]" class="form-control" required>
-                                <option value="">Select Product</option>
-                                <% inventory.forEach(item => { %>
-                                    <% if (item.stock > 0) { %>
-                                        <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>">
-                                            <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
-                                        </option>
-                                    <% } %>
-                                <% }) %>
-                            </select>
+                            <div class="searchable-select">
+                                <input type="text" class="form-control product-search" placeholder="Search products..." autocomplete="off">
+                                <select name="items[itemId][]" class="form-control product-select" required style="display: none;">
+                                    <option value="">Select Product</option>
+                                    <% inventory.forEach(item => { %>
+                                        <% if (item.stock > 0) { %>
+                                            <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>" data-name="<%= item.name %>">
+                                                <%= item.name %> (Stock: <%= item.stock %>) - <%= admin.currency || '$' %><%= item.cost.toFixed(2) %>
+                                            </option>
+                                        <% } %>
+                                    <% }) %>
+                                </select>
+                                <div class="search-results" style="display: none;"></div>
+                            </div>
                             <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
                             <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn">
                                 <i class="fa-solid fa-minus"></i>
@@ -642,6 +786,7 @@
                         itemsContainer.appendChild(newRow);
                         itemIndex++;
                         updateRemoveButtons();
+                        initializeSearchableSelects(); // Initialize the new searchable select
                         attachItemValidation(newRow);
                     });
                 }
@@ -664,15 +809,22 @@
 
                 // Attach validation to item row
                 function attachItemValidation(row) {
-                    const select = row.querySelector('select');
+                    const select = row.querySelector('.product-select');
+                    const searchInput = row.querySelector('.product-search');
                     const quantityInput = row.querySelector('input[type="number"]');
                     const errorElement = row.querySelector('.field-error');
 
+                    // Update validation to work with search input
                     select.addEventListener('change', () => {
                         if (select.value) {
                             const stock = parseInt(select.options[select.selectedIndex].getAttribute('data-stock'));
                             quantityInput.setAttribute('max', stock);
                         }
+                        validateItems();
+                    });
+
+                    // Also validate when search input changes (product is selected)
+                    searchInput.addEventListener('change', () => {
                         validateItems();
                     });
 
@@ -685,7 +837,7 @@
                     const rows = itemsContainer.querySelectorAll('.item-row');
 
                     rows.forEach(row => {
-                        const select = row.querySelector('select');
+                        const select = row.querySelector('.product-select');
                         const quantityInput = row.querySelector('input[type="number"]');
                         const errorElement = row.querySelector('.field-error');
 
@@ -759,6 +911,7 @@
 
                 // Initial setup
                 updateRemoveButtons();
+                initializeSearchableSelects();
                 attachItemValidation(itemsContainer.querySelector('.item-row'));
             } catch (error) {
                 console.error('Error initializing scripts:', error);
