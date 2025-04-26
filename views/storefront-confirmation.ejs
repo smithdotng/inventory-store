@@ -358,10 +358,45 @@
                     </div>
                 </div>
 
-                <% if (admin.paymentInstructions) { %>
+                <% if (admin.paymentInstructions || admin.primaryAccount || admin.secondaryAccount) { %>
                     <div class="payment-instructions">
                         <h3>Payment Instructions</h3>
-                        <p><%= admin.paymentInstructions %></p>
+                        <% if (admin.paymentInstructions) { %>
+                            <p><%= admin.paymentInstructions %></p>
+                        <% } %>
+                        <% if (admin.primaryAccount || admin.secondaryAccount) { %>
+                            <p>Kindly make payment to one of the following accounts:</p>
+                            <div class="info-grid">
+                                <% if (admin.primaryAccount) { %>
+                                    <div class="info-item">
+                                        <strong>Primary Account</strong>
+                                        <% if (admin.primaryAccount.bankAccountName) { %>
+                                            <span>Account Name: <%= admin.primaryAccount.bankAccountName %></span><br>
+                                        <% } %>
+                                        <% if (admin.primaryAccount.accountNumber) { %>
+                                            <span>Account Number: <%= admin.primaryAccount.accountNumber %></span><br>
+                                        <% } %>
+                                        <% if (admin.primaryAccount.bankName) { %>
+                                            <span>Bank: <%= admin.primaryAccount.bankName %></span>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                                <% if (admin.secondaryAccount) { %>
+                                    <div class="info-item">
+                                        <strong>Secondary Account</strong>
+                                        <% if (admin.secondaryAccount.bankAccountName) { %>
+                                            <span>Account Name: <%= admin.secondaryAccount.bankAccountName %></span><br>
+                                        <% } %>
+                                        <% if (admin.secondaryAccount.accountNumber) { %>
+                                            <span>Account Number: <%= admin.secondaryAccount.accountNumber %></span><br>
+                                        <% } %>
+                                        <% if (admin.secondaryAccount.bankName) { %>
+                                            <span>Bank: <%= admin.secondaryAccount.bankName %></span>
+                                        <% } %>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } %>
                     </div>
                 <% } %>
 
