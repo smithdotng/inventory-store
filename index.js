@@ -648,7 +648,18 @@ app.post('/reset-password', async (req, res) => {
 app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
   try {
     console.log('Accessing /superadmin/dashboard for user:', req.session.admin);
-    const admins = await db.collection('admins').find().toArray();
+    const admins = await db.collection('admins').find({}, {
+      projection: {
+        username: 1,
+        businessName: 1,
+        email: 1,
+        phone: 1,
+        currency: 1,
+        role: 1,
+        createdAt: 1
+      }
+    }).toArray();
+    
     if (!admins.length) console.warn('No admins found in database');
 
     const adminIds = admins.map(admin => admin._id);
@@ -2388,6 +2399,51 @@ app.get('/store/:adminUsername', async (req, res) => {
     console.error('Error rendering storefront:', error);
     res.status(500).render('500', {
       message: 'Error loading store',
+      error: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
+});
+
+app.get('/store/:adminUsername/product/:productId', async (req, res) => {
+  try {
+    const { adminUsername, productId } = req.params;
+
+    // Validate productId
+    if (!ObjectId.isValid(productId)) {
+      return res.status(404).render('404', { message: 'Product not found' });
+    }
+
+    // Find the admin (case-insensitive username)
+    const admin = await db.collection('admins').findOne({
+      username: { $regex: `^${adminUsername}$`, $options: 'i' }
+    });
+    if (!admin) {
+      return res.status(404).render('404', { message: 'Store not found' });
+    }
+
+    // Find the product
+    const product = await db.collection('inventory').findOne({
+      _id: new ObjectId(productId),
+      adminId: admin._id,
+      stock: { $gt: 0 } // Only show products with stock
+    });
+    if (!product) {
+      return res.status(404).render('404', { message: 'Product not found or out of stock' });
+    }
+
+    // Prepare template data
+    const templateData = {
+      admin,
+      product,
+      currency: admin.currency || '$',
+      formatCurrency
+    };
+
+    res.render('product', templateData);
+  } catch (error) {
+    console.error('Error rendering product page:', error);
+    res.status(500).render('500', {
+      message: 'Error loading product page',
       error: process.env.NODE_ENV === 'development' ? error : undefined
     });
   }

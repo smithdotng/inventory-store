@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="User Management | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <title>User Management</title>
+
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    
+    <!-- Now UI Dashboard CSS -->
+    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
+    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
+    
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        body {
+            background-image: url('/images/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+            position: relative;
+            min-height: 100vh;
+            font-size: 14px;
+            margin: 0;
+        }
+        
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+        }
+        
+        /* Sidebar */
+        .new-sidebar {
+            width: 250px;
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            background: darkcyan;
+            color: white;
+            padding: 60px 20px 20px 20px;
+            transition: width 0.3s ease, left 0.3s ease;
+            z-index: 3000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .new-sidebar.collapsed {
+            width: 80px;
+        }
+        
+        .new-sidebar.collapsed .logo img {
+            max-width: 50px;
+        }
+        
+        .new-sidebar.collapsed .greeting,
+        .new-sidebar.collapsed .nav-link span {
+            display: none;
+        }
+        
+        .new-sidebar.collapsed .nav-link {
+            justify-content: center;
+            padding: 12px 5px;
+        }
+        
+        .new-sidebar.collapsed .nav-link i {
+            margin-right: 0;
+            font-size: 1.2rem;
+        }
+        
+        .new-sidebar .logo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .new-sidebar .logo img {
+            max-width: 80%;
+            height: auto;
+            transition: max-width 0.3s ease;
+        }
+        
+        .new-sidebar .greeting {
+            font-size: 1.2rem;
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+        }
+        
+        .new-sidebar .nav-link {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .new-sidebar .nav-link i {
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        
+        .new-sidebar .nav-link:hover {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+        }
+        
+        .new-sidebar .nav-link.active {
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+            font-weight: bold;
+        }
+        
+        /* Toggle Button */
+        .new-toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 3100;
+            background: rgb(235, 166, 17);
+            color: darkcyan;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: left 0.3s ease;
+        }
+        
+        .new-sidebar.collapsed + .main-container .new-toggle-btn {
+            left: 20px;
+        }
+        
+        /* Main Container */
+        .main-container {
+            min-height: 100vh;
+            padding: 20px;
+            max-width: 1000px;
+            margin-left: 250px;
+            margin-right: 20px;
+            transition: margin-left 0.3s ease;
+            position: relative;
+            z-index: 100;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .new-sidebar.collapsed + .main-container {
+            margin-left: 80px;
+        }
+        
+        /* Backdrop for mobile */
+        .new-sidebar.open + .main-container::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            display: none;
+        }
+        
+        .registration-container {
+            width: 100%;
+            padding: 20px;
+        }
+        
+        .registration-card {
+            width: 100%;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-color: white;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .logo-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-top: 15px;
+        }
+        
+        .logo-container img {
+            height: 50px;
+            margin-bottom: 10px;
+            max-width: 100%;
+        }
+        
+        .card-body {
+            padding: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
+        }
+        
+        .form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #333;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: 38px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .btn-create-account {
+            background-color: rgb(235, 166, 17);
+            color: #fff;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 500;
+            font-size: 14px;
+            padding: 10px 20px;
+            height: 38px;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        .btn-create-account:hover {
+            background-color: rgb(200, 142, 14);
+            color: #fff;
+        }
+        
+        .btn-create-account.add-product-btn {
+            background-color: rgb(255, 204, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.add-product-btn:hover {
+            background-color: rgb(230, 184, 0);
+            color: #333;
+        }
+        
+        .btn-create-account.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.update-btn:hover {
+            background-color: rgb(34, 139, 57);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+        
+        .btn-create-account.delete-btn:hover {
+            background-color: rgb(200, 48, 63);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        
+        .btn-create-account.cancel-btn:hover {
+            background-color: rgb(90, 98, 104);
+            color: #fff;
+        }
+        
+        .btn-create-account.search-button {
+            background-color: rgb(0, 123, 255);
+            color: #fff;
+            border: 1px solid #ced4da;
+            border-left: none;
+        }
+        
+        .btn-create-account.search-button:hover {
+            background-color: rgb(0, 105, 217);
+            color: #fff;
+        }
+        
+        .btn-create-account.edit-btn {
+            background-color: rgb(255, 193, 7);
+            color: #333;
+        }
+        
+        .btn-create-account.edit-btn:hover {
+            background-color: rgb(230, 174, 6);
+            color: #333;
+        }
+        
+        .profile-details {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .profile-details .value {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #333;
+        }
+        
+        .account-section {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .form-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        /* Table Styles */
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        
+        .table th,
+        .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .table th {
+            background-color: #f8f9fa;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        .table td {
+            color: #333;
+        }
+        
+        .table tr:hover {
+            background-color: #f1f3f5;
+        }
+        
+        .privilege-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .privilege-list li {
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .privilege-list li.yes {
+            color: #388e3c;
+        }
+        
+        .privilege-list li.no {
+            color: #d32f2f;
+        }
+        
+        /* Checkbox Styles */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+            color: #333;
+            margin-bottom: 0;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            margin-right: 5px;
+        }
+        
+        /* Alerts */
+        .error {
+            color: #d32f2f;
+            background-color: #fde8e8;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            font-size: 13px;
+        }
+        
+        .success {
+            color: #388e3c;
+            background-color: #e8f5e9;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            font-size: 13px;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .new-sidebar {
+                left: -250px;
+            }
+            
+            .new-sidebar.open {
+                left: 0;
+            }
+            
+            .new-sidebar.open + .main-container::before {
+                display: block;
+            }
+            
+            .main-container {
+                margin-left: 0 !important;
+                margin-right: 0;
+                width: 100%;
+                padding: 15px;
+            }
+            
+            .registration-container {
+                padding: 15px;
+            }
+            
+            .form-group label {
+                font-size: 12px;
+                padding-top: 8px;
+            }
+            
+            .form-control {
+                font-size: 12px;
+                padding: 0.3rem 0.6rem;
+                height: 34px;
+            }
+            
+            .btn-create-account {
+                font-size: 13px;
+                padding: 8px 16px;
+                height: 34px;
+            }
+            
+            .profile-details .value {
+                font-size: 12px;
+            }
+            
+            .table th,
+            .table td {
+                font-size: 12px;
+                padding: 10px;
+            }
+            
+            .checkbox-group {
+                flex-direction: column;
+            }
+        }
+    
+        @media (max-width: 576px) {
+            .main-container {
+                padding: 10px;
+                width: 95%;
+                margin: 0 auto;
+            }
+            
+            .registration-container {
+                padding: 10px;
+            }
+            
+            .card-body {
+                padding: 15px;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn-create-account {
+                width: 100%;
+            }
+            
+            .table {
+                font-size: 11px;
+            }
+            
+            .table th,
+            .table td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <nav class="new-sidebar" id="newSidebar">
+        <div class="logo">
+            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+        </div>
+        <div class="greeting">Welcome, <%= username %>!</div>
+        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
+        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
+        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
+        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
+        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
+        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
+        <a href="/users" class="nav-link active"><i class="fas fa-user-friends"></i> <span>User Management</span></a>
+        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
+        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
+    </nav>
+
+    <!-- Toggle Button -->
+    <button class="new-toggle-btn" id="newToggleBtn">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="registration-container">
+            <div class="card registration-card">
+                <div class="card-body">
+                    <div class="logo-container">
+                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
+                        <h4 style="color: #333; font-size: 16px;">User Management</h4>
+                    </div>
+
+                    <!-- Error/Success Messages -->
+                    <% if (error) { %>
+                        <div class="error">
+                            <i class="fa-solid fa-exclamation-circle mr-2"></i><%= error %>
+                        </div>
+                    <% } %>
+                    <% if (success) { %>
+                        <div class="success">
+                            <i class="fa-solid fa-check-circle mr-2"></i><%= success %>
+                        </div>
+                    <% } %>
+
+                    <!-- Create User Form -->
+                    <div class="profile-details">
+                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Create New User</h5>
+                        <form action="/users/create" method="POST">
+                            <div class="form-group">
+                                <label>Username <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="username" class="form-control" placeholder="Username" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Password <i class="fa-solid fa-lock"></i></label>
+                                <input type="password" name="password" class="form-control" placeholder="Password" required>
+                            </div>
+                            <div class="form-group">
+                                <label>First Name <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="firstName" class="form-control" placeholder="First Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name <i class="fa-solid fa-user"></i></label>
+                                <input type="text" name="lastName" class="form-control" placeholder="Last Name">
+                            </div>
+                            <div class="form-group">
+                                <label>Email <i class="fa-solid fa-envelope"></i></label>
+                                <input type="email" name="email" class="form-control" placeholder="Email">
+                            </div>
+                            <div class="form-group">
+                                <label>Classification <i class="fa-solid fa-user-tag"></i></label>
+                                <select name="classification" class="form-control" required>
+                                    <option value="">Select Classification</option>
+                                    <option value="manager">Manager</option>
+                                    <option value="staff">Staff</option>
+                                    <option value="viewer">Viewer</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Privileges <i class="fa-solid fa-key"></i></label>
+                                <div class="checkbox-group">
+                                    <label><input type="checkbox" name="privileges" value="canManageUsers"> Manage Users</label>
+                                    <label><input type="checkbox" name="privileges" value="canManageInventory"> Manage Inventory</label>
+                                    <label><input type="checkbox" name="privileges" value="canViewReports"> View Reports</label>
+                                    <label><input type="checkbox" name="privileges" value="canProcessOrders"> Process Orders</label>
+                                    <label><input type="checkbox" name="privileges" value="canManageSettings"> Manage Settings</label>
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-round btn-create-account update-btn">
+                                    Create User <i class="fa-solid fa-user-plus"></i>
+                                </button>
+                                <button type="reset" class="btn btn-round btn-create-account cancel-btn">
+                                    Clear <i class="fa-solid fa-times"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Existing Users -->
+                    <div class="account-section">
+                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Existing Users</h5>
+                        <% if (users.length > 0) { %>
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Username</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Classification</th>
+                                        <th>Privileges</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% users.forEach(user => { %>
+                                        <tr>
+                                            <td><%= user.username %></td>
+                                            <td><%= user.firstName %> <%= user.lastName %></td>
+                                            <td><%= user.email || 'N/A' %></td>
+                                            <td><%= user.classification %></td>
+                                            <td>
+                                                <ul class="privilege-list">
+                                                    <li class="<%= user.privileges.canManageUsers ? 'yes' : 'no' %>">
+                                                        Manage Users: <%= user.privileges.canManageUsers ? 'Yes' : 'No' %>
+                                                    </li>
+                                                    <li class="<%= user.privileges.canManageInventory ? 'yes' : 'no' %>">
+                                                        Manage Inventory: <%= user.privileges.canManageInventory ? 'Yes' : 'No' %>
+                                                    </li>
+                                                    <li class="<%= user.privileges.canViewReports ? 'yes' : 'no' %>">
+                                                        View Reports: <%= user.privileges.canViewReports ? 'Yes' : 'No' %>
+                                                    </li>
+                                                    <li class="<%= user.privileges.canProcessOrders ? 'yes' : 'no' %>">
+                                                        Process Orders: <%= user.privileges.canProcessOrders ? 'Yes' : 'No' %>
+                                                    </li>
+                                                    <li class="<%= user.privileges.canManageSettings ? 'yes' : 'no' %>">
+                                                        Manage Settings: <%= user.privileges.canManageSettings ? 'Yes' : 'No' %>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                        <% } else { %>
+                            <p style="color: #333; font-size: 13px;">No users found.</p>
+                        <% } %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/assets/js/core/jquery.min.js"></script>
+    <script src="/assets/js/core/popper.min.js"></script>
+    <script src="/assets/js/core/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js"></script>
+    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('newSidebar');
+            const toggleBtn = document.getElementById('newToggleBtn');
+
+            let isCollapsed = false;
+            let isOpenOnMobile = false;
+
+            // Toggle sidebar
+            if (toggleBtn && sidebar) {
+                toggleBtn.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        isOpenOnMobile = !isOpenOnMobile;
+                        if (isOpenOnMobile) {
+                            sidebar.classList.add('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                        } else {
+                            sidebar.classList.remove('open');
+                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        }
+                    } else {
+                        isCollapsed = !isCollapsed;
+                        if (isCollapsed) {
+                            sidebar.classList.add('collapsed');
+                        } else {
+                            sidebar.classList.remove('collapsed');
+                        }
+                    }
+                });
+            }
+
+            // Close sidebar on outside click (mobile only)
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+                    if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
+                        sidebar.classList.remove('open');
+                        isOpenOnMobile = false;
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                }
+            });
+
+            // Set initial sidebar state
+            function setSidebarState() {
+                if (!sidebar || !toggleBtn) return;
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('collapsed');
+                    if (!isOpenOnMobile) {
+                        sidebar.classList.remove('open');
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    }
+                } else {
+                    sidebar.classList.remove('open');
+                    isOpenOnMobile = false;
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    if (isCollapsed) {
+                        sidebar.classList.add('collapsed');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                    }
+                }
+            }
+            setSidebarState();
+            window.addEventListener('resize', setSidebarState);
+        });
+    </script>
+</body>
+</html>
