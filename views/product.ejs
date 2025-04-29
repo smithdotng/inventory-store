@@ -165,8 +165,8 @@
         .logo-container img {
             width: 100%;
             height: 100%;
-            max-width: none;
-            max-height: none;
+            max-width: 400px;
+            max-height: 140px;
             object-fit: contain;
         }
 
@@ -251,18 +251,21 @@
         .product-image-container {
             position: relative;
             width: 100%;
-            max-height: 300px;
+            height: 300px; /* Fixed height for consistency */
             background: #f8f9fa;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            overflow: hidden; /* Prevent image overflow */
         }
 
         .product-image {
+            width: 100%;
+            height: 100%;
             max-width: 100%;
             max-height: 100%;
-            object-fit: contain;
+            object-fit: contain; /* Ensure image fits without distortion */
         }
 
         .no-image-placeholder {
@@ -578,6 +581,10 @@
             .navbar {
                 height: 60px;
             }
+
+            .product-image-container {
+                height: 400px; /* Larger height for large screens */
+            }
         }
 
         @media (max-width: 768px) {
@@ -635,7 +642,7 @@
             }
 
             .product-image-container {
-                height: 200px;
+                height: 250px; /* Adjusted for medium screens */
             }
 
             .thumbnail {
@@ -644,16 +651,17 @@
             }
 
             .logo-header {
-                height: 140px;
+                height: 120px;
             }
 
             .logo-container {
                 width: 300px;
-                height: 120px;
+                height: 100px;
             }
 
             .logo-container img {
-                max-height: 120px;
+                max-width: 300px;
+                max-height: 100px;
             }
 
             .navbar {
@@ -705,20 +713,18 @@
 
         @media (max-width: 576px) {
             .logo-header {
-                height: 120px;
+                height: 100px; /* Reduced height for small screens */
                 margin-top: 100px;
             }
 
             .logo-container {
-                width: 250px;
-                height: 100px;
-                
+                width: 200px;
+                height: 80px;
             }
 
             .logo-container img {
-                max-height: 100px;
-                margin-top: 100px;
-                
+                max-width: 200px;
+                max-height: 80px;
             }
 
             .navbar {
@@ -767,15 +773,7 @@
             }
 
             .image-container {
-                
-                display: none;
-            }
-
-            .promo-text {
-                font-size: 1rem;
-                top: 10px;
-                left: 10px;
-                right: 10px;
+                display: none; /* Hide promotional image on small screens */
             }
 
             .main-container {
@@ -786,6 +784,10 @@
 
             .modal-slider {
                 height: 200px;
+            }
+
+            .product-image-container {
+                height: 200px; /* Adjusted for small screens */
             }
 
             .thumbnail {
@@ -857,7 +859,9 @@
                 <div class="product-info">
                     <h2><%= product.name %></h2>
                     <p>Price: <%= currency %><%= formatCurrency(product.cost) %></p>
-                    
+                    <% if (product.commission) { %>
+                        <p>Commission: <%= currency %><%= formatCurrency(product.commission) %></p>
+                    <% } %>
                     <p>Stock: <%= product.stock %></p>
                     <p>Description: <%= product.description || 'No description available.' %></p>
                     <input type="number" class="quantity-input" min="1" max="<%= product.stock %>" value="1">
