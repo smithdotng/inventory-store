@@ -2380,6 +2380,7 @@ app.get('/api/stores/search', async (req, res) => {
 
 
 // Storefront route (for reference, supporting confirmation within storefront)
+
 app.get('/store/:adminUsername', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
@@ -2405,11 +2406,29 @@ app.get('/store/:adminUsername', async (req, res) => {
       .find({ adminId: admin._id, stock: { $gt: 0 } })
       .toArray();
 
+    // Define getSocialHandle function
+    const getSocialHandle = (url, platform) => {
+      try {
+        if (!url) return 'N/A';
+        const urlObj = new URL(url);
+        const path = urlObj.pathname;
+        let handle = path.split('/').filter(segment => segment).pop() || 'N/A';
+        if (platform === 'twitter') {
+          handle = '@' + handle;
+        }
+        return handle;
+      } catch (e) {
+        console.error(`Error parsing ${platform} URL:`, e);
+        return 'N/A';
+      }
+    };
+
     const templateData = {
       admin,
       inventory,
       currency: admin.currency || '$',
-      formatCurrency
+      formatCurrency,
+      getSocialHandle // Add getSocialHandle to templateData
     };
 
     if (sale) {

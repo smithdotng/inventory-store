@@ -15,7 +15,6 @@
     <meta property="og:description" content="Shop the latest inventory from <%= admin.businessName %> with ease." />
     <meta property="og:image" content="<%= admin.logo || '/android-chrome-512x512.png' %>" />
     <title><%= admin.businessName %> Storefront</title>
-
     <!-- Bootstrap Grid CSS -->
     <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
     <!-- Font Awesome CSS -->
@@ -26,7 +25,6 @@
     <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
     <!-- Ashley SCSS -->
     <link rel="stylesheet" href="/css/style.css">
-
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -76,6 +74,10 @@
             border: 1px solid #ddd;
             border-radius: 4px;
             width: 200px;
+            text-transform: none !important;
+        }
+        .mil-quantity-input, .mil-form-control {
+            text-transform: none !important;
         }
         .mil-store-banner {
             height: 300px;
@@ -185,90 +187,6 @@
             padding: 2px 6px;
             font-size: 12px;
         }
-        /* Modal styles (commented out if not needed) */
-        /*
-        .mil-product-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
-            z-index: 1002;
-            align-items: center;
-            justify-content: center;
-            overflow: auto;
-        }
-        .mil-modal-content {
-            background: white;
-            border-radius: 8px;
-            max-width: 800px;
-            width: 90%;
-            padding: 20px;
-            position: relative;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .mil-close-modal {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #333;
-            z-index: 1003;
-        }
-        .mil-close-modal:hover {
-            color: #dc3545;
-        }
-        .mil-modal-slider {
-            width: 100%;
-            height: 500px;
-            position: relative;
-            overflow: hidden;
-        }
-        .mil-modal-image {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            position: absolute;
-            top: 0;
-            left: 100%;
-            opacity: 0;
-            transition: opacity 0.3s ease, left 0.3s ease;
-        }
-        .mil-modal-image.active {
-            left: 0;
-            opacity: 1;
-        }
-        .mil-prev, .mil-next {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 40px;
-            color: white;
-            cursor: pointer;
-            user-select: none;
-            background: rgba(0,0,0,0.5);
-            padding: 10px;
-            border-radius: 50%;
-            z-index: 1003;
-            transition: background 0.3s ease;
-        }
-        .mil-prev:hover, .mil-next:hover {
-            background: rgba(0,0,0,0.8);
-        }
-        .mil-prev {
-            left: 10px;
-        }
-        .mil-next {
-            right: 10px;
-        }
-        */
-        /* Checkout form styles */
         .mil-checkout-form {
             display: none;
             position: fixed;
@@ -330,7 +248,6 @@
             background: rgba(0,0,0,0.5);
             z-index: 1000;
         }
-        /* Confirmation page styles */
         .mil-confirmation-container {
             max-width: 800px;
             margin: 0 auto;
@@ -372,7 +289,6 @@
         .mil-soft-bg .mil-light-soft {
             color: #333 !important;
         }
-        /* Arrow for scroll button */
         .mil-arrow-down {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 16.5l-6-6 1.41-1.41L12 13.67l4.59-4.58L18 10.5l-6 6z"/></svg>');
             background-size: contain;
@@ -390,7 +306,6 @@
             align-items: center;
             justify-content: center;
         }
-        /* Search form in header */
         .mil-subscribe-form {
             position: relative;
             display: flex;
@@ -411,7 +326,6 @@
             border: none;
             cursor: pointer;
         }
-        /* Subscription form in footer */
         .mil-subscribe-container {
             position: relative;
             max-width: 300px;
@@ -470,7 +384,6 @@
             display: none;
             margin-top: 10px;
         }
-        /* Ensure visibility in dark footer */
         .mil-dark-bg .mil-subscribe-form input[type="email"] {
             background: #fff;
             color: #333;
@@ -478,7 +391,36 @@
         .mil-dark-bg .mil-subscribe-form button[type="submit"] {
             background: darkcyan;
         }
-        /* Responsive adjustments */
+        footer.mil-dark-bg {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        /* New styles for social media links with handles in banner */
+        .mil-social-links {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .mil-social-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+            transition: color 0.3s ease;
+        }
+        .mil-social-link:hover {
+            color: #ddd;
+        }
+        .mil-social-link i {
+            font-size: 24px;
+        }
+        .mil-social-link span {
+            font-size: 14px;
+        }
         @media (max-width: 768px) {
             .mil-inventory-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -486,12 +428,13 @@
             .mil-search-input {
                 width: 150px;
             }
-            .mil-modal-content {
+            .mil-checkout-form {
                 max-width: 95%;
                 padding: 15px;
             }
-            .mil-modal-slider {
-                height: 300px;
+            .mil-social-links {
+                flex-wrap: wrap;
+                gap: 15px;
             }
         }
         @media (max-width: 576px) {
@@ -523,21 +466,17 @@
             footer .mil-subscribe-form input[type="email"] {
                 width: 100%;
             }
-            .mil-modal-slider {
-                height: 200px;
-            }
-            .mil-prev, .mil-next {
-                font-size: 30px;
-                padding: 5px;
+            .mil-social-links {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
             }
         }
     </style>
 </head>
 
 <body>
-    <!-- wrapper -->
     <div class="mil-wrapper" id="top">
-        <!-- cursor -->
         <div class="mil-ball">
             <span class="mil-icon-1">
                 <svg viewBox="0 0 128 128">
@@ -547,15 +486,10 @@
             <div class="mil-more-text">More</div>
             <div class="mil-choose-text">Сhoose</div>
         </div>
-        <!-- cursor end -->
-
-        <!-- scrollbar progress -->
         <div class="mil-progress-track">
             <div class="mil-progress"></div>
         </div>
-        <!-- scrollbar progress end -->
 
-        <!-- frame top (header) -->
         <div class="mil-frame-top">
             <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= admin.businessName %> Logo"></a>
             <div class="mil-subscribe-form">
@@ -566,12 +500,9 @@
                 <i class="fa-solid fa-shopping-cart mr-2"></i><span id="cartLabel">Cart</span> (<span id="cartCount">0</span>)
             </a>
         </div>
-        <!-- frame top end -->
 
-        <!-- content -->
         <div class="mil-content mil-store-content">
             <div id="swupMain" class="mil-main-transition">
-                <!-- banner -->
                 <section class="mil-banner mil-dark-bg">
                     <div class="mi-invert-fix">
                         <div class="mil-animation-frame">
@@ -588,11 +519,28 @@
                                         <p class="mil-light-soft mil-mb-60">Shop our latest inventory <strong>with ease!</strong></p>
                                     </div>
                                 </div>
-                                <a href="services.html" class="mil-button mil-arrow-place mil-btn-space">
-                                    <span>What we do</span>
-                                </a>
-                                <a href="#" style="color: white; font-size: 24px;"><i class="fa-brands fa-facebook"></i></a>
-                                <a href="#" style="color: white; font-size: 24px;"><i class="fa-brands fa-instagram"></i></a>
+                                
+                                <!-- Social media links with handles -->
+                                <div class="mil-social-links">
+                                    <% if (admin.facebook) { %>
+                                        <a href="<%= admin.facebook %>" target="_blank" class="mil-social-link mil-facebook">
+                                            <i class="fab fa-facebook-f"></i>
+                                            <span><%= getSocialHandle(admin.facebook, 'facebook') %></span>
+                                        </a>
+                                    <% } %>
+                                    <% if (admin.instagram) { %>
+                                        <a href="<%= admin.instagram %>" target="_blank" class="mil-social-link mil-instagram">
+                                            <i class="fab fa-instagram"></i>
+                                            <span><%= getSocialHandle(admin.instagram, 'instagram') %></span>
+                                        </a>
+                                    <% } %>
+                                    <% if (admin.twitter) { %>
+                                        <a href="<%= admin.twitter %>" target="_blank" class="mil-social-link mil-twitter">
+                                            <i class="fab fa-twitter"></i>
+                                            <span><%= getSocialHandle(admin.twitter, 'twitter') %></span>
+                                        </a>
+                                    <% } %>
+                                </div>
                                 <div class="mil-circle-text">
                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 300 300" enable-background="new 0 0 300 300" xml:space="preserve" class="mil-ct-svg mil-rotate" data-value="360">
                                         <defs>
@@ -612,13 +560,10 @@
                         </div>
                     </div>
                 </section>
-                <!-- banner end -->
 
-                <!-- Main Content -->
                 <section class="mil-about">
                     <div class="container mil-p-60-30">
                         <% if (typeof saleId !== 'undefined') { %>
-                            <!-- Confirmation Page Content -->
                             <div class="mil-confirmation-container mil-up">
                                 <div class="mil-text-center">
                                     <div class="mil-confirmation-icon">
@@ -699,14 +644,12 @@
                                 </div>
                             </div>
                         <% } else { %>
-                            <!-- Regular Storefront Content -->
                             <section id="store" class="mil-soft-bg">   
                                 <div class="row">
                                     <div class="col-12">
                                         <div class="mil-up">
                                             <h2 class="mil-mb-30">Our Products</h2>
                                             
-                                            <!-- Inventory Grid -->
                                             <div class="mil-inventory-grid" id="inventoryGrid">
                                                 <% inventory.forEach(item => { %>
                                                     <div class="mil-inventory-item" data-item-id="<%= item._id %>">
@@ -739,52 +682,12 @@
                                     </div>
                                 </div>
                             </section>
-                            
-                            <!-- Social Media Section -->
-                            <% if (admin.facebook || admin.instagram || admin.twitter) { %>
-                                <div class="mil-up mil-mt-60">
-                                    <h2 class="mil-text-center mil-mb-30">Connect With Us</h2>
-                                    <div class="mil-flex mil-justify-center mil-gap-15">
-                                        <% if (admin.facebook) { %>
-                                            <a href="<%= admin.facebook %>"
-                                               target="_blank" class="mil-social-icon mil-facebook">
-                                                <i class="fab fa-facebook-f"></i>
-                                            </a>
-                                        <% } %>
-                                        <% if (admin.instagram) { %>
-                                            <a href="<%= admin.instagram %>"
-                                               target="_blank" class="mil-social-icon mil-instagram">
-                                                <i class="fab fa-instagram"></i>
-                                            </a>
-                                        <% } %>
-                                        <% if (admin.twitter) { %>
-                                            <a href="<%= admin.twitter %>"
-                                               target="_blank" class="mil-social-icon mil-twitter">
-                                                <i class="fab fa-twitter"></i>
-                                            </a>
-                                        <% } %>
-                                    </div>
-                                </div>
-                            <% } %>
                         <% } %>
                     </div>
                 </section>
             </div>
         </div>
 
-        <!-- Product Modal (commented out if not needed) -->
-        <!--
-        <div class="mil-product-modal" id="imageModal">
-            <div class="mil-modal-content">
-                <span class="mil-close-modal" onclick="closeModal()">×</span>
-                <div class="mil-modal-slider" id="modalSlider"></div>
-                <div class="mil-prev" onclick="changeSlide(-1)">‹</div>
-                <div class="mil-next" onclick="changeSlide(1)">›</div>
-            </div>
-        </div>
-        -->
-
-        <!-- Checkout Form -->
         <div class="mil-overlay" id="overlay" onclick="hideCheckoutForm()"></div>
         <div class="mil-checkout-form" id="checkoutForm">
             <h2 class="mil-mb-20">Checkout</h2>
@@ -792,13 +695,13 @@
                 <h3>Your Cart - <%= admin.businessName || 'Shed Store' %></h3>
                 <table>
                     <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
                     </thead>
                     <tbody id="cartSummaryBody"></tbody>
                 </table>
@@ -829,7 +732,6 @@
             </form>
         </div>
 
-        <!-- footer -->
         <footer class="mil-dark-bg">
             <div class="mi-invert-fix">
                 <div class="container mil-p-120-60">
@@ -841,8 +743,7 @@
                                 <div class="mil-subscribe-error"></div>
                                 <form class="mil-subscribe-form mil-up" id="subscribeForm">
                                     <input type="email" name="email" placeholder="What is your email address?" required>
-                                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"
-                                            aria-label="Subscribe to newsletter">
+                                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place" aria-label="Subscribe to newsletter">
                                         <svg class="mil-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                             <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
                                         </svg>
@@ -876,94 +777,44 @@
                 </div>
             </div>
         </footer>
-        <!-- footer end -->
 
-        <!-- hidden elements -->
         <div class="mil-hidden-elements">
             <div class="mil-dodecahedron">
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
                 <div class="mil-pentagon">
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
-                    <div></div>
+                    <div></div><div></div><div></div><div></div><div></div>
                 </div>
             </div>
 
@@ -972,57 +823,32 @@
             </svg>
 
             <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z"
-                      class="mil-move"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z"
-                      class="mil-move"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z"
-                      class="mil-move"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M300 1175H0V1174H300V1175Z" class="mil-move"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z"
-                      class="mil-move"/>
-                <path fill-rule="evenodd" clip-rule="evenodd"
-                      d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move"/>
             </svg>
         </div>
-        <!-- hidden elements end -->
     </div>
-    <!-- wrapper end -->
 
-    <!-- jQuery js -->
     <script src="/js/plugins/jquery.min.js"></script>
-    <!-- swup js -->
     <script src="/js/plugins/swup.min.js"></script>
-    <!-- swiper js -->
     <script src="/js/plugins/swiper.min.js"></script>
-    <!-- fancybox js -->
     <script src="/js/plugins/fancybox.min.js"></script>
-    <!-- gsap js -->
     <script src="/js/plugins/gsap.min.js"></script>
-    <!-- scroll smoother -->
     <script src="/js/plugins/smooth-scroll.js"></script>
-    <!-- scroll trigger js -->
     <script src="/js/plugins/ScrollTrigger.min.js"></script>
-    <!-- scroll to js -->
     <script src="/js/plugins/ScrollTo.min.js"></script>
-    <!-- ashley js -->
     <script src="/js/main.js"></script>
 
     <script>
-        // Initialize cart from localStorage or empty array
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const currency = '<%= currency %>';
 
-        // Save cart to localStorage
         function saveCart() {
             localStorage.setItem('cart', JSON.stringify(cart));
         }
@@ -1042,13 +868,11 @@
 
             const existingItemIndex = cart.findIndex(item => item.id === itemId);
             if (existingItemIndex !== -1) {
-                // Remove item from cart
                 cart.splice(existingItemIndex, 1);
                 button.classList.remove('mil-added');
                 button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
                 button.style.backgroundColor = '';
             } else {
-                // Add item to cart
                 cart.push({
                     id: itemId,
                     name: itemName,
@@ -1124,12 +948,14 @@
 
         function scrollToStore() {
             const storeSection = document.getElementById('store');
-            if (storeSection) {
+            if (storeSection && typeof gsap !== 'undefined') {
                 gsap.to(window, {
                     duration: 1,
                     scrollTo: {y: storeSection, offsetY: 80},
                     ease: 'power2.out'
                 });
+            } else {
+                window.scrollTo({top: storeSection?.offsetTop - 80, behavior: 'smooth'});
             }
         }
 
@@ -1159,63 +985,6 @@
             document.getElementById('checkoutForm').style.display = 'none';
         }
 
-        // Commented out modal-related functions (uncomment if you want to re-enable modal for quick view)
-        /*
-        let currentSlide = 0;
-        let currentImages = [];
-
-        function openModal(itemId) {
-            const item = document.querySelector(`.mil-inventory-item[data-item-id="${itemId}"]`);
-            const images = item.dataset.images ? JSON.parse(item.dataset.images) : [];
-            currentImages = images.length > 0 ? images : ['/images/placeholder.png'];
-
-            const slider = document.getElementById('modalSlider');
-            slider.innerHTML = currentImages.map((src, index) => `
-                <img src="${src}" class="mil-modal-image ${index === 0 ? 'active' : ''}" alt="Product Image ${index + 1}">
-            `).join('');
-
-            currentSlide = 0;
-            document.getElementById('imageModal').style.display = 'flex';
-        }
-
-        function closeModal() {
-            document.getElementById('imageModal').style.display = 'none';
-            currentSlide = 0;
-            currentImages = [];
-        }
-
-        function changeSlide(direction) {
-            const images = document.querySelectorAll('.mil-modal-image');
-            if (images.length === 0) return;
-
-            const prevSlide = currentSlide;
-            currentSlide = (currentSlide + direction + images.length) % images.length;
-
-            gsap.to(images[prevSlide], {
-                left: direction > 0 ? '-100%' : '100%',
-                opacity: 0,
-                duration: 0.3,
-                ease: 'power2.out'
-            });
-
-            gsap.fromTo(images[currentSlide], {
-                left: direction > 0 ? '100%' : '-100%',
-                opacity: 0
-            }, {
-                left: '0%',
-                opacity: 1,
-                duration: 0.3,
-                ease: 'power2.out',
-                onStart: () => {
-                    images.forEach((img, index) => {
-                        img.classList.toggle('active', index === currentSlide);
-                    });
-                }
-            });
-        }
-        */
-
-        // Real-time search for inventory items
         function searchInventory() {
             const input = document.getElementById('inventorySearchInput').value.toLowerCase();
             const grid = document.getElementById('inventoryGrid');
@@ -1229,7 +998,6 @@
             }
         }
 
-        // Real-time search for order items
         function searchOrderTable() {
             const input = document.getElementById('orderSearchInput').value.toLowerCase();
             const table = document.getElementById('orderTable');
@@ -1250,15 +1018,6 @@
                 row.style.display = match ? '' : 'none';
             }
         }
-
-        // Remove modal click event listener if modal is disabled
-        /*
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('mil-product-modal')) {
-                closeModal();
-            }
-        });
-        */
 
         document.getElementById('checkoutFormSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1334,7 +1093,6 @@
             }
         });
 
-        // Initialize cart count, button states, and cart summary on page load
         window.addEventListener('load', () => {
             updateCartCount();
             initializeButtonStates();
@@ -1353,12 +1111,26 @@
             }, 500);
         }
 
-        // Attach event listeners for search inputs
         document.getElementById('inventorySearchInput')?.addEventListener('input', searchInventory);
         document.getElementById('orderSearchInput')?.addEventListener('input', searchOrderTable);
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof gsap !== 'undefined') {
+                gsap.set(['.mil-search-input', '.mil-quantity-input', '.mil-form-control'], {
+                    textTransform: 'none',
+                    clearProps: 'textTransform'
+                });
+                gsap.set('footer.mil-dark-bg', {
+                    opacity: 1,
+                    display: 'block',
+                    visibility: 'visible',
+                    clearProps: 'all'
+                });
+                console.log('Storefront GSAP reset applied');
+            }
+        });
     </script>
 
-    <!-- Subscription Form Handling -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const subscribeForm = document.getElementById('subscribeForm');
@@ -1400,15 +1172,28 @@
                     if (response.ok) {
                         subscribeForm.style.display = 'none';
                         successDiv.style.display = 'block';
+                        if (typeof gsap !== 'undefined') {
+                            gsap.fromTo(successDiv, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+                        }
                         subscribeForm.reset();
                     } else {
                         errorDiv.textContent = data.message || 'Subscription failed. Please try again.';
                         errorDiv.style.display = 'block';
+                        if (typeof gsap !== 'undefined') {
+                            gsap.fromTo(errorDiv, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+                        }
                     }
                 } catch (error) {
-                    errorDiv.textContent = 'Network error. Please try again later.';
+                    console.error('Subscription error:', error.message);
+                    let errorMessage = 'Network error. Please try again.';
+                    if (error.message.includes('Failed to fetch')) {
+                        errorMessage = 'Unable to reach server. Check /api/subscribe endpoint.';
+                    }
+                    errorDiv.textContent = errorMessage;
                     errorDiv.style.display = 'block';
-                    console.error('Subscription error:', error);
+                    if (typeof gsap !== 'undefined') {
+                        gsap.fromTo(errorDiv, { opacity: 0, y: -10 }, { opacity: 1, y: 0, duration: 0.3 });
+                    }
                 }
             });
         });
