@@ -421,6 +421,19 @@
         .mil-social-link span {
             font-size: 14px;
         }
+        /* New styles for contact information */
+        .mil-contact-info p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .mil-contact-info a {
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .mil-contact-info a:hover {
+            color: #ddd;
+        }
         @media (max-width: 768px) {
             .mil-inventory-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -471,6 +484,9 @@
                 align-items: flex-start;
                 gap: 10px;
             }
+            .mil-contact-info p {
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -520,6 +536,19 @@
                                     </div>
                                 </div>
                                 
+                                <!-- Business contact information -->
+                                <div class="mil-contact-info mil-light-soft mil-mb-30">
+                                    <% if (admin.phone) { %>
+                                        <p><i class="fas fa-phone mil-mr-5"></i> Phone: <%= admin.phone %></p>
+                                    <% } %>
+                                    <% if (admin.email) { %>
+                                        <p><i class="fas fa-envelope mil-mr-5"></i> Email: <a href="mailto:<%= admin.email %>" class="mil-light-soft"><%= admin.email %></a></p>
+                                    <% } %>
+                                    <% if (admin.address) { %>
+                                        <p><i class="fas fa-map-marker-alt mil-mr-5"></i> Address: <%= admin.address %></p>
+                                    <% } %>
+                                </div>
+
                                 <!-- Social media links with handles -->
                                 <div class="mil-social-links">
                                     <% if (admin.facebook) { %>
