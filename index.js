@@ -216,6 +216,10 @@ async function connectToMongo() {
     await client.connect();
     console.log('Connected to MongoDB');
     db = client.db(dbName);
+
+    // Create indexes for subscriptions collection
+    const subscriptionsCollection = db.collection('subscriptions');
+    await subscriptionsCollection.createIndex({ email: 1 }, { unique: true });
     
     const adminCollection = db.collection('admins');
     if (await adminCollection.countDocuments() === 0) {
@@ -966,12 +970,17 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       .toArray();
 
     const username = req.session.admin;
+    
+    // Define store URL
+    const storeUrl = `${req.protocol}://${req.get('host')}/store/${username}`;
+    
     res.render('update-stock', { 
       inventory, 
       admin, 
       username, 
       formatCurrency,
       search: search || '',
+      storeUrl, // Add storeUrl to template data
       error: null,
       success: null
     });
@@ -983,6 +992,7 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       username: req.session.admin,
       formatCurrency,
       search: '',
+      storeUrl: '', // Provide empty storeUrl in case of error
       error: 'Failed to load inventory. Please try again.',
       success: null
     });
@@ -2299,6 +2309,45 @@ app.get('/landing', (req, res) => {
   res.render('landing', { admin: { currency: '$' } }); // Default currency for display
 });
 
+const rateLimit = require('express-rate-limit');
+
+const subscribeLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 5, // limit each IP to 5 requests per windowMs
+    message: 'Too many subscription attempts from this IP, please try again later'
+});
+
+
+// Add this route to your Express server
+app.post('/api/subscribe', subscribeLimiter, express.json(), async (req, res) => {
+  try {
+      const { email } = req.body;
+      
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          return res.status(400).json({ message: 'Please provide a valid email address' });
+      }
+
+      const subscriptionsCollection = db.collection('subscriptions');
+      const existingSubscriber = await subscriptionsCollection.findOne({ email });
+      
+      if (existingSubscriber) {
+          return res.status(409).json({ message: 'This email is already subscribed' });
+      }
+
+      await subscriptionsCollection.insertOne({
+          email,
+          subscribedAt: new Date(),
+          source: 'landing_page',
+          active: true
+      });
+
+      res.status(201).json({ message: 'Subscription successful' });
+  } catch (error) {
+      console.error('Subscription error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 app.get('/api/stores/search', async (req, res) => {
   try {
     const query = req.query.q ? req.query.q.trim() : '';
@@ -2387,6 +2436,51 @@ app.get('/store/:adminUsername', async (req, res) => {
   }
 });
 
+app.get('/store/:adminUsername/product/:productId', async (req, res) => {
+  try {
+    const { adminUsername, productId } = req.params;
+
+    // Validate productId
+    if (!ObjectId.isValid(productId)) {
+      return res.status(404).render('404', { message: 'Product not found' });
+    }
+
+    // Find the admin (case-insensitive username)
+    const admin = await db.collection('admins').findOne({
+      username: { $regex: `^${adminUsername}$`, $options: 'i' }
+    });
+    if (!admin) {
+      return res.status(404).render('404', { message: 'Store not found' });
+    }
+
+    // Find the product
+    const product = await db.collection('inventory').findOne({
+      _id: new ObjectId(productId),
+      adminId: admin._id,
+      stock: { $gt: 0 } // Only show products with stock
+    });
+    if (!product) {
+      return res.status(404).render('404', { message: 'Product not found or out of stock' });
+    }
+
+    // Prepare template data
+    const templateData = {
+      admin,
+      product,
+      currency: admin.currency || '$',
+      formatCurrency
+    };
+
+    res.render('product', templateData);
+  } catch (error) {
+    console.error('Error rendering product page:', error);
+    res.status(500).render('500', {
+      message: 'Error loading product page',
+      error: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
+});
+
 app.post('/store/:adminUsername/checkout', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
@@ -2426,6 +2520,7 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
 
     let parsedCart;
     try {
+      console.log('Raw cartItems received:', cartItems);
       parsedCart = JSON.parse(cartItems);
       if (!Array.isArray(parsedCart)) {
         throw new Error('Invalid cart format');

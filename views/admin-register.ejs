@@ -1,135 +1,328 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zxx">
+
 <head>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:title" content="Signup | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="https://img.shed.ng/status.jpg" />
-    <title>Signup - Shed</title>
-    
-    <!-- Font Awesome -->
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
     <!-- Cropper.js CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
 
-    <link href="assets/css/nucleo-icons.css" rel="stylesheet" />
-    <link href="assets/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    
+    <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Inline CSS for Fixes, Menu, Search Results, Form Styling, and Image -->
     <style>
-        body {
-            background-image: url('images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            position: relative;
-            min-height: 100vh;
-            font-size: 14px;
-            margin: 0;
+        /* Ensure .row is visible */
+        .mil-banner-content .row {
+            display: flex;
+            visibility: visible;
+            opacity: 1;
+            max-height: none;
+            margin-top: 20px;
         }
-        
-        body::before {
-            content: '';
-            position: absolute;
+        .mil-banner-content .col-md-7.col-lg-5 {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+        .mil-banner-content .col-md-7.col-lg-5 p {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            color: #fff;
+        }
+        /* Adjust .mil-frame-top to be fixed at top */
+        .mil-frame-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background: #fff;
+            height: 70px;
+            position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            z-index: -1;
+            z-index: 1001;
         }
-        
-        .main-container {
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-main-menu {
             display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: stretch;
-            min-height: 100vh;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
+            position: relative;
         }
-        
-        .image-container {
-            flex: 0 0 40%;
-            max-width: 400px;
-            background-color: #ffffff;
-            border-radius: 10px 0 0 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        .mil-main-menu ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
         }
-        
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        .mil-main-menu ul li {
+            position: relative;
+            margin: 0 10px;
+        }
+        .mil-main-menu ul li a {
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px;
             display: block;
         }
-        
-        .registration-container {
-            flex: 0 0 60%;
-            max-width: 600px;
+        .mil-main-menu ul li.mil-has-children > a::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 5px;
+            font-size: 10px;
+        }
+        .mil-main-menu ul li ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 180px;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .mil-main-menu ul li ul li {
+            margin: 0;
+        }
+        .mil-main-menu ul li ul li a {
+            padding: 8px 12px;
+            color: #333;
+            font-size: 14px;
+        }
+        .mil-main-menu ul li:hover > ul {
             display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
         }
-        
-        .registration-card {
-            width: 100%;
-            border-radius: 0 10px 10px 0;
-            box-shadow: 0 10px 25px 0 rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: darkcyan;
-            border: 1px solid #e0e0e0;
+        .mil-main-menu ul li ul li:hover a {
+            background: #f5f5f5;
         }
-        
-        .logo-container {
+        .mil-menu-btn {
+            display: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+        }
+        /* Style mil-frame-bottom to scroll with the page */
+        .mil-frame-bottom {
+            background: #1a1a1a;
+            padding: 10px;
             text-align: center;
-            margin-bottom: 15px;
-            padding-top: 15px;
+            color: #fff;
         }
-        
-        .logo-container img {
-            height: 50px;
+        .mil-frame-bottom .mil-back-to-top a {
+            color: #fff;
+            text-decoration: none;
+        }
+        /* Search form and results */
+        .mil-subscribe-form {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .mil-subscribe-form input {
+            flex: 1;
+            border: none;
+            background-color: beige;
+            padding: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .mil-subscribe-form button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .mil-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .mil-search-results.active {
+            display: block;
+        }
+        .mil-search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+            color: #333;
+        }
+        .mil-search-result-item:hover {
+            background: #f5f5f5;
+        }
+        .mil-search-result-item img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+        }
+        .mil-search-result-item div {
+            flex: 1;
+        }
+        .mil-search-result-item h6 {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
+        }
+        .mil-search-result-item p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
+        }
+        .mil-search-no-results {
+            padding: 10px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        /* Mobile Menu */
+        @media screen and (max-width: 991px) {
+            .mil-main-menu {
+                display: none;
+                width: 100%;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: #fff;
+                z-index: 999;
+            }
+            .mil-main-menu.active {
+                display: block;
+            }
+            .mil-main-menu ul {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .mil-main-menu ul li {
+                margin: 5px 0;
+            }
+            .mil-main-menu ul li ul {
+                position: static;
+                box-shadow: none;
+                display: none;
+            }
+            .mil-main-menu ul li.mil-has-children.active > ul {
+                display: flex;
+            }
+            .mil-menu-btn {
+                display: block;
+            }
+            .mil-subscribe-form {
+                width: 100%;
+            }
+            .mil-search-results {
+                width: 100%;
+            }
+        }
+        /* Content padding to avoid overlap with fixed header */
+        .mil-content {
+            padding-top: 80px;
+            padding-bottom: 30px;
+        }
+        /* Footer adjustments */
+        footer.mil-dark-bg {
+            padding-bottom: 0;
+        }
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            font-size: 16px !important;
+        }
+        .mil-soft-bg .mil-light-soft {
+            color: #333 !important;
+        }
+        .mil-banner-content, .mil-content, .mil-footer, .mil-about, .mil-services-grid {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .mil-up {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+        /* Add tick to all <li> elements */
+        li {
+            position: relative;
+            padding-left: 25px;
+        }
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #008B8B;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+        .mil-main-menu ul li::before,
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
+        }
+        .mil-menu-list li::before {
+            color: #fff;
+        }
+        .mil-accordion-content ol li {
+            padding-left: 30px;
             margin-bottom: 10px;
-            max-width: 100%;
         }
-        
-        .card-body {
-            padding: 20px;
+        .mil-accordion-content ol li::before {
+            font-size: 16px;
+            color: #008B8B;
         }
-        
-        .form-group {
+        /* Form styling */
+        .mil-form-group {
             margin-bottom: 15px;
         }
-        
-        .form-group label {
-            color: white;
+        .mil-form-group label {
+            color: #333;
             margin-bottom: 6px;
             display: block;
-            font-weight: 500;
-            font-size: 13px;
+            
+            font-size: 16px;
             padding-top: 10px;
         }
-        
-        .form-control {
+        .mil-form-control {
             background-color: white;
             border: 1px solid #ced4da;
             color: #495057;
@@ -139,37 +332,68 @@
             height: calc(1.5em + 0.75rem + 2px);
             width: 100%;
             box-sizing: border-box;
-            
+            border-radius: 4px;
+            text-transform: none !important;
         }
-        
-        .form-row {
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        .mil-form-row {
             display: flex;
             flex-wrap: wrap;
             margin-right: -5px;
             margin-left: -5px;
         }
-        
-        .form-col {
+        .mil-form-col {
             flex: 1;
             padding-right: 5px;
             padding-left: 5px;
             min-width: 0;
         }
-        
-        .login-link {
-            text-align: center;
-            margin-top: 15px;
-            color: #6c757d;
+        .mil-form-group select.mil-form-control {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            background-size: 1em;
+            padding-right: 2rem;
+        }
+        .mil-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
             font-size: 13px;
         }
-        
-        .login-link a {
-            color: rgb(224, 235, 17);
-            font-weight: 500;
-            text-decoration: none;
-            font-size: 13px;
+        .mil-password-requirements {
+            margin-top: 5px;
+            font-size: 12px;
         }
-        
+        .mil-password-requirements ul {
+            padding-left: 15px;
+            margin-bottom: 0;
+            color: #333;
+        }
+        .mil-password-requirements .valid {
+            color: #90EE90;
+        }
+        .mil-password-requirements .invalid {
+            color: #333;
+        }
+        .mil-password-requirements .error {
+            color: #FF0000;
+        }
+        #confirmPasswordFeedback.valid {
+            color: #90EE90;
+        }
+        #confirmPasswordFeedback.invalid {
+            color: #FF0000;
+        }
         .file-upload-label {
             display: inline-block;
             font-size: 13px;
@@ -185,68 +409,28 @@
             width: 100%;
             max-width: 200px;
         }
-        
         .file-upload-label:hover {
             background-color: #ffffff;
             color: rgb(235, 166, 17);
             border-color: rgb(235, 166, 17);
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        
         .file-upload-label.uploaded {
             background-color: #e9ecef;
             border-color: #495057;
             color: #495057;
         }
-        
         .file-upload-label.uploaded:hover {
             background-color: #d3d7db;
         }
-
-        .btn-create-account {
-            background-color: rgb(235, 166, 17);
-            width: 100%;
-            max-width: 300px;
-            transition: all 0.3s ease;
-            border: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 20px;
+        #logoPreview {
+            max-width: 120px;
+            max-height: 120px;
+            display: none;
+            margin-top: 10px;
         }
-        
-        .password-requirements {
-            margin-top: 5px;
-            font-size: 12px;
-        }
-        
-        .password-requirements ul {
-            padding-left: 15px;
-            margin-bottom: 0;
-            color: white;
-        }
-        
-        .password-requirements .valid {
-            color: #90EE90;
-        }
-        
-        .password-requirements .invalid {
-            color: white;
-        }
-        
-        .password-requirements .error {
-            color: #FF0000;
-        }
-        
-        #confirmPasswordFeedback.valid {
-            color: #90EE90;
-        }
-        
-        #confirmPasswordFeedback.invalid {
-            color: #FF0000;
-        }
-        
         /* Cropper Modal Styles */
-        .cropper-modal {
+        .mil-cropper-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -258,8 +442,7 @@
             justify-content: center;
             align-items: center;
         }
-        
-        .cropper-modal-content {
+        .mil-cropper-modal-content {
             background: #ffffff;
             border-radius: 8px;
             width: 90%;
@@ -267,369 +450,554 @@
             overflow: hidden;
             padding: 15px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
-            transform: scale(1);
         }
-        
-        .cropper-header {
+        .mil-cropper-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding-bottom: 10px;
             background: #ffffff;
         }
-        
-        .cropper-header h3 {
+        .mil-cropper-header h3 {
             margin: 0;
             font-size: 16px;
             color: #333333;
             font-weight: 500;
         }
-        
-        .close-cropper {
+        .mil-close-cropper {
             cursor: pointer;
             font-size: 20px;
             color: #333333;
         }
-        
-        .cropper-body {
+        .mil-cropper-body {
             margin-bottom: 15px;
             background: #ffffff;
         }
-        
-        .cropper-body img {
+        .mil-cropper-body img {
             display: block;
             max-width: 100%;
             height: auto;
-            image-rendering: -webkit-optimize-contrast;
-            image-rendering: crisp-edges;
         }
-        
-        .cropper-footer {
+        .mil-cropper-footer {
             text-align: right;
             background: #ffffff;
         }
-        
-        .cropper-footer .btn {
+        .mil-cropper-footer .mil-button {
             font-size: 14px;
             padding: 8px 16px;
+            margin-left: 10px;
         }
-        
-        #logoPreview {
-            max-width: 120px;
-            max-height: 120px;
-            display: none;
+        /* Promo Image Styling */
+        .mil-promo-image {
+            width: 100%;
+            height: auto;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
         }
-
         /* Responsive Design */
-        @media (max-width: 992px) {
-            .main-container {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .image-container {
-                flex: 0 0 100%;
-                max-width: 100%;
-                height: 200px; /* Reduced from 300px for tablets */
-                border-radius: 10px 10px 0 0;
-                margin-bottom: 20px;
-            }
-            
-            .registration-container {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-            
-            .registration-card {
-                border-radius: 0 0 10px 10px;
-            }
-        }
-
         @media (max-width: 768px) {
-            .form-col {
+            .mil-form-col {
                 flex: 0 0 100%;
                 max-width: 100%;
             }
-            
-            .form-group label {
+            .mil-form-group label {
                 font-size: 12px;
                 padding-top: 8px;
             }
-            
-            .form-control {
+            .mil-form-control {
                 font-size: 12px;
                 padding: 0.3rem 0.6rem;
                 height: calc(1.5em + 0.6rem + 2px);
             }
-            
             .file-upload-label {
                 font-size: 12px;
                 padding: 8px 16px;
                 max-width: 100%;
             }
-            
-            .btn-create-account {
-                font-size: 13px;
-                padding: 8px 16px;
-            }
-            
-            .password-requirements {
+            .mil-password-requirements {
                 font-size: 11px;
             }
-            
-            .login-link {
-                font-size: 12px;
-            }
-            
-            .cropper-modal-content {
+            .mil-cropper-modal-content {
                 width: 95%;
                 padding: 10px;
             }
-            
-            .cropper-header h3 {
+            .mil-cropper-header h3 {
                 font-size: 14px;
             }
-            
-            .close-cropper {
+            .mil-close-cropper {
                 font-size: 18px;
             }
-            
-            .cropper-footer .btn {
+            .mil-cropper-footer .mil-button {
                 font-size: 12px;
                 padding: 6px 12px;
             }
+            .mil-promo-image {
+                max-height: 300px;
+            }
         }
-
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 10px;
+        @media screen and (max-width: 991px) {
+            .mil-main-menu ul li {
+                padding-left: 25px;
             }
-            
-            .image-container {
-                display: none; /* Short height for mobile screens */
+            .mil-main-menu ul li::before {
+                content: '\f00c';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #008B8B;
+                position: absolute;
+                left: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 14px;
             }
-            
-            .registration-container {
-                padding: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
+            .mil-main-menu ul li ul li::before {
+                left: 15px;
             }
         }
     </style>
-</head>
-<body>
-    <div class="main-container">
-        <div class="image-container">
-            <img src="assets/img/promo.jpg" alt="Promotional Image">
-        </div>
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="images/logo-a.png" alt="Shed Logo">
-                        <h4 style="color: white; font-size: 16px;">Create your Shed</h4>
-                    </div>
-                    
-                    <% if (error) { %>
-                        <div class="alert alert-danger" style="font-size: 13px;">
-                            <div class="container">
-                                <div class="alert-icon">
-                                    <i class="fa-solid fa-bell"></i>
-                                </div>
-                                <%= error %>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    <% } %>
 
-                    <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data">
-                        <!-- Business Name (full width) -->
-                        <div class="form-group">
-                            <label>Business Name <i class="fa-solid fa-building"></i></label>
-                            <input type="text" class="form-control" id="businessName" name="businessName" placeholder="Enter business name..." required value="<%= typeof businessName !== 'undefined' ? businessName : '' %>">
-                        </div>
-                        
-                        <!-- Username (full width) -->
-                        <div class="form-group">
-                            <label>Username <i class="fa-solid fa-user"></i></label>
-                            <input type="text" class="form-control" id="username" name="username" placeholder="Enter username..." required value="<%= typeof username !== 'undefined' ? username : '' %>">
-                        </div>
-                        
-                        <!-- First Name and Last Name (side by side) -->
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>First Name <i class="fa-solid fa-user"></i></label>
-                                    <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name..." required value="<%= typeof firstName !== 'undefined' ? firstName : '' %>">
-                                </div>
-                            </div>
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Last Name <i class="fa-solid fa-user"></i></label>
-                                    <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Enter last name..." required value="<%= typeof lastName !== 'undefined' ? lastName : '' %>">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Email Address (full width) -->
-                        <div class="form-group">
-                            <label>Email Address <i class="fa-solid fa-envelope"></i></label>
-                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address..." required value="<%= typeof email !== 'undefined' ? email : '' %>">
-                        </div>
-                        
-                        <!-- Country and Currency (side by side) -->
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Country <i class="fa-solid fa-globe"></i></label>
-                                    <select class="form-control" id="country" name="country" style="height: 50px;" required>
-                                        <option value="">Select your country</option>
-                                        <optgroup label="Africa">
-                                            <option value="Nigeria" <%= typeof country !== 'undefined' && country === 'Nigeria' ? 'selected' : '' %>>Nigeria</option>
-                                            <option value="South Africa" <%= typeof country !== 'undefined' && country === 'South Africa' ? 'selected' : '' %>>South Africa</option>
-                                            <option value="Ghana" <%= typeof country !== 'undefined' && country === 'Ghana' ? 'selected' : '' %>>Ghana</option>
-                                            <option value="Kenya" <%= typeof country !== 'undefined' && country === 'Kenya' ? 'selected' : '' %>>Kenya</option>
-                                        </optgroup>
-                                        <optgroup label="Europe">
-                                            <option value="United Kingdom" <%= typeof country !== 'undefined' && country === 'United Kingdom' ? 'selected' : '' %>>United Kingdom</option>
-                                            <option value="Germany" <%= typeof country !== 'undefined' && country === 'Germany' ? 'selected' : '' %>>Germany</option>
-                                        </optgroup>
-                                        <optgroup label="Americas">
-                                            <option value="United States" <%= typeof country !== 'undefined' && country === 'United States' ? 'selected' : '' %>>United States</option>
-                                        </optgroup>
-                                        <optgroup label="Other">
-                                            <option value="Other" <%= typeof country !== 'undefined' && country === 'Other' ? 'selected' : '' %>>Other Country</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                            
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Currency <i class="fa-solid fa-coins"></i></label>
-                                    <select class="form-control" id="currency" name="currency" style="height: 50px;" required>
-                                        <option value="">Select your currency</option>
-                                        <optgroup label="African Currencies">
-                                            <option value="ZAR" <%= typeof currency !== 'undefined' && currency === 'ZAR' ? 'selected' : '' %>>South African Rand (ZAR)</option>
-                                            <option value="NGN" <%= typeof currency !== 'undefined' && currency === 'NGN' ? 'selected' : '' %>>Nigerian Naira (NGN)</option>
-                                            <option value="GHS" <%= typeof currency !== 'undefined' && currency === 'GHS' ? 'selected' : '' %>>Ghanaian Cedi (GHS)</option>
-                                            <option value="KES" <%= typeof currency !== 'undefined' && currency === 'KES' ? 'selected' : '' %>>Kenyan Shilling (KES)</option>
-                                        </optgroup>
-                                        <optgroup label="European Currencies">
-                                            <option value="GBP" <%= typeof currency !== 'undefined' && currency === 'GBP' ? 'selected' : '' %>>British Pound (GBP)</option>
-                                            <option value="EUR" <%= typeof currency !== 'undefined' && currency === 'EUR' ? 'selected' : '' %>>Euro (EUR)</option>
-                                        </optgroup>
-                                        <optgroup label="Other Currencies">
-                                            <option value="USD" <%= typeof currency !== 'undefined' && currency === 'USD' ? 'selected' : '' %>>US Dollar (USD)</option>
-                                        </optgroup>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Logo Upload (full width) -->
-                        <div class="form-group">
-                            <label>Business Logo (Optional)</label>
-                            <div class="file-upload">
-                                <label class="file-upload-label" for="logo">
-                                    <i class="fa-solid fa-file-import"></i> Click to upload logo
-                                </label>
-                                <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
-                            </div>
-                            <div class="logo-preview-container">
-                                <img id="logoPreview" class="logo-preview" alt="Logo preview">
-                            </div>
-                            <input type="hidden" id="croppedImageData" name="croppedImageData">
-                        </div>
-                        
-                        <!-- Password and Confirm Password (side by side) -->
-                        <div class="form-row">
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Password <i class="fa-solid fa-lock"></i></label>
-                                    <input type="password" class="form-control" id="password" name="password" placeholder="Create a password..." required>
-                                    <div class="password-requirements">
-                                        <p style="margin-bottom: 5px; font-size: 12px;">Password must meet the following requirements:</p>
-                                        <ul>
-                                            <li id="length" class="invalid"><i class="fa-solid fa-xmark"></i> At least 8 characters</li>
-                                            <li id="uppercase" class="invalid"><i class="fa-solid fa-xmark"></i> At least one uppercase letter</li>
-                                            <li id="lowercase" class="invalid"><i class="fa-solid fa-xmark"></i> At least one lowercase letter</li>
-                                            <li id="number" class="invalid"><i class="fa-solid fa-xmark"></i> At least one number</li>
-                                            <li id="special" class="invalid"><i class="fa-solid fa-xmark"></i> At least one special character</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="form-col">
-                                <div class="form-group">
-                                    <label>Confirm Password <i class="fa-solid fa-lock"></i></label>
-                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password..." required>
-                                    <div id="confirmPasswordFeedback" style="font-size: 12px;"></div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="form-group" style="text-align: center; margin-top: 15px;">
-                            <button type="submit" class="btn btn-round btn-lg btn-create-account">
-                                Create Account <i class="fa-solid fa-user-plus"></i>
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div class="login-link">
-                        <span style="color: white;">Already have an account?</span> <a href="/admin-login">Sign in here</a>
+    <title>Shed | Sell Anywhere. Manage Everything</title>
+</head>
+
+<body>
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2-1.2,1.2-3.1,0-4.2L106.1,41.9 z" />
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Сhoose</div>
+        </div>
+        <!-- cursor end -->
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-preloader-animation">
+                <div class="mil-pos-abs mil-animation-2">
+                    <div class="mil-reveal-frame">
+                        <p class="mil-reveal-box"></p>
+                        <p class="mil-h3 mil-muted mil-thin">Shed.ng</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+        <!-- preloader end -->
 
-    <!-- Centered Cropper Modal -->
-    <div class="cropper-modal" id="cropperModal">
-        <div class="cropper-modal-content">
-            <div class="cropper-header">
-                <h3>Crop your logo</h3>
-                <span class="close-cropper">×</span>
-            </div>
-            <div class="cropper-body">
-                <img id="imageToCrop" src="" alt="Image to crop">
-            </div>
-            <div class="cropper-footer">
-                <button id="cancelCrop" class="btn btn-secondary">Cancel</button>
-                <button id="saveCrop" class="btn btn-primary">Save</button>
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scrollbar progress end -->
+
+        <!-- frame top (header) -->
+        <div class="mil-frame-top">
+            <a href="home-1.html" class="mil-logo"><img src="images/logo.png" alt="Logo"></a>
+            <nav class="mil-main-menu" id="swupMenu">
+                <form class="mil-subscribe-form mil-up" style="background-color: beige;">
+                    <input type="text" placeholder="Search for a Shed" size="50">
+                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                    <div class="mil-search-results"></div>
+                </form>
+            </nav>
+            <div class="mil-menu-btn">
+                <i class="fas fa-search"></i>
             </div>
         </div>
+        <!-- frame top end -->
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Create your </span>Shed </h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Join thousands of businesses managing inventory, sales, and growth with Shed.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- Content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-6">
+                                <% if (error) { %>
+                                    <div class="mil-alert mil-up">
+                                        <i class="fa-solid fa-bell"></i> <%= error %>
+                                    </div>
+                                <% } %>
+
+                                <form action="/admin-register<%= typeof referralCode !== 'undefined' && referralCode ? '?ref=' + referralCode : '' %>" method="POST" enctype="multipart/form-data" class="mil-up">
+                                    <!-- Business Name -->
+                                    <div class="mil-form-group">
+                                        <label><i class="fa-solid fa-building"></i> Business Name</label>
+                                        <input type="text" class="mil-form-control" id="businessName" name="businessName" placeholder="Enter business name..." required value="<%= typeof businessName !== 'undefined' ? businessName : '' %>">
+                                    </div>
+
+                                    <!-- Username -->
+                                    <div class="mil-form-group">
+                                        <label><i class="fa-solid fa-user"></i> Username</label>
+                                        <input type="text" class="mil-form-control" id="username" name="username" placeholder="Enter username..." required value="<%= typeof username !== 'undefined' ? username : '' %>">
+                                    </div>
+
+                                    <!-- First Name and Last Name -->
+                                    <div class="mil-form-row">
+                                        <div class="mil-form-col">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-user"></i> First Name</label>
+                                                <input type="text" class="mil-form-control" id="firstName" name="firstName" placeholder="Enter first name..." required value="<%= typeof firstName !== 'undefined' ? firstName : '' %>">
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-col">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-user"></i> Last Name</label>
+                                                <input type="text" class="mil-form-control" id="lastName" name="lastName" placeholder="Enter last name..." required value="<%= typeof lastName !== 'undefined' ? lastName : '' %>">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Email Address -->
+                                    <div class="mil-form-group">
+                                        <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                                        <input type="email" class="mil-form-control" id="email" name="email" placeholder="Enter email address..." required value="<%= typeof email !== 'undefined' ? email : '' %>">
+                                    </div>
+
+                                    <!-- Country and Currency -->
+                                    <div class="mil-form-row">
+                                        <div class="mil-form-col">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-globe"></i> Country</label>
+                                                <select class="mil-form-control" id="country" name="country" required>
+                                                    <option value="">Select your country</option>
+                                                    <optgroup label="Africa">
+                                                        <option value="Nigeria" <%= typeof country !== 'undefined' && country === 'Nigeria' ? 'selected' : '' %>>Nigeria</option>
+                                                        <option value="South Africa" <%= typeof country !== 'undefined' && country === 'South Africa' ? 'selected' : '' %>>South Africa</option>
+                                                        <option value="Ghana" <%= typeof country !== 'undefined' && country === 'Ghana' ? 'selected' : '' %>>Ghana</option>
+                                                        <option value="Kenya" <%= typeof country !== 'undefined' && country === 'Kenya' ? 'selected' : '' %>>Kenya</option>
+                                                    </optgroup>
+                                                    <optgroup label="Europe">
+                                                        <option value="United Kingdom" <%= typeof country !== 'undefined' && country === 'United Kingdom' ? 'selected' : '' %>>United Kingdom</option>
+                                                        <option value="Germany" <%= typeof country !== 'undefined' && country === 'Germany' ? 'selected' : '' %>>Germany</option>
+                                                    </optgroup>
+                                                    <optgroup label="Americas">
+                                                        <option value="United States" <%= typeof country !== 'undefined' && country === 'United States' ? 'selected' : '' %>>United States</option>
+                                                    </optgroup>
+                                                    <optgroup label="Other">
+                                                        <option value="Other" <%= typeof country !== 'undefined' && country === 'Other' ? 'selected' : '' %>>Other Country</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-col">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-coins"></i> Currency</label>
+                                                <select class="mil-form-control" id="currency" name="currency" required>
+                                                    <option value="">Select your currency</option>
+                                                    <optgroup label="African Currencies">
+                                                        <option value="ZAR" <%= typeof currency !== 'undefined' && currency === 'ZAR' ? 'selected' : '' %>>South African Rand (ZAR)</option>
+                                                        <option value="NGN" <%= typeof currency !== 'undefined' && currency === 'NGN' ? 'selected' : '' %>>Nigerian Naira (NGN)</option>
+                                                        <option value="GHS" <%= typeof currency !== 'undefined' && currency === 'GHS' ? 'selected' : '' %>>Ghanaian Cedi (GHS)</option>
+                                                        <option value="KES" <%= typeof currency !== 'undefined' && currency === 'KES' ? 'selected' : '' %>>Kenyan Shilling (KES)</option>
+                                                    </optgroup>
+                                                    <optgroup label="European Currencies">
+                                                        <option value="GBP" <%= typeof currency !== 'undefined' && currency === 'GBP' ? 'selected' : '' %>>British Pound (GBP)</option>
+                                                        <option value="EUR" <%= typeof currency !== 'undefined' && currency === 'EUR' ? 'selected' : '' %>>Euro (EUR)</option>
+                                                    </optgroup>
+                                                    <optgroup label="Other Currencies">
+                                                        <option value="USD" <%= typeof currency !== 'undefined' && currency === 'USD' ? 'selected' : '' %>>US Dollar (USD)</option>
+                                                    </optgroup>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Logo Upload -->
+                                    <div class="mil-form-group">
+                                        <label>Business Logo (Optional)</label>
+                                        <div class="file-upload">
+                                            <label class="file-upload-label" for="logo">
+                                                <i class="fa-solid fa-file-import"></i> Click to upload logo
+                                            </label>
+                                            <input type="file" id="logo" name="logo" accept="image/*" class="file-upload-input">
+                                        </div>
+                                        <div class="logo-preview-container">
+                                            <img id="logoPreview" class="logo-preview" alt="Logo preview">
+                                        </div>
+                                        <input type="hidden" id="croppedImageData" name="croppedImageData">
+                                    </div>
+
+                                    <!-- Password and Confirm Password -->
+                                    <div class="mil-form-row">
+                                        <div class="mil-form-col">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-lock"></i> Password</label>
+                                                <input type="password" class="mil-form-control" id="password" name="password" placeholder="Create a password..." required>
+                                                <div class="mil-password-requirements">
+                                                    <p style="margin-bottom: 5px; font-size: 12px;">Password must meet the following requirements:</p>
+                                                    <ul>
+                                                        <li id="length" class="invalid"><i class="fa-solid fa-xmark"></i> At least 8 characters</li>
+                                                        <li id="uppercase" class="invalid"><i class="fa-solid fa-xmark"></i> At least one uppercase letter</li>
+                                                        <li id="lowercase" class="invalid"><i class="fa-solid fa-xmark"></i> At least one lowercase letter</li>
+                                                        <li id="number" class="invalid"><i class="fa-solid fa-xmark"></i> At least one number</li>
+                                                        <li id="special" class="invalid"><i class="fa-solid fa-xmark"></i> At least one special character</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-col">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-lock"></i> Confirm Password</label>
+                                                <input type="password" class="mil-form-control" id="confirmPassword" placeholder="Confirm your password..." required>
+                                                <div id="confirmPasswordFeedback" style="font-size: 12px;"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="mil-form-group mil-center">
+                                        <button type="submit" class="mil-button mil-arrow-place">
+                                            Create Account <i class="fa-solid fa-user-plus"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-lg-6">
+                                <img src="images/promo.jpg" alt="Promotional Image" class="mil-promo-image mil-up">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Cropper Modal -->
+        <div class="mil-cropper-modal" id="cropperModal">
+            <div class="mil-cropper-modal-content">
+                <div class="mil-cropper-header">
+                    <h3>Crop your logo</h3>
+                    <span class="mil-close-cropper">×</span>
+                </div>
+                <div class="mil-cropper-body">
+                    <img id="imageToCrop" src="" alt="Image to crop">
+                </div>
+                <div class="mil-cropper-footer">
+                    <button id="cancelCrop" class="mil-button" style="background: #444;">Cancel</button>
+                    <button id="saveCrop" class="mil-button">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-9">
+                                    <div class="mil-vert-between">
+                                        <p class="mil-light-soft mil-up">Already have an account? <a href="admin-login">Sign in</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer end -->
+
+        <!-- hidden elements -->
+        <div class="mil-hidden-elements">
+            <div class="mil-dodecahedron">
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+            </svg>
+            <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+            </svg>
+        </div>
+        <!-- hidden elements end -->
     </div>
+    <!-- wrapper end -->
 
-    <script src="assets/js/core/jquery.min.js"></script>
-    <script src="assets/js/core/popper.min.js"></script>
-    <script src="assets/js/core/bootstrap.min.js"></script>
-    <script src="assets/js/now-ui-dashboard.js"></script>
-    <script src="assets/js/now-ui-dashboard.js.map"></script>
-    <script src="assets/js/now-ui-dashboard.min.js"></script>
-    <script src="assets/js/bootstrap.min.js.map"></script>
-
-    <!-- Cropper.js Library -->
+    <!-- jQuery js -->
+    <script src="js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="js/plugins/ScrollTo.min.js"></script>
+    <!-- Cropper.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <!-- ashley js -->
+    <script src="js/main.js"></script>
 
+    <!-- Fallback for .row visibility -->
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const row = document.querySelector('.mil-banner-content .row');
+            if (row) {
+                row.style.display = 'flex';
+                row.style.visibility = 'visible';
+                row.style.opacity = '1';
+            }
+        });
+    </script>
+    <!-- Mobile Menu Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuBtn = document.querySelector('.mil-menu-btn');
+            const menu = document.querySelector('.mil-main-menu');
+            const menuItems = document.querySelectorAll('.mil-has-children');
+
+            menuBtn.addEventListener('click', () => {
+                menu.classList.toggle('active');
+            });
+
+            // Toggle submenus on mobile
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (window.innerWidth < 992) {
+                        e.preventDefault();
+                        item.classList.toggle('active');
+                    }
+                });
+            });
+        });
+    </script>
+    <script>
+        // Country-Currency Mapping
         document.getElementById('country').addEventListener('change', function() {
             const currencySelect = document.getElementById('currency');
             const country = this.value;
-            
-            currencySelect.querySelectorAll('option').forEach(opt => {
-                opt.removeAttribute('selected');
-            });
-            
+            currencySelect.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'));
             const countryToCurrency = {
                 'South Africa': 'ZAR',
                 'Nigeria': 'NGN',
@@ -640,21 +1008,14 @@
                 'United States': 'USD',
                 'Other': ''
             };
-            
-            if (countryToCurrency[country]) {
-                currencySelect.value = countryToCurrency[country];
-            } else {
-                currencySelect.value = '';
-            }
+            currencySelect.value = countryToCurrency[country] || '';
         });
 
+        // Initialize Cropper.js and Other Functionalities
         document.addEventListener('DOMContentLoaded', function() {
             const countrySelect = document.getElementById('country');
-            if (countrySelect.value) {
-                countrySelect.dispatchEvent(new Event('change'));
-            }
-            
-            // Initialize variables for image cropping
+            if (countrySelect.value) countrySelect.dispatchEvent(new Event('change'));
+
             let cropper;
             const fileInput = document.getElementById('logo');
             const fileLabel = document.querySelector('.file-upload-label');
@@ -663,34 +1024,23 @@
             const imageToCrop = document.getElementById('imageToCrop');
             const cancelCrop = document.getElementById('cancelCrop');
             const saveCrop = document.getElementById('saveCrop');
-            const closeCropper = document.querySelector('.close-cropper');
+            const closeCropper = document.querySelector('.mil-close-cropper');
             const croppedImageData = document.getElementById('croppedImageData');
-            
-            // Ensure modal is hidden on page load
+
             cropperModal.style.display = 'none';
-            
-            // File input change handler
+
             fileInput.addEventListener('change', function(e) {
                 if (this.files && this.files.length > 0) {
                     const file = this.files[0];
-                    
-                    // Check if the file is an image
                     if (!file.type.match('image.*')) {
                         alert('Please select an image file');
                         return;
                     }
-                    
                     const reader = new FileReader();
                     reader.onload = function(event) {
-                        // Show the cropper modal
                         cropperModal.style.display = 'flex';
                         imageToCrop.src = event.target.result;
-                        
-                        // Initialize cropper
-                        if (cropper) {
-                            cropper.destroy();
-                        }
-                        
+                        if (cropper) cropper.destroy();
                         cropper = new Cropper(imageToCrop, {
                             aspectRatio: 1,
                             viewMode: 1,
@@ -707,37 +1057,29 @@
                     croppedImageData.value = '';
                 }
             });
-            
-            // Close button
+
             closeCropper.addEventListener('click', function() {
                 cropperModal.style.display = 'none';
-                if (cropper) {
-                    cropper.destroy();
-                }
+                if (cropper) cropper.destroy();
                 fileInput.value = '';
                 fileLabel.innerHTML = '<i class="fa-solid fa-file-import"></i> Click to upload logo';
                 fileLabel.classList.remove('uploaded');
                 logoPreview.style.display = 'none';
                 croppedImageData.value = '';
             });
-            
-            // Cancel button
+
             cancelCrop.addEventListener('click', function() {
                 cropperModal.style.display = 'none';
-                if (cropper) {
-                    cropper.destroy();
-                }
+                if (cropper) cropper.destroy();
                 fileInput.value = '';
                 fileLabel.innerHTML = '<i class="fa-solid fa-file-import"></i> Click to upload logo';
                 fileLabel.classList.remove('uploaded');
                 logoPreview.style.display = 'none';
                 croppedImageData.value = '';
             });
-            
-            // Save button
+
             saveCrop.addEventListener('click', function() {
                 if (cropper) {
-                    // Get the cropped canvas
                     const canvas = cropper.getCroppedCanvas({
                         width: 500,
                         height: 500,
@@ -747,119 +1089,106 @@
                         imageSmoothingEnabled: true,
                         imageSmoothingQuality: 'high'
                     });
-                    
                     if (canvas) {
-                        // Convert to data URL
                         const croppedDataUrl = canvas.toDataURL('image/png');
-                        
-                        // Set the preview
                         logoPreview.src = croppedDataUrl;
                         logoPreview.style.display = 'block';
-                        
-                        // Store the cropped image data in hidden input
                         croppedImageData.value = croppedDataUrl;
-                        
-                        // Update the file label
                         fileLabel.innerHTML = `<i class="fa-solid fa-image"></i> ${fileInput.files[0].name}`;
                         fileLabel.classList.add('uploaded');
-                        
-                        // Hide the cropper
                         cropperModal.style.display = 'none';
                         cropper.destroy();
                     }
                 }
             });
-        });
 
-        // Password validation functions
-        document.getElementById('password').addEventListener('input', function() {
-            const password = this.value;
-            const lengthValid = password.length >= 8;
-            const uppercaseValid = /[A-Z]/.test(password);
-            const lowercaseValid = /[a-z]/.test(password);
-            const numberValid = /[0-9]/.test(password);
-            const specialValid = /[^A-Za-z0-9]/.test(password);
+            // Password validation
+            document.getElementById('password').addEventListener('input', function() {
+                const password = this.value;
+                const lengthValid = password.length >= 8;
+                const uppercaseValid = /[A-Z]/.test(password);
+                const lowercaseValid = /[a-z]/.test(password);
+                const numberValid = /[0-9]/.test(password);
+                const specialValid = /[^A-Za-z0-9]/.test(password);
 
-            updateRequirement('length', lengthValid);
-            updateRequirement('uppercase', uppercaseValid);
-            updateRequirement('lowercase', lowercaseValid);
-            updateRequirement('number', numberValid);
-            updateRequirement('special', specialValid);
-        });
+                updateRequirement('length', lengthValid);
+                updateRequirement('uppercase', uppercaseValid);
+                updateRequirement('lowercase', lowercaseValid);
+                updateRequirement('number', numberValid); // Fixed typo: was number()
+                updateRequirement('special', specialValid);
+            });
 
-        function updateRequirement(id, isValid) {
-            const element = document.getElementById(id);
-            if (isValid) {
-                element.className = 'valid';
-                element.innerHTML = '<i class="fa-solid fa-check"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
-            } else {
-                element.className = 'invalid';
-                element.innerHTML = '<i class="fa-solid fa-xmark"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
-            }
-        }
-
-        document.getElementById('confirmPassword').addEventListener('input', function() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = this.value;
-            const feedback = document.getElementById('confirmPasswordFeedback');
-            
-            if (confirmPassword === '') {
-                feedback.style.display = 'none';
-            } else if (password === confirmPassword) {
-                feedback.textContent = 'Passwords match!';
-                feedback.className = 'valid';
-                feedback.style.display = 'block';
-            } else {
-                feedback.textContent = 'Passwords do not match!';
-                feedback.className = 'invalid';
-                feedback.style.display = 'block';
-            }
-        });
-
-        document.querySelector('form').addEventListener('submit', function(e) {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            if (password !== confirmPassword) {
-                e.preventDefault();
-                document.getElementById('confirmPasswordFeedback').textContent = 'Passwords must match!';
-                document.getElementById('confirmPasswordFeedback').className = 'invalid';
-                document.getElementById('confirmPasswordFeedback').style.display = 'block';
-                document.getElementById('confirmPassword').focus();
-                return;
-            }
-            
-            const validations = {
-                length: password.length >= 8,
-                uppercase: /[A-Z]/.test(password),
-                lowercase: /[a-z]/.test(password),
-                number: /[0-9]/.test(password),
-                special: /[^A-Za-z0-9]/.test(password)
-            };
-            
-            const isStrong = Object.values(validations).every(v => v);
-            
-            if (!isStrong) {
-                e.preventDefault();
-                // Highlight unsatisfied requirements in red
-                Object.keys(validations).forEach(id => {
-                    const element = document.getElementById(id);
-                    if (!validations[id]) {
-                        element.className = 'error';
+            function updateRequirement(id, isValid) {
+                const element = document.getElementById(id);
+                if (element) { // Ensure element exists
+                    if (isValid) {
+                        element.className = 'valid';
+                        element.innerHTML = '<i class="fa-solid fa-check"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+                    } else {
+                        element.className = 'invalid';
                         element.innerHTML = '<i class="fa-solid fa-xmark"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
                     }
-                });
-                alert('Please ensure your password meets all the requirements.');
-                document.getElementById('password').focus();
-                return;
+                }
             }
+
+            document.getElementById('confirmPassword').addEventListener('input', function() {
+                const password = document.getElementById('password').value;
+                const confirmPassword = this.value;
+                const feedback = document.getElementById('confirmPasswordFeedback');
+                if (confirmPassword === '') {
+                    feedback.style.display = 'none';
+                } else if (password === confirmPassword) {
+                    feedback.textContent = 'Passwords match!';
+                    feedback.className = 'valid';
+                    feedback.style.display = 'block';
+                } else {
+                    feedback.textContent = 'Passwords do not match!';
+                    feedback.className = 'invalid';
+                    feedback.style.display = 'block';
+                }
+            });
+
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    document.getElementById('confirmPasswordFeedback').textContent = 'Passwords must match!';
+                    document.getElementById('confirmPasswordFeedback').className = 'invalid';
+                    document.getElementById('confirmPasswordFeedback').style.display = 'block';
+                    document.getElementById('confirmPassword').focus();
+                    return;
+                }
+                const validations = {
+                    length: password.length >= 8,
+                    uppercase: /[A-Z]/.test(password),
+                    lowercase: /[a-z]/.test(password),
+                    number: /[0-9]/.test(password),
+                    special: /[^A-Za-z0-9]/.test(password)
+                };
+                const isStrong = Object.values(validations).every(v => v);
+                if (!isStrong) {
+                    e.preventDefault();
+                    Object.keys(validations).forEach(id => {
+                        if (!validations[id]) {
+                            const element = document.getElementById(id);
+                            if (element) { // Ensure element exists
+                                element.className = 'error';
+                                element.innerHTML = '<i class="fa-solid fa-xmark"></i> ' + element.textContent.replace(/^[^a-zA-Z]+/, '');
+                            }
+                        }
+                    });
+                    alert('Please ensure your password meets all the requirements.');
+                    document.getElementById('password').focus();
+                }
+            });
         });
 
-        
-
-        if (typeof navigator.serviceWorker !== 'undefined') {
+        // Service Worker
+        if (navigator.serviceWorker) {
             navigator.serviceWorker.register('/sw.js', { scope: '/' });
         }
     </script>
 </body>
+
 </html>

@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="<%= product && product.name ? product.name + ' - ' + (admin && admin.businessName || 'Shed Store') : 'Product - Shed Store' %>"/>
+    <meta property="og:description" content="<%= product && product.name ? 'View details for ' + product.name + ' at ' + (admin && admin.businessName || 'Shed Store') : 'View product details at Shed Store.' %>"/>
+    <meta property="og:image" content="<%= product && product.images && product.images.length > 0 ? product.images[0] : '/android-chrome-512x512.png' %>"/>
+    <title><%= product && product.name ? product.name + ' - ' + (admin && admin.businessName || 'Shed Store') : 'Product - Shed Store' %></title>
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        /* Reused styles from storefront */
+        .mil-frame-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background: #fff;
+            height: 70px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            flex-wrap: nowrap;
+        }
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-subscribe-form {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            margin: 0 20px;
+        }
+        .mil-cart-button {
+            margin-left: auto;
+            background: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mil-search-input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .mil-cart-count {
+            background: #333;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        .mil-add-to-cart {
+            background: darkcyan;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .mil-add-to-cart:hover {
+            background: #006969;
+        }
+        .mil-add-to-cart.mil-added {
+            background: #dc3545;
+            color: white;
+        }
+        .mil-add-to-cart.mil-added:hover {
+            background: #c82333;
+        }
+        .mil-quantity-input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        .mil-product-price {
+            font-weight: 600;
+            color: darkcyan;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+        .mil-product-stock {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        /* Product-specific styles */
+        .mil-product-content {
+            padding-top: 100px;
+            padding-bottom: 60px;
+        }
+        .mil-product-slider {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .mil-product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease, left 0.3s ease;
+        }
+        .mil-product-image.active {
+            left: 0;
+            opacity: 1;
+        }
+        .mil-prev, .mil-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
+            border-radius: 50%;
+            z-index: 10;
+            transition: background 0.3s ease;
+        }
+        .mil-prev:hover, .mil-next:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        .mil-prev {
+            left: 10px;
+        }
+        .mil-next {
+            right: 10px;
+        }
+        .mil-no-image {
+            color: #666;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+        /* Thumbnail styles */
+        .mil-thumbnail-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .mil-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.3s ease, opacity 0.3s ease;
+            opacity: 0.7;
+        }
+        .mil-thumbnail.active {
+            border: 2px solid darkcyan;
+            opacity: 1;
+        }
+        .mil-thumbnail:hover {
+            border: 2px solid darkcyan;
+            opacity: 1;
+        }
+        .mil-product-details {
+            padding: 20px;
+        }
+        .mil-product-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .mil-product-description {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        /* Error message */
+        .mil-error-message {
+            color: #dc3545;
+            font-size: 18px;
+            text-align: center;
+            padding: 30px;
+        }
+        /* Back to store button */
+        .mil-back-to-store {
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        /* Modal styles */
+        .mil-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        .mil-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        .mil-checkout-form {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            z-index: 1001;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .mil-checkout-form.active {
+            display: block;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        .mil-checkout-form h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .mil-cart-summary {
+            margin-bottom: 20px;
+        }
+        .mil-cart-summary table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .mil-cart-summary th, .mil-cart-summary td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .mil-cart-summary th {
+            background: #f8f9fa;
+        }
+        .mil-total {
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: right;
+        }
+        .mil-form-group {
+            margin-bottom: 15px;
+        }
+        .mil-form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        .mil-form-control {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .mil-flex {
+            display: flex;
+            gap: 15px;
+        }
+        .mil-flex-1 {
+            flex: 1;
+        }
+        .mil-delete-item {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+        }
+        /* Subscribe form message styles */
+        .mil-subscribe-error, .mil-subscribe-success {
+            display: none;
+            opacity: 0;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        .mil-subscribe-error.active, .mil-subscribe-success.active {
+            display: block;
+        }
+        .mil-subscribe-error {
+            color: #dc3545;
+        }
+        .mil-subscribe-success {
+            color: #28a745;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .mil-product-slider {
+                height: 300px;
+            }
+            .mil-product-title {
+                font-size: 24px;
+            }
+            .mil-product-price {
+                font-size: 20px;
+            }
+            .mil-thumbnail {
+                width: 50px;
+                height: 50px;
+            }
+            .mil-checkout-form {
+                width: 95%;
+                padding: 20px;
+            }
+        }
+        @media (max-width: 576px) {
+            .mil-frame-top {
+                flex-direction: column;
+                height: auto;
+                padding: 10px 15px;
+            }
+            .mil-subscribe-form {
+                width: 100%;
+                margin: 10px 0;
+            }
+            .mil-search-input {
+                width: 100%;
+            }
+            .mil-product-slider {
+                height: 200px;
+            }
+            .mil-prev, .mil-next {
+                font-size: 30px;
+                padding: 5px;
+            }
+            .mil-thumbnail {
+                width: 40px;
+                height: 40px;
+            }
+            .mil-flex {
+                flex-direction: column;
+                gap: 10px;
+            }
+            .mil-product-content {
+                margin-top: 200px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2,1.2-1.2-3.1,0-4.2L106.1,41.9 z" />
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Сhoose</div>
+        </div>
+        <!-- cursor end -->
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scrollbar progress end -->
+
+        <!-- frame top (header) -->
+        <div class="mil-frame-top">
+            <a href="/" class="mil-logo"><img src="<%= admin && admin.logo || '/images/logo.png' %>" alt="<%= admin && admin.businessName || 'Shed Store' %> Logo"></a>
+            <div class="mil-subscribe-form">
+                <input type="text" id="inventorySearchInput" placeholder="Search inventory..." class="mil-search-input">
+                <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+            </div>
+            <a href="#" class="mil-cart-button" onclick="showCheckoutForm()">
+                <i class="fa-solid fa-shopping-cart mr-2"></i><span id="cartLabel">Cart</span> (<span id="cartCount">0</span>)
+            </a>
+        </div>
+        <!-- frame top end -->
+
+        <!-- content -->
+        <div class="mil-content mil-product-content">
+            <div id="swupMain" class="mil-main-transition">
+                <section class="mil-product">
+                    <div class="container mil-p-60-30">
+                        <!-- Back to Store Button -->
+                        <div class="mil-back-to-store">
+                            <a href="/store/<%= admin && admin.username || '' %>" class="mil-button mil-border">
+                                <i class="fas fa-arrow-left mil-mr-5"></i> Back to Store
+                            </a>
+                        </div>
+                        <% if (!product) { %>
+                            <div class="mil-error-message">
+                                <i class="fas fa-exclamation-circle mil-mr-5"></i> Product not found. Please return to the store.
+                            </div>
+                        <% } else { %>
+                            <div class="row">
+                                <!-- Product Images -->
+                                <div class="col-lg-6 mil-mb-30">
+                                    <div class="mil-product-slider">
+                                        <% if (product.images && product.images.length > 0) { %>
+                                            <% product.images.forEach((image, index) => { %>
+                                                <img src="<%= image %>" class="mil-product-image <%= index === 0 ? 'active' : '' %>" alt="<%= product.name %> Image <%= index + 1 %>">
+                                            <% }) %>
+                                        <% } else { %>
+                                            <div class="mil-no-image">
+                                                <i class="fas fa-image mil-mr-5"></i> No Image
+                                            </div>
+                                        <% } %>
+                                        <% if (product.images && product.images.length > 0) { %>
+                                            <div class="mil-prev" onclick="changeSlide(-1)">‹</div>
+                                            <div class="mil-next" onclick="changeSlide(1)">›</div>
+                                        <% } %>
+                                    </div>
+                                    <!-- Thumbnail Gallery (only shown if multiple images) -->
+                                    <% if (product.images && product.images.length > 1) { %>
+                                        <div class="mil-thumbnail-container">
+                                            <% product.images.forEach((image, index) => { %>
+                                                <img src="<%= image %>" class="mil-thumbnail <%= index === 0 ? 'active' : '' %>" alt="Thumbnail <%= index + 1 %>" onclick="goToSlide(<%= index %>)">
+                                            <% }) %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <!-- Product Details -->
+                                <div class="col-lg-6 mil-mb-30">
+                                    <div class="mil-product-details">
+                                        <h1 class="mil-product-title mil-mb-20"><%= product.name %></h1>
+                                        <div class="mil-product-price"><%= currency %><%= formatCurrency(product.cost) %></div>
+                                        <div class="mil-product-stock">Stock: <%= product.stock %></div>
+                                        <% if (product.description) { %>
+                                            <div class="mil-product-description"><%= product.description %></div>
+                                        <% } %>
+                                        <input type="number" class="mil-quantity-input" min="1" max="<%= product.stock %>" value="1">
+                                        <button class="mil-add-to-cart" onclick="addToCart('<%= product._id %>', '<%= product.name %>', <%= product.cost %>, <%= product.stock %>, this)">
+                                            <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Checkout Form -->
+        <div class="mil-overlay" id="overlay"></div>
+        <div class="mil-checkout-form" id="checkoutForm">
+            <h2 class="mil-mb-20">Checkout</h2>
+            <div class="mil-cart-summary" id="cartSummary">
+                <h3>Your Cart - <%= admin && admin.businessName || 'Shed Store' %></h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Qty</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartSummaryBody"></tbody>
+                </table>
+                <div class="mil-total" id="cartTotal"></div>
+            </div>
+            <form id="checkoutFormSubmit" action="/store/<%= admin && admin.username || '' %>/checkout" method="POST">
+                <div class="mil-form-group mil-mb-15">
+                    <label for="customerName"><i class="fas fa-user mil-mr-5"></i> Name</label>
+                    <input type="text" id="customerName" name="customerName" class="mil-form-control" required>
+                </div>
+                <div class="mil-form-group mil-mb-15">
+                    <label for="phoneNumber"><i class="fas fa-phone mil-mr-5"></i> Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" class="mil-form-control" required>
+                </div>
+                <div class="mil-form-group mil-mb-20">
+                    <label for="email"><i class="fas fa-envelope mil-mr-5"></i> Email</label>
+                    <input type="email" id="email" name="email" class="mil-form-control" required>
+                </div>
+                <input type="hidden" id="cartItems" name="cartItems">
+                <div class="mil-flex mil-gap-15">
+                    <button type="submit" class="mil-button mil-flex-1">
+                        <i class="fas fa-check mil-mr-5"></i> Submit Order
+                    </button>
+                    <button type="button" class="mil-button mil-border mil-flex-1" onclick="hideCheckoutForm()">
+                        <i class="fas fa-times mil-mr-5"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                            <p class="mil-light-soft mil-up mil-mb-30">Subscribe our newsletter:</p>
+                            <div class="mil-subscribe-container">
+                                <div class="mil-subscribe-error"></div>
+                                <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                    <input type="email" name="email" placeholder="What is your email address?" required>
+                                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place" aria-label="Subscribe to newsletter">
+                                        <svg class="mil-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <div class="mil-subscribe-success">
+                                    <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-7">
+                                    <nav class="mil-footer-menu mil-mb-60">
+                                        <ul>
+                                            <li class="mil-up mil-active">
+                                                <a href="/admin-login">New? Create a Shed</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/admin-login">Have a Shed? Sign in</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/">Learn More about Shed</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="/js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
+
+    <script>
+        // Initialize cart from localStorage or empty array
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
+        let currentSlide = 0;
+        const currency = '<%= currency %>';
+        const images = <%- product && product.images ? JSON.stringify(product.images) : '[]' %>;
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        function formatCurrency(value) {
+            return parseFloat(value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+        }
+
+        function addToCart(itemId, itemName, itemCost, maxStock, button) {
+            const quantityInput = document.querySelector('.mil-quantity-input');
+            const quantity = parseInt(quantityInput.value);
+
+            if (isNaN(quantity) || quantity <= 0 || quantity > maxStock) {
+                alert('Please enter a valid quantity within available stock.');
+                return;
+            }
+
+            const existingItemIndex = cart.findIndex(item => item.id === itemId);
+            if (existingItemIndex !== -1) {
+                cart.splice(existingItemIndex, 1);
+                button.classList.remove('mil-added');
+                button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
+                button.style.backgroundColor = '';
+            } else {
+                cart.push({
+                    id: itemId,
+                    name: itemName,
+                    cost: itemCost,
+                    quantity: quantity,
+                    image: images[0] || ''
+                });
+                button.classList.add('mil-added');
+                button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
+                button.style.backgroundColor = '#dc3545';
+            }
+            saveCart();
+            updateCartCount();
+            updateCartSummary();
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            saveCart();
+            updateCartCount();
+            updateCartSummary();
+            initializeButtonStates();
+            if (cart.length === 0) {
+                hideCheckoutForm();
+                alert('Your cart is now empty.');
+            }
+        }
+
+        function updateCartCount() {
+            const cartLabel = document.getElementById('cartLabel');
+            const cartCount = document.getElementById('cartCount');
+            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
+            const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
+
+            cartCount.textContent = `${currency}${formatCurrency(totalValue)} (${itemCount} item${itemCount !== 1 ? 's' : ''})`;
+            cartLabel.textContent = itemCount > 0 ? 'Checkout' : 'Cart';
+        }
+
+        function updateCartSummary() {
+            const cartSummaryBody = document.getElementById('cartSummaryBody');
+            const cartTotal = document.getElementById('cartTotal');
+            if (!cartSummaryBody || !cartTotal) return;
+
+            cartSummaryBody.innerHTML = cart.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${currency}${formatCurrency(item.cost)}</td>
+                    <td>${currency}${formatCurrency(item.cost * item.quantity)}</td>
+                    <td><button class="mil-delete-item" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+
+            const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
+            cartTotal.textContent = `Total: ${currency}${formatCurrency(totalValue)}`;
+        }
+
+        function initializeButtonStates() {
+            const button = document.querySelector('.mil-add-to-cart');
+            if (!button) return;
+            if (cart.some(cartItem => cartItem.id === '<%= product && product._id %>')) {
+                button.classList.add('mil-added');
+                button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
+                button.style.backgroundColor = '#dc3545';
+            } else {
+                button.classList.remove('mil-added');
+                button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
+                button.style.backgroundColor = '';
+            }
+        }
+
+        function showCheckoutForm() {
+            if (cart.length === 0) {
+                alert('Please add items to your cart before checking out.');
+                return;
+            }
+            const cartItemsInput = document.getElementById('cartItems');
+            try {
+                if (!Array.isArray(cart) || !cart.every(item => item.id && item.name && item.cost && item.quantity)) {
+                    throw new Error('Invalid cart structure');
+                }
+                cartItemsInput.value = JSON.stringify(cart);
+            } catch (err) {
+                console.error('Error stringifying cart:', err);
+                alert('Error preparing cart data. Please try again.');
+                return;
+            }
+            updateCartSummary();
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('checkoutForm').classList.add('active');
+        }
+
+        function hideCheckoutForm() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('checkoutForm').classList.remove('active');
+        }
+
+        function changeSlide(direction) {
+            const images = document.querySelectorAll('.mil-product-image');
+            if (images.length === 0) return;
+
+            const prevSlide = currentSlide;
+            currentSlide = (currentSlide + direction + images.length) % images.length;
+
+            gsap.to(images[prevSlide], {
+                left: direction > 0 ? '-100%' : '100%',
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+
+            gsap.fromTo(images[currentSlide], {
+                left: direction > 0 ? '100%' : '-100%',
+                opacity: 0
+            }, {
+                left: '0%',
+                opacity: 1,
+                duration: 0.3,
+                ease: 'power2.out',
+                onStart: () => {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('active', index === currentSlide);
+                    });
+                    updateThumbnailState();
+                }
+            });
+        }
+
+        function goToSlide(index) {
+            const images = document.querySelectorAll('.mil-product-image');
+            if (images.length === 0 || index < 0 || index >= images.length) return;
+
+            const prevSlide = currentSlide;
+            currentSlide = index;
+
+            gsap.to(images[prevSlide], {
+                left: prevSlide < currentSlide ? '-100%' : '100%',
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+
+            gsap.fromTo(images[currentSlide], {
+                left: prevSlide < currentSlide ? '100%' : '-100%',
+                opacity: 0
+            }, {
+                left: '0%',
+                opacity: 1,
+                duration: 0.3,
+                ease: 'power2.out',
+                onStart: () => {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('active', index === currentSlide);
+                    });
+                    updateThumbnailState();
+                }
+            });
+        }
+
+        function updateThumbnailState() {
+            const thumbnails = document.querySelectorAll('.mil-thumbnail');
+            thumbnails.forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        // Initialize cart count, button states, and cart summary on page load
+        window.addEventListener('load', () => {
+            updateCartCount();
+            initializeButtonStates();
+            updateCartSummary();
+            updateThumbnailState();
+            // Ensure modal is hidden on load
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('checkoutForm').classList.remove('active');
+        });
+
+        document.getElementById('checkoutFormSubmit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const customerName = document.getElementById('customerName').value.trim();
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const cartItemsInput = document.getElementById('cartItems');
+
+            if (!customerName || !phoneNumber || !email) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                alert('Please enter a valid email address.');
+                return;
+            }
+
+            if (!/[\d]{6,}/.test(phoneNumber)) {
+                alert('Please enter a valid phone number.');
+                return;
+            }
+
+            if (cart.length === 0) {
+                alert('Your cart is empty. Please add items before checking out.');
+                return;
+            }
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mil-mr-5"></i> Processing...';
+
+            try {
+                const payload = {
+                    customerName,
+                    phoneNumber,
+                    email,
+                    cartItems: cartItemsInput.value
+                };
+
+                const response = await fetch(e.target.action, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || `HTTP error! Status: ${response.status}`);
+                }
+
+                if (result.success && result.invoiceUrl) {
+                    cart = [];
+                    saveCart();
+                    updateCartCount();
+                    initializeButtonStates();
+                    updateCartSummary();
+                    window.location.href = result.invoiceUrl;
+                } else {
+                    throw new Error(result.error || 'Invalid server response');
+                }
+            } catch (error) {
+                console.error('Checkout error:', error.message, error.stack);
+                alert(`Error submitting order: ${error.message}. Please try again or contact support.`);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Submit Order';
+            }
+        });
+
+        // Subscription Form Handling
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscribeForm = document.getElementById('subscribeForm');
+            const errorDiv = document.querySelector('.mil-subscribe-error');
+            const successDiv = document.querySelector('.mil-subscribe-success');
+            const formContainer = document.querySelector('.mil-subscribe-container');
+
+            if (!subscribeForm || !errorDiv || !successDiv || !formContainer) {
+                console.warn('Subscription form elements not found');
+                return;
+            }
+
+            // Initialize message visibility
+            errorDiv.classList.remove('active');
+            successDiv.classList.remove('active');
+
+            subscribeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = subscribeForm.querySelector('input[name="email"]').value.trim();
+
+                // Reset messages
+                gsap.to([errorDiv, successDiv], {
+                    opacity: 0,
+                    duration: 0.3,
+                    onComplete: () => {
+                        errorDiv.classList.remove('active');
+                        successDiv.classList.remove('active');
+                        errorDiv.textContent = '';
+                    }
+                });
+
+                // Validate email
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    errorDiv.textContent = 'Please enter a valid email address';
+                    errorDiv.classList.add('active');
+                    gsap.fromTo(errorDiv, 
+                        { opacity: 0, y: -10 }, 
+                        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                    );
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Show success message without hiding form
+                        successDiv.classList.add('active');
+                        gsap.fromTo(successDiv, 
+                            { opacity: 0, y: -10 }, 
+                            { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                        );
+                        subscribeForm.reset();
+                    } else {
+                        errorDiv.textContent = data.message || 'Subscription failed. Please try again.';
+                        errorDiv.classList.add('active');
+                        gsap.fromTo(errorDiv, 
+                            { opacity: 0, y: -10 }, 
+                            { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                        );
+                    }
+                } catch (error) {
+                    errorDiv.textContent = 'Network error. Please try again later.';
+                    errorDiv.classList.add('active');
+                    gsap.fromTo(errorDiv, 
+                        { opacity: 0, y: -10 }, 
+                        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                    );
+                    console.error('Subscription error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

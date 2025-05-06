@@ -16,15 +16,16 @@
     <meta property="og:image" content="<%= admin.logo || '/android-chrome-512x512.png' %>" />
     <title><%= admin.businessName %> Storefront</title>
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
 
     <!-- Favicons -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
@@ -33,1295 +34,1047 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            position: relative;
-            min-height: 100vh;
-            font-size: 14px;
-            margin: 0;
+        /* Custom styles for storefront */
+        .mil-frame-top {
             display: flex;
-            flex-direction: column;
-        }
-
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }
-
-        /* Navbar */
-        .navbar {
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background: #fff;
+            height: 70px;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            background: darkcyan;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            padding: 1rem 2rem;
+            z-index: 1001;
+            flex-wrap: nowrap;
+        }
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-subscribe-form {
+            flex-grow: 1;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 60px;
+            justify-content: center;
+            margin: 0 20px;
         }
-
-        /* Navbar Contact */
-        .navbar-contact {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .navbar-contact a {
-            color: #ffffff;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .navbar-contact a:hover {
-            color: rgb(235, 166, 17);
-        }
-
-        /* Navbar Right Container */
-        .navbar-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .navbar-search-container {
-            flex: 0 0 auto;
-            max-width: 200px;
-        }
-
-        .navbar-search-container input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #343a40;
-            color: #ffffff;
-            height: 38px;
-            box-sizing: border-box;
-        }
-
-        .navbar-search-container input::placeholder {
-            color: #adb5bd;
-        }
-
-        .cart-button {
-            background-color: rgb(235, 166, 17);
-            color: #fff;
-            transition: all 0.3s ease;
+        .mil-cart-button {
+            margin-left: auto;
+            background: rgb(235, 166, 17);
+            color: #333;
             border: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            padding: 8px 15px;
             border-radius: 4px;
-        }
-
-        .cart-button:hover {
-            background-color: rgb(200, 142, 14);
-            color: #fff;
-        }
-
-        /* Logo Container */
-        .logo-header {
-            margin-top: 60px; /* Match navbar height */
-            left: 0;
-            right: 0;
-            height: 160px;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            z-index: 900;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .logo-container {
-            width: 400px;
-            height: 140px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-container img {
-            width: 100%;
-            height: 100%;
-            max-width: none;
-            max-height: none;
-            object-fit: contain;
-        }
-
-        /* Content Wrapper */
-        .content-wrapper {
-            display: flex;
-            flex-direction: row;
-            max-width: 1600px;
-            margin: 0 auto;
-            padding: 1rem 1rem 2rem;
-            gap: 1rem;
-            flex: 1;
-        }
-
-        /* Image Container */
-        .image-container {
-            flex: 0 0 30%;
-            max-width: 400px;
-            background-color: #ffffff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .image-container img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-
-        .promo-text {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            right: 20px;
-            color: #fff;
-            font-size: 1.5rem;
-            font-weight: 600;
-            text-align: center;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-            line-height: 1.2;
-        }
-
-        /* Main Container */
-        .main-container {
-            flex: 1;
-            max-width: 1200px;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-        }
-
-        .store-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .store-header h1 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-
-        .store-header p {
-            color: #333;
-            font-size: 13px;
-        }
-
-        /* Inventory Grid */
-        .inventory-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .inventory-item {
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-image-container {
-            position: relative;
-            width: 100%;
-            height: 150px;
-            background: #f8f9fa;
             cursor: pointer;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 5px;
         }
-
-        .product-image {
+        .mil-search-input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        .mil-store-banner {
+            height: 300px;
+        }
+        .mil-store-content {
+            padding-top: 80px;
+            padding-bottom: 30px;
+        }
+        .mil-inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        .mil-inventory-item {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .mil-inventory-item:hover {
+            transform: translateY(-5px);
+        }
+        .mil-product-image-container {
+            height: 200px;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        .mil-product-image {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
-
-        .no-image-placeholder {
+        .mil-product-image-link {
+            display: flex;
+            align-items: center;
+            justify-content: center;
             width: 100%;
             height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #333;
-            font-size: 13px;
-            background: #f8f9fa;
+            text-decoration: none;
         }
-
-        .product-details {
-            padding: 1rem;
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .product-details h3 {
+        .mil-no-image {
+            color: #666;
             font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.5rem;
         }
-
-        .product-details p {
-            font-size: 13px;
-            color: #333;
-            margin-bottom: 0.5rem;
+        .mil-product-details {
+            padding: 15px;
         }
-
-        .description {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease;
-            font-size: 13px;
+        .mil-product-title {
+            font-size: 16px;
+            margin-bottom: 10px;
             color: #333;
         }
-
-        .description.active {
-            max-height: 200px;
-        }
-
-        .quantity-input {
-            background-color: white;
-            border: 1px solid #ced4da;
+        .mil-product-title a {
             color: #333;
-            font-size: 13px;
-            padding: 0.375rem 0.75rem;
-            height: 34px;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .mil-product-title a:hover {
+            color: darkcyan;
+        }
+        .mil-product-price {
+            font-weight: 600;
+            color: darkcyan;
+            margin-bottom: 10px;
+        }
+        .mil-product-stock {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        .mil-quantity-input {
             width: 100%;
-            box-sizing: border-box;
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 10px;
         }
-
-        .add-to-cart {
-            background-color: rgb(40, 167, 69);
-            color: #fff;
-            transition: all 0.3s ease;
+        .mil-add-to-cart {
+            background: darkcyan;
+            color: white;
             border: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+            padding: 10px 15px;
+            width: 100%;
             border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
-
-        .add-to-cart:hover {
-            background-color: rgb(34, 139, 57);
-            color: #fff;
+        .mil-add-to-cart:hover {
+            background: #006969;
         }
-
-        .add-to-cart.checked {
-            background-color: rgb(108, 117, 125);
+        .mil-add-to-cart.mil-added {
+            background: #dc3545;
+            color: white;
         }
-
-        /* Modal */
-        .modal {
+        .mil-add-to-cart.mil-added:hover {
+            background: #c82333;
+        }
+        .mil-cart-count {
+            background: #333;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 12px;
+        }
+        /* Modal styles (commented out if not needed) */
+        /*
+        .mil-product-modal {
             display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
+            background: rgba(0,0,0,0.8);
+            z-index: 1002;
             align-items: center;
             justify-content: center;
+            overflow: auto;
         }
-
-        .modal-content {
+        .mil-modal-content {
             background: white;
             border-radius: 8px;
             max-width: 800px;
             width: 90%;
+            padding: 20px;
             position: relative;
-            padding: 1rem;
-        }
-
-        .modal-slider {
-            position: relative;
-            width: 100%;
-            height: 400px;
-            background: #f8f9fa;
+            max-height: 90vh;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
         }
-
-        .modal-image {
-            max-width: 100%;
-            max-height: 100%;
+        .mil-close-modal {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #333;
+            z-index: 1003;
+        }
+        .mil-close-modal:hover {
+            color: #dc3545;
+        }
+        .mil-modal-slider {
+            width: 100%;
+            height: 500px;
+            position: relative;
+            overflow: hidden;
+        }
+        .mil-modal-image {
+            width: 100%;
+            height: 100%;
             object-fit: contain;
-            display: none;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease, left 0.3s ease;
         }
-
-        .modal-image.active {
-            display: block;
+        .mil-modal-image.active {
+            left: 0;
+            opacity: 1;
         }
-
-        .prev, .next {
+        .mil-prev, .mil-next {
             position: absolute;
             top: 50%;
             transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.5);
+            font-size: 40px;
             color: white;
-            padding: 1rem;
             cursor: pointer;
-            font-size: 1.5rem;
+            user-select: none;
+            background: rgba(0,0,0,0.5);
+            padding: 10px;
             border-radius: 50%;
+            z-index: 1003;
+            transition: background 0.3s ease;
         }
-
-        .prev {
-            left: 1rem;
+        .mil-prev:hover, .mil-next:hover {
+            background: rgba(0,0,0,0.8);
         }
-
-        .next {
-            right: 1rem;
+        .mil-prev {
+            left: 10px;
         }
-
-        .close {
-            position: absolute;
-            top: 0.5rem;
-            right: 0.5rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #333;
+        .mil-next {
+            right: 10px;
         }
-
-        /* Checkout Form */
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 999;
-        }
-
-        .checkout-form {
+        */
+        /* Checkout form styles */
+        .mil-checkout-form {
             display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: white;
-            padding: 1.5rem;
+            padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            max-width: 400px;
+            z-index: 1001;
+            max-width: 500px;
             width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
         }
-
-        .checkout-form h2 {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 1rem;
+        .mil-cart-summary {
+            margin-bottom: 20px;
         }
-
-        .form-group {
-            margin-bottom: 1rem;
+        .mil-cart-summary h3 {
+            font-size: 18px;
+            margin-bottom: 10px;
         }
-
-        .form-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 0.25rem;
-        }
-
-        .form-group input {
-            background-color: white;
-            border: 1px solid #ced4da;
-            color: #333;
-            font-size: 13px;
-            padding: 0.375rem 0.75rem;
-            height: 34px;
-            width: 100%;
-            box-sizing: border-box;
-            border-radius: 4px;
-        }
-
-        .form-buttons {
-            display: flex;
-            gap: 10px;
-            margin-top: 1rem;
-        }
-
-        .submit-btn, .cancel-btn {
-            flex: 1;
-            background-color: rgb(40, 167, 69);
-            color: #fff;
-            transition: all 0.3s ease;
-            border: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-
-        .submit-btn:hover {
-            background-color: rgb(34, 139, 57);
-            color: #fff;
-        }
-
-        .cancel-btn {
-            background-color: rgb(108, 117, 125);
-        }
-
-        .cancel-btn:hover {
-            background-color: rgb(90, 98, 104);
-            color: #fff;
-        }
-
-        /* Confirmation Page Styles */
-        .confirmation-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-
-        .confirmation-header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .confirmation-header .icon {
-            font-size: 4rem;
-            color: #28a745;
-            margin-bottom: 1rem;
-        }
-
-        .confirmation-header h1 {
-            color: #333;
-            margin-bottom: 0.5rem;
-        }
-
-        .confirmation-header p {
-            color: #666;
-            font-size: 1.1rem;
-        }
-
-        .order-details {
-            margin-bottom: 2rem;
-        }
-
-        .order-details h2 {
-            font-size: 1.5rem;
-            color: #333;
-            margin-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 0.5rem;
-        }
-
-        .customer-info, .order-summary {
-            margin-bottom: 2rem;
-        }
-
-        .customer-info h3, .order-summary h3 {
-            font-size: 1.2rem;
-            color: #444;
-            margin-bottom: 1rem;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .info-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .info-item strong {
-            display: block;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .info-item span {
-            font-size: 1rem;
-        }
-
-        /* Order Items Table Styling */
-        .order-items {
+        .mil-cart-summary table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 1.5rem;
         }
-
-        .order-items th {
+        .mil-cart-summary th, .mil-cart-summary td {
+            padding: 5px;
             text-align: left;
-            padding: 0.75rem;
-            background-color: #343a40;
-            color: #ffffff;
-            border-bottom: 2px solid #dee2e6;
+            border-bottom: 1px solid #ddd;
         }
-
-        .order-items td {
-            padding: 0.75rem;
-            border-bottom: 1px solid #dee2e6;
-            color: #ffffff;
+        .mil-cart-summary th {
+            background: #f8f9fa;
         }
-
-        .order-items tr:nth-child(even) {
-            background-color: #2c2c2c;
-        }
-
-        .order-items tr:nth-child(odd) {
-            background-color: #1e1e1e;
-        }
-
-        .order-items tr:hover {
-            background-color: #495057;
-        }
-
-        .order-items tr:last-child td {
-            border-bottom: none;
-        }
-
-        /* Search Container for Order Items */
-        .search-container {
-            margin-bottom: 16pt;
-            max-width: 400px;
-        }
-
-        .search-container input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            font-size: 14px;
-            background-color: #343a40;
-            color: #ffffff;
-        }
-
-        .search-container input::placeholder {
-            color: #adb5bd;
-        }
-
-        .order-total {
+        .mil-cart-summary .mil-total {
+            font-weight: 600;
+            margin-top: 10px;
             text-align: right;
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-top: 1rem;
         }
-
-        .action-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            margin-top: 2rem;
-        }
-
-        .btn-download {
-            background-color: #007bff;
+        .mil-delete-item {
+            background: #dc3545;
             color: white;
-            padding: 0.75rem 1.5rem;
+            border: none;
+            padding: 5px 10px;
             border-radius: 4px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+            cursor: pointer;
+            transition: background 0.3s ease;
         }
-
-        .btn-download:hover {
-            background-color: #0069d9;
+        .mil-delete-item:hover {
+            background: #c82333;
+        }
+        .mil-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        /* Confirmation page styles */
+        .mil-confirmation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .mil-confirmation-icon {
+            font-size: 60px;
+            color: darkcyan;
+            margin-bottom: 20px;
+        }
+        .mil-order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .mil-order-table th {
+            background: #333;
             color: white;
+            padding: 10px;
+            text-align: left;
         }
-
-        .btn-continue {
-            background-color: #6c757d;
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
+        .mil-order-table td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
         }
-
-        .btn-continue:hover {
-            background-color: #5a6268;
-            color: white;
+        .mil-order-table tr:nth-child(even) {
+            background: #f9f9f9;
         }
-
-        /* Footer */
-        .footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 2rem 1rem;
-            background: darkcyan;
-            color: white;
-            font-size: 13px;
-            margin-top: 2rem;
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            font-size: 16px !important;
         }
-
-        .footer-links {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .mil-soft-bg .mil-light-soft {
+            color: #333 !important;
         }
-
-        .footer-links a {
-            color: rgb(235, 166, 17);
-            text-decoration: none;
+        /* Arrow for scroll button */
+        .mil-arrow-down {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 16.5l-6-6 1.41-1.41L12 13.67l4.59-4.58L18 10.5l-6 6z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            width: 24px;
+            height: 24px;
+            display: inline-block;
         }
-
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-
-        .footer-links .separator {
-            color: #ffffff;
-        }
-
-        .footer-copyright {
-            margin: 0;
-            color: white;
-        }
-
-        /* Social Media Section */
-        .social-media-section {
-            margin: 2rem 0;
-            text-align: center;
-        }
-
-        .social-media-section h2 {
-            font-size: 14px;
-            font-weight: 500;
-            color: #333;
-            margin-bottom: 1rem;
-        }
-
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .social-link {
+        .mil-button.mil-arrow-place.mil-icon-button.mil-arrow-down {
+            padding: 0;
             width: 40px;
             height: 40px;
-            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.25rem;
-            color: white;
-            transition: all 0.3s ease;
         }
-
-        .social-link:hover {
-            transform: translateY(-2px);
+        /* Search form in header */
+        .mil-subscribe-form {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 5px;
         }
-
-        .facebook { background: #3b5998; }
-        .instagram { background: #e1306c; }
-        .twitter { background: #1da1f2; }
-
-        /* Responsive Design */
-        @media (min-width: 1200px) {
-            .inventory-grid {
-                grid-template-columns: repeat(4, 1fr);
-            }
-
-            .logo-header {
-                height: 160px;
-            }
-
-            .navbar {
-                height: 60px;
-            }
+        .mil-subscribe-form input {
+            flex: 1;
+            border: none;
+            background-color: beige;
+            padding: 8px;
+            font-size: 14px;
+            outline: none;
         }
-
+        .mil-subscribe-form button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        /* Subscription form in footer */
+        .mil-subscribe-container {
+            position: relative;
+            max-width: 300px;
+        }
+        footer .mil-subscribe-form {
+            display: flex;
+            align-items: center;
+            position: relative;
+            background: none;
+            padding: 0;
+        }
+        footer .mil-subscribe-form input[type="email"] {
+            flex: 1;
+            padding: 8px 40px 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background: #fff;
+            color: #333;
+            font-size: 14px;
+            outline: none;
+        }
+        footer .mil-subscribe-form button[type="submit"] {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            background: darkcyan;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s ease;
+        }
+        footer .mil-subscribe-form button[type="submit"]:hover {
+            background: #006969;
+        }
+        footer .mil-subscribe-form button[type="submit"] .mil-arrow {
+            fill: white;
+            width: 16px;
+            height: 16px;
+        }
+        .mil-subscribe-error {
+            color: #dc3545;
+            font-size: 12px;
+            margin-bottom: 10px;
+            display: none;
+        }
+        .mil-subscribe-success {
+            color: darkcyan;
+            font-size: 14px;
+            display: none;
+            margin-top: 10px;
+        }
+        /* Ensure visibility in dark footer */
+        .mil-dark-bg .mil-subscribe-form input[type="email"] {
+            background: #fff;
+            color: #333;
+        }
+        .mil-dark-bg .mil-subscribe-form button[type="submit"] {
+            background: darkcyan;
+        }
+        /* Responsive adjustments */
         @media (max-width: 768px) {
-            .content-wrapper {
-                flex-direction: column;
-                padding: 1rem 1rem 1rem;
+            .mil-inventory-grid {
+                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
-
-            .image-container {
-                flex: 0 0 auto;
-                max-width: 100%;
-                margin-bottom: 1rem;
+            .mil-search-input {
+                width: 150px;
             }
-
-            .promo-text {
-                font-size: 1.2rem;
-                top: 15px;
-                left: 15px;
-                right: 15px;
+            .mil-modal-content {
+                max-width: 95%;
+                padding: 15px;
             }
-
-            .main-container {
-                padding: 1.5rem;
-                width: 100%;
-            }
-
-            .confirmation-container {
-                padding: 1.5rem;
-            }
-
-            .store-header h1 {
-                font-size: 14px;
-            }
-
-            .store-header p {
-                font-size: 12px;
-            }
-
-            .inventory-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .product-details h3 {
-                font-size: 13px;
-            }
-
-            .product-details p, .description {
-                font-size: 12px;
-            }
-
-            .quantity-input, .add-to-cart {
-                font-size: 13px;
-                padding: 8px 16px;
-                height: 34px;
-            }
-
-            .modal-content {
-                max-width: 90%;
-            }
-
-            .modal-slider {
+            .mil-modal-slider {
                 height: 300px;
             }
-
-            .product-image-container {
-                height: 120px;
-            }
-
-            .checkout-form h2 {
-                font-size: 14px;
-            }
-
-            .form-group label {
-                font-size: 12px;
-            }
-
-            .form-group input {
-                font-size: 12px;
-                padding: 0.3rem 0.6rem;
-                height: 34px;
-            }
-
-            .submit-btn, .cancel-btn {
-                font-size: 13px;
-                padding: 8px 16px;
-                height: 34px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn-download, .btn-continue {
-                width: 100%;
-                text-align: center;
-            }
-
-            .logo-header {
-                height: 140px;
-            }
-
-            .logo-container {
-                width: 300px;
-                height: 120px;
-            }
-
-            .logo-container img {
-                max-height: 120px;
-            }
-
-            .navbar {
-                height: auto;
-                padding: 0.5rem 1rem;
-                flex-wrap: wrap;
-            }
-
-            .navbar-contact {
-                font-size: 13px;
-                gap: 10px;
-                order: 1;
-                flex-basis: 100%;
-                justify-content: center;
-                margin-bottom: 0.5rem;
-            }
-
-            .navbar-right {
-                order: 2;
-                gap: 8px;
-            }
-
-            .navbar-search-container {
-                max-width: 150px;
-            }
-
-            .navbar-search-container input {
-                font-size: 13px;
-                padding: 6px;
-                height: 34px;
-            }
-
-            .cart-button {
-                padding: 8px 16px;
-                height: 34px;
-                font-size: 13px;
-            }
-
-            .footer {
-                flex-direction: column;
-                gap: 1rem;
-                text-align: center;
-            }
-
-            .footer-links {
-                justify-content: center;
-            }
         }
-
         @media (max-width: 576px) {
-            .logo-header {
-                height: 120px;
+            .mil-frame-top {
+                flex-direction: column;
+                height: auto;
+                padding: 10px 15px;
             }
-
-            .logo-container {
-                width: 250px;
-                height: 100px;
+            .mil-logo {
+                flex: 1;
+                text-align: left;
             }
-
-            .logo-container img {
-                max-height: 100px;
+            .mil-cart-button {
+                flex: 1;
+                text-align: right;
+                margin-left: 0;
             }
-
-            .navbar {
-                padding: 0.5rem 1rem;
-                flex-direction: column; /* Stack items vertically */
-                align-items: center;
-            }
-
-            .navbar-contact {
-                font-size: 12px;
-                gap: 6px;
-                margin-bottom: 0.5rem;
-                flex-wrap: wrap; /* Allow wrapping for long content */
+            .mil-subscribe-form {
+                width: 100%;
+                margin: 10px 0;
                 justify-content: center;
-                text-align: center;
             }
-
-            .navbar-right {
-                flex-direction: column; /* Stack search and cart vertically */
-                align-items: center;
-                gap: 10px;
+            .mil-search-input {
                 width: 100%;
             }
-
-            .navbar-search-container {
-                max-width: 100%; /* Allow full width */
-                width: 80%; /* Cover 80% of the screen */
-            }
-
-            .navbar-search-container input {
-                font-size: 12px;
-                padding: 6px;
-                height: 34px;
-                width: 100%; /* Ensure input fills container */
-            }
-
-            .cart-button {
-                font-size: 12px;
-                padding: 8px 12px;
-                height: 34px;
-                width: auto; /* Allow natural width */
-            }
-
-            .content-wrapper {
-                padding: 0 10px 1rem;
-            }
-
-            .image-container {
+            .mil-subscribe-container {
                 max-width: 100%;
-                height: 400px;
-                margin-bottom: 1rem;
             }
-
-            .image-container.hidden {
-                display: none; /* Hide when search is active */
+            footer .mil-subscribe-form input[type="email"] {
+                width: 100%;
             }
-
-            .promo-text {
-                font-size: 1rem;
-                top: 10px;
-                left: 10px;
-                right: 10px;
-            }
-
-            .main-container {
-                width: 95%;
-                margin: 0 auto;
-                padding: 1rem;
-            }
-
-            .modal-slider {
+            .mil-modal-slider {
                 height: 200px;
             }
-
-            .order-items {
-                display: block;
-                overflow-x: auto;
-            }
-
-            .search-container {
-                max-width: 100%;
+            .mil-prev, .mil-next {
+                font-size: 30px;
+                padding: 5px;
             }
         }
     </style>
 </head>
+
 <body>
-
-    <!-- Navbar -->
-    <div class="navbar">
-        <div class="navbar-contact">
-            <span><%= admin.businessName || 'Our Store' %></span>
-            <% if (admin.email) { %>
-                <a href="mailto:<%= admin.email %>"><i class="fa-solid fa-envelope mr-2"></i><%= admin.email %> |</a>
-            <% } %>
-            <% if (admin.phone) { %>
-                <a href="tel:<%= admin.phone %>"><i class="fa-solid fa-phone mr-2"></i><%= admin.phone %></a>
-            <% } %>
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2,1.2-1.2-3.1,0-4.2L106.1,41.9 z" />
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Сhoose</div>
         </div>
-        <div class="navbar-right">
-            <div class="navbar-search-container">
-                <input type="text" id="inventorySearchInput" placeholder="Search inventory...">
+        <!-- cursor end -->
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scrollbar progress end -->
+
+        <!-- frame top (header) -->
+        <div class="mil-frame-top">
+            <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= admin.businessName %> Logo"></a>
+            <div class="mil-subscribe-form">
+                <input type="text" id="inventorySearchInput" placeholder="Search inventory..." class="mil-search-input">
+                <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
             </div>
-            <button class="cart-button" onclick="showCheckoutForm()">
+            <a href="#" class="mil-cart-button" onclick="showCheckoutForm()">
                 <i class="fa-solid fa-shopping-cart mr-2"></i><span id="cartLabel">Cart</span> (<span id="cartCount">0</span>)
-            </button>
+            </a>
         </div>
-    </div>
+        <!-- frame top end -->
 
-    <!-- Logo Header -->
-    <div class="logo-header">
-        <div class="logo-container">
-            <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="<%= admin.businessName %> Logo">
-        </div>
-    </div>
-
-    <!-- Content Wrapper -->
-    <div class="content-wrapper">
-        <div class="image-container">
-            <img src="/assets/img/promo.jpg" alt="Promotional Image">
-            <div class="promo-text">Shed! The Smartest way to sell</div>
-        </div>
-
-        <!-- Main Container -->
-        <div class="main-container">
-            <% if (typeof saleId !== 'undefined') { %>
-                <!-- Confirmation Page Content -->
-                <div class="confirmation-container">
-                    <div class="confirmation-header">
-                        <div class="icon">
-                            <i class="fas fa-check-circle"></i>
+        <!-- content -->
+        <div class="mil-content mil-store-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
                         </div>
-                        <h1>Thank You For Your Order!</h1>
-                        <p>Your order has been received and is being processed.</p>
-                    </div>
-                    <div class="order-details">
-                        <h2>Order Details</h2>
-                        <div class="customer-info">
-                            <h3>Customer Information</h3>
-                            <div class="info-grid">
-                                <div class="info-item">
-                                    <strong>Order Number</strong>
-                                    <span>#<%= saleId %></span>
-                                </div>
-                                <div class="info-item">
-                                    <strong>Date</strong>
-                                    <span><%= new Date().toLocaleDateString() %></span>
-                                </div>
-                                <div class="info-item">
-                                    <strong>Name</strong>
-                                    <span><%= customerName %></span>
-                                </div>
-                                <div class="info-item">
-                                    <strong>Email</strong>
-                                    <span><%= email %></span>
-                                </div>
-                                <div class="info-item">
-                                    <strong>Phone</strong>
-                                    <span><%= phoneNumber %></span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="order-summary">
-                            <h3>Order Summary</h3>
-                            <!-- Search Container for Order Items -->
-                            <div class="search-container">
-                                <input type="text" id="orderSearchInput" placeholder="Search order items...">
-                            </div>
-                            <table class="order-items" id="orderTable">
-                                <thead>
-                                    <tr>
-                                        <th>Item</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% saleItems.forEach(item => { %>
-                                        <tr>
-                                            <td><%= item.itemName || 'N/A' %></td>
-                                            <td><%= item.quantity || 0 %></td>
-                                            <td><%= currency %><%= formatCurrency(item.unitCost || 0) %></td>
-                                            <td><%= currency %><%= formatCurrency(item.totalCost || 0) %></td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                            <div class="order-total">
-                                <strong>Total: <%= currency %><%= formatCurrency(totalAmount || 0) %></strong>
-                            </div>
-                        </div>
-                        <% if (admin.paymentInstructions) { %>
-                            <div class="payment-instructions">
-                                <h3>Payment Instructions</h3>
-                                <p>%><%= admin.paymentInstructions %></p>
-                            </div>
-                        <% } %>
-                        <div class="action-buttons">
-                            <a href="<%= invoiceUrl %>" class="btn-download">
-                                <i class="fas fa-file-download mr-2"></i> Download Invoice
-                            </a>
-                            <a href="/store/<%= admin.username %>" class="btn-continue">
-                                <i class="fas fa-shopping-bag mr-2"></i> Continue Shopping
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            <% } else { %>
-                <!-- Regular Storefront Content -->
-                <div class="store-header">
-                    <h1><strong>Welcome to <%= admin.businessName || 'Our Store' %></strong></h1>
-                    <p>Explore our latest inventory and find what you love.</p>
-                </div>
-                <!-- Inventory Grid -->
-                <div class="inventory-grid" id="inventoryGrid">
-                    <% inventory.forEach(item => { %>
-                        <div class="inventory-item" data-item-id="<%= item._id %>" data-images="<%= JSON.stringify(item.images) %>">
-                            <div class="product-image-container" onclick="openModal('<%= item._id %>')">
-                                <% if (item.images && item.images.length > 0) { %>
-                                    <img src="<%= item.images[0] %>" class="product-image" alt="<%= item.name %>">
-                                <% } else { %>
-                                    <div class="no-image-placeholder">
-                                        <i class="fa-solid fa-image mr-2"></i>No Image
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Welcome to </span><%= admin.businessName || 'Shed Store' %></h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Shop our latest inventory <strong>with ease!</strong></p>
                                     </div>
-                                <% } %>
-                            </div>
-                            <div class="product-details" onclick="toggleDescription(this)">
-                                <h3><%= item.name %></h3>
-                                <p>Price: <%= currency %><%= formatCurrency(item.cost) %></p>
-                                <p>Stock: <%= item.stock %></p>
-                                <p><strong>View Description</strong></p>
-                                <div class="description">
-                                    <%= item.description || 'No description available.' %>
                                 </div>
-                                <input type="number" class="quantity-input" min="1" max="<%= item.stock %>" value="1">
-                                <button class="add-to-cart" onclick="addToCart('<%= item._id %>', '<%= item.name %>', <%= item.cost %>, <%= item.stock %>, this)">
-                                    <i class="fa-solid fa-cart-plus mr-2"></i>Add to Cart
-                                </button>
+                                <a href="services.html" class="mil-button mil-arrow-place mil-btn-space">
+                                    <span>What we do</span>
+                                </a>
+                                <a href="#" style="color: white; font-size: 24px;"><i class="fa-brands fa-facebook"></i></a>
+                                <a href="#" style="color: white; font-size: 24px;"><i class="fa-brands fa-instagram"></i></a>
+                                <div class="mil-circle-text">
+                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 300 300" enable-background="new 0 0 300 300" xml:space="preserve" class="mil-ct-svg mil-rotate" data-value="360">
+                                        <defs>
+                                            <path id="circlePath" d="M 150, 150 m -60, 0 a 60,60 0 0,1 120,0 a 60,60 0 0,1 -120,0 " />
+                                        </defs>
+                                        <circle cx="150" cy="100" r="75" fill="none" />
+                                        <g>
+                                            <use xlink:href="#circlePath" fill="none" />
+                                            <text style="letter-spacing: 6.5px">
+                                                <textPath xlink:href="#circlePath">. - scroll - to - our - stock </textPath>
+                                            </text>
+                                        </g>
+                                    </svg>
+                                    <button onclick="scrollToStore()" class="mil-button mil-arrow-place mil-icon-button mil-arrow-down"></button>
+                                </div>
                             </div>
-                        </div>
-                    <% }) %>
-                </div>
-                <!-- Social Media Section -->
-                <% if (admin.facebook || admin.instagram || admin.twitter) { %>
-                    <div class="social-media-section">
-                        <h2>Connect With Us</h2>
-                        <div class="social-links">
-                            <% if (admin.facebook) { %>
-                                <a href="<%= admin.facebook %>" target="_blank" class="social-link facebook">
-                                    <i class="fab fa-facebook-f"></i>
-                                </a>
-                            <% } %>
-                            <% if (admin.instagram) { %>
-                                <a href="<%= admin.instagram %>" target="_blank" class="social-link instagram">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                            <% } %>
-                            <% if (admin.twitter) { %>
-                                <a href="<%= admin.twitter %>" target="_blank" class="social-link twitter">
-                                    <i class="fab fa-twitter"></i>
-                                </a>
-                            <% } %>
                         </div>
                     </div>
-                <% } %>
-            <% } %>
+                </section>
+                <!-- banner end -->
+
+                <!-- Main Content -->
+                <section class="mil-about">
+                    <div class="container mil-p-60-30">
+                        <% if (typeof saleId !== 'undefined') { %>
+                            <!-- Confirmation Page Content -->
+                            <div class="mil-confirmation-container mil-up">
+                                <div class="mil-text-center">
+                                    <div class="mil-confirmation-icon">
+                                        <i class="fas fa-check-circle"></i>
+                                    </div>
+                                    <h1 class="mil-mb-20">Thank You For Your Order!</h1>
+                                    <p class="mil-mb-30">Your order has been received and is being processed.</p>
+                                    
+                                    <div class="mil-mb-30">
+                                        <h2>Order Details</h2>
+                                        <div class="mil-info-grid mil-mb-30">
+                                            <div class="mil-info-item">
+                                                <strong>Order Number</strong>
+                                                <span>#<%= saleId %></span>
+                                            </div>
+                                            <div class="mil-info-item">
+                                                <strong>Date</strong>
+                                                <span><%= new Date().toLocaleDateString() %></span>
+                                            </div>
+                                            <div class="mil-info-item">
+                                                <strong>Name</strong>
+                                                <span><%= customerName %></span>
+                                            </div>
+                                            <div class="mil-info-item">
+                                                <strong>Email</strong>
+                                                <span><%= email %></span>
+                                            </div>
+                                            <div class="mil-info-item">
+                                                <strong>Phone</strong>
+                                                <span><%= phoneNumber %></span>
+                                            </div>
+                                        </div>
+                                        
+                                        <h3>Order Summary</h3>
+                                        <input type="text" id="orderSearchInput" placeholder="Search order items..." class="mil-search-input mil-mb-20">
+                                        
+                                        <table class="mil-order-table" id="orderTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Quantity</th>
+                                                    <th>Price</th>
+                                                    <th>Total</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% saleItems.forEach(item => { %>
+                                                    <tr>
+                                                        <td><%= item.itemName || 'N/A' %></td>
+                                                        <td><%= item.quantity || 0 %></td>
+                                                        <td><%= currency %><%= formatCurrency(item.unitCost || 0) %></td>
+                                                        <td><%= currency %><%= formatCurrency(item.totalCost || 0) %></td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                        
+                                        <div class="mil-text-right mil-mt-20">
+                                            <strong>Total: <%= currency %><%= formatCurrency(totalAmount || 0) %></strong>
+                                        </div>
+                                        
+                                        <% if (admin.paymentInstructions) { %>
+                                            <div class="mil-mt-30">
+                                                <h3>Payment Instructions</h3>
+                                                <p><%= admin.paymentInstructions %></p>
+                                            </div>
+                                        <% } %>
+                                        
+                                        <div class="mil-flex mil-justify-between mil-mt-30">
+                                            <a href="<%= invoiceUrl %>" class="mil-button">
+                                                <i class="fas fa-file-download mil-mr-5"></i> Download Invoice
+                                            </a>
+                                            <a href="/store/<%= admin.username %>" class="mil-button mil-border">
+                                                <i class="fas fa-shopping-bag mil-mr-5"></i> Continue Shopping
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } else { %>
+                            <!-- Regular Storefront Content -->
+                            <section id="store" class="mil-soft-bg">   
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mil-up">
+                                            <h2 class="mil-mb-30">Our Products</h2>
+                                            
+                                            <!-- Inventory Grid -->
+                                            <div class="mil-inventory-grid" id="inventoryGrid">
+                                                <% inventory.forEach(item => { %>
+                                                    <div class="mil-inventory-item" data-item-id="<%= item._id %>">
+                                                        <div class="mil-product-image-container">
+                                                            <a href="/store/<%= admin.username %>/product/<%= item._id %>" class="mil-product-image-link">
+                                                                <% if (item.images && item.images.length > 0) { %>
+                                                                    <img src="<%= item.images[0] %>" class="mil-product-image" alt="<%= item.name %>">
+                                                                <% } else { %>
+                                                                    <div class="mil-no-image">
+                                                                        <i class="fas fa-image mil-mr-5"></i> No Image
+                                                                    </div>
+                                                                <% } %>
+                                                            </a>
+                                                        </div>
+                                                        <div class="mil-product-details">
+                                                            <h3 class="mil-product-title">
+                                                                <a href="/store/<%= admin.username %>/product/<%= item._id %>"><%= item.name %></a>
+                                                            </h3>
+                                                            <div class="mil-product-price"><%= currency %><%= formatCurrency(item.cost) %></div>
+                                                            <div class="mil-product-stock">Stock: <%= item.stock %></div>
+                                                            <input type="number" class="mil-quantity-input" min="1" max="<%= item.stock %>" value="1">
+                                                            <button class="mil-add-to-cart" onclick="addToCart('<%= item._id %>', '<%= item.name %>', <%= item.cost %>, <%= item.stock %>, this)">
+                                                                <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                <% }) %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                            
+                            <!-- Social Media Section -->
+                            <% if (admin.facebook || admin.instagram || admin.twitter) { %>
+                                <div class="mil-up mil-mt-60">
+                                    <h2 class="mil-text-center mil-mb-30">Connect With Us</h2>
+                                    <div class="mil-flex mil-justify-center mil-gap-15">
+                                        <% if (admin.facebook) { %>
+                                            <a href="<%= admin.facebook %>"
+                                               target="_blank" class="mil-social-icon mil-facebook">
+                                                <i class="fab fa-facebook-f"></i>
+                                            </a>
+                                        <% } %>
+                                        <% if (admin.instagram) { %>
+                                            <a href="<%= admin.instagram %>"
+                                               target="_blank" class="mil-social-icon mil-instagram">
+                                                <i class="fab fa-instagram"></i>
+                                            </a>
+                                        <% } %>
+                                        <% if (admin.twitter) { %>
+                                            <a href="<%= admin.twitter %>"
+                                               target="_blank" class="mil-social-icon mil-twitter">
+                                                <i class="fab fa-twitter"></i>
+                                            </a>
+                                        <% } %>
+                                    </div>
+                                </div>
+                            <% } %>
+                        <% } %>
+                    </div>
+                </section>
+            </div>
         </div>
+
+        <!-- Product Modal (commented out if not needed) -->
+        <!--
+        <div class="mil-product-modal" id="imageModal">
+            <div class="mil-modal-content">
+                <span class="mil-close-modal" onclick="closeModal()">×</span>
+                <div class="mil-modal-slider" id="modalSlider"></div>
+                <div class="mil-prev" onclick="changeSlide(-1)">‹</div>
+                <div class="mil-next" onclick="changeSlide(1)">›</div>
+            </div>
+        </div>
+        -->
+
+        <!-- Checkout Form -->
+        <div class="mil-overlay" id="overlay" onclick="hideCheckoutForm()"></div>
+        <div class="mil-checkout-form" id="checkoutForm">
+            <h2 class="mil-mb-20">Checkout</h2>
+            <div class="mil-cart-summary" id="cartSummary">
+                <h3>Your Cart - <%= admin.businessName || 'Shed Store' %></h3>
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Qty</th>
+                        <th>Price</th>
+                        <th>Total</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody id="cartSummaryBody"></tbody>
+                </table>
+                <div class="mil-total" id="cartTotal"></div>
+            </div>
+            <form id="checkoutFormSubmit" action="/store/<%= admin.username %>/checkout" method="POST">
+                <div class="mil-form-group mil-mb-15">
+                    <label for="customerName"><i class="fas fa-user mil-mr-5"></i> Name</label>
+                    <input type="text" id="customerName" name="customerName" class="mil-form-control" required>
+                </div>
+                <div class="mil-form-group mil-mb-15">
+                    <label for="phoneNumber"><i class="fas fa-phone mil-mr-5"></i> Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phoneNumber" class="mil-form-control" required>
+                </div>
+                <div class="mil-form-group mil-mb-20">
+                    <label for="email"><i class="fas fa-envelope mil-mr-5"></i> Email</label>
+                    <input type="email" id="email" name="email" class="mil-form-control" required>
+                </div>
+                <input type="hidden" id="cartItems" name="cartItems">
+                <div class="mil-flex mil-gap-15">
+                    <button type="submit" class="mil-button mil-flex-1">
+                        <i class="fas fa-check mil-mr-5"></i> Submit Order
+                    </button>
+                    <button type="button" class="mil-button mil-border mil-flex-1" onclick="hideCheckoutForm()">
+                        <i class="fas fa-times mil-mr-5"></i> Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                            <p class="mil-light-soft mil-up mil-mb-30">Subscribe our newsletter:</p>
+                            <div class="mil-subscribe-container">
+                                <div class="mil-subscribe-error"></div>
+                                <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                    <input type="email" name="email" placeholder="What is your email address?" required>
+                                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"
+                                            aria-label="Subscribe to newsletter">
+                                        <svg class="mil-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <div class="mil-subscribe-success">
+                                    <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-7">
+                                    <nav class="mil-footer-menu mil-mb-60">
+                                        <ul>
+                                            <li class="mil-up mil-active">
+                                                <a href="/admin-login">New? Create a Shed</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/admin-login">Have a Shed? Sign in</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/">Learn More about Shed</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer end -->
+
+        <!-- hidden elements -->
+        <div class="mil-hidden-elements">
+            <div class="mil-dodecahedron">
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
+            </svg>
+
+            <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z"
+                      class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z"
+                      class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z"
+                      class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M300 1175H0V1174H300V1175Z" class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z"
+                      class="mil-move"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move"/>
+            </svg>
+        </div>
+        <!-- hidden elements end -->
     </div>
+    <!-- wrapper end -->
 
-    <!-- Image Modal -->
-    <div class="modal" id="imageModal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">×</span>
-            <div class="modal-slider" id="modalSlider"></div>
-            <div class="prev" onclick="changeSlide(-1)">‹</div>
-            <div class="next" onclick="changeSlide(1)">›</div>
-        </div>
-    </div>
-
-    <!-- Checkout Form -->
-    <div class="overlay" id="overlay" onclick="hideCheckoutForm()"></div>
-    <div class="checkout-form" id="checkoutForm">
-        <h2>Checkout</h2>
-        <form id="checkoutFormSubmit" action="/store/<%= admin.username %>/checkout" method="POST">
-            <div class="form-group">
-                <label for="customerName"><i class="fa-solid fa-user mr-2"></i>Name</label>
-                <input type="text" id="customerName" name="customerName" required>
-            </div>
-            <div class="form-group">
-                <label for="phoneNumber"><i class="fa-solid fa-phone mr-2"></i>Phone Number</label>
-                <input type="tel" id="phoneNumber" name="phoneNumber" required>
-            </div>
-            <div class="form-group">
-                <label for="email"><i class="fa-solid fa-envelope mr-2"></i>Email</label>
-                <input type="email" id="email" name="email" required>
-            </div>
-            <input type="hidden" id="cartItems" name="cartItems">
-            <div class="form-buttons">
-                <button type="submit" class="submit-btn">
-                    <i class="fa-solid fa-check mr-2"></i>Submit Order
-                </button>
-                <button type="button" class="cancel-btn" onclick="hideCheckoutForm()">
-                    <i class="fa-solid fa-times mr-2"></i>Cancel
-                </button>
-            </div>
-        </form>
-    </div>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="footer-links">
-            <a href="/admin-register">Create your Store</a>
-            <span class="separator">|</span>
-            <a href="/admin-login"><span>Sign in to your Shed</span></a>
-            <span class="separator">|</span>
-            <a href="/">Learn about Shed</a>
-        </div>
-        <div class="footer-copyright" style="align-content: right;">
-            <p>© 2025 Shedfactory Limited.</p>
-        </div>
-    </footer>
-
-    <!-- JavaScript Dependencies -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="/js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
 
     <script>
-        let cart = [];
-        let currentSlide = 0;
-        let currentImages = [];
+        // Initialize cart from localStorage or empty array
+        let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const currency = '<%= currency %>';
+
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('cart', JSON.stringify(cart));
+        }
 
         function formatCurrency(value) {
             return parseFloat(value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
         }
 
         function addToCart(itemId, itemName, itemCost, maxStock, button) {
-            const quantityInput = document.querySelector(`.inventory-item[data-item-id="${itemId}"] .quantity-input`);
+            const quantityInput = document.querySelector(`.mil-inventory-item[data-item-id="${itemId}"] .mil-quantity-input`);
             const quantity = parseInt(quantityInput.value);
 
-            if (quantity <= 0 || quantity > maxStock) {
+            if (isNaN(quantity) || quantity <= 0 || quantity > maxStock) {
                 alert('Please enter a valid quantity within available stock.');
                 return;
             }
 
-            const existingItem = cart.find(item => item.id === itemId);
-            if (existingItem) {
-                existingItem.quantity = quantity;
+            const existingItemIndex = cart.findIndex(item => item.id === itemId);
+            if (existingItemIndex !== -1) {
+                // Remove item from cart
+                cart.splice(existingItemIndex, 1);
+                button.classList.remove('mil-added');
+                button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
+                button.style.backgroundColor = '';
             } else {
+                // Add item to cart
                 cart.push({
                     id: itemId,
                     name: itemName,
                     cost: itemCost,
                     quantity: quantity,
-                    image: document.querySelector(`.inventory-item[data-item-id="${itemId}"] .product-image`)?.src || ''
+                    image: document.querySelector(`.mil-inventory-item[data-item-id="${itemId}"] .mil-product-image`)?.src || ''
                 });
-                button.classList.add('checked');
-                button.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Added';
+                button.classList.add('mil-added');
+                button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
+                button.style.backgroundColor = '#dc3545';
             }
+            saveCart();
             updateCartCount();
+            updateCartSummary();
+        }
+
+        function removeFromCart(itemId) {
+            cart = cart.filter(item => item.id !== itemId);
+            saveCart();
+            updateCartCount();
+            updateCartSummary();
+            initializeButtonStates();
+            if (cart.length === 0) {
+                hideCheckoutForm();
+                alert('Your cart is now empty.');
+            }
         }
 
         function updateCartCount() {
@@ -1330,13 +1083,53 @@
             const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
             const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
 
-            cartCount.textContent = itemCount;
-            if (itemCount > 0) {
-                cartLabel.textContent = 'Checkout';
-                cartCount.textContent = `${currency}${formatCurrency(totalValue)}, ${itemCount}`;
-            } else {
-                cartLabel.textContent = 'Cart';
-                cartCount.textContent = '0';
+            cartCount.textContent = `${currency}${formatCurrency(totalValue)} (${itemCount} item${itemCount !== 1 ? 's' : ''})`;
+            cartLabel.textContent = itemCount > 0 ? 'Checkout' : 'Cart';
+        }
+
+        function updateCartSummary() {
+            const cartSummaryBody = document.getElementById('cartSummaryBody');
+            const cartTotal = document.getElementById('cartTotal');
+            if (!cartSummaryBody || !cartTotal) return;
+
+            cartSummaryBody.innerHTML = cart.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.quantity}</td>
+                    <td>${currency}${formatCurrency(item.cost)}</td>
+                    <td>${currency}${formatCurrency(item.cost * item.quantity)}</td>
+                    <td><button class="mil-delete-item" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+
+            const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
+            cartTotal.textContent = `Total: ${currency}${formatCurrency(totalValue)}`;
+        }
+
+        function initializeButtonStates() {
+            document.querySelectorAll('.mil-inventory-item').forEach(item => {
+                const itemId = item.dataset.itemId;
+                const button = item.querySelector('.mil-add-to-cart');
+                if (cart.some(cartItem => cartItem.id === itemId)) {
+                    button.classList.add('mil-added');
+                    button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
+                    button.style.backgroundColor = '#dc3545';
+                } else {
+                    button.classList.remove('mil-added');
+                    button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
+                    button.style.backgroundColor = '';
+                }
+            });
+        }
+
+        function scrollToStore() {
+            const storeSection = document.getElementById('store');
+            if (storeSection) {
+                gsap.to(window, {
+                    duration: 1,
+                    scrollTo: {y: storeSection, offsetY: 80},
+                    ease: 'power2.out'
+                });
             }
         }
 
@@ -1347,12 +1140,16 @@
             }
             const cartItemsInput = document.getElementById('cartItems');
             try {
+                if (!Array.isArray(cart) || !cart.every(item => item.id && item.name && item.cost && item.quantity)) {
+                    throw new Error('Invalid cart structure');
+                }
                 cartItemsInput.value = JSON.stringify(cart);
             } catch (err) {
                 console.error('Error stringifying cart:', err);
                 alert('Error preparing cart data. Please try again.');
                 return;
             }
+            updateCartSummary();
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('checkoutForm').style.display = 'block';
         }
@@ -1362,19 +1159,19 @@
             document.getElementById('checkoutForm').style.display = 'none';
         }
 
-        function toggleDescription(element) {
-            const description = element.querySelector('.description');
-            description.classList.toggle('active');
-        }
+        // Commented out modal-related functions (uncomment if you want to re-enable modal for quick view)
+        /*
+        let currentSlide = 0;
+        let currentImages = [];
 
         function openModal(itemId) {
-            const item = document.querySelector(`.inventory-item[data-item-id="${itemId}"]`);
+            const item = document.querySelector(`.mil-inventory-item[data-item-id="${itemId}"]`);
             const images = item.dataset.images ? JSON.parse(item.dataset.images) : [];
             currentImages = images.length > 0 ? images : ['/images/placeholder.png'];
 
             const slider = document.getElementById('modalSlider');
             slider.innerHTML = currentImages.map((src, index) => `
-                <img src="${src}" class="modal-image ${index === 0 ? 'active' : ''}" alt="Product Image ${index + 1}">
+                <img src="${src}" class="mil-modal-image ${index === 0 ? 'active' : ''}" alt="Product Image ${index + 1}">
             `).join('');
 
             currentSlide = 0;
@@ -1383,39 +1180,51 @@
 
         function closeModal() {
             document.getElementById('imageModal').style.display = 'none';
+            currentSlide = 0;
+            currentImages = [];
         }
 
         function changeSlide(direction) {
-            const images = document.querySelectorAll('.modal-image');
+            const images = document.querySelectorAll('.mil-modal-image');
             if (images.length === 0) return;
 
+            const prevSlide = currentSlide;
             currentSlide = (currentSlide + direction + images.length) % images.length;
-            images.forEach((img, index) => {
-                img.classList.toggle('active', index === currentSlide);
+
+            gsap.to(images[prevSlide], {
+                left: direction > 0 ? '-100%' : '100%',
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+
+            gsap.fromTo(images[currentSlide], {
+                left: direction > 0 ? '100%' : '-100%',
+                opacity: 0
+            }, {
+                left: '0%',
+                opacity: 1,
+                duration: 0.3,
+                ease: 'power2.out',
+                onStart: () => {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('active', index === currentSlide);
+                    });
+                }
             });
         }
+        */
 
-        // Real-time search for inventory items and toggle image container on small screens
+        // Real-time search for inventory items
         function searchInventory() {
             const input = document.getElementById('inventorySearchInput').value.toLowerCase();
             const grid = document.getElementById('inventoryGrid');
-            const items = grid.getElementsByClassName('inventory-item');
-            const imageContainer = document.querySelector('.image-container');
-
-            // Toggle image container visibility on small screens
-            if (window.innerWidth <= 576) {
-                if (input.length > 0) {
-                    imageContainer.classList.add('hidden');
-                } else {
-                    imageContainer.classList.remove('hidden');
-                }
-            }
+            const items = grid.getElementsByClassName('mil-inventory-item');
 
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
-                const name = item.querySelector('.product-details h3').textContent.toLowerCase();
-                const description = item.querySelector('.description').textContent.toLowerCase();
-                const match = name.includes(input) || description.includes(input);
+                const name = item.querySelector('.mil-product-title').textContent.toLowerCase();
+                const match = name.includes(input);
                 item.style.display = match ? '' : 'none';
             }
         }
@@ -1442,41 +1251,33 @@
             }
         }
 
+        // Remove modal click event listener if modal is disabled
+        /*
         window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
+            if (e.target.classList.contains('mil-product-modal')) {
                 closeModal();
             }
         });
-
-        document.querySelectorAll('.product-details').forEach(el => {
-            el.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        });
-
-        document.querySelectorAll('.quantity-input').forEach(input => {
-            input.addEventListener('click', (e) => {
-                e.stopPropagation();
-            });
-        });
+        */
 
         document.getElementById('checkoutFormSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const customerName = document.getElementById('customerName').value.trim();
             const phoneNumber = document.getElementById('phoneNumber').value.trim();
             const email = document.getElementById('email').value.trim();
-            
+            const cartItemsInput = document.getElementById('cartItems');
+
             if (!customerName || !phoneNumber || !email) {
                 alert('Please fill in all required fields.');
                 return;
             }
-            
+
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 alert('Please enter a valid email address.');
                 return;
             }
-            
+
             if (!/[\d]{6,}/.test(phoneNumber)) {
                 alert('Please enter a valid phone number.');
                 return;
@@ -1487,52 +1288,67 @@
                 return;
             }
 
-            const submitBtn = e.target.querySelector('.submit-btn');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Processing...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mil-mr-5"></i> Processing...';
 
             try {
+                const payload = {
+                    customerName,
+                    phoneNumber,
+                    email,
+                    cartItems: cartItemsInput.value
+                };
+
                 const response = await fetch(e.target.action, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
                     },
-                    body: JSON.stringify({
-                        customerName,
-                        phoneNumber,
-                        email,
-                        cartItems: JSON.stringify(cart)
-                    })
+                    body: JSON.stringify(payload)
                 });
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Error submitting order');
-                }
 
                 const result = await response.json();
-                
+
+                if (!response.ok) {
+                    throw new Error(result.error || `HTTP error! Status: ${response.status}`);
+                }
+
                 if (result.success && result.invoiceUrl) {
                     cart = [];
+                    saveCart();
                     updateCartCount();
+                    initializeButtonStates();
+                    updateCartSummary();
                     window.location.href = result.invoiceUrl;
                 } else {
                     throw new Error(result.error || 'Invalid server response');
                 }
             } catch (error) {
-                console.error('Error submitting order:', error);
-                alert(error.message || 'Error submitting order. Please try again.');
+                console.error('Checkout error:', error.message, error.stack);
+                alert(`Error submitting order: ${error.message}. Please try again or contact support.`);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fa-solid fa-check mr-2"></i>Submit Order';
+                submitBtn.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Submit Order';
             }
+        });
+
+        // Initialize cart count, button states, and cart summary on page load
+        window.addEventListener('load', () => {
+            updateCartCount();
+            initializeButtonStates();
+            updateCartSummary();
         });
 
         if (window.location.search.includes('checkout_success=true')) {
             setTimeout(() => {
                 alert('Your order has been placed successfully!');
                 cart = [];
+                saveCart();
                 updateCartCount();
+                initializeButtonStates();
+                updateCartSummary();
                 history.replaceState(null, '', window.location.pathname);
             }, 500);
         }
@@ -1540,6 +1356,62 @@
         // Attach event listeners for search inputs
         document.getElementById('inventorySearchInput')?.addEventListener('input', searchInventory);
         document.getElementById('orderSearchInput')?.addEventListener('input', searchOrderTable);
+    </script>
+
+    <!-- Subscription Form Handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscribeForm = document.getElementById('subscribeForm');
+            const errorDiv = document.querySelector('.mil-subscribe-error');
+            const successDiv = document.querySelector('.mil-subscribe-success');
+            const formContainer = document.querySelector('.mil-subscribe-container');
+
+            if (!subscribeForm || !errorDiv || !successDiv || !formContainer) {
+                console.warn('Subscription form elements not found');
+                return;
+            }
+
+            subscribeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = subscribeForm.querySelector('input[name="email"]').value.trim();
+
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+                successDiv.style.display = 'none';
+
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    errorDiv.textContent = 'Please enter a valid email address';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({email})
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        subscribeForm.style.display = 'none';
+                        successDiv.style.display = 'block';
+                        subscribeForm.reset();
+                    } else {
+                        errorDiv.textContent = data.message || 'Subscription failed. Please try again.';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    errorDiv.textContent = 'Network error. Please try again later.';
+                    errorDiv.style.display = 'block';
+                    console.error('Subscription error:', error);
+                }
+            });
+        });
     </script>
 </body>
 </html>
