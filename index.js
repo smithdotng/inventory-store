@@ -281,15 +281,24 @@ function isAffiliateAuthenticated(req, res, next) {
 
 // Referral Routes
 app.get('/referrals/signup', (req, res) => {
-  res.render('referrals-signup');
+  res.render('referrals-signup', { error: null });
 });
+
+const flash = require('connect-flash');
+app.use(flash());
 
 app.post('/referrals/signup', async (req, res) => {
   try {
     const { email, country, password } = req.body;
+    if (!email || !country || !password) {
+      req.flash('error', 'All fields are required.');
+      return res.redirect('/referrals/signup');
+    }
     const existingAffiliate = await db.collection('affiliates').findOne({ email });
-    if (existingAffiliate) return res.status(400).send('Email already registered as an affiliate.');
-
+    if (existingAffiliate) {
+      req.flash('error', 'Email already registered as an affiliate.');
+      return res.redirect('/referrals/signup');
+    }
     const hashedPassword = await bcrypt.hash(password, 10);
     const referralCode = crypto.randomBytes(8).toString('hex');
     const affiliate = {
@@ -299,18 +308,23 @@ app.post('/referrals/signup', async (req, res) => {
       referralCode,
       createdAt: new Date()
     };
-
     const result = await db.collection('affiliates').insertOne(affiliate);
     req.session.affiliate = result.insertedId.toString();
     res.redirect('/referrals/dashboard');
   } catch (error) {
     console.error('Error signing up affiliate:', error);
-    res.status(500).send('Internal Server Error');
+    req.flash('error', 'An unexpected error occurred. Please try again later.');
+    res.redirect('/referrals/signup');
   }
 });
 
+// Update GET route to pass flash messages
+app.get('/referrals/signup', (req, res) => {
+  res.render('referrals-register', { error: req.flash('error')[0] || null });
+});
+
 app.get('/referrals/login', (req, res) => {
-  res.render('referrals-login');
+  res.render('referrals-login', { error: null });
 });
 
 app.post('/referrals/login', async (req, res) => {
@@ -337,16 +351,35 @@ app.post('/referrals/login', async (req, res) => {
 app.get('/referrals/dashboard', isAffiliateAuthenticated, async (req, res) => {
   try {
     const affiliate = await db.collection('affiliates').findOne({ _id: new ObjectId(req.session.affiliate) });
+    
+    // Handle case where affiliate is not found
+    if (!affiliate) {
+      req.session.destroy(); // Clear invalid session
+      return res.redirect('/referrals/login');
+    }
+
     const referralLink = `http://localhost:3000/admin-register?ref=${affiliate.referralCode}`;
     const activities = await db.collection('referral_activities')
       .find({ affiliateId: affiliate._id })
       .sort({ date: -1 })
       .toArray();
 
-    res.render('referrals-dashboard', { affiliate, referralLink, activities });
+    res.render('referrals-dashboard', {
+      affiliate,
+      referralLink,
+      activities,
+      sidebarVisible: true, // Initial sidebar state
+      error: null // No error by default
+    });
   } catch (error) {
     console.error('Error loading affiliate dashboard:', error);
-    res.status(500).send('Internal Server Error');
+    res.render('referrals-dashboard', {
+      affiliate: null,
+      referralLink: '',
+      activities: [],
+      sidebarVisible: true,
+      error: 'An unexpected error occurred. Please try again later.'
+    });
   }
 });
 
