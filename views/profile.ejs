@@ -175,7 +175,8 @@
             margin-right: 20px;
             transition: margin-left 0.3s ease;
             position: relative;
-            z-index: 100            background-color: white;
+            z-index: 100;
+            background-color: white;
             border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
@@ -504,6 +505,20 @@
             font-size: 13px;
         }
         
+        /* Checkbox styling */
+        .form-group.checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .form-group.checkbox-group label {
+            margin-left: 10px;
+            padding-top: 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
         /* Responsive Design */
         @media (max-width: 768px) {
             .new-sidebar {
@@ -652,7 +667,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Email <i class="fa-solid fa-envelope"></i></label>
-                                <div class="value"><%= admin.email %></div>
+                                <div class="value"><%= admin.email %> (<%= admin.publicEmail ? 'Public' : 'Private' %>)</div>
                             </div>
                             <div class="form-group">
                                 <label>Business Name <i class="fa-solid fa-building"></i></label>
@@ -664,11 +679,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Phone <i class="fa-solid fa-phone"></i></label>
-                                <div class="value"><%= admin.phone || 'N/A' %></div>
+                                <div class="value"><%= admin.phone || 'N/A' %> (<%= admin.publicPhone ? 'Public' : 'Private' %>)</div>
                             </div>
                             <div class="form-group">
                                 <label>Address <i class="fa-solid fa-map-marker-alt"></i></label>
-                                <div class="value"><%= admin.address || 'N/A' %></div>
+                                <div class="value"><%= admin.address || 'N/A' %> (<%= admin.publicAddress ? 'Public' : 'Private' %>)</div>
                             </div>
                             <div class="form-group">
                                 <label>Facebook <i class="fa-brands fa-facebook"></i></label>
@@ -679,7 +694,7 @@
                                 <div class="value"><%= admin.instagram || 'N/A' %></div>
                             </div>
                             <div class="form-group">
-                                <label>X <i class="fa-brands fa-x-twitter"></i></i></label>
+                                <label>X <i class="fa-brands fa-x-twitter"></i></label>
                                 <div class="value"><%= admin.twitter || 'N/A' %></div>
                             </div>
                         </div>
@@ -761,12 +776,28 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label>Email <i class="fa-solid fa-envelope"></i></label>
+                                <input type="email" name="email" class="form-control" value="<%= admin.email || '' %>" placeholder="Email">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" name="publicEmail" id="publicEmail" <%= admin.publicEmail ? 'checked' : '' %>>
+                                    <label for="publicEmail">Make email public on storefront</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
                                 <label>Phone <i class="fa-solid fa-phone"></i></label>
                                 <input type="text" name="phone" class="form-control" value="<%= admin.phone || '' %>" placeholder="Phone">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" name="publicPhone" id="publicPhone" <%= admin.publicPhone ? 'checked' : '' %>>
+                                    <label for="publicPhone">Make phone public on storefront</label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Address <i class="fa-solid fa-map-marker-alt"></i></label>
                                 <input type="text" name="address" class="form-control" value="<%= admin.address || '' %>" placeholder="Address">
+                                <div class="form-group checkbox-group">
+                                    <input type="checkbox" name="publicAddress" id="publicAddress" <%= admin.publicAddress ? 'checked' : '' %>>
+                                    <label for="publicAddress">Make address public on storefront</label>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Facebook URL <i class="fa-brands fa-facebook"></i></label>
@@ -840,7 +871,7 @@
                 <div class="modal-header">
                     <h5 class="modal-title" id="cropModalLabel">Crop Logo</h5>
                     <button type="button" class="close" id="cropModalCloseBtn" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">×</span>
                     </button>
                 </div>
                 <div class="modal-body">

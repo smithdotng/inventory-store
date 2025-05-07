@@ -538,17 +538,17 @@
                                 
                                 <!-- Business contact information -->
                                 <div class="mil-contact-info mil-light-soft mil-mb-30">
-                                    <% if (admin.phone) { %>
+                                    <% if (admin.publicPhone && admin.phone) { %>
                                         <p><i class="fas fa-phone mil-mr-5"></i> Phone: <%= admin.phone %></p>
                                     <% } %>
-                                    <% if (admin.email) { %>
+                                    <% if (admin.publicEmail && admin.email) { %>
                                         <p><i class="fas fa-envelope mil-mr-5"></i> Email: <a href="mailto:<%= admin.email %>" class="mil-light-soft"><%= admin.email %></a></p>
                                     <% } %>
-                                    <% if (admin.address) { %>
+                                    <% if (admin.publicAddress && admin.address) { %>
                                         <p><i class="fas fa-map-marker-alt mil-mr-5"></i> Address: <%= admin.address %></p>
                                     <% } %>
                                 </div>
-
+                
                                 <!-- Social media links with handles -->
                                 <div class="mil-social-links">
                                     <% if (admin.facebook) { %>
@@ -767,7 +767,7 @@
                     <div class="row justify-content-between">
                         <div class="col-md-4 col-lg-4 mil-mb-60">
                             <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
-                            <p class="mil-light-soft mil-up mil-mb-30">Subscribe our newsletter:</p>
+                            <p class="mil-light-soft mil-up mil-mb-30">Subscribe to our newsletter:</p>
                             <div class="mil-subscribe-container">
                                 <div class="mil-subscribe-error"></div>
                                 <form class="mil-subscribe-form mil-up" id="subscribeForm">

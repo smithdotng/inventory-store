@@ -1191,18 +1191,23 @@ app.get('/profile', isAuthenticated, async (req, res) => {
       req.session.error = 'Admin not found.';
       return res.redirect('/admin-login');
     }
+
+    // Pass session messages to template and clear them
+    const error = req.session.error;
+    const success = req.session.success;
+    req.session.error = null; // Clear error
+    req.session.success = null; // Clear success
+
     res.render('profile', {
       username: req.session.admin,
       admin,
-      error: req.session.error || null,
-      success: req.session.success || null
+      error,
+      success
     });
-    req.session.error = null;
-    req.session.success = null;
   } catch (error) {
     console.error('Error fetching profile:', error);
-    req.session.error = 'An unexpected error occurred.';
-    res.redirect('/invoices');
+    req.session.error = 'Failed to load profile. Please try again.';
+    res.redirect('/admin-login');
   }
 });
 
@@ -1214,12 +1219,12 @@ app.use((req, res, next) => {
   next();
 });
 
-// POST /profile/update
 app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!admin) {
       req.session.error = 'Admin not found.';
+      req.session.success = null; // Clear success message
       return res.redirect('/profile');
     }
 
@@ -1229,6 +1234,7 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       businessName, 
       currency, 
       phone, 
+      email,
       address, 
       country,
       primaryBankAccountName,
@@ -1240,8 +1246,45 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       facebook,
       instagram,
       twitter,
-      croppedImageData // Added to handle cropped images
+      publicPhone,
+      publicEmail,
+      publicAddress,
+      croppedImageData
     } = req.body;
+
+    // Validate email
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      req.session.error = 'Please enter a valid email address';
+      req.session.success = null; // Clear success message
+      return res.redirect('/profile');
+    }
+
+    // Validate social media URLs if provided
+    const isValidUrl = (url) => {
+      if (!url) return true;
+      try {
+        new URL(url);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    };
+
+    if (facebook && !isValidUrl(facebook)) {
+      req.session.error = 'Please enter a valid Facebook URL';
+      req.session.success = null; // Clear success message
+      return res.redirect('/profile');
+    }
+    if (instagram && !isValidUrl(instagram)) {
+      req.session.error = 'Please enter a valid Instagram URL';
+      req.session.success = null; // Clear success message
+      return res.redirect('/profile');
+    }
+    if (twitter && !isValidUrl(twitter)) {
+      req.session.error = 'Please enter a valid Twitter URL';
+      req.session.success = null; // Clear success message
+      return res.redirect('/profile');
+    }
 
     // Prepare the update data object
     const updateData = {
@@ -1251,16 +1294,19 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       currency: currency || admin.currency,
       country: country || admin.country,
       phone: phone || admin.phone,
+      email: email || admin.email,
       address: address || admin.address,
       facebook: facebook || admin.facebook || null,
       instagram: instagram || admin.instagram || null,
       twitter: twitter || admin.twitter || null,
+      publicPhone: publicPhone === 'on',
+      publicEmail: publicEmail === 'on',
+      publicAddress: publicAddress === 'on',
       updatedAt: new Date()
     };
 
-    // Handle logo update - prioritize file upload over cropped data
+    // Handle logo update
     if (req.file) {
-      // Delete old logo if it exists
       if (admin.logo) {
         const oldLogoPath = path.join(__dirname, 'public', admin.logo);
         if (fs.existsSync(oldLogoPath)) {
@@ -1269,7 +1315,6 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       }
       updateData.logo = `/uploads/${req.file.filename}`;
     } else if (croppedImageData) {
-      // Handle base64 image data from cropper
       const base64Data = croppedImageData.replace(/^data:image\/\w+;base64,/, '');
       const buffer = Buffer.from(base64Data, 'base64');
       const username = req.session.admin || 'unknown';
@@ -1277,7 +1322,6 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       const filename = `logo-${username}-${timestamp}.png`;
       const filePath = path.join(uploadsDir, filename);
 
-      // Delete old logo if it exists
       if (admin.logo) {
         const oldLogoPath = path.join(__dirname, 'public', admin.logo);
         if (fs.existsSync(oldLogoPath)) {
@@ -1285,7 +1329,6 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
         }
       }
 
-      // Save new logo
       fs.writeFileSync(filePath, buffer);
       updateData.logo = `/uploads/${filename}`;
     }
@@ -1303,36 +1346,12 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       bankName: secondaryBankName || (admin.secondaryAccount?.bankName || '')
     };
 
-    // Only update accounts if at least one field is provided
     if (primaryBankAccountName || primaryAccountNumber || primaryBankName) {
       updateData.primaryAccount = primaryAccount;
     }
 
     if (secondaryBankAccountName || secondaryAccountNumber || secondaryBankName) {
       updateData.secondaryAccount = secondaryAccount;
-    }
-
-    // Validate social media URLs if provided
-    const isValidUrl = (url) => {
-      try {
-        new URL(url);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    };
-
-    if (facebook && !isValidUrl(facebook)) {
-      req.session.error = 'Please enter a valid Facebook URL';
-      return res.redirect('/profile');
-    }
-    if (instagram && !isValidUrl(instagram)) {
-      req.session.error = 'Please enter a valid Instagram URL';
-      return res.redirect('/profile');
-    }
-    if (twitter && !isValidUrl(twitter)) {
-      req.session.error = 'Please enter a valid Twitter URL';
-      return res.redirect('/profile');
     }
 
     // Perform the update
@@ -1347,10 +1366,12 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
     }
 
     req.session.success = 'Profile updated successfully!';
+    req.session.error = null; // Clear error message
     res.redirect('/profile');
   } catch (error) {
     console.error('Error updating profile:', error);
     req.session.error = 'Failed to update profile. Please try again.';
+    req.session.success = null; // Clear success message
     res.redirect('/profile');
   }
 });
@@ -2378,8 +2399,6 @@ app.get('/api/stores/search', async (req, res) => {
   }
 });
 
-
-// Storefront route (for reference, supporting confirmation within storefront)
 
 app.get('/store/:adminUsername', async (req, res) => {
   try {
