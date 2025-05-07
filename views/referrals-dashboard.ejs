@@ -611,7 +611,9 @@
             <div class="mil-logo-container">
                 <img src="/images/logo.png" alt="Shed Logo">
             </div>
-            <h2 class="mil-up">Welcome, <%= affiliate.email %>!</h2>
+            <h2 class="mil-up">
+                Welcome, <%= affiliate && affiliate.email ? affiliate.email : 'Affiliate' %>!
+            </h2>
             <a href="/referrals/dashboard" class="mil-up">Dashboard</a>
             <a href="/referrals/logout" class="mil-up">Log Out</a>
         </div>
@@ -660,18 +662,22 @@
                                 <div class="mil-form-section mil-up">
                                     <h2 class="mil-mb-30">Your Referral Link</h2>
                                     <div class="mil-form-group mil-center">
-                                        <button onclick="shareReferralLink('<%= referralLink %>')" class="mil-button mil-arrow-place">
-                                            Share Referral Link <i class="fa-solid fa-share"></i>
-                                        </button>
-                                        <div class="mil-share-menu" id="shareMenu">
-                                            <a href="#" onclick="copyLink('<%= referralLink %>')"><i class="fa-solid fa-copy"></i> Copy Link</a>
-                                            <a href="#" onclick="shareEmail('<%= referralLink %>')"><i class="fa-solid fa-envelope"></i> Email</a>
-                                            <a href="#" onclick="shareWhatsApp('<%= referralLink %>')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
-                                            <a href="#" onclick="shareTwitter('<%= referralLink %>')"><i class="fa-brands fa-x-twitter"></i> Twitter</a>
-                                            <a href="#" onclick="shareLinkedIn('<%= referralLink %>')"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
-                                            <a href="#" onclick="shareFacebook('<%= referralLink %>')"><i class="fa-brands fa-facebook"></i> Facebook</a>
-                                            <a href="#" onclick="shareMore('<%= referralLink %>')"><i class="fa-solid fa-share-nodes"></i> More</a>
-                                        </div>
+                                        <% if (referralLink) { %>
+                                            <button onclick="shareReferralLink('<%= referralLink %>')" class="mil-button mil-arrow-place">
+                                                Share Referral Link <i class="fa-solid fa-share"></i>
+                                            </button>
+                                            <div class="mil-share-menu" id="shareMenu">
+                                                <a href="#" onclick="copyLink('<%= referralLink %>')"><i class="fa-solid fa-copy"></i> Copy Link</a>
+                                                <a href="#" onclick="shareEmail('<%= referralLink %>')"><i class="fa-solid fa-envelope"></i> Email</a>
+                                                <a href="#" onclick="shareWhatsApp('<%= referralLink %>')"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>
+                                                <a href="#" onclick="shareTwitter('<%= referralLink %>')"><i class="fa-brands fa-x-twitter"></i> Twitter</a>
+                                                <a href="#" onclick="shareLinkedIn('<%= referralLink %>')"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
+                                                <a href="#" onclick="shareFacebook('<%= referralLink %>')"><i class="fa-brands fa-facebook"></i> Facebook</a>
+                                                <a href="#" onclick="shareMore('<%= referralLink %>')"><i class="fa-solid fa-share-nodes"></i> More</a>
+                                            </div>
+                                        <% } else { %>
+                                            <p class="mil-alert"><i class="fa-solid fa-exclamation"></i> Unable to generate referral link. Please try again later.</p>
+                                        <% } %>
                                     </div>
                                 </div>
 

@@ -354,36 +354,44 @@ app.post('/referrals/login', async (req, res) => {
 
 app.get('/referrals/dashboard', isAffiliateAuthenticated, async (req, res) => {
   try {
-    const affiliate = await db.collection('affiliates').findOne({ _id: new ObjectId(req.session.affiliate) });
-    
-    // Handle case where affiliate is not found
-    if (!affiliate) {
-      req.session.destroy(); // Clear invalid session
-      return res.redirect('/referrals/login');
-    }
+      // Fetch affiliate from database using session data
+      const affiliate = await db.collection('affiliates').findOne({ _id: new ObjectId(req.session.affiliate) });
+      
+      // Handle case where affiliate is not found
+      if (!affiliate) {
+          req.session.destroy(); // Clear invalid session
+          return res.redirect('/referrals/login?error=Affiliate not found');
+      }
 
-    const referralLink = process.env.BASE_URL`/admin-register?ref=${affiliate.referralCode}`;
-    const activities = await db.collection('referral_activities')
-      .find({ affiliateId: affiliate._id })
-      .sort({ date: -1 })
-      .toArray();
+      // Construct baseUrl from environment variable or headers
+      const baseUrl = process.env.BASE_URL || 
+                      `${req.headers['x-forwarded-proto'] || req.protocol}://${req.headers['x-forwarded-host'] || req.get('host')}`;
 
-    res.render('referrals-dashboard', {
-      affiliate,
-      referralLink,
-      activities,
-      sidebarVisible: true, // Initial sidebar state
-      error: null // No error by default
-    });
+      // Construct referral link
+      const referralLink = `${baseUrl}/admin-register?ref=${affiliate.referralCode || affiliate._id}`;
+
+      // Fetch referral activities
+      const activities = await db.collection('referral_activities')
+          .find({ affiliateId: affiliate._id })
+          .sort({ date: -1 })
+          .toArray();
+
+      res.render('referrals-dashboard', {
+          affiliate,
+          referralLink,
+          activities,
+          sidebarVisible: true, // Initial sidebar state
+          error: null // No error by default
+      });
   } catch (error) {
-    console.error('Error loading affiliate dashboard:', error);
-    res.render('referrals-dashboard', {
-      affiliate: null,
-      referralLink: '',
-      activities: [],
-      sidebarVisible: true,
-      error: 'An unexpected error occurred. Please try again later.'
-    });
+      console.error('Error loading affiliate dashboard:', error);
+      res.render('referrals-dashboard', {
+          affiliate: null, // Define affiliate as null
+          referralLink: '',
+          activities: [],
+          sidebarVisible: true,
+          error: 'An unexpected error occurred. Please try again later.'
+      });
   }
 });
 
