@@ -1,236 +1,327 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:title" content="Update Stock | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Update Stock</title>
 
-    <!-- Font Awesome -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
-    
-    <!-- Favicons -->
+
+    <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Inline CSS -->
     <style>
-        body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+        /* Ensure .row is visible */
+        .mil-banner-content .row {
+            display: flex;
+            visibility: visible;
+            opacity: 1;
+            max-height: none;
+            margin-top: 20px;
+        }
+        .mil-banner-content .col-md-7.col-lg-5 {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+        .mil-banner-content .col-md-7.col-lg-5 p {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            color: #fff;
+        }
+        /* Adjust .mil-frame-top to be fixed at top */
+        .mil-frame-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background: #fff;
+            height: 70px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+        }
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-main-menu {
+            display: flex;
             position: relative;
-            min-height: 100vh;
+        }
+        .mil-main-menu ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .mil-main-menu ul li {
+            position: relative;
+            margin: 0 10px;
+        }
+        .mil-main-menu ul li a {
+            color: #333;
+            text-decoration: none;
             font-size: 14px;
+            padding: 8px;
+            display: block;
+        }
+        .mil-main-menu ul li.mil-has-children > a::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 5px;
+            font-size: 10px;
+        }
+        .mil-main-menu ul li ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 180px;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .mil-main-menu ul li ul li {
             margin: 0;
         }
-        
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
+        .mil-main-menu ul li ul li a {
+            padding: 8px 12px;
+            color: #333;
+            font-size: 14px;
         }
-        
-        /* Sidebar */
-        .new-sidebar {
-            width: 250px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: darkcyan;
-            color: white;
-            padding: 60px 20px 20px 20px;
-            transition: width 0.3s ease, left 0.3s ease;
-            z-index: 3000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        .mil-main-menu ul li:hover > ul {
+            display: flex;
         }
-        
-        .new-sidebar.collapsed {
-            width: 80px;
+        .mil-main-menu ul li ul li:hover a {
+            background: #f5f5f5;
         }
-        
-        .new-sidebar.collapsed .logo img {
-            max-width: 50px;
-        }
-        
-        .new-sidebar.collapsed .greeting,
-        .new-sidebar.collapsed .nav-link span {
+        .mil-menu-btn {
             display: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
         }
-        
-        .new-sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px 5px;
-        }
-        
-        .new-sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-        
-        .new-sidebar .logo {
+        /* Style mil-frame-bottom to scroll with the page */
+        .mil-frame-bottom {
+            background: #1a1a1a;
+            padding: 10px;
             text-align: center;
-            margin-bottom: 20px;
+            color: #fff;
         }
-        
-        .new-sidebar .logo img {
-            max-width: 80%;
-            height: auto;
-            transition: max-width 0.3s ease;
+        .mil-frame-bottom .mil-back-to-top a {
+            color: #fff;
+            text-decoration: none;
         }
-        
-        .new-sidebar .greeting {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .new-sidebar .nav-link {
+        /* Search form and results */
+        .mil-subscribe-form {
+            position: relative;
             display: flex;
             align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: all 0.3s ease;
+            padding: 5px;
+            border-radius: 5px;
         }
-        
-        .new-sidebar .nav-link i {
-            margin-right: 10px;
-            font-size: 1rem;
-        }
-        
-        .new-sidebar .nav-link:hover {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-        }
-        
-        .new-sidebar .nav-link.active {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            font-weight: bold;
-        }
-        
-        /* Toggle Button */
-        .new-toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 3100;
-            background: rgb(235, 166, 17);
-            color: darkcyan;
+        .mil-subscribe-form input {
+            flex: 1;
             border: none;
-            border-radius: 50%;
+            background-color: beige;
+            padding: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .mil-subscribe-form button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        .mil-search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+        .mil-search-results.active {
+            display: block;
+        }
+        .mil-search-result-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-decoration: none;
+            color: #333;
+        }
+        .mil-search-result-item:hover {
+            background: #f5f5f5;
+        }
+        .mil-search-result-item img {
             width: 40px;
             height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
         }
-        
-        .new-sidebar.collapsed + .main-container .new-toggle-btn {
-            left: 20px;
+        .mil-search-result-item div {
+            flex: 1;
         }
-        
-        /* Main Container */
-        .main-container {
-            min-height: 100vh;
-            padding: 20px;
-            max-width: 1000px;
-            margin-left: 250px;
-            margin-right: 20px;
-            transition: margin-left 0.3s ease;
-            position: relative;
-            z-index: 1000;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        .mil-search-result-item h6 {
+            margin: 0;
+            font-size: 14px;
+            color: #333;
         }
-        
-        .new-sidebar.collapsed + .main-container {
-            margin-left: 80px;
+        .mil-search-result-item p {
+            margin: 0;
+            font-size: 12px;
+            color: #666;
         }
-        
-        /* Backdrop for mobile */
-        .new-sidebar.open + .main-container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
-        }
-        
-        .registration-container {
-            width: 100%;
-            padding: 20px;
-        }
-        
-        .registration-card {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .logo-container {
+        .mil-search-no-results {
+            padding: 10px;
             text-align: center;
-            margin-bottom: 15px;
-            padding-top: 15px;
+            color: #666;
+            font-size: 14px;
         }
-        
-        .logo-container img {
-            height: 50px;
+        /* Mobile Menu */
+        @media screen and (max-width: 991px) {
+            .mil-main-menu {
+                display: none;
+                width: 100%;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: #fff;
+                z-index: 999;
+            }
+            .mil-main-menu.active {
+                display: block;
+            }
+            .mil-main-menu ul {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .mil-main-menu ul li {
+                margin: 5px 0;
+            }
+            .mil-main-menu ul li ul {
+                position: static;
+                box-shadow: none;
+                display: none;
+            }
+            .mil-main-menu ul li.mil-has-children.active > ul {
+                display: flex;
+            }
+            .mil-menu-btn {
+                display: block;
+            }
+            .mil-subscribe-form {
+                width: 100%;
+            }
+            .mil-search-results {
+                width: 100%;
+            }
+        }
+        /* Content padding to avoid overlap with fixed header */
+        .mil-content {
+            padding-top: 80px;
+            padding-bottom: 30px;
+        }
+        /* Footer adjustments */
+        footer.mil-dark-bg {
+            padding-bottom: 0;
+        }
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            font-size: 16px !important;
+        }
+        .mil-soft-bg .mil-light-soft {
+            color: #333 !important;
+        }
+        .mil-banner-content, .mil-content, .mil-footer, .mil-about, .mil-services-grid {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .mil-up {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+        /* Add tick to all <li> elements */
+        li {
+            position: relative;
+            padding-left: 25px;
+        }
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #008B8B;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+        .mil-main-menu ul li::before,
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
+        }
+        .mil-menu-list li::before {
+            color: #fff;
+        }
+        .mil-accordion-content ol li {
+            padding-left: 30px;
             margin-bottom: 10px;
-            max-width: 100%;
         }
-        
-        .card-body {
-            padding: 20px;
+        .mil-accordion-content ol li::before {
+            font-size: 16px;
+            color: #008B8B;
         }
-        
-        .form-group {
+        /* Form styling */
+        .mil-form-group {
             margin-bottom: 15px;
         }
-        
-        .form-group label {
+        .mil-form-group label {
             color: #333;
             margin-bottom: 6px;
             display: block;
@@ -238,223 +329,278 @@
             font-size: 13px;
             padding-top: 10px;
         }
-        
-        .form-control {
+        .mil-form-control {
             background-color: white;
             border: 1px solid #ced4da;
-            color: #333;
+            color: #495057;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
             font-size: 13px;
             padding: 0.375rem 0.75rem;
-            height: 38px;
+            height: calc(1.5em + 0.75rem + 2px);
             width: 100%;
             box-sizing: border-box;
-            border-right: none;
+            border-radius: 4px;
+            text-transform: none !important;
         }
-        
-        .btn-create-account {
-            background-color: rgb(235, 166, 17); /* Primary button color */
-            color: #fff;
-            transition: all 0.3s ease;
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        .mil-form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -5px;
+            margin-left: -5px;
+        }
+        .mil-form-col {
+            flex: 1;
+            padding-right: 5px;
+            padding-left: 5px;
+            min-width: 0;
+        }
+        .mil-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+        }
+        .mil-alert i {
+            margin-right: 8px;
+        }
+        .mil-alert.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        /* Button styling */
+        .mil-button {
+            background-color: rgb(235, 166, 17);
+            color: #333;
             border: none;
-            font-weight: 500;
-            font-size: 14px;
             padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
         }
-        
-        .btn-create-account:hover {
-            background-color: rgb(200, 142, 14); /* Darker orange for hover */
-            color: #fff;
+        .mil-button:hover {
+            background-color: #fff;
+            color: rgb(235, 166, 17);
+            border: 2px solid rgb(235, 166, 17);
         }
-        
-        .btn-create-account.add-product-btn {
-            background-color: rgb(255, 204, 0); /* Bright yellow for Add Product */
+        .mil-button i {
+            margin-left: 8px;
+        }
+        .mil-button.add-product-btn {
+            background-color: rgb(255, 204, 0);
             color: #333;
         }
-        
-        .btn-create-account.add-product-btn:hover {
-            background-color: rgb(230, 184, 0); /* Darker yellow for hover */
+        .mil-button.add-product-btn:hover {
+            background-color: #fff;
+            color: rgb(255, 204, 0);
+            border: 2px solid rgb(255, 204, 0);
+        }
+        .mil-button.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        .mil-button.update-btn:hover {
+            background-color: #fff;
+            color: rgb(40, 167, 69);
+            border: 2px solid rgb(40, 167, 69);
+        }
+        .mil-button.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+        .mil-button.delete-btn:hover {
+            background-color: #fff;
+            color: rgb(220, 53, 69);
+            border: 2px solid rgb(220, 53, 69);
+        }
+        .mil-button.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        .mil-button.cancel-btn:hover {
+            background-color: #fff;
+            color: rgb(108, 117, 125);
+            border: 2px solid rgb(108, 117, 125);
+        }
+        .mil-button.search-button {
+            background-color: rgb(0, 123, 255);
+            color: #fff;
+            padding: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 0 4px 4px 0;
+        }
+        .mil-button.search-button:hover {
+            background-color: #fff;
+            color: rgb(0, 123, 255);
+            border: 2px solid rgb(0, 123, 255);
+        }
+        .mil-button.image-upload-btn {
+            background-color: rgb(111, 66, 193);
+            color: #fff;
+        }
+        .mil-button.image-upload-btn:hover {
+            background-color: #fff;
+            color: rgb(111, 66, 193);
+            border: 2px solid rgb(111, 66, 193);
+        }
+        .mil-button.share-store-btn {
+            background-color: rgb(23, 162, 184);
+            color: #fff;
+        }
+        .mil-button.share-store-btn:hover {
+            background-color: #fff;
+            color: rgb(23, 162, 184);
+            border: 2px solid rgb(23, 162, 184);
+        }
+        .mil-button.edit-btn {
+            background-color: rgb(255, 193, 7);
             color: #333;
         }
-        
-        .btn-create-account.update-btn {
-            background-color: rgb(40, 167, 69); /* Green for Update */
+        .mil-button.edit-btn:hover {
+            background-color: #fff;
+            color: rgb(255, 193, 7);
+            border: 2px solid rgb(255, 193, 7);
+        }
+        .mil-button.clear-btn {
+            background-color: rgb(52, 58, 64);
             color: #fff;
         }
-        
-        .btn-create-account.update-btn:hover {
-            background-color: rgb(34, 139, 57); /* Darker green for hover */
-            color: #fff;
+        .mil-button.clear-btn:hover {
+            background-color: #fff;
+            color: rgb(52, 58, 64);
+            border: 2px solid rgb(52, 58, 64);
         }
-        
-        .btn-create-account.delete-btn {
-            background-color: rgb(220, 53, 69); /* Red for Delete */
-            color: #fff;
+        /* Sidebar styling */
+        .mil-sidebar {
+            width: 250px;
+            background: #f8f8f8;
+            position: fixed;
+            top: 70px;
+            left: 0;
+            bottom: 0;
+            padding: 20px;
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
-        
-        .btn-create-account.delete-btn:hover {
-            background-color: rgb(200, 48, 63); /* Darker red for hover */
-            color: #fff;
+        .mil-sidebar.hidden {
+            transform: translateX(-100%);
         }
-        
-        .btn-create-account.cancel-btn {
-            background-color: rgb(108, 117, 125); /* Gray for Cancel */
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn:hover {
-            background-color: rgb(90, 98, 104); /* Darker gray for hover */
-            color: #fff;
-        }
-        
-        .btn-create-account.search-button {
-            background-color: rgb(0, 123, 255); /* Blue for Search */
-            color: #fff;
-            border: 1px solid #ced4da;
-            border-left: none;
-        }
-        
-        .btn-create-account.search-button:hover {
-            background-color: rgb(0, 105, 217); /* Darker blue for hover */
-            color: #fff;
-        }
-        
-        .btn-create-account.image-upload-btn {
-            background-color: rgb(111, 66, 193); /* Purple for Image Upload */
-            color: #fff;
-        }
-        
-        .btn-create-account.image-upload-btn:hover {
-            background-color: rgb(95, 56, 165); /* Darker purple for hover */
-            color: #fff;
-        }
-        
-        .btn-create-account.share-store-btn {
-            background-color: rgb(23, 162, 184); /* Cyan for Share Storefront */
-            color: #fff;
-        }
-        
-        .btn-create-account.share-store-btn:hover {
-            background-color: rgb(19, 138, 157); /* Darker cyan for hover */
-            color: #fff;
-        }
-        
-        .btn-create-account.edit-btn {
-            background-color: rgb(255, 193, 7); /* Amber for Edit */
-            color: #333;
-        }
-        
-        .btn-create-account.edit-btn:hover {
-            background-color: rgb(230, 174, 6); /* Darker amber for hover */
-            color: #333;
-        }
-        
-        .btn-create-account.clear-btn {
-            background-color: rgb(52, 58, 64); /* Dark gray for Clear */
-            color: #fff;
-        }
-        
-        .btn-create-account.clear-btn:hover {
-            background-color: rgb(44, 49, 54); /* Darker gray for hover */
-            color: #fff;
-        }
-        
-        .search-section {
+        .mil-sidebar .mil-logo-container {
+            text-align: center;
             margin-bottom: 20px;
         }
-        
-        .search-section form {
+        .mil-sidebar .mil-logo-container img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-sidebar h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .mil-sidebar a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+        }
+        .mil-sidebar a:hover {
+            background: rgb(235, 166, 17);
+            color: #fff;
+        }
+        .mil-sidebar a.active {
+            background: rgb(235, 166, 17);
+            color: #fff;
+            font-weight: bold;
+        }
+        /* Toggle button */
+        .mil-toggle-btn {
+            position: fixed;
+            top: 80px;
+            left: 10px;
+            background: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            z-index: 1002;
+        }
+        /* Main content */
+        .mil-main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        .mil-main-content.full-width {
+            margin-left: 0;
+        }
+        /* Table styling */
+        .mil-table-section table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .mil-table-section th,
+        .mil-table-section td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+            color: #333;
+        }
+        .mil-table-section th {
+            background: rgb(235, 166, 17);
+            color: #fff;
+            font-weight: 500;
+        }
+        .mil-table-section tr:hover {
+            background: #f5f5f5;
+        }
+        /* Search section */
+        .mil-search-section form {
             display: flex;
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
         }
-        
-        .search-section .form-group {
+        .mil-search-section .mil-form-group {
             flex: 1;
             margin-bottom: 0;
             position: relative;
         }
-        
-        .search-section .form-control {
+        .mil-search-section .mil-form-control {
             width: 100%;
             padding-right: 40px;
         }
-        
-        .search-section .btn-create-account {
-            width: auto;
-            min-width: 100px;
-        }
-        
-        .search-button {
-            position: absolute;
-            right: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 38px;
-            height: 38px;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .table-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        
-        .table th, .table td {
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            text-align: left;
-            color: #333;
-        }
-        
-        .table th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .table td {
-            background-color: white;
-        }
-        
-        .product-thumbnail {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 5px;
-        }
-        
+        /* Image preview */
         .image-preview-container {
             margin-bottom: 20px;
             text-align: center;
         }
-        
         .image-preview {
             max-width: 100px;
             max-height: 100px;
@@ -463,7 +609,6 @@
             margin: 5px;
             display: none;
         }
-        
         .image-placeholder {
             width: 200px;
             height: 100px;
@@ -476,106 +621,21 @@
             color: #777;
             margin: 0 auto;
         }
-        
-        .image-upload-btn {
-            display: block;
-            margin: 10px auto;
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .description-input {
-            height: 60px;
-            resize: vertical;
-        }
-        
         .image-previews {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             justify-content: center;
         }
-        
-        /* Modal Styles */
-        .modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-content h5 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        
-        .modal-content p {
-            color: #333;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        
-        .modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        /* Description cell styling */
-        .description-cell {
-            cursor: pointer;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .description-cell:hover {
-            color: #007bff;
-            text-decoration: underline;
-        }
-
-        /* Description modal styling */
-        .description-modal textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 10px;
-            border: 1px solid #ced4da;
+        .product-thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
             border-radius: 4px;
-            resize: vertical;
+            margin-right: 5px;
         }
-        
-        /* Description Modal Styles */
-        #descriptionModal {
+        /* Modal styling */
+        .mil-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -587,501 +647,625 @@
             align-items: center;
             justify-content: center;
         }
-
-        #descriptionModal .modal-content {
+        .mil-modal.active {
+            display: flex;
+        }
+        .mil-modal-content {
             background: white;
             padding: 20px;
             border-radius: 8px;
-            max-width: 500px;
+            max-width: 400px;
             width: 90%;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-
-        #descriptionModal textarea {
+        .mil-modal-content h5 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .mil-modal-content p {
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+        .mil-modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        /* Description modal */
+        .mil-description-modal textarea {
             width: 100%;
             min-height: 150px;
             padding: 10px;
             border: 1px solid #ced4da;
             border-radius: 4px;
             resize: vertical;
-            margin-bottom: 15px;
         }
-
-        #descriptionModal .modal-buttons {
+        /* Description cell */
+        .description-cell {
+            cursor: pointer;
+            max-width: 200px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .description-cell:hover {
+            color: #007bff;
+            text-decoration: underline;
+        }
+        /* Button group */
+        .mil-button-group {
             display: flex;
+            justify-content: center;
             gap: 10px;
-            justify-content: flex-end;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
-        
         /* Responsive Design */
         @media (max-width: 768px) {
-            .new-sidebar {
-                left: -250px;
+            .mil-sidebar {
+                width: 200px;
             }
-            
-            .new-sidebar.open {
-                left: 0;
+            .mil-main-content {
+                margin-left: 0;
             }
-            
-            .new-sidebar.open + .main-container::before {
-                display: block;
+            .mil-main-content.full-width {
+                margin-left: 0;
             }
-            
-            .main-container {
-                margin-left: 0 !important;
-                margin-right: 0;
-                width: 100%;
-                padding: 15px;
+            .mil-form-col {
+                flex: 0 0 100%;
+                max-width: 100%;
             }
-            
-            .registration-container {
-                padding: 15px;
-            }
-            
-            .form-group label {
+            .mil-form-group label {
                 font-size: 12px;
                 padding-top: 8px;
             }
-            
-            .form-control {
+            .mil-form-control {
                 font-size: 12px;
                 padding: 0.3rem 0.6rem;
-                height: 34px;
+                height: calc(1.5em + 0.6rem + 2px);
             }
-            
-            .btn-create-account {
+            .mil-button {
                 font-size: 13px;
                 padding: 8px 16px;
-                height: 34px;
             }
-            
-            .search-button {
-                width: 34px;
-                height: 34px;
-            }
-            
-            .table {
-                font-size: 12px;
+            .mil-table-section table {
                 display: block;
                 overflow-x: auto;
                 white-space: nowrap;
             }
-            
-            .table th, .table td {
+            .mil-table-section th,
+            .mil-table-section td {
+                font-size: 12px;
                 padding: 8px;
-                min-width: 100px; /* Ensure columns are wide enough */
+                min-width: 100px;
             }
-            
-            .table th:first-child, .table td:first-child {
-                min-width: 120px; /* Slightly wider for product name */
+            .mil-table-section th:first-child, .mil-table-section td:first-child {
+                min-width: 120px;
             }
-            
-            .table th:nth-child(2), .table td:nth-child(2) {
-                min-width: 90px; /* Wider for description */
+            .mil-table-section th:nth-child(2), .mil-table-section td:nth-child(2) {
+                min-width: 90px;
             }
-            
-            .table th:nth-child(3), .table td:nth-child(3) {
-                min-width: 120px; /* For images */
+            .mil-table-section th:nth-child(3), .mil-table-section td:nth-child(3) {
+                min-width: 120px;
             }
-            
-            .table th:nth-child(7), .table td:nth-child(7) {
-                min-width: 150px; /* Wider for action buttons */
+            .mil-table-section th:nth-child(7), .mil-table-section td:nth-child(7) {
+                min-width: 150px;
             }
-            
             .product-thumbnail {
                 width: 40px;
                 height: 40px;
             }
-            
-            .modal-content {
+            .mil-modal-content {
                 width: 95%;
             }
-        }
-    
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 10px;
-                width: 95%;
-                margin: 0 auto;
-            }
-            
-            .registration-container {
-                padding: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-            
-            .search-section form {
+            .mil-search-section form {
                 flex-direction: column;
                 gap: 10px;
                 align-items: stretch;
             }
-            
-            .search-section .form-group {
-                position: relative;
-                margin-bottom: 10px; /* Add space below the search input */
+            .mil-search-section .mil-form-group {
+                margin-bottom: 10px;
             }
-            
-            .search-section .form-control {
-                padding-right: 40px;
+            .mil-search-section .mil-form-control {
                 margin-bottom: 40px;
             }
-            
-            .search-section .btn-create-account {
-                width: 100%;
-                min-width: unset;
-            }
-
-            .search-section .btn-create-account.clear-btn {
-                margin-top: 10px; /* Add space above the clear button */
-            }
-            
-            .search-button {
-                position: absolute;
-                right: 0;
-                top: 50%;
-                transform: translateY(-50%);
-            }
-            
-            .action-buttons {
+            .mil-button-group {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
-            .table {
-                font-size: 12px;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            
-            .table th, .table td {
-                padding: 6px;
-                min-width: 90px; /* Slightly smaller but still wide enough */
-            }
-            
-            .table th:first-child, .table td:first-child {
-                min-width: 90px; /* Product name */
-            }
-            
-            .table th:nth-child(2), .table td:nth-child(2) {
-                min-width: 50px; /* Description */
-                max-width: 100px; /* Ensure it doesn't get too wide */
-                text-wrap: normal;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-            
-            .table th:nth-child(3), .table td:nth-child(3) {
-                min-width: 150px; /* Images */
-            }
-            
-            .table th:nth-child(7), .table td:nth-child(7) {
-                min-width: 90px; /* Action buttons */
-            }
-    
-            .table th:nth-child(6), .table td:nth-child(6) {
-                max-width: 60px; /* Commission */
-            }
-            
-            .product-thumbnail {
-                width: 35px;
-                height: 35px;
-            }
-            
-            .button-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .button-group .btn-create-account {
+            .mil-button-group .mil-button {
                 width: 100%;
             }
-            
-            .image-previews {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .modal-buttons {
+            .mil-modal-buttons {
                 flex-direction: column;
                 align-items: stretch;
             }
-            
-            .modal-buttons .btn-create-account {
+            .mil-modal-buttons .mil-button {
                 width: 100%;
             }
         }
+        @media screen and (max-width: 991px) {
+            .mil-main-menu ul li {
+                padding-left: 25px;
+            }
+            .mil-main-menu ul li::before {
+                content: '\f00c';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #008B8B;
+                position: absolute;
+                left: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 14px;
+            }
+            .mil-main-menu ul li ul li::before {
+                left: 15px;
+            }
+        }
     </style>
+
+    <title>Shed | Update Stock</title>
 </head>
+
 <body>
-    <!-- Sidebar -->
-    <nav class="new-sidebar" id="newSidebar">
-        <div class="logo">
-            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
         </div>
-        <div class="greeting">Welcome, <%= username %>!</div>
-        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-        <a href="/update-stock" class="nav-link active"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
-        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
-        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </nav>
+        <!-- scrollbar progress end -->
 
-    <!-- Toggle Button -->
-    <button class="new-toggle-btn" id="newToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+        <!-- frame top (header) -->
+        <div class="mil-frame-top">
+            <a href="/" class="mil-logo"><img src="/images/logo.png" alt="Shed Logo"></a>
+            <nav class="mil-main-menu" id="swupMenu">
+                <form class="mil-subscribe-form mil-up" style="background-color: beige;">
+                    <input type="text" placeholder="Search for a Shed" size="50">
+                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                    <div class="mil-search-results"></div>
+                </form>
+            </nav>
+            <div class="mil-menu-btn">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <!-- frame top end -->
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
-                        <h4 style="color: #333; font-size: 16px;">Update Stock for <%= admin.businessName || 'Your Business' %></h4>
-                        <p style="color: #333; font-size: 13px;">
-                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
-                        </p>
-                        <p style="text-align: center; color: #333; font-size: 13px; margin-top: 10px;">
-                            Store URL: <a href="<%= storeUrl %>" target="_blank"><%= storeUrl %></a>
-                        </p>
-                    </div>
+        <!-- sidebar -->
+        <div class="mil-sidebar" id="sidebar">
+            <div class="mil-logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+            </div>
+            <h2 class="mil-up">Welcome, <%= username %>!</h2>
+            <a href="/pos" class="mil-up"><i class="fas fa-shopping-bag"></i> Point of Sale</a>
+            <a href="/update-stock" class="mil-up active"><i class="fas fa-boxes"></i> Manage Inventory</a>
+            <a href="/invoices" class="mil-up"><i class="fas fa-file-invoice"></i> Generate Invoice</a>
+            <a href="/transactions" class="mil-up"><i class="fas fa-chart-bar"></i> View Transactions</a>
+            <a href="/customers" class="mil-up"><i class="fas fa-users"></i> Customers</a>
+            <a href="/home" class="mil-up"><i class="fas fa-store"></i> Manage Outlets</a>
+            <a href="/profile" class="mil-up"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
+        </div>
+        <!-- sidebar end -->
 
-                    <!-- Error/Success Messages -->
-                    <% if (error) { %>
-                        <div class="alert alert-danger" style="font-size: 13px;">
-                            <div class="container">
-                                <div class="alert-icon">
-                                    <i class="fa-solid fa-bell"></i>
-                                </div>
-                                <%= error %>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </span>
-                                </button>
-                            </div>
+        <!-- toggle button -->
+        <button class="mil-toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
                         </div>
-                    <% } %>
-                    <% if (success) { %>
-                        <div class="alert alert-success" style="font-size: 13px;">
-                            <div class="container">
-                                <div class="alert-icon">
-                                    <i class="fa-solid fa-check"></i>
-                                </div>
-                                <%= success %>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </span>
-                                </button>
-                            </div>
-                        </div>
-                    <% } %>
-
-                    <!-- Search Section -->
-                    <div class="search-section">
-                        <form method="GET" action="/update-stock">
-                            <div class="form-group">
-                                <label>Search Products <i class="fa-solid fa-search"></i></label>
-                                <div style="position: relative; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                    <div style="position: relative; flex: 1;">
-                                        <input type="text" name="search" class="form-control" placeholder="Search by product name" value="<%= search || '' %>">
-                                        <button type="submit" class="btn btn-round btn-create-account search-button">
-                                            <i class="fa-solid fa-search"></i>
-                                        </button>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Update </span>Stock</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Manage your inventory for <%= admin.businessName || 'Your Business' %>.</p>
                                     </div>
-                                    <% if (search) { %>
-                                        <a href="/update-stock" class="btn btn-round btn-create-account clear-btn">
-                                            Clear <i class="fa-solid fa-times"></i>
-                                        </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- main content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 mil-main-content" id="mainContent">
+                                <!-- Business Info -->
+                                <div class="mil-form-section mil-up">
+                                    <div class="mil-center">
+                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo" style="height: 50px; margin-bottom: 10px;">
+                                        <h4 style="color: #333; font-size: 16px;">Update Stock for <%= admin.businessName || 'Your Business' %></h4>
+                                        <p style="color: #333; font-size: 13px;">
+                                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                                        </p>
+                                        <p style="color: #333; font-size: 13px;">
+                                            Store URL: <a href="<%= storeUrl %>" target="_blank"><%= storeUrl %></a>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Error/Success Messages -->
+                                <% if (error) { %>
+                                    <div class="mil-alert mil-up">
+                                        <i class="fa-solid fa-bell"></i> <%= error %>
+                                    </div>
+                                <% } %>
+                                <% if (success) { %>
+                                    <div class="mil-alert success mil-up">
+                                        <i class="fa-solid fa-check"></i> <%= success %>
+                                    </div>
+                                <% } %>
+
+                                <!-- Search Section -->
+                                <div class="mil-search-section mil-up">
+                                    <form method="GET" action="/update-stock">
+                                        <div class="mil-form-group">
+                                            <label>Search Products <i class="fa-solid fa-search"></i></label>
+                                            <div style="position: relative; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                                <div style="position: relative; flex: 1;">
+                                                    <input type="text" name="search" class="mil-form-control" placeholder="Search by product name" value="<%= search || '' %>">
+                                                    <button type="submit" class="mil-button search-button">
+                                                        <i class="fa-solid fa-search"></i>
+                                                    </button>
+                                                </div>
+                                                <% if (search) { %>
+                                                    <a href="/update-stock" class="mil-button clear-btn">
+                                                        Clear <i class="fa-solid fa-times"></i>
+                                                    </a>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Form Section (Hidden by Default) -->
+                                <div class="mil-form-section mil-up" id="addProductForm" style="display: none;">
+                                    <h2 class="mil-mb-30">Add New Product</h2>
+                                    <form action="/add-product" method="POST" enctype="multipart/form-data">
+                                        <div class="mil-form-group">
+                                            <label>Product Name <i class="fa-solid fa-box"></i></label>
+                                            <input type="text" name="name" class="mil-form-control" placeholder="Product Name" required>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label>Description (max 400 characters) <i class="fa-solid fa-info-circle"></i></label>
+                                            <textarea name="description" class="mil-form-control description-input" placeholder="Product description" maxlength="400"></textarea>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label>Product Images (up to 4) <i class="fa-solid fa-camera"></i></label>
+                                            <div class="image-preview-container">
+                                                <div class="image-placeholder" id="imagePlaceholder">
+                                                    <span>No images selected</span>
+                                                </div>
+                                                <div class="image-previews" id="imagePreviews">
+                                                    <img id="imagePreview1" class="image-preview" src="#" alt="Product Preview 1">
+                                                    <img id="imagePreview2" class="image-preview" src="#" alt="Product Preview 2">
+                                                    <img id="imagePreview3" class="image-preview" src="#" alt="Product Preview 3">
+                                                    <img id="imagePreview4" class="image-preview" src="#" alt="Product Preview 4">
+                                                </div>
+                                                <input type="file" name="productImages" id="productImages" class="d-none" accept="image/*" multiple>
+                                                <button type="button" class="mil-button image-upload-btn" onclick="document.getElementById('productImages').click()">
+                                                    Choose Images <i class="fa-solid fa-upload"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label>Initial Stock <i class="fa-solid fa-cubes"></i></label>
+                                            <input type="number" name="stock" class="mil-form-control" placeholder="Initial Stock" min="0" required>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label>Cost <i class="fa-solid fa-money-bill"></i></label>
+                                            <input type="number" name="cost" class="mil-form-control" placeholder="Cost" min="0" step="0.01" required>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label>Commission % <i class="fa-solid fa-percentage"></i></label>
+                                            <input type="number" name="commission" class="mil-form-control" placeholder="Commission %" min="0" max="100" step="0.01">
+                                        </div>
+                                        <div class="mil-form-row mil-center">
+                                            <button type="submit" class="mil-button add-product-btn">
+                                                Add Product <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                            <button type="button" id="cancelAddBtn" class="mil-button cancel-btn">
+                                                Cancel <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Add Product and Share Storefront Buttons -->
+                                <div class="mil-button-group mil-up">
+                                    <button id="addProductBtn" class="mil-button add-product-btn">
+                                        Add Product <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                    <button id="shareStoreBtn" class="mil-button share-store-btn">
+                                        Invite Customers to your Store <i class="fa-solid fa-share-alt"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Table Section -->
+                                <div class="mil-table-section mil-up">
+                                    <% if (inventory && inventory.length > 0) { %>
+                                        <h2 class="mil-mb-30">Inventory</h2>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    <th>Product</th>
+                                                    <th>Description</th>
+                                                    <th>Images</th>
+                                                    <th>Stock</th>
+                                                    <th>Cost</th>
+                                                    <th>Commission</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <% inventory.forEach(item => { %>
+                                                    <tr id="row-<%= item._id %>">
+                                                        <td><%= item.name || 'N/A' %></td>
+                                                        <td class="description-cell" data-id="<%= item._id %>" data-description="<%= item.description || '' %>">
+                                                            <%= item.description ? (item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description) : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (item.images && item.images.length > 0) { %>
+                                                                <% item.images.forEach(image => { %>
+                                                                    <img src="<%= image %>" class="product-thumbnail" alt="<%= item.name || 'Product' %>">
+                                                                <% }) %>
+                                                            <% } else { %>
+                                                                No images
+                                                            <% } %>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" class="mil-form-control stock-input" value="<%= item.stock %>" min="0" disabled>
+                                                        </td>
+                                                        <td>
+                                                            <span class="cost-display"><%= admin.currency || '' %><%= formatCurrency(item.cost) %></span>
+                                                            <input type="number" class="mil-form-control cost-input" value="<%= item.cost %>" min="0" step="0.01" disabled style="display: none;">
+                                                        </td>
+                                                        <td>
+                                                            <span class="commission-display"><%= item.commission || '0' %>%</span>
+                                                            <input type="number" class="mil-form-control commission-input" value="<%= item.commission || '0' %>" min="0" max="100" step="0.01" disabled style="display: none;">
+                                                        </td>
+                                                        <td>
+                                                            <div class="mil-form-row">
+                                                                <button class="mil-button edit-btn" data-id="<%= item._id %>">
+                                                                    Edit <i class="fa-solid fa-edit"></i>
+                                                                </button>
+                                                                <form action="/update-stock" method="POST" class="update-form">
+                                                                    <input type="hidden" name="_id" value="<%= item._id %>">
+                                                                    <input type="hidden" name="stock" class="hidden-stock">
+                                                                    <input type="hidden" name="cost" class="hidden-cost">
+                                                                    <input type="hidden" name="commission" class="hidden-commission">
+                                                                    <input type="hidden" name="search" value="<%= search || '' %>">
+                                                                    <button type="submit" class="mil-button update-btn" style="display: none;">
+                                                                        Update <i class="fa-solid fa-check"></i>
+                                                                    </button>
+                                                                    <button type="button" class="mil-button cancel-btn" style="display: none;" data-stock="<%= item.stock %>" data-cost="<%= item.cost %>" data-commission="<%= item.commission || '0' %>">
+                                                                        Cancel <i class="fa-solid fa-times"></i>
+                                                                    </button>
+                                                                </form>
+                                                                <button class="mil-button delete-btn" data-id="<%= item._id %>" data-name="<%= item.name ? item.name.replace(/'/g, "\\'") : 'Item' %>">
+                                                                    Delete <i class="fa-solid fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    <% } else { %>
+                                        <p class="mil-center" style="color: #333;">No inventory items found.</p>
                                     <% } %>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
+                </section>
+            </div>
+        </div>
 
-                    <!-- Form Section (Hidden by Default) -->
-                    <div class="form-section" id="addProductForm" style="display: none;">
-                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Add New Product</h5>
-                        <form action="/add-product" method="POST" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label>Product Name <i class="fa-solid fa-box"></i></label>
-                                <input type="text" name="name" class="form-control" placeholder="Product Name" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Description (max 400 characters) <i class="fa-solid fa-info-circle"></i></label>
-                                <textarea name="description" class="form-control description-input" placeholder="Product description" maxlength="400"></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Product Images (up to 4) <i class="fa-solid fa-camera"></i></label>
-                                <div class="image-preview-container">
-                                    <div class="image-placeholder" id="imagePlaceholder">
-                                        <span>No images selected</span>
-                                    </div>
-                                    <div class="image-previews" id="imagePreviews">
-                                        <img id="imagePreview1" class="image-preview" src="#" alt="Product Preview 1">
-                                        <img id="imagePreview2" class="image-preview" src="#" alt="Product Preview 2">
-                                        <img id="imagePreview3" class="image-preview" src="#" alt="Product Preview 3">
-                                        <img id="imagePreview4" class="image-preview" src="#" alt="Product Preview 4">
-                                    </div>
-                                    <input type="file" name="productImages" id="productImages" class="d-none" accept="image/*" multiple>
-                                    <button type="button" class="btn btn-round btn-create-account image-upload-btn" onclick="document.getElementById('productImages').click()">
-                                        Choose Images <i class="fa-solid fa-upload"></i>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Initial Stock <i class="fa-solid fa-cubes"></i></label>
-                                <input type="number" name="stock" class="form-control" placeholder="Initial Stock" min="0" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Cost <i class="fa-solid fa-money-bill"></i></label>
-                                <input type="number" name="cost" class="form-control" placeholder="Cost" min="0" step="0.01" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Commission % <i class="fa-solid fa-percentage"></i></label>
-                                <input type="number" name="commission" class="form-control" placeholder="Commission %" min="0" max="100" step="0.01">
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-round btn-create-account add-product-btn">
-                                    Add Product <i class="fa-solid fa-plus"></i>
-                                </button>
-                                <button type="button" id="cancelAddBtn" class="btn btn-round btn-create-account cancel-btn">
-                                    Cancel <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Add Product and Storefront Buttons -->
-                    <div class="button-group">
-                        <button id="addProductBtn" class="btn btn-round btn-create-account add-product-btn">
-                            Add Product <i class="fa-solid fa-plus"></i>
-                        </button>
-                        <button id="shareStoreBtn" class="btn btn-round btn-create-account share-store-btn">
-                            Invite Customers to your Store <i class="fa-solid fa-share-alt"></i>
-                        </button>
-                    </div>
-                    
-
-                    <!-- Table Section -->
-                    <div class="table-section">
-                        <% if (inventory && inventory.length > 0) { %>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Description</th>
-                                        <th>Images</th>
-                                        <th>Stock</th>
-                                        <th>Cost</th>
-                                        <th>Commission</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% inventory.forEach(item => { %>
-                                        <tr id="row-<%= item._id %>">
-                                            <td><%= item.name || 'N/A' %></td>
-                                            <td class="description-cell" data-id="<%= item._id %>" data-description="<%= item.description || '' %>">
-                                                <%= item.description ? (item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description) : 'N/A' %>
-                                            </td>
-                                            <td>
-                                                <% if (item.images && item.images.length > 0) { %>
-                                                    <% item.images.forEach(image => { %>
-                                                        <img src="<%= image %>" class="product-thumbnail" alt="<%= item.name || 'Product' %>">
-                                                    <% }) %>
-                                                <% } else { %>
-                                                    No images
-                                                <% } %>
-                                            </td>
-                                            <td>
-                                                <input type="number" class="form-control stock-input" value="<%= item.stock %>" min="0" disabled>
-                                            </td>
-                                            <td>
-                                                <span class="cost-display"><%= admin.currency || '' %><%= formatCurrency(item.cost) %></span>
-                                                <input type="number" class="form-control cost-input" value="<%= item.cost %>" min="0" step="0.01" disabled style="display: none;">
-                                            </td>
-                                            <td>
-                                                <span class="commission-display"><%= item.commission || '0' %>%</span>
-                                                <input type="number" class="form-control commission-input" value="<%= item.commission || '0' %>" min="0" max="100" step="0.01" disabled style="display: none;">
-                                            </td>
-                                            <td>
-                                                <div class="action-buttons">
-                                                    <button class="btn btn-round btn-create-account edit-btn" data-id="<%= item._id %>">
-                                                        Edit <i class="fa-solid fa-edit"></i>
-                                                    </button>
-                                                    <form action="/update-stock" method="POST" class="update-form">
-                                                        <input type="hidden" name="_id" value="<%= item._id %>">
-                                                        <input type="hidden" name="stock" class="hidden-stock">
-                                                        <input type="hidden" name="cost" class="hidden-cost">
-                                                        <input type="hidden" name="commission" class="hidden-commission">
-                                                        <input type="hidden" name="search" value="<%= search || '' %>">
-                                                        <button type="submit" class="btn btn-round btn-create-account update-btn" style="display: none;">
-                                                            Update <i class="fa-solid fa-check"></i>
-                                                        </button>
-                                                        <button type="button" class="btn btn-round btn-create-account cancel-btn" style="display: none;" data-stock="<%= item.stock %>" data-cost="<%= item.cost %>" data-commission="<%= item.commission || '0' %>">
-                                                            Cancel <i class="fa-solid fa-times"></i>
-                                                        </button>
-                                                    </form>
-                                                    <button class="btn btn-round btn-create-account delete-btn" data-id="<%= item._id %>" data-name="<%= item.name ? item.name.replace(/'/g, "\\'") : 'Item' %>">
-                                                        Delete <i class="fa-solid fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        <% } else { %>
-                            <p style="text-align: center; color: #333;">No inventory items found.</p>
-                        <% } %>
-                    </div>
+        <!-- Description Modal -->
+        <div id="descriptionModal" class="mil-modal">
+            <div class="mil-modal-content">
+                <h5>Edit Description</h5>
+                <div class="mil-description-modal">
+                    <textarea id="descriptionTextarea" class="mil-form-control" maxlength="400"></textarea>
+                </div>
+                <div class="mil-modal-buttons">
+                    <button type="button" class="mil-button cancel-btn" id="cancelDescriptionEdit">
+                        Cancel <i class="fa-solid fa-times"></i>
+                    </button>
+                    <button type="button" class="mil-button update-btn" id="saveDescription">
+                        Save <i class="fa-solid fa-check"></i>
+                    </button>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Description Modal -->
-    <div id="descriptionModal" class="modal" style="display: none;">
-        <div class="modal-content">
-            <h5>Edit Description</h5>
-            <div class="description-modal">
-                <textarea id="descriptionTextarea" class="form-control" maxlength="400"></textarea>
+        <!-- footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-9">
+                                    <div class="mil-vert-between">
+                                        <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cancelDescriptionEdit">
-                    Cancel <i class="fa-solid fa-times"></i>
-                </button>
-                <button type="button" class="btn btn-round btn-create-account update-btn" id="saveDescription">
-                    Save <i class="fa-solid fa-check"></i>
-                </button>
+        </footer>
+        <!-- footer end -->
+
+        <!-- hidden elements -->
+        <div class="mil-hidden-elements">
+            <div class="mil-dodecahedron">
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
             </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+            </svg>
+            <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+            </svg>
         </div>
+        <!-- hidden elements end -->
     </div>
+    <!-- wrapper end -->
 
-    <!-- JavaScript Dependencies -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="/js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
 
+    <!-- Fallback for .row visibility -->
     <script>
-        // Table editing functions
+        document.addEventListener('DOMContentLoaded', () => {
+            const row = document.querySelector('.mil-banner-content .row');
+            if (row) {
+                row.style.display = 'flex';
+                row.style.visibility = 'visible';
+                row.style.opacity = '1';
+            }
+        });
+    </script>
+    <!-- Mobile Menu Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuBtn = document.querySelector('.mil-menu-btn');
+            const menu = document.querySelector('.mil-main-menu');
+            const menuItems = document.querySelectorAll('.mil-has-children');
+
+            menuBtn.addEventListener('click', () => {
+                menu.classList.toggle('active');
+            });
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (window.innerWidth < 992) {
+                        e.preventDefault();
+                        item.classList.toggle('active');
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Sidebar Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('toggleBtn');
+
+            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+            if (isSidebarHidden) {
+                sidebar.classList.add('hidden');
+                mainContent.classList.add('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.remove('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+            }
+
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('full-width');
+                toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+            });
+
+            function setSidebarState() {
+                if (sidebar.classList.contains('hidden')) {
+                    mainContent.classList.add('full-width');
+                } else {
+                    mainContent.classList.remove('full-width');
+                }
+            }
+            setSidebarState();
+            window.addEventListener('resize', setSidebarState);
+        });
+    </script>
+    <!-- Update Stock Scripts -->
+    <script>
         function toggleEdit(id) {
             const row = document.getElementById(`row-${id}`);
             if (!row) return;
@@ -1094,12 +1278,10 @@
             const updateBtn = row.querySelector('.update-btn');
             const cancelBtn = row.querySelector('.cancel-btn');
 
-            // Enable inputs
             stockInput.disabled = false;
             costInput.disabled = false;
             commissionInput.disabled = false;
 
-            // Toggle visibility
             costDisplay.style.display = 'none';
             costInput.style.display = 'inline-block';
             commissionDisplay.style.display = 'none';
@@ -1108,7 +1290,6 @@
             updateBtn.style.display = 'inline-block';
             cancelBtn.style.display = 'inline-block';
 
-            // Initialize hidden inputs
             updateHiddenInputs(id);
         }
 
@@ -1139,17 +1320,14 @@
             const updateBtn = row.querySelector('.update-btn');
             const cancelBtn = row.querySelector('.cancel-btn');
 
-            // Revert inputs using data attributes
             stockInput.value = cancelBtn.dataset.stock;
             costInput.value = cancelBtn.dataset.cost;
             commissionInput.value = cancelBtn.dataset.commission;
 
-            // Disable inputs
             stockInput.disabled = true;
             costInput.disabled = true;
             commissionInput.disabled = true;
 
-            // Toggle visibility
             costDisplay.textContent = '<%= admin.currency || '' %>' + Number(cancelBtn.dataset.cost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
             costDisplay.style.display = 'inline';
             costInput.style.display = 'none';
@@ -1163,31 +1341,30 @@
 
         function showDeleteModal(id, name) {
             const modal = document.createElement('div');
-            modal.className = 'modal';
+            modal.className = 'mil-modal active';
             modal.innerHTML = `
-                <div class="modal-content">
+                <div class="mil-modal-content">
                     <h5>Delete ${name}?</h5>
                     <p>Are you sure you want to delete this item? This action cannot be undone.</p>
-                    <div class="modal-buttons">
-                        <button class="btn btn-round btn-create-account cancel-btn" type="button">Cancel <i class="fa-solid fa-times"></i></button>
+                    <div class="mil-modal-buttons">
+                        <button class="mil-button cancel-btn" type="button">Cancel <i class="fa-solid fa-times"></i></button>
                         <form action="/delete-stock" method="POST">
                             <input type="hidden" name="_id" value="${id}">
                             <input type="hidden" name="search" value="<%= search || '' %>">
-                            <button type="submit" class="btn btn-round btn-create-account delete-btn">Delete <i class="fa-solid fa-trash"></i></button>
+                            <button type="submit" class="mil-button delete-btn">Delete <i class="fa-solid fa-trash"></i></button>
                         </form>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
 
-            // Add event listener for Cancel button
-            modal.querySelector('.modal-buttons button[type="button"]').addEventListener('click', () => {
+            modal.querySelector('.mil-modal-buttons button[type="button"]').addEventListener('click', () => {
                 modal.remove();
             });
         }
 
         function shareStorefrontLink() {
-            const storeUrl = `${window.location.origin}/store/<%= username %>`;
+            const storeUrl = `<%= baseUrl %>/store/<%= username %>`;
             if (navigator.share) {
                 navigator.share({
                     title: '<%= admin.businessName || "My Store" %> - Shop Now',
@@ -1204,7 +1381,6 @@
             }
         }
 
-        // Description modal functionality
         let currentDescriptionId = null;
 
         function showDescriptionModal(id, description) {
@@ -1212,12 +1388,12 @@
             const modal = document.getElementById('descriptionModal');
             const textarea = document.getElementById('descriptionTextarea');
             textarea.value = description || '';
-            modal.style.display = 'flex';
+            modal.classList.add('active');
         }
 
         function hideDescriptionModal() {
             const modal = document.getElementById('descriptionModal');
-            modal.style.display = 'none';
+            modal.classList.remove('active');
             currentDescriptionId = null;
         }
 
@@ -1227,7 +1403,6 @@
             const textarea = document.getElementById('descriptionTextarea');
             const newDescription = textarea.value;
             
-            // Update the display in the table
             const descriptionCell = document.querySelector(`.description-cell[data-id="${currentDescriptionId}"]`);
             if (descriptionCell) {
                 descriptionCell.dataset.description = newDescription;
@@ -1236,7 +1411,6 @@
                     'N/A';
             }
             
-            // Send update to server
             fetch('/update-description', {
                 method: 'POST',
                 headers: {
@@ -1266,8 +1440,6 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             try {
-                const sidebar = document.getElementById('newSidebar');
-                const toggleBtn = document.getElementById('newToggleBtn');
                 const addProductBtn = document.getElementById('addProductBtn');
                 const addProductForm = document.getElementById('addProductForm');
                 const cancelAddBtn = document.getElementById('cancelAddBtn');
@@ -1276,80 +1448,19 @@
                 const imagePlaceholder = document.getElementById('imagePlaceholder');
                 const shareStoreBtn = document.getElementById('shareStoreBtn');
 
-                let isCollapsed = false;
-                let isOpenOnMobile = false;
-
-                // Toggle sidebar
-                if (toggleBtn && sidebar) {
-                    toggleBtn.addEventListener('click', () => {
-                        if (window.innerWidth <= 768) {
-                            isOpenOnMobile = !isOpenOnMobile;
-                            if (isOpenOnMobile) {
-                                sidebar.classList.add('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                            } else {
-                                sidebar.classList.remove('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                            }
-                        } else {
-                            isCollapsed = !isCollapsed;
-                            if (isCollapsed) {
-                                sidebar.classList.add('collapsed');
-                            } else {
-                                sidebar.classList.remove('collapsed');
-                            }
-                        }
-                    });
-                }
-
-                // Close sidebar on outside click (mobile only)
-                document.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
-                            sidebar.classList.remove('open');
-                            isOpenOnMobile = false;
-                            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    }
-                });
-
-                // Set initial sidebar state
-                function setSidebarState() {
-                    if (!sidebar || !toggleBtn) return;
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.remove('collapsed');
-                        if (!isOpenOnMobile) {
-                            sidebar.classList.remove('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    } else {
-                        sidebar.classList.remove('open');
-                        isOpenOnMobile = false;
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        if (isCollapsed) {
-                            sidebar.classList.add('collapsed');
-                        } else {
-                            sidebar.classList.remove('collapsed');
-                        }
-                    }
-                }
-                setSidebarState();
-                window.addEventListener('resize', setSidebarState);
-
-                // Toggle Add Product form
                 if (addProductBtn && addProductForm) {
                     addProductBtn.addEventListener('click', () => {
                         addProductForm.style.display = 'block';
-                        document.querySelector('.button-group').style.display = 'none';
-                        document.querySelector('.search-section form').style.display = 'none';
+                        document.querySelector('.mil-button-group').style.display = 'none';
+                        document.querySelector('.mil-search-section form').style.display = 'none';
                     });
                 }
 
                 if (cancelAddBtn && addProductForm) {
                     cancelAddBtn.addEventListener('click', () => {
                         addProductForm.style.display = 'none';
-                        document.querySelector('.button-group').style.display = 'flex';
-                        document.querySelector('.search-section form').style.display = 'flex';
+                        document.querySelector('.mil-button-group').style.display = 'flex';
+                        document.querySelector('.mil-search-section form').style.display = 'flex';
                         addProductForm.querySelector('form').reset();
                         if (imagePreviewsContainer) {
                             for (let i = 1; i <= 4; i++) {
@@ -1365,7 +1476,6 @@
                     });
                 }
 
-                // Image preview
                 if (productImagesInput && imagePreviewsContainer && imagePlaceholder) {
                     productImagesInput.addEventListener('change', function(e) {
                         const files = e.target.files;
@@ -1399,7 +1509,6 @@
                     });
                 }
 
-                // Edit buttons
                 document.querySelectorAll('.edit-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const id = button.dataset.id;
@@ -1407,7 +1516,6 @@
                     });
                 });
 
-                // Cancel buttons
                 document.querySelectorAll('.cancel-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const id = button.closest('tr').id.replace('row-', '');
@@ -1415,7 +1523,6 @@
                     });
                 });
 
-                // Delete buttons
                 document.querySelectorAll('.delete-btn').forEach(button => {
                     button.addEventListener('click', () => {
                         const id = button.dataset.id;
@@ -1424,7 +1531,6 @@
                     });
                 });
 
-                // Update hidden inputs on change
                 document.querySelectorAll('.stock-input, .cost-input, .commission-input').forEach(input => {
                     input.addEventListener('change', function() {
                         const row = this.closest('tr');
@@ -1435,7 +1541,6 @@
                     });
                 });
 
-                // Client-side validation for updates
                 document.querySelectorAll('.update-form').forEach(form => {
                     form.addEventListener('submit', (e) => {
                         const stockInput = form.querySelector('.stock-input');
@@ -1460,19 +1565,16 @@
                     });
                 });
 
-                // Share storefront
                 if (shareStoreBtn) {
                     shareStoreBtn.addEventListener('click', shareStorefrontLink);
                 }
 
-                // Description cell click handlers
                 document.querySelectorAll('.description-cell').forEach(cell => {
                     cell.addEventListener('click', () => {
                         showDescriptionModal(cell.dataset.id, cell.dataset.description);
                     });
                 });
 
-                // Description modal buttons
                 document.getElementById('cancelDescriptionEdit')?.addEventListener('click', hideDescriptionModal);
                 document.getElementById('saveDescription')?.addEventListener('click', saveDescription);
             } catch (error) {
@@ -1480,5 +1582,11 @@
             }
         });
     </script>
+    <script>
+        if (navigator.serviceWorker) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
 </body>
+
 </html>

@@ -16,6 +16,10 @@ const { setupBroadcastRoute } = require('./utils/emailBroadcast');
 const app = express();
 const port = 3000;
 
+// Load environment variables
+require('dotenv').config();
+const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'; // Fallback to localhost for dev
+
 // MongoDB connection details from .env
 const uri = process.env.MONGO_URI;
 const dbName = process.env.DB_NAME;
@@ -358,7 +362,7 @@ app.get('/referrals/dashboard', isAffiliateAuthenticated, async (req, res) => {
       return res.redirect('/referrals/login');
     }
 
-    const referralLink = `http://localhost:3000/admin-register?ref=${affiliate.referralCode}`;
+    const referralLink = process.env.BASE_URL`/admin-register?ref=${affiliate.referralCode}`;
     const activities = await db.collection('referral_activities')
       .find({ affiliateId: affiliate._id })
       .sort({ date: -1 })
@@ -982,6 +986,8 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 });
 
 
+// Middleware to trust proxy headers (important for production behind proxies)
+app.set('trust proxy', true);
 
 // GET /update-stock
 app.get('/update-stock', isAuthenticated, async (req, res) => {
@@ -1003,17 +1009,22 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       .toArray();
 
     const username = req.session.admin;
-    
-    // Define store URL
-    const storeUrl = `${req.protocol}://${req.get('host')}/store/${username}`;
-    
+
+    // Define baseUrl from environment variable or dynamically from headers
+    const baseUrl = process.env.BASE_URL || 
+                    `${req.headers['x-forwarded-proto'] || req.protocol}://${req.headers['x-forwarded-host'] || req.get('host')}`;
+
+    // Define store URL using baseUrl
+    const storeUrl = `${baseUrl}/store/${username}`;
+
     res.render('update-stock', { 
       inventory, 
       admin, 
       username, 
       formatCurrency,
       search: search || '',
-      storeUrl, // Add storeUrl to template data
+      storeUrl,
+      baseUrl, // Pass baseUrl to template for shareStorefrontLink
       error: null,
       success: null
     });
@@ -1026,6 +1037,7 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
       formatCurrency,
       search: '',
       storeUrl: '', // Provide empty storeUrl in case of error
+      baseUrl: process.env.BASE_URL || 'https://yourdomain.com', // Fallback baseUrl
       error: 'Failed to load inventory. Please try again.',
       success: null
     });
