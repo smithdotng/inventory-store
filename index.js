@@ -322,6 +322,12 @@ app.post('/referrals/signup', async (req, res) => {
 
     const result = await db.collection('affiliates').insertOne(affiliate);
 
+    // Construct baseUrl and referral link
+    const baseUrl = process.env.BASE_URL || 
+                    `${req.headers['x-forwarded-proto'] || req.protocol}://${req.headers['x-forwarded-host'] || req.get('host')}`;
+    const referralLink = `${baseUrl}/admin-register?ref=${referralCode}`;
+    const dashboardLink = `${baseUrl}/referrals/dashboard?utm_source=welcome_email&utm_medium=email&utm_campaign=affiliate_onboarding`;
+
     // Start broadcast log for email
     broadcastLog = await db.collection('broadcast_logs').insertOne({
       type: 'affiliate_welcome',
@@ -340,14 +346,27 @@ app.post('/referrals/signup', async (req, res) => {
       const mailOptions = {
         from: `"Shed Affiliate Programme" <${process.env.EMAIL_USER}>`,
         to: email,
-        subject: '🎉 Welcome to Our Affiliate Program!',
+        subject: '🎉 Welcome to the Shed Affiliate Program!',
         html: `
-          <h1>Congratulations on Joining Our Affiliate Program!</h1>
-          <p>Dear ${firstName} ${lastName},</p>
-          <p>We're thrilled to welcome you to our affiliate family! This is an exciting opportunity for you to earn cash rewards and exclusive non-cash benefits by promoting our products/services.</p>
-          <p>Your unique referral code is: <strong>${referralCode}</strong></p>
-          <p>Start sharing your referral code today and watch your rewards grow!</p>
-          <p>Best regards,<br>Shed Affiliate Team</p>
+          <div style="font-family:Arial,sans-serif;color:#333;padding:20px;max-width:600px;margin:auto;">
+            <img src="${baseUrl}/images/logo.png" alt="Shed Logo" style="width:150px;margin-bottom:20px;">
+            <h1 style="color:#eba611;">Welcome to the Shed Affiliate Program!</h1>
+            <p>Dear ${firstName} ${lastName},</p>
+            <p>Congratulations on joining our affiliate family! You're now part of an exciting opportunity to earn cash rewards and exclusive perks, like VIP event access, by sharing our platform with your network.</p>
+            <p>Your unique referral link is: <a href="${referralLink}" style="color:#eba611;text-decoration:underline;"><strong>${referralLink}</strong></a></p>
+            <p><a href="#" onclick="navigator.clipboard.writeText('${referralLink}');alert('Link copied!');" style="background:#eba611;color:#333;padding:8px 16px;text-decoration:none;border-radius:4px;display:inline-block;">Copy Referral Link</a></p>
+            <p>Share this link to start driving signups and watch your rewards grow!</p>
+            <p>Curious about your impact? Your <a href="${dashboardLink}" style="color:#eba611;text-decoration:underline;">Affiliate Dashboard</a> shows your clicks, signups, and progress in real-time. Sign in to track how your reach is performing and see your success unfold!</p>
+            <h2 style="color:#333;margin-top:20px;">Get Started with These Tips</h2>
+            <ul style="line-height:1.6;">
+              <li>Share your referral link on social media, blogs, or email campaigns.</li>
+              <li>Check your <a href="${dashboardLink}" style="color:#eba611;text-decoration:underline;">dashboard</a> weekly to monitor clicks and signups.</li>
+              <li>Contact us for exclusive promotional materials to boost your reach!</li>
+            </ul>
+            <p>We're here to support your success. Get started today and let’s grow together!</p>
+            <p>Best regards,<br>The Shed Affiliate Team</p>
+            <p style="font-size:12px;color:#666;margin-top:20px;">Need help? Contact us at <a href="mailto:hello@shed.ng" style="color:#eba611;text-decoration:underline;">support@shed.ng</a></p>
+          </div>
         `
       };
 
@@ -874,24 +893,7 @@ app.get('/superadmin/affiliates', isAuthenticated, isSuperAdmin, async (req, res
   }
 });
 
-app.get('/referral/:code', async (req, res) => {
-  try {
-    const { code } = req.params;
-    const affiliate = await db.collection('affiliates').findOne({ referralCode: code });
-    if (affiliate) {
-      await db.collection('clicks').insertOne({
-        affiliateId: affiliate._id,
-        clickTime: new Date()
-      });
-      res.redirect('/signup'); // Redirect to your signup page
-    } else {
-      res.status(404).send('Invalid referral code');
-    }
-  } catch (err) {
-    console.error('Error tracking click:', err);
-    res.status(500).send('Internal Server Error');
-  }
-});
+
 
 
 
