@@ -39,7 +39,7 @@
 
     <!-- Inline CSS -->
     <style>
-        /* Ensure .row is visible */
+        /* Existing styles unchanged */
         .mil-banner-content .row {
             display: flex;
             visibility: visible;
@@ -58,7 +58,6 @@
             opacity: 1;
             color: #fff;
         }
-        /* Adjust .mil-frame-top to be fixed at top */
         .mil-frame-top {
             display: flex;
             align-items: center;
@@ -135,7 +134,6 @@
             font-size: 20px;
             color: #333;
         }
-        /* Style mil-frame-bottom to scroll with the page */
         .mil-frame-bottom {
             background: #1a1a1a;
             padding: 10px;
@@ -146,7 +144,6 @@
             color: #fff;
             text-decoration: none;
         }
-        /* Search form and results */
         .mil-subscribe-form {
             position: relative;
             display: flex;
@@ -219,7 +216,6 @@
             color: #666;
             font-size: 14px;
         }
-        /* Mobile Menu */
         @media screen and (max-width: 991px) {
             .mil-main-menu {
                 display: none;
@@ -258,12 +254,10 @@
                 width: 100%;
             }
         }
-        /* Content padding to avoid overlap with fixed header */
         .mil-content {
             padding-top: 80px;
             padding-bottom: 30px;
         }
-        /* Footer adjustments */
         footer.mil-dark-bg {
             padding-bottom: 0;
         }
@@ -285,7 +279,6 @@
             transform: none !important;
             opacity: 1 !important;
         }
-        /* Add tick to all <li> elements */
         li {
             position: relative;
             padding-left: 25px;
@@ -317,7 +310,6 @@
             font-size: 16px;
             color: #008B8B;
         }
-        /* Form styling */
         .mil-form-group {
             margin-bottom: 15px;
         }
@@ -372,7 +364,6 @@
         .mil-alert i {
             margin-right: 8px;
         }
-        /* Button styling */
         .mil-button {
             background-color: rgb(235, 166, 17);
             color: #333;
@@ -395,7 +386,6 @@
         .mil-button i {
             margin-left: 8px;
         }
-        /* Sidebar styling */
         .mil-sidebar {
             width: 250px;
             background: #f8f8f8;
@@ -439,7 +429,6 @@
             background: rgb(235, 166, 17);
             color: #fff;
         }
-        /* Toggle button */
         .mil-toggle-btn {
             position: fixed;
             top: 80px;
@@ -453,7 +442,6 @@
             border-radius: 4px;
             z-index: 1002;
         }
-        /* Main content */
         .mil-main-content {
             margin-left: 250px;
             padding: 20px;
@@ -462,7 +450,6 @@
         .mil-main-content.full-width {
             margin-left: 0;
         }
-        /* Table styling */
         .mil-table-section table {
             width: 100%;
             border-collapse: collapse;
@@ -486,7 +473,6 @@
         .mil-table-section tr:hover {
             background: #f5f5f5;
         }
-        /* Share menu styling */
         .mil-share-menu {
             position: absolute;
             top: 100%;
@@ -520,7 +506,44 @@
         .mil-share-menu a i {
             margin-right: 8px;
         }
-        /* Responsive Design */
+        .mil-summary-section {
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .mil-summary-section h2 {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .mil-summary-stats {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .mil-stat-card {
+            flex: 1;
+            min-width: 120px;
+            text-align: center;
+            padding: 15px;
+            border-radius: 4px;
+            background: #f8f8f8;
+        }
+        .mil-stat-card h3 {
+            font-size: 24px;
+            color: rgb(235, 166, 17);
+            margin: 0 0 10px;
+            font-weight: 600;
+        }
+        .mil-stat-card p {
+            font-size: 14px;
+            color: #333;
+            margin: 0;
+        }
         @media (max-width: 768px) {
             .mil-sidebar {
                 width: 200px;
@@ -555,6 +578,10 @@
             }
             .mil-share-menu {
                 min-width: 150px;
+            }
+            .mil-summary-stats {
+                flex-direction: column;
+                gap: 15px;
             }
         }
         @media screen and (max-width: 991px) {
@@ -658,6 +685,21 @@
                                         <i class="fa-solid fa-bell"></i> <%= error %>
                                     </div>
                                 <% } %>
+                                <!-- Performance Summary -->
+                                <div class="mil-summary-section mil-up">
+                                    <h2 class="mil-mb-30">Performance Summary</h2>
+                                    <div class="mil-summary-stats">
+                                        <div class="mil-stat-card">
+                                            <h3><%= clickCount %></h3>
+                                            <p>Clicks</p>
+                                        </div>
+                                        <div class="mil-stat-card">
+                                            <h3><%= signupCount %></h3>
+                                            <p>Signups</p>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Referral Link -->
                                 <div class="mil-form-section mil-up">
                                     <h2 class="mil-mb-30">Your Referral Link</h2>
@@ -832,7 +874,6 @@
                 menu.classList.toggle('active');
             });
 
-            // Toggle submenus on mobile
             menuItems.forEach(item => {
                 item.addEventListener('click', (e) => {
                     if (window.innerWidth < 992) {
@@ -850,8 +891,14 @@
             const mainContent = document.getElementById('mainContent');
             const toggleBtn = document.getElementById('toggleBtn');
 
-            // Load saved sidebar state
-            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+            // Default to sidebar visible unless user toggles it during session
+            let isSidebarHidden = false; // Default state: sidebar visible
+            const savedState = localStorage.getItem('sidebarHidden');
+            if (savedState !== null) {
+                isSidebarHidden = savedState === 'true';
+            }
+
+            // Apply initial state
             if (isSidebarHidden) {
                 sidebar.classList.add('hidden');
                 mainContent.classList.add('full-width');
@@ -866,8 +913,9 @@
             toggleBtn.addEventListener('click', () => {
                 sidebar.classList.toggle('hidden');
                 mainContent.classList.toggle('full-width');
-                toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
-                localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+                isSidebarHidden = sidebar.classList.contains('hidden');
+                toggleBtn.innerHTML = isSidebarHidden ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                localStorage.setItem('sidebarHidden', isSidebarHidden);
             });
 
             // Adjust layout on resize
@@ -882,13 +930,24 @@
             window.addEventListener('resize', setSidebarState);
         });
     </script>
+    <!-- Reset Sidebar on Logout -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check for resetSidebar query parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('resetSidebar') === 'true') {
+                localStorage.removeItem('sidebarHidden');
+                // Clean up URL to avoid repeated resets
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+    </script>
     <!-- Share Referral Link -->
     <script>
         function shareReferralLink(link) {
             const shareMenu = document.getElementById('shareMenu');
             const shareText = 'Join an elite network of vendors and businesses! Create your Shed with my referral link to expand your market reach:';
 
-            // Check if Web Share API is supported
             if (navigator.share) {
                 navigator.share({
                     title: 'Join Shed with My Referral Link',
@@ -896,7 +955,6 @@
                     url: link
                 }).catch(err => console.error('Error sharing:', err));
             } else {
-                // Toggle custom share menu
                 shareMenu.classList.toggle('active');
             }
         }
@@ -954,7 +1012,6 @@
             document.getElementById('shareMenu').classList.remove('active');
         }
 
-        // Close share menu when clicking outside
         document.addEventListener('click', (e) => {
             const shareMenu = document.getElementById('shareMenu');
             const shareButton = e.target.closest('.mil-button');
@@ -964,7 +1021,6 @@
         });
     </script>
     <script>
-        // Service Worker
         if (navigator.serviceWorker) {
             navigator.serviceWorker.register('/sw.js', { scope: '/' });
         }

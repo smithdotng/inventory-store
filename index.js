@@ -469,49 +469,79 @@ app.post('/referrals/login', async (req, res) => {
 
 app.get('/referrals/dashboard', isAffiliateAuthenticated, async (req, res) => {
   try {
-      // Fetch affiliate from database using session data
-      const affiliate = await db.collection('affiliates').findOne({ _id: new ObjectId(req.session.affiliate) });
-      
-      // Handle case where affiliate is not found
-      if (!affiliate) {
-          req.session.destroy(); // Clear invalid session
-          return res.redirect('/referrals/login?error=Affiliate not found');
-      }
+    // Fetch affiliate from database using session data
+    const affiliate = await db.collection('affiliates').findOne({ _id: new ObjectId(req.session.affiliate) });
 
-      // Construct baseUrl from environment variable or headers
-      const baseUrl = process.env.BASE_URL || 
-                      `${req.headers['x-forwarded-proto'] || req.protocol}://${req.headers['x-forwarded-host'] || req.get('host')}`;
+    // Handle case where affiliate is not found
+    if (!affiliate) {
+      req.session.destroy(); // Clear invalid session
+      return res.redirect('/referrals/login?error=Affiliate not found');
+    }
 
-      // Construct referral link
-      const referralLink = `${baseUrl}/admin-register?ref=${affiliate.referralCode || affiliate._id}`;
+    // Construct baseUrl from environment variable or headers
+    const baseUrl = process.env.BASE_URL || 
+                    `${req.headers['x-forwarded-proto'] || req.protocol}://${req.headers['x-forwarded-host'] || req.get('host')}`;
 
-      // Fetch referral activities
-      const activities = await db.collection('referral_activities')
-          .find({ affiliateId: affiliate._id })
-          .sort({ date: -1 })
-          .toArray();
+    // Construct referral link
+    const referralLink = `${baseUrl}/admin-register?ref=${affiliate.referralCode || affiliate._id}`;
 
-      res.render('referrals-dashboard', {
-          affiliate,
-          referralLink,
-          activities,
-          sidebarVisible: true, // Initial sidebar state
-          error: null // No error by default
-      });
+    // Fetch referral activities
+    const activities = await db.collection('referral_activities')
+      .find({ affiliateId: affiliate._id })
+      .sort({ date: -1 })
+      .toArray();
+
+    // Aggregate click count (Referral Link Clicked)
+    const clickCountResult = await db.collection('referral_activities')
+      .aggregate([
+        { $match: { affiliateId: affiliate._id, action: 'Referral Link Clicked' } },
+        { $count: 'clickCount' }
+      ])
+      .toArray();
+    const clickCount = clickCountResult.length > 0 ? clickCountResult[0].clickCount : 0;
+
+    // Aggregate signup count (New Admin Signup)
+    const signupCountResult = await db.collection('referral_activities')
+      .aggregate([
+        { $match: { affiliateId: affiliate._id, action: 'New Admin Signup' } },
+        { $count: 'signupCount' }
+      ])
+      .toArray();
+    const signupCount = signupCountResult.length > 0 ? signupCountResult[0].signupCount : 0;
+
+    res.render('referrals-dashboard', {
+      affiliate,
+      referralLink,
+      activities,
+      clickCount,
+      signupCount,
+      sidebarVisible: true,
+      error: null
+    });
   } catch (error) {
-      console.error('Error loading affiliate dashboard:', error);
-      res.render('referrals-dashboard', {
-          affiliate: null, // Define affiliate as null
-          referralLink: '',
-          activities: [],
-          sidebarVisible: true,
-          error: 'An unexpected error occurred. Please try again later.'
-      });
+    console.error('Error loading affiliate dashboard:', error);
+    res.render('referrals-dashboard', {
+      affiliate: null,
+      referralLink: '',
+      activities: [],
+      clickCount: 0,
+      signupCount: 0,
+      sidebarVisible: true,
+      error: 'An unexpected error occurred. Please try again later.'
+    });
   }
 });
 
 app.get('/referrals/logout', (req, res) => {
-  req.session.destroy(() => res.redirect('/referrals/login'));
+  // Destroy the session
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+      return res.redirect('/referrals/dashboard?error=Logout failed');
+    }
+    // Redirect to login page with a query parameter to trigger sidebar reset
+    res.redirect('/referrals/login?resetSidebar=true');
+  });
 });
 
 
