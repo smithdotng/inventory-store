@@ -1,566 +1,640 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:title" content="Confirm Transaction | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Confirm Transaction</title>
 
-    <!-- Font Awesome -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
 
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
-
-    <!-- Favicons -->
+    <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Inline CSS -->
     <style>
-        body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+        /* Banner starts at top */
+        .mil-banner {
+            margin-top: 0;
+            padding-top: 0;
             position: relative;
-            min-height: 100vh;
-            font-size: 14px;
-            margin: 0;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
         }
-
-        body::before {
-            content: '';
+        /* Content padding */
+        .mil-content {
+            padding-bottom: 30px;
+        }
+        /* Footer adjustments */
+        footer.mil-dark-bg {
+            padding-bottom: 0;
+        }
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            font-size: 16px !important;
+        }
+        .mil-soft-bg .mil-light-soft {
+            color: #333 !important;
+        }
+        .mil-banner-content, .mil-content, .mil-footer, .mil-about {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .mil-up {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+        /* Add tick to all <li> elements */
+        li {
+            position: relative;
+            padding-left: 25px;
+        }
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #008B8B;
             position: absolute;
-            top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
         }
-
-        /* Sidebar */
-        .new-sidebar {
-            width: 250px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: darkcyan;
-            color: white;
-            padding: 60px 20px 20px 20px;
-            transition: width 0.3s ease, left 0.3s ease;
-            z-index: 3000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
         }
-
-        .new-sidebar.collapsed {
-            width: 80px;
+        .mil-menu-list li::before {
+            color: #fff;
         }
-
-        .new-sidebar.collapsed .logo img {
-            max-width: 50px;
+        /* Form styling */
+        .mil-form-group {
+            margin-bottom: 15px;
         }
-
-        .new-sidebar.collapsed .greeting,
-        .new-sidebar.collapsed .nav-link span {
-            display: none;
+        .mil-form-group label {
+            color: #333;
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            padding-top: 10px;
         }
-
-        .new-sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px 5px;
-        }
-
-        .new-sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-
-        .new-sidebar .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .new-sidebar .logo img {
-            max-width: 80%;
-            height: auto;
-            transition: max-width 0.3s ease;
-        }
-
-        .new-sidebar .greeting {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 20px;
-            color: white;
-        }
-
-        .new-sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 12px 15px;
-            margin-bottom: 5px;
+        .mil-form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #495057;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 13px;
+            padding: 0.375rem 0.75rem;
+            height: calc(1.5em + 0.75rem + 2px);
+            width: 100%;
+            box-sizing: border-box;
             border-radius: 4px;
-            text-decoration: none;
+            text-transform: none !important;
+        }
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        /* Button styling */
+        .mil-button {
+            background-color: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            font-size: 10px;
+            font-weight: 500;
+            border-radius: 5px;
+            cursor: pointer;
             transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .new-sidebar .nav-link i {
-            margin-right: 10px;
-            font-size: 1rem;
+        .mil-button:hover {
+            background-color: #fff;
+            color: rgb(235, 166, 17);
+            border: 2px solid rgb(235, 166, 17);
         }
-
-        .new-sidebar .nav-link:hover {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
+        .mil-button i {
+            margin-left: 8px;
         }
-
-        .new-sidebar .nav-link.active {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
+        .mil-button.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        .mil-button.update-btn:hover {
+            background-color: #fff;
+            color: rgb(40, 167, 69);
+            border: 2px solid rgb(40, 167, 69);
+        }
+        .mil-button.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        .mil-button.cancel-btn:hover {
+            background-color: #fff;
+            color: rgb(108, 117, 125);
+            border: 2px solid rgb(108, 117, 125);
+        }
+        /* Sidebar styling */
+        .mil-wrapper .mil-sidebar {
+            width: 250px;
+            background-color: #f8f8f8 !important;
+            opacity: 1 !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            padding: 20px;
+            z-index: 1001;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .mil-wrapper .mil-sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        .mil-wrapper .mil-sidebar * {
+            background-color: transparent !important;
+            opacity: 1 !important;
+        }
+        .mil-wrapper .mil-sidebar .mil-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar .mil-logo-container img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-wrapper .mil-sidebar h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar a:hover {
+            background: rgb(235, 166, 17) !important;
+            color: #fff;
+        }
+        .mil-wrapper .mil-sidebar a.active {
+            background: rgb(235, 166, 17) !important;
+            color: #fff;
             font-weight: bold;
         }
-
-        /* Toggle Button */
-        .new-toggle-btn {
+        /* Toggle button */
+        .mil-toggle-btn {
             position: fixed;
             top: 10px;
             left: 10px;
-            z-index: 3100;
             background: rgb(235, 166, 17);
-            color: darkcyan;
+            color: #333;
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            padding: 8px 12px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
+            border-radius: 4px;
+            z-index: 1002;
         }
-
-        .new-sidebar.collapsed + .main-container .new-toggle-btn {
-            left: 20px;
-        }
-
-        /* Main Container */
-        .main-container {
-            min-height: 100vh;
+        /* Main content */
+        .mil-main-content {
             padding: 20px;
-            max-width: 1000px;
-            margin-left: 250px;
-            margin-right: 20px;
             transition: margin-left 0.3s ease;
-            position: relative;
-            z-index: 1000;
+            width: 100%;
+            box-sizing: border-box;
             background-color: white;
             border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-
-        .new-sidebar.collapsed + .main-container {
-            margin-left: 80px;
+        .mil-main-content.full-width {
+            margin-left: 0;
         }
-
-        /* Backdrop for mobile */
-        .new-sidebar.open + .main-container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
+        /* Center the main content container */
+        .mil-about .container {
+            display: flex;
+            justify-content: center;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 15px;
+            padding-right: 15px;
         }
-
-        .registration-container {
-            width: 100%;
-            padding: 20px;
+        .mil-sidebar:not(.hidden) ~ .mil-content .mil-about .container {
+            margin-left: calc(250px + ((100% - 250px - 800px) / 2));
+            margin-right: auto;
         }
-
-        .registration-card {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #e0e0e0;
+        .mil-sidebar.hidden ~ .mil-content .mil-about .container {
+            margin-left: auto;
+            margin-right: auto;
         }
-
-        .logo-container {
-            text-align: center;
-            margin-bottom: 15px;
-            padding-top: 15px;
-        }
-
-        .logo-container img {
-            height: 50px;
-            margin-bottom: 10px;
-            max-width: 100%;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .transaction-details {
-            background: white;
+        /* Transaction details */
+        .mil-transaction-details {
+            background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-
-        .transaction-details p {
+        .mil-transaction-details p {
             margin: 10px 0;
             font-size: 13px;
             color: #333;
             display: flex;
             align-items: center;
         }
-
-        .transaction-details p strong {
+        .mil-transaction-details p strong {
             width: 150px;
             font-weight: 500;
             color: #333;
         }
-
-        .transaction-details h5 {
+        .mil-transaction-details h5 {
             color: #333;
             font-size: 14px;
             margin-top: 20px;
             margin-bottom: 15px;
         }
-
-        .transaction-details ul {
+        .mil-transaction-details ul {
             list-style-type: none;
             padding-left: 0;
             margin: 0;
         }
-
-        .transaction-details ul li {
+        .mil-transaction-details ul li {
             margin: 10px 0;
             padding: 10px;
-            background-color: #f8f9fa;
+            background-color: #fff;
             border-radius: 4px;
             font-size: 13px;
             color: #333;
         }
-
-        .btn-create-account {
-            background-color: rgb(235, 166, 17);
-            color: #fff;
-            transition: all 0.3s ease;
-            border: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-
-        .btn-create-account:hover {
-            background-color: rgb(200, 142, 14);
-            color: #fff;
-        }
-
-        .btn-create-account.update-btn {
-            background-color: rgb(40, 167, 69);
-            color: #fff;
-        }
-
-        .btn-create-account.update-btn:hover {
-            background-color: rgb(34, 139, 57);
-            color: #fff;
-        }
-
-        .btn-create-account.cancel-btn {
-            background-color: rgb(108, 117, 125);
-            color: #fff;
-        }
-
-        .btn-create-account.cancel-btn:hover {
-            background-color: rgb(90, 98, 104);
-            color: #fff;
-        }
-
-        .form-actions {
+        /* Form actions */
+        .mil-form-actions {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
-
         /* Responsive Design */
         @media (max-width: 768px) {
-            .new-sidebar {
-                left: -250px;
+            .mil-wrapper .mil-sidebar {
+                width: 200px;
+                background-color: #f8f8f8 !important;
+                opacity: 1 !important;
             }
-
-            .new-sidebar.open {
-                left: 0;
+            .mil-main-content {
+                margin-left: 0;
             }
-
-            .new-sidebar.open + .main-container::before {
-                display: block;
+            .mil-main-content.full-width {
+                margin-left: 0;
             }
-
-            .main-container {
-                margin-left: 0 !important;
-                margin-right: 0;
-                width: 100%;
-                padding: 15px;
-            }
-
-            .registration-container {
-                padding: 15px;
-            }
-
-            .btn-create-account {
-                font-size: 13px;
-                padding: 8px 16px;
-                height: 34px;
-            }
-
-            .transaction-details p {
+            .mil-transaction-details p {
                 font-size: 12px;
                 flex-direction: column;
                 align-items: flex-start;
             }
-
-            .transaction-details p strong {
+            .mil-transaction-details p strong {
                 width: auto;
                 margin-bottom: 5px;
             }
-
-            .transaction-details ul li {
+            .mil-transaction-details ul li {
                 font-size: 12px;
             }
-
-            .form-actions {
+            .mil-form-actions {
                 flex-direction: column;
                 align-items: stretch;
             }
+            .mil-form-actions .mil-button {
+                width: 100%;
+            }
+            .mil-about .container {
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 100%;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
         }
-
         @media (max-width: 576px) {
-            .main-container {
+            .mil-main-content {
                 padding: 10px;
                 width: 95%;
                 margin: 0 auto;
             }
-
-            .registration-container {
-                padding: 10px;
-            }
-
-            .card-body {
-                padding: 15px;
-            }
         }
     </style>
+
+    <title>Confirm Transaction</title>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="new-sidebar" id="newSidebar">
-        <div class="logo">
-            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
         </div>
-        <div class="greeting">Welcome, <%= username %>!</div>
-        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-        <a href="/transactions" class="nav-link active"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
-        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
-        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </nav>
+        <!-- scrollbar progress end -->
 
-    <!-- Toggle Button -->
-    <button class="new-toggle-btn" id="newToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+        <!-- sidebar -->
+        <div class="mil-sidebar" id="sidebar">
+            <div class="mil-logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+            </div>
+            <h2 class="mil-up">Welcome, <%= username %>!</h2>
+            <a href="/pos" class="mil-up"><i class="fas fa-shopping-bag"></i> Point of Sale</a>
+            <a href="/update-stock" class="mil-up"><i class="fas fa-boxes"></i> Manage Inventory</a>
+            <a href="/invoices" class="mil-up"><i class="fas fa-file-invoice"></i> Generate Invoice</a>
+            <a href="/transactions" class="mil-up active"><i class="fas fa-chart-bar"></i> View Transactions</a>
+            <a href="/customers" class="mil-up"><i class="fas fa-users"></i> Customers</a>
+            <a href="/home" class="mil-up"><i class="fas fa-store"></i> Manage Outlets</a>
+            <a href="/profile" class="mil-up"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
+        </div>
+        <!-- sidebar end -->
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
-                        <h4 style="color: #333; font-size: 16px;">Confirm Transaction</h4>
-                        <p style="color: #333; font-size: 13px;">
-                            Business: <%= admin.businessName || 'N/A' %> | Email: <%= admin.email || 'N/A' %> | Currency: <%= currency || 'N/A' %>
-                        </p>
+        <!-- toggle button -->
+        <button class="mil-toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Confirm </span>Transaction</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Confirm transaction for <%= admin.businessName || 'Your Business' %>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </section>
+                <!-- banner end -->
 
-                    <!-- Transaction Details -->
-                    <div class="transaction-details">
-                        <p>
-                            <strong><i class="fa-solid fa-user mr-2"></i>Customer Name:</strong>
-                            <%= customerName %>
-                        </p>
-                        <p>
-                            <strong><i class="fa-solid fa-phone mr-2"></i>Phone Number:</strong>
-                            <%= phoneNumber || 'N/A' %>
-                        </p>
-                        <p>
-                            <strong><i class="fa-solid fa-envelope mr-2"></i>Email:</strong>
-                            <%= email || 'N/A' %>
-                        </p>
-                        <p>
-                            <strong><i class="fa-solid fa-credit-card mr-2"></i>Payment Method:</strong>
-                            <%= paymentMethod %>
-                        </p>
-                        <p>
-                            <strong><i class="fa-solid fa-money-bill-wave mr-2"></i>Total Amount:</strong>
-                            <%= currency %><%= totalOrderAmount.toFixed(2) %>
-                        </p>
+                <!-- main content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 mil-main-content" id="mainContent">
+                                <!-- Business Info -->
+                                <div class="mil-form-section mil-up">
+                                    <div class="mil-center">
+                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo" style="height: 50px; margin-bottom: 10px;">
+                                        <h4 style="color: #333; font-size: 16px;">Confirm Transaction for <%= admin.businessName || 'Your Business' %></h4>
+                                        <p style="color: #333; font-size: 13px;">
+                                            Email: <%= admin.email || 'N/A' %> | Currency: <%= currency || 'N/A' %>
+                                        </p>
+                                    </div>
+                                </div>
 
-                        <h5>Items:</h5>
-                        <ul>
-                            <% saleItems.forEach(item => { %>
-                                <li>
-                                    <strong><%= item.itemName %></strong> -
-                                    Quantity: <%= item.quantity %> -
-                                    Unit Cost: <%= currency %><%= item.unitCost.toFixed(2) %> -
-                                    Total Cost: <%= currency %><%= item.totalCost.toFixed(2) %>
-                                </li>
-                            <% }) %>
-                        </ul>
+                                <!-- Transaction Details -->
+                                <div class="mil-form-section mil-up">
+                                    <h2 class="mil-mb-30">Transaction Details</h2>
+                                    <div class="mil-transaction-details">
+                                        <p>
+                                            <strong><i class="fa-solid fa-user mr-2"></i>Customer Name:</strong>
+                                            <%= customerName %>
+                                        </p>
+                                        <p>
+                                            <strong><i class="fa-solid fa-phone mr-2"></i>Phone Number:</strong>
+                                            <%= phoneNumber || 'N/A' %>
+                                        </p>
+                                        <p>
+                                            <strong><i class="fa-solid fa-envelope mr-2"></i>Email:</strong>
+                                            <%= email || 'N/A' %>
+                                        </p>
+                                        <p>
+                                            <strong><i class="fa-solid fa-credit-card mr-2"></i>Payment Method:</strong>
+                                            <%= paymentMethod %>
+                                        </p>
+                                        <p>
+                                            <strong><i class="fa-solid fa-money-bill-wave mr-2"></i>Total Amount:</strong>
+                                            <%= currency %><%= totalOrderAmount.toFixed(2) %>
+                                        </p>
+                                        <h5>Items:</h5>
+                                        <ul>
+                                            <% saleItems.forEach(item => { %>
+                                                <li>
+                                                    <strong><%= item.itemName %></strong> -
+                                                    Quantity: <%= item.quantity %> -
+                                                    Unit Cost: <%= currency %><%= item.unitCost.toFixed(2) %> -
+                                                    Total Cost: <%= currency %><%= item.totalCost.toFixed(2) %>
+                                                </li>
+                                            <% }) %>
+                                        </ul>
+                                    </div>
+                                    <!-- Confirmation Form -->
+                                    <form action="/confirm-sale" method="POST" class="mil-form-actions">
+                                        <input type="hidden" name="customerName" value="<%= customerName %>">
+                                        <input type="hidden" name="phoneNumber" value="<%= phoneNumber %>">
+                                        <input type="hidden" name="email" value="<%= email %>">
+                                        <input type="hidden" name="paymentMethod" value="<%= paymentMethod %>">
+                                        <input type="hidden" name="totalOrderAmount" value="<%= totalOrderAmount %>">
+                                        <% saleItems.forEach((item, index) => { %>
+                                            <input type="hidden" name="saleItems[<%= index %>][itemId]" value="<%= item.itemId %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][itemName]" value="<%= item.itemName %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][quantity]" value="<%= item.quantity %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][unitCost]" value="<%= item.unitCost %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][totalCost]" value="<%= item.totalCost %>">
+                                        <% }) %>
+                                        <button type="submit" class="mil-button update-btn">
+                                            Confirm Sale <i class="fa-solid fa-check-circle"></i>
+                                        </button>
+                                        <a href="/pos" class="mil-button cancel-btn">
+                                            Cancel <i class="fa-solid fa-times"></i>
+                                        </a>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
-                    <!-- Confirmation Form -->
-                    <form action="/confirm-sale" method="POST" class="form-actions">
-                        <input type="hidden" name="customerName" value="<%= customerName %>">
-                        <input type="hidden" name="phoneNumber" value="<%= phoneNumber %>">
-                        <input type="hidden" name="email" value="<%= email %>">
-                        <input type="hidden" name="paymentMethod" value="<%= paymentMethod %>">
-                        <input type="hidden" name="totalOrderAmount" value="<%= totalOrderAmount %>">
-                        <% saleItems.forEach((item, index) => { %>
-                            <input type="hidden" name="saleItems[<%= index %>][itemId]" value="<%= item.itemId %>">
-                            <input type="hidden" name="saleItems[<%= index %>][itemName]" value="<%= item.itemName %>">
-                            <input type="hidden" name="saleItems[<%= index %>][quantity]" value="<%= item.quantity %>">
-                            <input type="hidden" name="saleItems[<%= index %>][unitCost]" value="<%= item.unitCost %>">
-                            <input type="hidden" name="saleItems[<%= index %>][totalCost]" value="<%= item.totalCost %>">
-                        <% }) %>
-                        <button type="submit" class="btn btn-round btn-create-account update-btn">
-                            <i class="fa-solid fa-check-circle mr-2"></i>Confirm Sale
-                        </button>
-                        <a href="/pos" class="btn btn-round btn-create-account cancel-btn">
-                            <i class="fa-solid fa-times mr-2"></i>Cancel
-                        </a>
-                    </form>
-                </div>
+                </section>
             </div>
         </div>
+
+        <!-- footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-9">
+                                    <div class="mil-vert-between">
+                                        <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer end -->
+
+        <!-- hidden elements -->
+        <div class="mil-hidden-elements">
+            <div class="mil-dodecahedron">
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+            </svg>
+            <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+            </svg>
+        </div>
+        <!-- hidden elements end -->
     </div>
+    <!-- wrapper end -->
 
-    <!-- JavaScript Dependencies -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
 
+    <!-- Sidebar Toggle -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const sidebar = document.getElementById('newSidebar');
-                const toggleBtn = document.getElementById('newToggleBtn');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('toggleBtn');
 
-                let isCollapsed = false;
-                let isOpenOnMobile = false;
-
-                // Toggle sidebar
-                if (toggleBtn && sidebar) {
-                    toggleBtn.addEventListener('click', () => {
-                        if (window.innerWidth <= 768) {
-                            isOpenOnMobile = !isOpenOnMobile;
-                            if (isOpenOnMobile) {
-                                sidebar.classList.add('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                            } else {
-                                sidebar.classList.remove('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                            }
-                        } else {
-                            isCollapsed = !isCollapsed;
-                            if (isCollapsed) {
-                                sidebar.classList.add('collapsed');
-                            } else {
-                                sidebar.classList.remove('collapsed');
-                            }
-                        }
-                    });
-                }
-
-                // Close sidebar on outside click (mobile only)
-                document.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
-                            sidebar.classList.remove('open');
-                            isOpenOnMobile = false;
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    }
-                });
-
-                // Set initial sidebar state
-                function setSidebarState() {
-                    if (!sidebar || !toggleBtn) return;
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.remove('collapsed');
-                        if (!isOpenOnMobile) {
-                            sidebar.classList.remove('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    } else {
-                        sidebar.classList.remove('open');
-                        isOpenOnMobile = false;
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        if (isCollapsed) {
-                            sidebar.classList.add('collapsed');
-                        } else {
-                            sidebar.classList.remove('collapsed');
-                        }
-                    }
-                }
-                setSidebarState();
-                window.addEventListener('resize', setSidebarState);
-            } catch (error) {
-                console.error('Error initializing scripts:', error);
+            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+            if (isSidebarHidden) {
+                sidebar.classList.add('hidden');
+                mainContent.classList.add('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.remove('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
             }
+
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('full-width');
+                toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+            });
+
+            function setSidebarState() {
+                if (sidebar.classList.contains('hidden')) {
+                    mainContent.classList.add('full-width');
+                } else {
+                    mainContent.classList.remove('full-width');
+                }
+            }
+            setSidebarState();
+            window.addEventListener('resize', setSidebarState);
         });
     </script>
 </body>

@@ -1,236 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:title" content="Invoices | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Invoices</title>
 
-    <!-- Font Awesome -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
-    
-    <!-- Favicons -->
+
+    <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Inline CSS -->
     <style>
-        body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+        /* Banner starts at top */
+        .mil-banner {
+            margin-top: 0;
+            padding-top: 0;
             position: relative;
-            min-height: 100vh;
-            font-size: 14px;
-            margin: 0;
-        }
-        
-        body::before {
-            content: '';
-            position: absolute;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }
-        
-        /* Sidebar */
-        .new-sidebar {
-            width: 250px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: darkcyan;
-            color: white;
-            padding: 60px 20px 20px 20px;
-            transition: width 0.3s ease, left 0.3s ease;
-            z-index: 3000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .new-sidebar.collapsed {
-            width: 80px;
-        }
-        
-        .new-sidebar.collapsed .logo img {
-            max-width: 50px;
-        }
-        
-        .new-sidebar.collapsed .greeting,
-        .new-sidebar.collapsed .nav-link span {
-            display: none;
-        }
-        
-        .new-sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px 5px;
-        }
-        
-        .new-sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-        
-        .new-sidebar .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .new-sidebar .logo img {
-            max-width: 80%;
-            height: auto;
-            transition: max-width 0.3s ease;
-        }
-        
-        .new-sidebar .greeting {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .new-sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .new-sidebar .nav-link i {
-            margin-right: 10px;
-            font-size: 1rem;
-        }
-        
-        .new-sidebar .nav-link:hover {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-        }
-        
-        .new-sidebar .nav-link.active {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            font-weight: bold;
-        }
-        
-        /* Toggle Button */
-        .new-toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 3100;
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
-        }
-        
-        .new-sidebar.collapsed + .main-container .new-toggle-btn {
-            left: 20px;
-        }
-        
-        /* Main Container */
-        .main-container {
-            min-height: 100vh;
-            padding: 20px;
-            max-width: 1000px;
-            margin-left: 250px;
-            margin-right: 20px;
-            transition: margin-left 0.3s ease;
-            position: relative;
+            width: 100%;
             z-index: 1000;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
-        
-        .new-sidebar.collapsed + .main-container {
-            margin-left: 80px;
+        /* Content padding */
+        .mil-content {
+            padding-bottom: 30px;
         }
-        
-        /* Backdrop for mobile */
-        .new-sidebar.open + .main-container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
+        /* Footer adjustments */
+        footer.mil-dark-bg {
+            padding-bottom: 0;
         }
-        
-        .registration-container {
-            width: 100%;
-            padding: 20px;
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            font-size: 16px !important;
         }
-        
-        .registration-card {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        .mil-soft-bg .mil-light-soft {
+            color: #333 !important;
+        }
+        .mil-banner-content, .mil-content, .mil-footer, .mil-about {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .mil-up {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+        /* Add tick to all <li> elements */
+        li {
             position: relative;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #e0e0e0;
+            padding-left: 25px;
         }
-        
-        .logo-container {
-            text-align: center;
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #008B8B;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
+        }
+        .mil-menu-list li::before {
+            color: #fff;
+        }
+        /* Form styling */
+        .mil-form-group {
             margin-bottom: 15px;
-            padding-top: 15px;
         }
-        
-        .logo-container img {
-            height: 50px;
-            margin-bottom: 10px;
-            max-width: 100%;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
+        .mil-form-group label {
             color: #333;
             margin-bottom: 6px;
             display: block;
@@ -238,967 +109,1154 @@
             font-size: 13px;
             padding-top: 10px;
         }
-        
-        .form-control {
+        .mil-form-control {
             background-color: white;
             border: 1px solid #ced4da;
-            color: #333;
+            color: #495057;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
             font-size: 13px;
             padding: 0.375rem 0.75rem;
-            height: 38px;
+            height: calc(1.5em + 0.75rem + 2px);
             width: 100%;
             box-sizing: border-box;
-            border-right: none;
+            border-radius: 4px;
+            text-transform: none !important;
         }
-        
-        .btn-create-account {
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        .mil-form-row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -5px;
+            margin-left: -5px;
+        }
+        .mil-form-col {
+            flex: 1;
+            padding-right: 5px;
+            padding-left: 5px;
+            min-width: 0;
+        }
+        .mil-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+        }
+        .mil-alert i {
+            margin-right: 8px;
+        }
+        .mil-field-error {
+            color: #d32f2f;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+        /* Button styling */
+        .mil-button {
             background-color: rgb(235, 166, 17);
-            color: #fff;
-            transition: all 0.3s ease;
+            color: #333;
             border: none;
-            font-weight: 500;
-            font-size: 14px;
             padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
+            font-size: 10px;
+            font-weight: 500;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
         }
-        
-        .btn-create-account:hover {
-            background-color: rgb(200, 142, 14);
-            color: #fff;
+        .mil-button:hover {
+            background-color: #fff;
+            color: rgb(235, 166, 17);
+            border: 2px solid rgb(235, 166, 17);
         }
-        
-        .btn-create-account.add-product-btn {
+        .mil-button i {
+            margin-left: 8px;
+        }
+        .mil-button.add-product-btn {
             background-color: rgb(255, 204, 0);
             color: #333;
         }
-        
-        .btn-create-account.add-product-btn:hover {
-            background-color: rgb(230, 184, 0);
-            color: #333;
+        .mil-button.add-product-btn:hover {
+            background-color: #fff;
+            color: rgb(255, 204, 0);
+            border: 2px solid rgb(255, 204, 0);
         }
-        
-        .btn-create-account.update-btn {
+        .mil-button.update-btn {
             background-color: rgb(40, 167, 69);
             color: #fff;
         }
-        
-        .btn-create-account.update-btn:hover {
-            background-color: rgb(34, 139, 57);
-            color: #fff;
+        .mil-button.update-btn:hover {
+            background-color: #fff;
+            color: rgb(40, 167, 69);
+            border: 2px solid rgb(40, 167, 69);
         }
-        
-        .btn-create-account.delete-btn {
+        .mil-button.delete-btn {
             background-color: rgb(220, 53, 69);
             color: #fff;
         }
-        
-        .btn-create-account.delete-btn:hover {
-            background-color: rgb(200, 48, 63);
-            color: #fff;
+        .mil-button.delete-btn:hover {
+            background-color: #fff;
+            color: rgb(220, 53, 69);
+            border: 2px solid rgb(220, 53, 69);
         }
-        
-        .btn-create-account.cancel-btn {
+        .mil-button.cancel-btn {
             background-color: rgb(108, 117, 125);
             color: #fff;
         }
-        
-        .btn-create-account.cancel-btn:hover {
-            background-color: rgb(90, 98, 104);
-            color: #fff;
+        .mil-button.cancel-btn:hover {
+            background-color: #fff;
+            color: rgb(108, 117, 125);
+            border: 2px solid rgb(108, 117, 125);
         }
-        
-        .btn-create-account.search-button {
-            background-color: rgb(0, 123, 255);
-            color: #fff;
-            border: 1px solid #ced4da;
-            border-left: none;
-        }
-        
-        .btn-create-account.search-button:hover {
-            background-color: rgb(0, 105, 217);
-            color: #fff;
-        }
-        
-        .btn-create-account.download-btn {
+        .mil-button.download-btn {
             background-color: rgb(23, 162, 184);
             color: #fff;
         }
-        
-        .btn-create-account.download-btn:hover {
-            background-color: rgb(19, 138, 157);
+        .mil-button.download-btn:hover {
+            background-color: #fff;
+            color: rgb(23, 162, 184);
+            border: 2px solid rgb(23, 162, 184);
+        }
+        /* Sidebar styling */
+        .mil-wrapper .mil-sidebar {
+            width: 250px;
+            background-color: #f8f8f8 !important;
+            opacity: 1 !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            padding: 20px;
+            z-index: 1001;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .mil-wrapper .mil-sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        .mil-wrapper .mil-sidebar * {
+            background-color: transparent !important;
+            opacity: 1 !important;
+        }
+        .mil-wrapper .mil-sidebar .mil-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar .mil-logo-container img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-wrapper .mil-sidebar h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar a:hover {
+            background: rgb(235, 166, 17) !important;
             color: #fff;
         }
-        
-        .action-buttons {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
+        .mil-wrapper .mil-sidebar a.active {
+            background: rgb(235, 166, 17) !important;
+            color: #fff;
+            font-weight: bold;
         }
-        
-        .table-section {
-            background: white;
+        /* Toggle button */
+        .mil-toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            z-index: 1002;
+        }
+        /* Main content */
+        .mil-main-content {
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .mil-main-content.full-width {
+            margin-left: 0;
+        }
+        /* Center the main content container */
+        .mil-about .container {
+            display: flex;
+            justify-content: center;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        .mil-sidebar:not(.hidden) ~ .mil-content .mil-about .container {
+            margin-left: calc(250px + ((100% - 250px - 800px) / 2));
+            margin-right: auto;
+        }
+        .mil-sidebar.hidden ~ .mil-content .mil-about .container {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* Table styling */
+        .mil-table-section {
+            background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-        
-        .table {
+        .mil-table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
         }
-        
-        .table th, .table td {
+        .mil-table th, .mil-table td {
             padding: 10px;
             border: 1px solid #dee2e6;
             text-align: left;
             color: #333;
         }
-        
-        .table th {
-            background-color: #f8f9fa;
+        .mil-table th {
+            background-color: #e9ecef;
             color: #333;
             font-weight: 500;
         }
-        
-        .table td {
+        .mil-table td {
             background-color: white;
         }
-        
-        .form-actions {
+        /* Item row */
+        .mil-item-row {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .mil-item-row select,
+        .mil-item-row input[type="number"] {
+            flex: 1;
+            min-width: 150px;
+        }
+        /* New customer and product fields */
+        .mil-new-customer-fields, .mil-bank-details, .mil-new-product-fields {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            width: 100%;
+        }
+        /* Form actions */
+        .mil-form-actions {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
+            flex-wrap: wrap;
         }
-        
-        .button-group {
+        .mil-button-group {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
         }
-        
-        .new-customer-fields, .bank-details {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #e0e0e0;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-        }
-        
-        .item-row {
+        .mil-action-buttons {
             display: flex;
             gap: 10px;
-            align-items: center;
-            margin-bottom: 15px;
             flex-wrap: wrap;
         }
-        
-        .new-product-fields {
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid #e0e0e0;
-            background-color: #f9f9f9;
-            border-radius: 4px;
-            width: 100%;
+        /* Hidden class */
+        .hidden {
+            display: none !important;
         }
-        
-        .field-error {
-            color: red;
-            font-size: 0.9em;
-            margin-top: 5px;
-            display: none;
-        }
-        
         /* Responsive Design */
         @media (max-width: 768px) {
-            .new-sidebar {
-                left: -250px;
+            .mil-wrapper .mil-sidebar {
+                width: 200px;
+                background-color: #f8f8f8 !important;
+                opacity: 1 !important;
             }
-            
-            .new-sidebar.open {
-                left: 0;
+            .mil-main-content {
+                margin-left: 0;
             }
-            
-            .new-sidebar.open + .main-container::before {
-                display: block;
+            .mil-main-content.full-width {
+                margin-left: 0;
             }
-            
-            .main-container {
-                margin-left: 0 !important;
-                margin-right: 0;
-                width: 100%;
-                padding: 15px;
+            .mil-form-col {
+                flex: 0 0 100%;
+                max-width: 100%;
             }
-            
-            .registration-container {
-                padding: 15px;
-            }
-            
-            .form-group label {
+            .mil-form-group label {
                 font-size: 12px;
                 padding-top: 8px;
             }
-            
-            .form-control {
+            .mil-form-control {
                 font-size: 12px;
                 padding: 0.3rem 0.6rem;
-                height: 34px;
+                height: calc(1.5em + 0.6rem + 2px);
             }
-            
-            .btn-create-account {
+            .mil-button {
                 font-size: 13px;
                 padding: 8px 16px;
-                height: 34px;
             }
-            
-            .table {
+            .mil-item-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .mil-item-row select,
+            .mil-item-row input[type="number"] {
+                min-width: 100%;
+            }
+            .mil-form-actions, .mil-button-group, .mil-action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .mil-form-actions .mil-button,
+            .mil-button-group .mil-button,
+            .mil-action-buttons .mil-button {
+                width: 100%;
+            }
+            .mil-about .container {
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 100%;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            .mil-table {
                 font-size: 12px;
                 display: block;
                 overflow-x: auto;
                 white-space: nowrap;
             }
-            
-            .table th, .table td {
+            .mil-table th, .mil-table td {
                 padding: 8px;
                 min-width: 100px;
             }
-            
-            .item-row {
-                flex-direction: column;
-                gap: 10px;
-            }
         }
-    
         @media (max-width: 576px) {
-            .main-container {
+            .mil-main-content {
                 padding: 10px;
                 width: 95%;
                 margin: 0 auto;
             }
-            
-            .registration-container {
-                padding: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .table th, .table td {
+            .mil-table th, .mil-table td {
                 padding: 6px;
                 min-width: 90px;
             }
-            
-            .button-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .button-group .btn-create-account {
-                width: 100%;
-            }
         }
     </style>
+
+    <title>Invoices</title>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="new-sidebar" id="newSidebar">
-        <div class="logo">
-            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
         </div>
-        <div class="greeting">Welcome, <%= username %>!</div>
-        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-        <a href="/invoices" class="nav-link active"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
-        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
-        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </nav>
+        <!-- scrollbar progress end -->
 
-    <!-- Toggle Button -->
-    <button class="new-toggle-btn" id="newToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+        <!-- sidebar -->
+        <div class="mil-sidebar" id="sidebar">
+            <div class="mil-logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+            </div>
+            <h2 class="mil-up">Welcome, <%= username %>!</h2>
+            <a href="/pos" class="mil-up"><i class="fas fa-shopping-bag"></i> Point of Sale</a>
+            <a href="/update-stock" class="mil-up"><i class="fas fa-boxes"></i> Manage Inventory</a>
+            <a href="/invoices" class="mil-up active"><i class="fas fa-file-invoice"></i> Generate Invoice</a>
+            <a href="/transactions" class="mil-up"><i class="fas fa-chart-bar"></i> View Transactions</a>
+            <a href="/customers" class="mil-up"><i class="fas fa-users"></i> Customers</a>
+            <a href="/home" class="mil-up"><i class="fas fa-store"></i> Manage Outlets</a>
+            <a href="/profile" class="mil-up"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
+        </div>
+        <!-- sidebar end -->
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
-                        <h4 style="color: #333; font-size: 16px;">Invoices for <%= admin.businessName || 'Your Business' %></h4>
-                        <p style="color: #333; font-size: 13px;">
-                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
-                        </p>
-                    </div>
+        <!-- toggle button -->
+        <button class="mil-toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
 
-                    <!-- Error Messages -->
-                    <% if (error) { %>
-                        <div class="alert alert-danger" style="font-size: 13px;">
-                            <div class="container">
-                                <div class="alert-icon">
-                                    <i class="fa-solid fa-bell"></i>
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Generate </span>Invoice</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Manage invoices for <%= admin.businessName || 'Your Business' %>.</p>
+                                    </div>
                                 </div>
-                                <%= error %>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </span>
-                                </button>
                             </div>
                         </div>
-                    <% } %>
-
-                    <!-- Create Invoice Button -->
-                    <div class="button-group">
-                        <button id="createInvoiceBtn" class="btn btn-round btn-create-account add-product-btn">
-                            Create Invoice <i class="fa-solid fa-plus"></i>
-                        </button>
                     </div>
+                </section>
+                <!-- banner end -->
 
-                    <!-- Create Invoice Form (Hidden by Default) -->
-                    <div class="form-section" id="createInvoiceForm" style="display: none;">
-                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Create New Invoice</h5>
-                        <form id="invoiceForm" action="/invoices/create" method="POST">
-                            <div class="form-group">
-                                <label>Customer <i class="fa-solid fa-user"></i></label>
-                                <select id="customerSelect" name="customerId" class="form-control" required>
-                                    <option value="">Select Customer</option>
-                                    <% customers.forEach(customer => { %>
-                                        <option value="<%= customer._id %>" <%= formData.customerId === customer._id.toString() ? 'selected' : '' %>>
-                                            <%= customer.name %> (<%= customer.phone || 'N/A' %>)
-                                        </option>
-                                    <% }) %>
-                                    <option value="new" <%= formData.customerId === 'new' ? 'selected' : '' %>>Create New Customer</option>
-                                </select>
-                                <div class="field-error" id="customerSelectError"></div>
-                            </div>
+                <!-- main content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 mil-main-content" id="mainContent">
+                                <!-- Business Info -->
+                                <div class="mil-form-section mil-up">
+                                    <div class="mil-center">
+                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo" style="height: 50px; margin-bottom: 10px;">
+                                        <h4 style="color: #333; font-size: 16px;">Invoices for <%= admin.businessName || 'Your Business' %></h4>
+                                        <p style="color: #333; font-size: 13px;">
+                                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                                        </p>
+                                    </div>
+                                </div>
 
-                            <div id="newCustomerFields" class="new-customer-fields hidden">
-                                <div class="form-group">
-                                    <label>New Customer Name <i class="fa-solid fa-user-plus"></i></label>
-                                    <input type="text" name="newCustomerName" id="newCustomerName" class="form-control" placeholder="New Customer Name" value="<%= formData.newCustomerName || '' %>">
-                                    <div class="field-error" id="newCustomerNameError"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Phone Number <i class="fa-solid fa-phone"></i></label>
-                                    <input type="text" name="newCustomerPhone" id="newCustomerPhone" class="form-control" placeholder="Phone Number" value="<%= formData.newCustomerPhone || '' %>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Email Address <i class="fa-solid fa-envelope"></i></label>
-                                    <input type="email" name="newCustomerEmail" id="newCustomerEmail" class="form-control" placeholder="Email Address" value="<%= formData.newCustomerEmail || '' %>">
-                                </div>
-                            </div>
+                                <!-- Error Messages -->
+                                <% if (error) { %>
+                                    <div class="mil-alert mil-up">
+                                        <i class="fa-solid fa-exclamation-circle"></i> <%= error %>
+                                    </div>
+                                <% } %>
 
-                            <div class="form-group">
-                                <label>Items <i class="fa-solid fa-boxes"></i></label>
-                                <div id="itemsContainer">
-                                    <% if (formData.items && formData.items.itemId) { %>
-                                        <% const itemIds = Array.isArray(formData.items.itemId) ? formData.items.itemId : [formData.items.itemId]; %>
-                                        <% const quantities = Array.isArray(formData.items.quantity) ? formData.items.quantity : [formData.items.quantity]; %>
-                                        <% itemIds.forEach((itemId, index) => { %>
-                                            <div class="item-row" data-index="<%= index %>">
-                                                <select name="items[itemId][]" class="form-control" required>
-                                                    <option value="">Select Item</option>
-                                                    <% inventory.forEach(item => { %>
-                                                        <option value="<%= item._id %>" <%= itemId === item._id.toString() ? 'selected' : '' %> data-stock="<%= item.stock %>">
-                                                            <%= item.name %> (Stock: <%= item.stock %>)
-                                                        </option>
-                                                    <% }) %>
-                                                    <option value="new">Create New Product</option>
-                                                </select>
-                                                <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" value="<%= quantities[index] || '' %>" required>
-                                                <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn">
-                                                    <i class="fa-solid fa-minus"></i>
-                                                </button>
-                                                <div class="new-product-fields hidden" id="newProductFields<%= index %>">
-                                                    <div class="form-group">
-                                                        <label>Product Name <i class="fa-solid fa-box"></i></label>
-                                                        <input type="text" name="items[newProductName][]" class="form-control" placeholder="Product Name">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Cost <i class="fa-solid fa-money-bill"></i></label>
-                                                        <input type="number" name="items[newProductCost][]" class="form-control" placeholder="Cost" min="0" step="0.01">
-                                                    </div>
-                                                    <div class="form-group">
-                                                        <label>Stock <i class="fa-solid fa-cubes"></i></label>
-                                                        <input type="number" name="items[newProductStock][]" class="form-control" placeholder="Stock" min="0">
-                                                    </div>
-                                                </div>
-                                                <div class="field-error" id="itemError<%= index %>"></div>
-                                            </div>
-                                        <% }) %>
-                                    <% } else { %>
-                                        <div class="item-row" data-index="0">
-                                            <select name="items[itemId][]" class="form-control" required>
-                                                <option value="">Select Item</option>
-                                                <% inventory.forEach(item => { %>
-                                                    <option value="<%= item._id %>" data-stock="<%= item.stock %>">
-                                                        <%= item.name %> (Stock: <%= item.stock %>)
+                                <!-- Create Invoice Button -->
+                                <div class="mil-button-group">
+                                    <button id="createInvoiceBtn" class="mil-button add-product-btn">
+                                        Create Invoice <i class="fa-solid fa-plus"></i>
+                                    </button>
+                                </div>
+
+                                <!-- Create Invoice Form (Hidden by Default) -->
+                                <div class="mil-form-section" id="createInvoiceForm" style="display: <%= error ? 'block' : 'none' %>;">
+                                    <h2 class="mil-mb-30">Create New Invoice</h2>
+                                    <form id="invoiceForm" action="/invoices/create" method="POST">
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-user"></i> Customer</label>
+                                            <select id="customerSelect" name="customerId" class="mil-form-control" required>
+                                                <option value="">Select Customer</option>
+                                                <% customers.forEach(customer => { %>
+                                                    <option value="<%= customer._id %>" <%= formData.customerId === customer._id.toString() ? 'selected' : '' %>>
+                                                        <%= customer.name %> (<%= customer.phone || 'N/A' %>)
                                                     </option>
                                                 <% }) %>
-                                                <option value="new">Create New Product</option>
+                                                <option value="new" <%= formData.customerId === 'new' ? 'selected' : '' %>>Create New Customer</option>
                                             </select>
-                                            <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
-                                            <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn" style="display: none;">
-                                                <i class="fa-solid fa-minus"></i>
-                                            </button>
-                                            <div class="new-product-fields hidden" id="newProductFields0">
-                                                <div class="form-group">
-                                                    <label>Product Name <i class="fa-solid fa-box"></i></label>
-                                                    <input type="text" name="items[newProductName][]" class="form-control" placeholder="Product Name">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Cost <i class="fa-solid fa-money-bill"></i></label>
-                                                    <input type="number" name="items[newProductCost][]" class="form-control" placeholder="Cost" min="0" step="0.01">
-                                                </div>
-                                                <div class="form-group">
-                                                    <label>Stock <i class="fa-solid fa-cubes"></i></label>
-                                                    <input type="number" name="items[newProductStock][]" class="form-control" placeholder="Stock" min="0">
-                                                </div>
-                                            </div>
-                                            <div class="field-error" id="itemError0"></div>
+                                            <div class="mil-field-error" id="customerSelectError"></div>
                                         </div>
-                                    <% } %>
-                                </div>
-                            </div>
 
-                            <button type="button" id="addItemBtn" class="btn btn-round btn-create-account add-product-btn">
-                                Add Another Item <i class="fa-solid fa-plus"></i>
-                            </button>
+                                        <div id="newCustomerFields" class="mil-new-customer-fields hidden">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-user-plus"></i> New Customer Name</label>
+                                                <input type="text" name="newCustomerName" id="newCustomerName" class="mil-form-control" placeholder="New Customer Name" value="<%= formData.newCustomerName || '' %>">
+                                                <div class="mil-field-error" id="newCustomerNameError"></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-phone"></i> Phone Number</label>
+                                                <input type="text" name="newCustomerPhone" id="newCustomerPhone" class="mil-form-control" placeholder="Phone Number" value="<%= formData.newCustomerPhone || '' %>">
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                                                <input type="email" name="newCustomerEmail" id="newCustomerEmail" class="mil-form-control" placeholder="Email Address" value="<%= formData.newCustomerEmail || '' %>">
+                                            </div>
+                                        </div>
 
-                            <div class="form-group">
-                                <label>Payment Method <i class="fa-solid fa-credit-card"></i></label>
-                                <select name="paymentMethod" id="paymentMethod" class="form-control" required>
-                                    <option value="">Select Payment Method</option>
-                                    <option value="Cash" <%= formData.paymentMethod === 'Cash' ? 'selected' : '' %>>Cash</option>
-                                    <option value="Credit Card" <%= formData.paymentMethod === 'Credit Card' ? 'selected' : '' %>>Credit Card</option>
-                                    <option value="Bank Transfer" <%= formData.paymentMethod === 'Bank Transfer' ? 'selected' : '' %>>Bank Transfer</option>
-                                    <option value="Mobile Payment" <%= formData.paymentMethod === 'Mobile Payment' ? 'selected' : '' %>>Mobile Payment</option>
-                                </select>
-                                <div class="field-error" id="paymentMethodError"></div>
-                            </div>
-
-                            <div id="bankDetails" class="bank-details hidden">
-                                <div class="form-group">
-                                    <label>Bank Name <i class="fa-solid fa-bank"></i></label>
-                                    <input type="text" name="bankName" id="bankName" class="form-control" placeholder="Bank Name" value="<%= formData.bankName || '' %>">
-                                    <div class="field-error" id="bankNameError"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Bank Account Name <i class="fa-solid fa-user"></i></label>
-                                    <input type="text" name="bankAccountName" id="bankAccountName" class="form-control" placeholder="Bank Account Name" value="<%= formData.bankAccountName || '' %>">
-                                    <div class="field-error" id="bankAccountNameError"></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Account Number <i class="fa-solid fa-hashtag"></i></label>
-                                    <input type="text" name="accountNumber" id="accountNumber" class="form-control" placeholder="Account Number" value="<%= formData.accountNumber || '' %>">
-                                    <div class="field-error" id="accountNumberError"></div>
-                                </div>
-                            </div>
-
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-round btn-create-account update-btn">
-                                    Create Invoice <i class="fa-solid fa-file-invoice"></i>
-                                </button>
-                                <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cancelInvoiceBtn">
-                                    Cancel <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-
-                    <!-- Invoices Table -->
-                    <div class="table-section">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Customer Name</th>
-                                    <th>Items</th>
-                                    <th>Total Amount</th>
-                                    <th>Payment Status</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% sales.forEach(sale => { %>
-                                    <tr id="sale-<%= sale._id %>">
-                                        <td><%= new Date(sale.date).toLocaleDateString() %></td>
-                                        <td><%= sale.customerName %></td>
-                                        <td>
-                                            <% if (sale.items) { %>
-                                                <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
-                                            <% } else { %>
-                                                <%= `${sale.itemName} (${sale.quantity})` %>
-                                            <% } %>
-                                        </td>
-                                        <td><%= admin.currency %><%= formatCurrency(sale.totalAmount || 0) %></td>
-                                        <td class="payment-status"><%= sale.paymentStatus || 'Pending' %></td>
-                                        <td>
-                                            <div class="action-buttons">
-                                                <a href="/invoices/download/<%= sale._id %>" class="btn btn-round btn-create-account download-btn">
-                                                    Download PDF <i class="fa-solid fa-download"></i>
-                                                </a>
-                                                <% if (sale.paymentStatus !== 'Paid') { %>
-                                                    <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
-                                                        <button type="submit" class="btn btn-round btn-create-account update-btn">
-                                                            Mark as Paid <i class="fa-solid fa-check"></i>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-boxes"></i> Items</label>
+                                            <div id="itemsContainer">
+                                                <% if (formData.items && formData.items.itemId) { %>
+                                                    <% const itemIds = Array.isArray(formData.items.itemId) ? formData.items.itemId : [formData.items.itemId]; %>
+                                                    <% const quantities = Array.isArray(formData.items.quantity) ? formData.items.quantity : [formData.items.quantity]; %>
+                                                    <% itemIds.forEach((itemId, index) => { %>
+                                                        <div class="mil-item-row" data-index="<%= index %>">
+                                                            <select name="items[itemId][]" class="mil-form-control" required>
+                                                                <option value="">Select Item</option>
+                                                                <% inventory.forEach(item => { %>
+                                                                    <option value="<%= item._id %>" <%= itemId === item._id.toString() ? 'selected' : '' %> data-stock="<%= item.stock %>">
+                                                                        <%= item.name %> (Stock: <%= item.stock %>)
+                                                                    </option>
+                                                                <% }) %>
+                                                                <option value="new">Create New Product</option>
+                                                            </select>
+                                                            <input type="number" name="items[quantity][]" class="mil-form-control" placeholder="Quantity" min="1" value="<%= quantities[index] || '' %>" required>
+                                                            <button type="button" class="mil-button delete-btn remove-btn">
+                                                                <i class="fa-solid fa-minus"></i>
+                                                            </button>
+                                                            <div class="mil-new-product-fields hidden" id="newProductFields<%= index %>">
+                                                                <div class="mil-form-group">
+                                                                    <label><i class="fa-solid fa-box"></i> Product Name</label>
+                                                                    <input type="text" name="items[newProductName][]" class="mil-form-control" placeholder="Product Name">
+                                                                </div>
+                                                                <div class="mil-form-group">
+                                                                    <label><i class="fa-solid fa-money-bill"></i> Cost</label>
+                                                                    <input type="number" name="items[newProductCost][]" class="mil-form-control" placeholder="Cost" min="0" step="0.01">
+                                                                </div>
+                                                                <div class="mil-form-group">
+                                                                    <label><i class="fa-solid fa-cubes"></i> Stock</label>
+                                                                    <input type="number" name="items[newProductStock][]" class="mil-form-control" placeholder="Stock" min="0">
+                                                                </div>
+                                                            </div>
+                                                            <div class="mil-field-error" id="itemError<%= index %>"></div>
+                                                        </div>
+                                                    <% }) %>
+                                                <% } else { %>
+                                                    <div class="mil-item-row" data-index="0">
+                                                        <select name="items[itemId][]" class="mil-form-control" required>
+                                                            <option value="">Select Item</option>
+                                                            <% inventory.forEach(item => { %>
+                                                                <option value="<%= item._id %>" data-stock="<%= item.stock %>">
+                                                                    <%= item.name %> (Stock: <%= item.stock %>)
+                                                                </option>
+                                                            <% }) %>
+                                                            <option value="new">Create New Product</option>
+                                                        </select>
+                                                        <input type="number" name="items[quantity][]" class="mil-form-control" placeholder="Quantity" min="1" required>
+                                                        <button type="button" class="mil-button delete-btn remove-btn" style="display: none;">
+                                                            <i class="fa-solid fa-minus"></i>
                                                         </button>
-                                                    </form>
+                                                        <div class="mil-new-product-fields hidden" id="newProductFields0">
+                                                            <div class="mil-form-group">
+                                                                <label><i class="fa-solid fa-box"></i> Product Name</label>
+                                                                <input type="text" name="items[newProductName][]" class="mil-form-control" placeholder="Product Name">
+                                                            </div>
+                                                            <div class="mil-form-group">
+                                                                <label><i class="fa-solid fa-money-bill"></i> Cost</label>
+                                                                <input type="number" name="items[newProductCost][]" class="mil-form-control" placeholder="Cost" min="0" step="0.01">
+                                                            </div>
+                                                            <div class="mil-form-group">
+                                                                <label><i class="fa-solid fa-cubes"></i> Stock</label>
+                                                                <input type="number" name="items[newProductStock][]" class="mil-form-control" placeholder="Stock" min="0">
+                                                            </div>
+                                                        </div>
+                                                        <div class="mil-field-error" id="itemError0"></div>
+                                                    </div>
                                                 <% } %>
                                             </div>
-                                        </td>
-                                    </tr>
-                                <% }) %>
-                            </tbody>
-                        </table>
+                                        </div>
+
+                                        <div class="mil-form-actions">
+                                            <button type="button" id="addItemBtn" class="mil-button add-product-btn">
+                                                Add Another Item <i class="fa-solid fa-plus"></i>
+                                            </button>
+                                        </div>
+
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-credit-card"></i> Payment Method</label>
+                                            <select name="paymentMethod" id="paymentMethod" class="mil-form-control" required>
+                                                <option value="">Select Payment Method</option>
+                                                <option value="Cash" <%= formData.paymentMethod === 'Cash' ? 'selected' : '' %>>Cash</option>
+                                                <option value="Credit Card" <%= formData.paymentMethod === 'Credit Card' ? 'selected' : '' %>>Credit Card</option>
+                                                <option value="Bank Transfer" <%= formData.paymentMethod === 'Bank Transfer' ? 'selected' : '' %>>Bank Transfer</option>
+                                                <option value="Mobile Payment" <%= formData.paymentMethod === 'Mobile Payment' ? 'selected' : '' %>>Mobile Payment</option>
+                                            </select>
+                                            <div class="mil-field-error" id="paymentMethodError"></div>
+                                        </div>
+
+                                        <div id="bankDetails" class="mil-bank-details hidden">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-bank"></i> Bank Name</label>
+                                                <input type="text" name="bankName" id="bankName" class="mil-form-control" placeholder="Bank Name" value="<%= formData.bankName || '' %>">
+                                                <div class="mil-field-error" id="bankNameError"></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-user"></i> Bank Account Name</label>
+                                                <input type="text" name="bankAccountName" id="bankAccountName" class="mil-form-control" placeholder="Bank Account Name" value="<%= formData.bankAccountName || '' %>">
+                                                <div class="mil-field-error" id="bankAccountNameError"></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-hashtag"></i> Account Number</label>
+                                                <input type="text" name="accountNumber" id="accountNumber" class="mil-form-control" placeholder="Account Number" value="<%= formData.accountNumber || '' %>">
+                                                <div class="mil-field-error" id="accountNumberError"></div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mil-form-actions">
+                                            <button type="submit" class="mil-button update-btn">
+                                                Create Invoice <i class="fa-solid fa-file-invoice"></i>
+                                            </button>
+                                            <button type="button" class="mil-button cancel-btn" id="cancelInvoiceBtn">
+                                                Cancel <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Invoices Table -->
+                                <div class="mil-table-section mil-up">
+                                    <h2 class="mil-mb-30">Existing Invoices</h2>
+                                    <table class="mil-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th>Customer Name</th>
+                                                <th>Items</th>
+                                                <th>Total Amount</th>
+                                                <th>Payment Status</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% sales.forEach(sale => { %>
+                                                <tr id="sale-<%= sale._id %>">
+                                                    <td><%= new Date(sale.date).toLocaleDateString() %></td>
+                                                    <td><%= sale.customerName %></td>
+                                                    <td>
+                                                        <% if (sale.items) { %>
+                                                            <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
+                                                        <% } else { %>
+                                                            <%= `${sale.itemName} (${sale.quantity})` %>
+                                                        <% } %>
+                                                    </td>
+                                                    <td><%= admin.currency %><%= formatCurrency(sale.totalAmount || 0) %></td>
+                                                    <td class="payment-status"><%= sale.paymentStatus || 'Pending' %></td>
+                                                    <td>
+                                                        <div class="mil-action-buttons">
+                                                            <a href="/invoices/download/<%= sale._id %>" class="mil-button download-btn">
+                                                                Download PDF <i class="fa-solid fa-download"></i>
+                                                            </a>
+                                                            <% if (sale.paymentStatus !== 'Paid') { %>
+                                                                <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
+                                                                    <button type="submit" class="mil-button update-btn">
+                                                                        Mark as Paid <i class="fa-solid fa-check"></i>
+                                                                    </button>
+                                                                </form>
+                                                            <% } %>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-9">
+                                    <div class="mil-vert-between">
+                                        <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+        </footer>
+        <!-- footer end -->
+
+        <!-- hidden elements -->
+        <div class="mil-hidden-elements">
+            <div class="mil-dodecahedron">
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+            </svg>
+            <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+            </svg>
         </div>
+        <!-- hidden elements end -->
     </div>
+    <!-- wrapper end -->
 
-    <!-- JavaScript Dependencies -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
 
+    <!-- Sidebar Toggle -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('newSidebar');
-            const toggleBtn = document.getElementById('newToggleBtn');
-            const createInvoiceBtn = document.getElementById('createInvoiceBtn');
-            const createInvoiceForm = document.getElementById('createInvoiceForm');
-            const cancelInvoiceBtn = document.getElementById('cancelInvoiceBtn');
-            const customerSelect = document.getElementById('customerSelect');
-            const newCustomerFields = document.getElementById('newCustomerFields');
-            const itemsContainer = document.getElementById('itemsContainer');
-            const addItemBtn = document.getElementById('addItemBtn');
-            const paymentMethod = document.getElementById('paymentMethod');
-            const bankDetails = document.getElementById('bankDetails');
-            const invoiceForm = document.getElementById('invoiceForm');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('toggleBtn');
 
-            let isCollapsed = false;
-            let isOpenOnMobile = false;
-            let itemIndex = <%= formData.items && formData.items.itemId ? (Array.isArray(formData.items.itemId) ? formData.items.itemId.length : 1) : 1 %>;
-
-            // Toggle sidebar
-            if (toggleBtn && sidebar) {
-                toggleBtn.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        isOpenOnMobile = !isOpenOnMobile;
-                        if (isOpenOnMobile) {
-                            sidebar.classList.add('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                        } else {
-                            sidebar.classList.remove('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    } else {
-                        isCollapsed = !isCollapsed;
-                        if (isCollapsed) {
-                            sidebar.classList.add('collapsed');
-                        } else {
-                            sidebar.classList.remove('collapsed');
-                        }
-                    }
-                });
+            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+            if (isSidebarHidden) {
+                sidebar.classList.add('hidden');
+                mainContent.classList.add('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.remove('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
             }
 
-            // Close sidebar on outside click (mobile only)
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                    if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
-                        sidebar.classList.remove('open');
-                        isOpenOnMobile = false;
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    }
-                }
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('full-width');
+                toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
             });
 
-            // Set initial sidebar state
             function setSidebarState() {
-                if (!sidebar || !toggleBtn) return;
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('collapsed');
-                    if (!isOpenOnMobile) {
-                        sidebar.classList.remove('open');
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    }
+                if (sidebar.classList.contains('hidden')) {
+                    mainContent.classList.add('full-width');
                 } else {
-                    sidebar.classList.remove('open');
-                    isOpenOnMobile = false;
-                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    if (isCollapsed) {
-                        sidebar.classList.add('collapsed');
-                    } else {
-                        sidebar.classList.remove('collapsed');
-                    }
+                    mainContent.classList.remove('full-width');
                 }
             }
             setSidebarState();
             window.addEventListener('resize', setSidebarState);
+        });
+    </script>
 
-            // Toggle invoice form visibility
-            if (createInvoiceBtn && createInvoiceForm) {
-                createInvoiceBtn.addEventListener('click', () => {
-                    createInvoiceForm.style.display = 'block';
-                    createInvoiceBtn.parentElement.style.display = 'none';
-                });
-            }
+    <!-- Invoice Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const createInvoiceBtn = document.getElementById('createInvoiceBtn');
+                const createInvoiceForm = document.getElementById('createInvoiceForm');
+                const cancelInvoiceBtn = document.getElementById('cancelInvoiceBtn');
+                const customerSelect = document.getElementById('customerSelect');
+                const newCustomerFields = document.getElementById('newCustomerFields');
+                const itemsContainer = document.getElementById('itemsContainer');
+                const addItemBtn = document.getElementById('addItemBtn');
+                const paymentMethod = document.getElementById('paymentMethod');
+                const bankDetails = document.getElementById('bankDetails');
+                const invoiceForm = document.getElementById('invoiceForm');
 
-            // Cancel invoice creation
-            if (cancelInvoiceBtn && createInvoiceForm) {
-                cancelInvoiceBtn.addEventListener('click', () => {
-                    createInvoiceForm.style.display = 'none';
-                    createInvoiceBtn.parentElement.style.display = 'flex';
-                    invoiceForm.reset();
-                    const rows = itemsContainer.querySelectorAll('.item-row');
-                    if (rows.length > 1) {
-                        for (let i = 1; i < rows.length; i++) {
-                            rows[i].remove();
+                let itemIndex = <%= formData.items && formData.items.itemId ? (Array.isArray(formData.items.itemId) ? formData.items.itemId.length : 1) : 1 %>;
+
+                // Toggle invoice form visibility
+                if (createInvoiceBtn && createInvoiceForm) {
+                    createInvoiceBtn.addEventListener('click', () => {
+                        createInvoiceForm.style.display = 'block';
+                        createInvoiceBtn.parentElement.style.display = 'none';
+                    });
+                }
+
+                // Cancel invoice creation
+                if (cancelInvoiceBtn && createInvoiceForm) {
+                    cancelInvoiceBtn.addEventListener('click', () => {
+                        createInvoiceForm.style.display = 'none';
+                        createInvoiceBtn.parentElement.style.display = 'flex';
+                        invoiceForm.reset();
+                        const rows = itemsContainer.querySelectorAll('.mil-item-row');
+                        if (rows.length > 1) {
+                            for (let i = 1; i < rows.length; i++) {
+                                rows[i].remove();
+                            }
                         }
-                    }
-                    newCustomerFields.classList.add('hidden');
-                    bankDetails.classList.add('hidden');
-                    updateRemoveButtons();
-                    validateCustomer();
+                        newCustomerFields.classList.add('hidden');
+                        bankDetails.classList.add('hidden');
+                        updateRemoveButtons();
+                        validateCustomer();
+                        validateItems();
+                        validatePaymentMethod();
+                    });
+                }
+
+                // Toggle new customer fields
+                if (customerSelect && newCustomerFields) {
+                    customerSelect.addEventListener('change', () => {
+                        const isNewCustomer = customerSelect.value === 'new';
+                        newCustomerFields.classList.toggle('hidden', !isNewCustomer);
+                        newCustomerFields.querySelectorAll('input').forEach(input => {
+                            input.required = isNewCustomer;
+                        });
+                        validateCustomer();
+                    });
+                }
+
+                // Toggle bank details
+                if (paymentMethod && bankDetails) {
+                    paymentMethod.addEventListener('change', () => {
+                        const isBankTransfer = paymentMethod.value === 'Bank Transfer';
+                        bankDetails.classList.toggle('hidden', !isBankTransfer);
+                        bankDetails.querySelectorAll('input').forEach(input => {
+                            input.required = isBankTransfer;
+                        });
+                        validatePaymentMethod();
+                    });
+                }
+
+                // Add new item row
+                if (addItemBtn && itemsContainer) {
+                    addItemBtn.addEventListener('click', () => {
+                        const newRow = document.createElement('div');
+                        newRow.className = 'mil-item-row';
+                        newRow.dataset.index = itemIndex;
+                        newRow.innerHTML = `
+                            <select name="items[itemId][]" class="mil-form-control" required>
+                                <option value="">Select Item</option>
+                                <% inventory.forEach(item => { %>
+                                    <option value="<%= item._id %>" data-stock="<%= item.stock %>">
+                                        <%= item.name %> (Stock: <%= item.stock %>)
+                                    </option>
+                                <% }) %>
+                                <option value="new">Create New Product</option>
+                            </select>
+                            <input type="number" name="items[quantity][]" class="mil-form-control" placeholder="Quantity" min="1" required>
+                            <button type="button" class="mil-button delete-btn remove-btn">
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+                            <div class="mil-new-product-fields hidden" id="newProductFields${itemIndex}">
+                                <div class="mil-form-group">
+                                    <label><i class="fa-solid fa-box"></i> Product Name</label>
+                                    <input type="text" name="items[newProductName][]" class="mil-form-control" placeholder="Product Name">
+                                </div>
+                                <div class="mil-form-group">
+                                    <label><i class="fa-solid fa-money-bill"></i> Cost</label>
+                                    <input type="number" name="items[newProductCost][]" class="mil-form-control" placeholder="Cost" min="0" step="0.01">
+                                </div>
+                                <div class="mil-form-group">
+                                    <label><i class="fa-solid fa-cubes"></i> Stock</label>
+                                    <input type="number" name="items[newProductStock][]" class="mil-form-control" placeholder="Stock" min="0">
+                                </div>
+                            </div>
+                            <div class="mil-field-error" id="itemError${itemIndex}"></div>
+                        `;
+                        itemsContainer.appendChild(newRow);
+                        const select = newRow.querySelector('select');
+                        select.addEventListener('change', () => toggleNewProductFields(select));
+                        select.addEventListener('change', validateItems);
+                        newRow.querySelector('input[type="number"]').addEventListener('input', validateItems);
+                        newRow.querySelectorAll('.mil-new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
+                        newRow.querySelector('.remove-btn').addEventListener('click', () => {
+                            if (itemsContainer.querySelectorAll('.mil-item-row').length > 1) {
+                                newRow.remove();
+                                validateItems();
+                                updateRemoveButtons();
+                            }
+                        });
+                        itemIndex++;
+                        updateRemoveButtons();
+                    });
+                }
+
+                // Toggle new product fields
+                function toggleNewProductFields(select) {
+                    const index = select.closest('.mil-item-row').dataset.index;
+                    const newProductFields = document.getElementById(`newProductFields${index}`);
+                    const isNewProduct = select.value === 'new';
+                    newProductFields.classList.toggle('hidden', !isNewProduct);
+                    newProductFields.querySelectorAll('input').forEach(input => {
+                        input.required = isNewProduct;
+                    });
                     validateItems();
-                    validatePaymentMethod();
-                });
-            }
+                }
 
-            // Toggle new customer fields
-            if (customerSelect && newCustomerFields) {
-                customerSelect.addEventListener('change', () => {
-                    const isNewCustomer = customerSelect.value === 'new';
-                    newCustomerFields.classList.toggle('hidden', !isNewCustomer);
-                    newCustomerFields.querySelectorAll('input').forEach(input => {
-                        input.required = isNewCustomer;
+                // Update remove buttons visibility
+                function updateRemoveButtons() {
+                    const rows = itemsContainer.querySelectorAll('.mil-item-row');
+                    rows.forEach((row, index) => {
+                        const removeBtn = row.querySelector('.remove-btn');
+                        removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'block';
                     });
-                    validateCustomer();
-                });
-            }
+                }
 
-            // Toggle bank details
-            if (paymentMethod && bankDetails) {
-                paymentMethod.addEventListener('change', () => {
-                    const isBankTransfer = paymentMethod.value === 'Bank Transfer';
-                    bankDetails.classList.toggle('hidden', !isBankTransfer);
-                    bankDetails.querySelectorAll('input').forEach(input => {
-                        input.required = isBankTransfer;
+                // Client-side validation
+                function validateCustomer() {
+                    const errorElement = document.getElementById('customerSelectError');
+                    if (!customerSelect.value) {
+                        errorElement.textContent = 'Please select a customer.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else if (customerSelect.value === 'new') {
+                        const name = document.getElementById('newCustomerName').value.trim();
+                        const nameError = document.getElementById('newCustomerNameError');
+                        if (!name) {
+                            nameError.textContent = 'Customer name is required.';
+                            nameError.style.display = 'block';
+                            errorElement.style.display = 'none';
+                            return false;
+                        } else {
+                            nameError.style.display = 'none';
+                            errorElement.style.display = 'none';
+                            return true;
+                        }
+                    } else {
+                        errorElement.style.display = 'none';
+                        return true;
+                    }
+                }
+
+                function validateItems() {
+                    let isValid = true;
+                    const rows = itemsContainer.querySelectorAll('.mil-item-row');
+                    rows.forEach(row => {
+                        const index = row.dataset.index;
+                        const select = row.querySelector('select');
+                        const quantityInput = row.querySelector('input[type="number"]');
+                        const errorElement = document.getElementById(`itemError${index}`);
+                        const isNewProduct = select.value === 'new';
+
+                        if (!select.value) {
+                            errorElement.textContent = 'Please select an item.';
+                            errorElement.style.display = 'block';
+                            isValid = false;
+                        } else if (isNewProduct) {
+                            const name = row.querySelector('input[name="items[newProductName][]"]').value.trim();
+                            const cost = parseFloat(row.querySelector('input[name="items[newProductCost][]"]').value) || 0;
+                            const stock = parseInt(row.querySelector('input[name="items[newProductStock][]"]').value) || 0;
+                            const qty = parseInt(quantityInput.value) || 0;
+
+                            if (!name) {
+                                errorElement.textContent = 'Product name is required.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (cost <= 0) {
+                                errorElement.textContent = 'Cost must be greater than 0.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (stock < 0) {
+                                errorElement.textContent = 'Stock cannot be negative.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (qty <= 0) {
+                                errorElement.textContent = 'Quantity must be greater than 0.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (qty > stock) {
+                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else {
+                                errorElement.style.display = 'none';
+                            }
+                        } else {
+                            const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
+                            const qty = parseInt(quantityInput.value) || 0;
+
+                            if (qty <= 0) {
+                                errorElement.textContent = 'Quantity must be greater than 0.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (qty > stock) {
+                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else {
+                                errorElement.style.display = 'none';
+                            }
+                        }
                     });
-                    validatePaymentMethod();
-                });
-            }
+                    return isValid;
+                }
 
-            // Add new item row
-            if (addItemBtn && itemsContainer) {
-                addItemBtn.addEventListener('click', () => {
-                    const newRow = document.createElement('div');
-                    newRow.className = 'item-row';
-                    newRow.dataset.index = itemIndex;
-                    newRow.innerHTML = `
-                        <select name="items[itemId][]" class="form-control" required>
-                            <option value="">Select Item</option>
-                            <% inventory.forEach(item => { %>
-                                <option value="<%= item._id %>" data-stock="<%= item.stock %>">
-                                    <%= item.name %> (Stock: <%= item.stock %>)
-                                </option>
-                            <% }) %>
-                            <option value="new">Create New Product</option>
-                        </select>
-                        <input type="number" name="items[quantity][]" class="form-control" placeholder="Quantity" min="1" required>
-                        <button type="button" class="btn btn-round btn-create-account delete-btn remove-btn">
-                            <i class="fa-solid fa-minus"></i>
-                        </button>
-                        <div class="new-product-fields hidden" id="newProductFields${itemIndex}">
-                            <div class="form-group">
-                                <label>Product Name <i class="fa-solid fa-box"></i></label>
-                                <input type="text" name="items[newProductName][]" class="form-control" placeholder="Product Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Cost <i class="fa-solid fa-money-bill"></i></label>
-                                <input type="number" name="items[newProductCost][]" class="form-control" placeholder="Cost" min="0" step="0.01">
-                            </div>
-                            <div class="form-group">
-                                <label>Stock <i class="fa-solid fa-cubes"></i></label>
-                                <input type="number" name="items[newProductStock][]" class="form-control" placeholder="Stock" min="0">
-                            </div>
-                        </div>
-                        <div class="field-error" id="itemError${itemIndex}"></div>
-                    `;
-                    itemsContainer.appendChild(newRow);
-                    const select = newRow.querySelector('select');
+                function validatePaymentMethod() {
+                    const errorElement = document.getElementById('paymentMethodError');
+                    if (!paymentMethod.value) {
+                        errorElement.textContent = 'Please select a payment method.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else if (paymentMethod.value === 'Bank Transfer') {
+                        const bankName = document.getElementById('bankName').value.trim();
+                        const bankAccountName = document.getElementById('bankAccountName').value.trim();
+                        const accountNumber = document.getElementById('accountNumber').value.trim();
+                        const bankNameError = document.getElementById('bankNameError');
+                        const bankAccountNameError = document.getElementById('bankAccountNameError');
+                        const accountNumberError = document.getElementById('accountNumberError');
+
+                        let isValid = true;
+                        if (!bankName) {
+                            bankNameError.textContent = 'Bank name is required.';
+                            bankNameError.style.display = 'block';
+                            isValid = false;
+                        } else {
+                            bankNameError.style.display = 'none';
+                        }
+                        if (!bankAccountName) {
+                            bankAccountNameError.textContent = 'Bank account name is required.';
+                            bankAccountNameError.style.display = 'block';
+                            isValid = false;
+                        } else {
+                            bankAccountNameError.style.display = 'none';
+                        }
+                        if (!accountNumber) {
+                            accountNumberError.textContent = 'Account number is required.';
+                            accountNumberError.style.display = 'block';
+                            isValid = false;
+                        } else {
+                            accountNumberError.style.display = 'none';
+                        }
+                        if (isValid) {
+                            errorElement.style.display = 'none';
+                        }
+                        return isValid;
+                    } else {
+                        errorElement.style.display = 'none';
+                        return true;
+                    }
+                }
+
+                // Attach validation and toggle listeners
+                if (customerSelect) customerSelect.addEventListener('change', validateCustomer);
+                if (document.getElementById('newCustomerName')) document.getElementById('newCustomerName').addEventListener('input', validateCustomer);
+                if (paymentMethod) paymentMethod.addEventListener('change', validatePaymentMethod);
+                if (document.getElementById('bankName')) document.getElementById('bankName').addEventListener('input', validatePaymentMethod);
+                if (document.getElementById('bankAccountName')) document.getElementById('bankAccountName').addEventListener('input', validatePaymentMethod);
+                if (document.getElementById('accountNumber')) document.getElementById('accountNumber').addEventListener('input', validatePaymentMethod);
+                itemsContainer.querySelectorAll('select').forEach(select => {
                     select.addEventListener('change', () => toggleNewProductFields(select));
                     select.addEventListener('change', validateItems);
-                    newRow.querySelector('input[type="number"]').addEventListener('input', validateItems);
-                    newRow.querySelectorAll('.new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
-                    newRow.querySelector('.remove-btn').addEventListener('click', () => {
-                        if (itemsContainer.querySelectorAll('.item-row').length > 1) {
-                            newRow.remove();
+                });
+                itemsContainer.querySelectorAll('input[type="number"]').forEach(input => input.addEventListener('input', validateItems));
+                itemsContainer.querySelectorAll('.mil-new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
+                itemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        if (itemsContainer.querySelectorAll('.mil-item-row').length > 1) {
+                            btn.closest('.mil-item-row').remove();
                             validateItems();
                             updateRemoveButtons();
                         }
                     });
-                    itemIndex++;
-                    updateRemoveButtons();
                 });
-            }
 
-            // Toggle new product fields
-            function toggleNewProductFields(select) {
-                const index = select.closest('.item-row').dataset.index;
-                const newProductFields = document.getElementById(`newProductFields${index}`);
-                const isNewProduct = select.value === 'new';
-                newProductFields.classList.toggle('hidden', !isNewProduct);
-                newProductFields.querySelectorAll('input').forEach(input => {
-                    input.required = isNewProduct;
-                });
-                validateItems();
-            }
-
-            // Update remove buttons visibility
-            function updateRemoveButtons() {
-                const rows = itemsContainer.querySelectorAll('.item-row');
-                rows.forEach((row, index) => {
-                    const removeBtn = row.querySelector('.remove-btn');
-                    removeBtn.style.display = index === 0 && rows.length === 1 ? 'none' : 'block';
-                });
-            }
-
-            // Client-side validation
-            function validateCustomer() {
-                const errorElement = document.getElementById('customerSelectError');
-                if (!customerSelect.value) {
-                    errorElement.textContent = 'Please select a customer.';
-                    errorElement.style.display = 'block';
-                    return false;
-                } else if (customerSelect.value === 'new') {
-                    const name = document.getElementById('newCustomerName').value.trim();
-                    const nameError = document.getElementById('newCustomerNameError');
-                    if (!name) {
-                        nameError.textContent = 'Customer name is required.';
-                        nameError.style.display = 'block';
-                        errorElement.style.display = 'none';
-                        return false;
-                    } else {
-                        nameError.style.display = 'none';
-                        errorElement.style.display = 'none';
-                        return true;
-                    }
-                } else {
-                    errorElement.style.display = 'none';
-                    return true;
-                }
-            }
-
-            function validateItems() {
-                let isValid = true;
-                const rows = itemsContainer.querySelectorAll('.item-row');
-                rows.forEach(row => {
-                    const index = row.dataset.index;
-                    const select = row.querySelector('select');
-                    const quantityInput = row.querySelector('input[type="number"]');
-                    const errorElement = document.getElementById(`itemError${index}`);
-                    const isNewProduct = select.value === 'new';
-
-                    if (!select.value) {
-                        errorElement.textContent = 'Please select an item.';
-                        errorElement.style.display = 'block';
-                        isValid = false;
-                    } else if (isNewProduct) {
-                        const name = row.querySelector('input[name="items[newProductName][]"]').value.trim();
-                        const cost = parseFloat(row.querySelector('input[name="items[newProductCost][]"]').value) || 0;
-                        const stock = parseInt(row.querySelector('input[name="items[newProductStock][]"]').value) || 0;
-                        const qty = parseInt(quantityInput.value) || 0;
-
-                        if (!name) {
-                            errorElement.textContent = 'Product name is required.';
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else if (cost <= 0) {
-                            errorElement.textContent = 'Cost must be greater than 0.';
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else if (stock < 0) {
-                            errorElement.textContent = 'Stock cannot be negative.';
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else if (qty <= 0) {
-                            errorElement.textContent = 'Quantity must be greater than 0.';
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else if (qty > stock) {
-                            errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else {
-                            errorElement.style.display = 'none';
+                // Handle form submission
+                if (invoiceForm) {
+                    invoiceForm.addEventListener('submit', (e) => {
+                        const isCustomerValid = validateCustomer();
+                        const areItemsValid = validateItems();
+                        const isPaymentMethodValid = validatePaymentMethod();
+                        if (!isCustomerValid || !areItemsValid || !isPaymentMethodValid) {
+                            e.preventDefault();
                         }
-                    } else {
-                        const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
-                        const qty = parseInt(quantityInput.value) || 0;
-
-                        if (qty <= 0) {
-                            errorElement.textContent = 'Quantity must be greater than 0.';
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else if (qty > stock) {
-                            errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else {
-                            errorElement.style.display = 'none';
-                        }
-                    }
-                });
-                return isValid;
-            }
-
-            function validatePaymentMethod() {
-                const errorElement = document.getElementById('paymentMethodError');
-                if (!paymentMethod.value) {
-                    errorElement.textContent = 'Please select a payment method.';
-                    errorElement.style.display = 'block';
-                    return false;
-                } else if (paymentMethod.value === 'Bank Transfer') {
-                    const bankName = document.getElementById('bankName').value.trim();
-                    const bankAccountName = document.getElementById('bankAccountName').value.trim();
-                    const accountNumber = document.getElementById('accountNumber').value.trim();
-                    const bankNameError = document.getElementById('bankNameError');
-                    const bankAccountNameError = document.getElementById('bankAccountNameError');
-                    const accountNumberError = document.getElementById('accountNumberError');
-
-                    let isValid = true;
-                    if (!bankName) {
-                        bankNameError.textContent = 'Bank name is required.';
-                        bankNameError.style.display = 'block';
-                        isValid = false;
-                    } else {
-                        bankNameError.style.display = 'none';
-                    }
-                    if (!bankAccountName) {
-                        bankAccountNameError.textContent = 'Bank account name is required.';
-                        bankAccountNameError.style.display = 'block';
-                        isValid = false;
-                    } else {
-                        bankAccountNameError.style.display = 'none';
-                    }
-                    if (!accountNumber) {
-                        accountNumberError.textContent = 'Account number is required.';
-                        accountNumberError.style.display = 'block';
-                        isValid = false;
-                    } else {
-                        accountNumberError.style.display = 'none';
-                    }
-                    if (isValid) {
-                        errorElement.style.display = 'none';
-                    }
-                    return isValid;
-                } else {
-                    errorElement.style.display = 'none';
-                    return true;
+                    });
                 }
-            }
 
-            // Attach validation and toggle listeners
-            if (customerSelect) customerSelect.addEventListener('change', validateCustomer);
-            if (document.getElementById('newCustomerName')) document.getElementById('newCustomerName').addEventListener('input', validateCustomer);
-            if (paymentMethod) paymentMethod.addEventListener('change', validatePaymentMethod);
-            if (document.getElementById('bankName')) document.getElementById('bankName').addEventListener('input', validatePaymentMethod);
-            if (document.getElementById('bankAccountName')) document.getElementById('bankAccountName').addEventListener('input', validatePaymentMethod);
-            if (document.getElementById('accountNumber')) document.getElementById('accountNumber').addEventListener('input', validatePaymentMethod);
-            itemsContainer.querySelectorAll('select').forEach(select => {
-                select.addEventListener('change', () => toggleNewProductFields(select));
-                select.addEventListener('change', validateItems);
-            });
-            itemsContainer.querySelectorAll('input[type="number"]').forEach(input => input.addEventListener('input', validateItems));
-            itemsContainer.querySelectorAll('.new-product-fields input').forEach(input => input.addEventListener('input', validateItems));
-            itemsContainer.querySelectorAll('.remove-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    if (itemsContainer.querySelectorAll('.item-row').length > 1) {
-                        btn.closest('.item-row').remove();
-                        validateItems();
-                        updateRemoveButtons();
-                    }
-                });
-            });
-
-            // Handle form submission
-            if (invoiceForm) {
-                invoiceForm.addEventListener('submit', (e) => {
-                    const isCustomerValid = validateCustomer();
-                    const areItemsValid = validateItems();
-                    const isPaymentMethodValid = validatePaymentMethod();
-                    if (!isCustomerValid || !areItemsValid || !isPaymentMethodValid) {
+                // Handle "Mark as Paid" form submission
+                document.querySelectorAll('.action-form').forEach(form => {
+                    form.addEventListener('submit', async (e) => {
                         e.preventDefault();
-                    }
-                });
-            }
-
-            // Handle "Mark as Paid" form submission
-            document.querySelectorAll('.action-form').forEach(form => {
-                form.addEventListener('submit', async (e) => {
-                    e.preventDefault();
-                    const saleId = form.dataset.saleId;
-                    try {
-                        const response = await fetch(form.action, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                        });
-                        if (response.ok) {
-                            const row = document.getElementById(`sale-${saleId}`);
-                            row.querySelector('.payment-status').textContent = 'Paid';
-                            form.remove();
-                        } else {
-                            alert('Failed to mark invoice as paid.');
+                        const saleId = form.dataset.saleId;
+                        try {
+                            const response = await fetch(form.action, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            });
+                            if (response.ok) {
+                                const row = document.getElementById(`sale-${saleId}`);
+                                row.querySelector('.payment-status').textContent = 'Paid';
+                                form.remove();
+                            } else {
+                                alert('Failed to mark invoice as paid.');
+                            }
+                        } catch (error) {
+                            console.error('Error marking invoice as paid:', error);
+                            alert('An error occurred while marking the invoice as paid.');
                         }
-                    } catch (error) {
-                        console.error('Error marking invoice as paid:', error);
-                        alert('An error occurred while marking the invoice as paid.');
-                    }
+                    });
                 });
-            });
 
-            // Initial setup
-            updateRemoveButtons();
-            newCustomerFields.classList.toggle('hidden', customerSelect.value !== 'new');
-            bankDetails.classList.toggle('hidden', paymentMethod.value !== 'Bank Transfer');
-            <% if (error) { %>
-                createInvoiceForm.style.display = 'block';
-                createInvoiceBtn.parentElement.style.display = 'none';
-            <% } else { %>
-                createInvoiceForm.style.display = 'none';
-                createInvoiceBtn.parentElement.style.display = 'flex';
-            <% } %>
-            itemsContainer.querySelectorAll('select').forEach(select => toggleNewProductFields(select));
-            validateCustomer();
-            validateItems();
-            validatePaymentMethod();
+                // Initial setup
+                updateRemoveButtons();
+                newCustomerFields.classList.toggle('hidden', customerSelect.value !== 'new');
+                bankDetails.classList.toggle('hidden', paymentMethod.value !== 'Bank Transfer');
+                itemsContainer.querySelectorAll('select').forEach(select => toggleNewProductFields(select));
+                validateCustomer();
+                validateItems();
+                validatePaymentMethod();
+            } catch (error) {
+                console.error('Error initializing scripts:', error);
+            }
         });
     </script>
 </body>

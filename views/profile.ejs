@@ -1,239 +1,121 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:title" content="Profile | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Profile</title>
 
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
-    <!-- Cropper.js -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Cropper.js CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
-    
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
-    
-    <!-- Favicons -->
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Inline CSS -->
     <style>
-        body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+        /* Banner starts at top */
+        .mil-banner {
+            margin-top: 0;
+            padding-top: 0;
             position: relative;
-            min-height: 100vh;
-            font-size: 14px;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+        /* Content padding */
+        .mil-content {
+            padding-bottom: 30px;
+        }
+        /* Footer adjustments */
+        footer.mil-dark-bg {
+            padding-bottom: 0;
+            width: 100%;
             margin: 0;
         }
-        
-        body::before {
-            content: '';
+        footer.mil-dark-bg .container-fluid {
+            padding: 120px 30px;
+        }
+        @media (min-width: 1200px) {
+            footer.mil-dark-bg .container-fluid {
+                max-width: 1400px;
+                margin: 0 auto;
+                padding: 120px 60px;
+            }
+        }
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: #fff !important;
+            font-size: 16px !important;
+        }
+        .mil-soft-bg .mil-light-soft {
+            color: #333 !important;
+        }
+        .mil-banner-content, .mil-content, .mil-footer, .mil-about {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+        .mil-up {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+        /* Add tick to all <li> elements */
+        li {
+            position: relative;
+            padding-left: 25px;
+        }
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #008B8B;
             position: absolute;
-            top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
         }
-        
-        /* Sidebar */
-        .new-sidebar {
-            width: 250px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: darkcyan;
-            color: white;
-            padding: 60px 20px 20px 20px;
-            transition: width 0.3s ease, left 0.3s ease;
-            z-index: 3000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
         }
-        
-        .new-sidebar.collapsed {
-            width: 80px;
+        .mil-menu-list li::before {
+            color: #fff;
         }
-        
-        .new-sidebar.collapsed .logo img {
-            max-width: 50px;
-        }
-        
-        .new-sidebar.collapsed .greeting,
-        .new-sidebar.collapsed .nav-link span {
-            display: none;
-        }
-        
-        .new-sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px 5px;
-        }
-        
-        .new-sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-        
-        .new-sidebar .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .new-sidebar .logo img {
-            max-width: 80%;
-            height: auto;
-            transition: max-width 0.3s ease;
-        }
-        
-        .new-sidebar .greeting {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .new-sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .new-sidebar .nav-link i {
-            margin-right: 10px;
-            font-size: 1rem;
-        }
-        
-        .new-sidebar .nav-link:hover {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-        }
-        
-        .new-sidebar .nav-link.active {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            font-weight: bold;
-        }
-        
-        /* Toggle Button */
-        .new-toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 3100;
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
-        }
-        
-        .new-sidebar.collapsed + .main-container .new-toggle-btn {
-            left: 20px;
-        }
-        
-        /* Main Container */
-        .main-container {
-            min-height: 100vh;
-            padding: 20px;
-            max-width: 1000px;
-            margin-left: 250px;
-            margin-right: 20px;
-            transition: margin-left 0.3s ease;
-            position: relative;
-            z-index: 100;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .new-sidebar.collapsed + .main-container {
-            margin-left: 80px;
-        }
-        
-        /* Backdrop for mobile */
-        .new-sidebar.open + .main-container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
-        }
-        
-        .registration-container {
-            width: 100%;
-            padding: 20px;
-        }
-        
-        .registration-card {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .logo-container {
-            text-align: center;
-            margin-bottom: 15px;
-            padding-top: 15px;
-        }
-        
-        .logo-container img {
-            height: 50px;
-            margin-bottom: 10px;
-            max-width: 100%;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .form-group {
+        /* Form styling */
+        .mil-form-group {
             margin-bottom: 15px;
         }
-        
-        .form-group label {
+        .mil-form-group label {
             color: #333;
             margin-bottom: 6px;
             display: block;
@@ -241,167 +123,251 @@
             font-size: 13px;
             padding-top: 10px;
         }
-        
-        .form-control {
+        .mil-form-control {
             background-color: white;
             border: 1px solid #ced4da;
-            color: #333;
+            color: #495057;
             transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
             font-size: 13px;
             padding: 0.375rem 0.75rem;
-            height: 38px;
+            height: calc(1.5em + 0.75rem + 2px);
             width: 100%;
             box-sizing: border-box;
+            border-radius: 4px;
+            text-transform: none !important;
         }
-        
-        .btn-create-account {
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+        /* Checkbox styling */
+        .mil-form-group.checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-top: 5px;
+        }
+        .mil-form-group.checkbox-group label {
+            margin-left: 10px;
+            padding-top: 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        /* Button styling */
+        .mil-button {
             background-color: rgb(235, 166, 17);
-            color: #fff;
-            transition: all 0.3s ease;
+            color: #333;
             border: none;
-            font-weight: 500;
-            font-size: 14px;
             padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
+            font-size: 10px;
+            font-weight: 500;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
         }
-        
-        .btn-create-account:hover {
-            background-color: rgb(200, 142, 14);
-            color: #fff;
+        .mil-button:hover {
+            background-color: #fff;
+            color: rgb(235, 166, 17);
+            border: 2px solid rgb(235, 166, 17);
         }
-        
-        .btn-create-account.add-product-btn {
-            background-color: rgb(255, 204, 0);
-            color: #333;
+        .mil-button i {
+            margin-left: 8px;
         }
-        
-        .btn-create-account.add-product-btn:hover {
-            background-color: rgb(230, 184, 0);
-            color: #333;
-        }
-        
-        .btn-create-account.update-btn {
-            background-color: rgb(40, 167, 69);
-            color: #fff;
-        }
-        
-        .btn-create-account.update-btn:hover {
-            background-color: rgb(34, 139, 57);
-            color: #fff;
-        }
-        
-        .btn-create-account.delete-btn {
-            background-color: rgb(220, 53, 69);
-            color: #fff;
-        }
-        
-        .btn-create-account.delete-btn:hover {
-            background-color: rgb(200, 48, 63);
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn {
-            background-color: rgb(108, 117, 125);
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn:hover {
-            background-color: rgb(90, 98, 104);
-            color: #fff;
-        }
-        
-        .btn-create-account.search-button {
-            background-color: rgb(0, 123, 255);
-            color: #fff;
-            border: 1px solid #ced4da;
-            border-left: none;
-        }
-        
-        .btn-create-account.search-button:hover {
-            background-color: rgb(0, 105, 217);
-            color: #fff;
-        }
-        
-        .btn-create-account.image-upload-btn {
-            background-color: rgb(111, 66, 193);
-            color: #fff;
-        }
-        
-        .btn-create-account.image-upload-btn:hover {
-            background-color: rgb(95, 56, 165);
-            color: #fff;
-        }
-        
-        .btn-create-account.edit-btn {
+        .mil-button.edit-btn {
             background-color: rgb(255, 193, 7);
             color: #333;
         }
-        
-        .btn-create-account.edit-btn:hover {
-            background-color: rgb(230, 174, 6);
-            color: #333;
+        .mil-button.edit-btn:hover {
+            background-color: #fff;
+            color: rgb(255, 193, 7);
+            border: 2px solid rgb(255, 193, 7);
         }
-        
-        .profile-details {
-            background: white;
+        .mil-button.update-btn {
+            background-color: rgb(40, 167, 69);
+            color: #fff;
+        }
+        .mil-button.update-btn:hover {
+            background-color: #fff;
+            color: rgb(40, 167, 69);
+            border: 2px solid rgb(40, 167, 69);
+        }
+        .mil-button.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: #fff;
+        }
+        .mil-button.cancel-btn:hover {
+            background-color: #fff;
+            color: rgb(108, 117, 125);
+            border: 2px solid rgb(108, 117, 125);
+        }
+        .mil-button.image-upload-btn {
+            background-color: rgb(111, 66, 193);
+            color: #fff;
+        }
+        .mil-button.image-upload-btn:hover {
+            background-color: #fff;
+            color: rgb(111, 66, 193);
+            border: 2px solid rgb(111, 66, 193);
+        }
+        /* Sidebar styling */
+        .mil-wrapper .mil-sidebar {
+            width: 250px;
+            background-color: #f8f8f8 !important;
+            opacity: 1 !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            padding: 20px;
+            z-index: 1001;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        }
+        .mil-wrapper .mil-sidebar.hidden {
+            transform: translateX(-100%);
+        }
+        .mil-wrapper .mil-sidebar * {
+            background-color: transparent !important;
+            opacity: 1 !important;
+        }
+        .mil-wrapper .mil-sidebar .mil-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar .mil-logo-container img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-wrapper .mil-sidebar h2 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 500;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar a {
+            display: block;
+            padding: 10px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            transition: background 0.3s ease;
+            background: none !important;
+        }
+        .mil-wrapper .mil-sidebar a:hover {
+            background: rgb(235, 166, 17) !important;
+            color: #fff;
+        }
+        .mil-wrapper .mil-sidebar a.active {
+            background: rgb(235, 166, 17) !important;
+            color: #fff;
+            font-weight: bold;
+        }
+        /* Toggle button */
+        .mil-toggle-btn {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            z-index: 1002;
+        }
+        /* Main content */
+        .mil-main-content {
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .mil-main-content.full-width {
+            margin-left: 0;
+        }
+        /* Center the main content container */
+        .mil-about .container {
+            display: flex;
+            justify-content: center;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+        .mil-sidebar:not(.hidden) ~ .mil-content .mil-about .container {
+            margin-left: calc(250px + ((100% - 250px - 800px) / 2));
+            margin-right: auto;
+        }
+        .mil-sidebar.hidden ~ .mil-content .mil-about .container {
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* Profile details */
+        .mil-profile-details {
+            background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-        
-        .profile-details .value {
-            background: #f8f9fa;
+        .mil-profile-details .value {
+            background: white;
             padding: 10px;
             border-radius: 4px;
             font-size: 13px;
             color: #333;
+            border: 1px solid #dee2e6;
         }
-        
-        .account-section {
-            background: white;
+        /* Account section */
+        .mil-account-section {
+            background: #f8f9fa;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             margin-bottom: 20px;
         }
-        
-        .social-links {
+        /* Social links */
+        .mil-social-links {
             text-align: center;
             margin-top: 15px;
             font-size: 13px;
         }
-        
-        .social-links a {
+        .mil-social-links a {
             color: rgb(235, 166, 17);
             text-decoration: none;
             margin: 0 10px;
         }
-        
-        .social-links a:hover {
+        .mil-social-links a:hover {
             text-decoration: underline;
         }
-        
-        .form-actions {
+        /* Form section */
+        .mil-form-section {
+            margin-bottom: 20px;
+        }
+        .mil-form-actions {
             display: flex;
             justify-content: center;
             gap: 10px;
             margin-top: 20px;
         }
-        
-        .image-preview-container {
+        /* Image preview */
+        .mil-image-preview-container {
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
         }
-        
-        .image-placeholder {
+        .mil-image-placeholder {
             width: 100px;
             height: 100px;
             background: #f8f9fa;
@@ -413,79 +379,15 @@
             font-size: 12px;
             color: #6c757d;
         }
-        
-        .image-preview {
+        .mil-image-preview {
             width: 100px;
             height: 100px;
             object-fit: cover;
             border-radius: 4px;
             border: 1px solid #ced4da;
         }
-        
-        /* Cropper Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal.show {
-            display: flex;
-        }
-        
-        .modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 10px;
-        }
-        
-        .modal-title {
-            color: #333;
-            font-size: 16px;
-        }
-        
-        .modal-body img {
-            max-width: 100%;
-            display: block;
-            margin: 0 auto;
-        }
-        
-        .modal-footer {
-            border-top: 1px solid #e0e0e0;
-            padding-top: 10px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
-        
-        .close {
-            background: none;
-            border: none;
-            font-size: 20px;
-            cursor: pointer;
-            color: #333;
-        }
-        
-        /* Alerts */
-        .error {
+        /* Error/Success Messages */
+        .mil-error {
             color: #d32f2f;
             background-color: #fde8e8;
             padding: 12px;
@@ -493,9 +395,10 @@
             margin-bottom: 20px;
             border: 1px solid #f5c2c7;
             font-size: 13px;
+            display: flex;
+            align-items: center;
         }
-        
-        .success {
+        .mil-success {
             color: #388e3c;
             background-color: #e8f5e9;
             padding: 12px;
@@ -503,596 +406,728 @@
             margin-bottom: 20px;
             border: 1px solid #c8e6c9;
             font-size: 13px;
-        }
-        
-        /* Checkbox styling */
-        .form-group.checkbox-group {
             display: flex;
             align-items: center;
-            margin-top: 5px;
         }
-        
-        .form-group.checkbox-group label {
-            margin-left: 10px;
-            padding-top: 0;
-            font-size: 12px;
+        .mil-error i, .mil-success i {
+            margin-right: 8px;
+        }
+        /* Cropper Modal */
+        .mil-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .mil-modal.show {
+            display: flex;
+        }
+        .mil-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .mil-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .mil-modal-title {
+            color: #333;
+            font-size: 16px;
+        }
+        .mil-modal-body img {
+            max-width: 100%;
+            display: block;
+            margin: 0 auto;
+        }
+        .mil-modal-footer {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 10px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .mil-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
             cursor: pointer;
+            color: #333;
         }
-        
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
         /* Responsive Design */
         @media (max-width: 768px) {
-            .new-sidebar {
-                left: -250px;
+            .mil-wrapper .mil-sidebar {
+                width: 200px;
+                background-color: #f8f8f8 !important;
+                opacity: 1 !important;
             }
-            
-            .new-sidebar.open {
-                left: 0;
+            .mil-main-content {
+                margin-left: 0;
             }
-            
-            .new-sidebar.open + .main-container::before {
-                display: block;
+            .mil-main-content.full-width {
+                margin-left: 0;
             }
-            
-            .main-container {
-                margin-left: 0 !important;
-                margin-right: 0;
-                width: 100%;
-                padding: 15px;
-            }
-            
-            .registration-container {
-                padding: 15px;
-            }
-            
-            .form-group label {
+            .mil-form-group label {
                 font-size: 12px;
                 padding-top: 8px;
             }
-            
-            .form-control {
+            .mil-form-control {
                 font-size: 12px;
                 padding: 0.3rem 0.6rem;
-                height: 34px;
+                height: calc(1.5em + 0.6rem + 2px);
             }
-            
-            .btn-create-account {
+            .mil-button {
                 font-size: 13px;
                 padding: 8px 16px;
-                height: 34px;
             }
-            
-            .profile-details .value {
+            .mil-profile-details .value {
                 font-size: 12px;
             }
-            
-            .social-links {
+            .mil-social-links {
                 font-size: 12px;
             }
-            
-            .image-preview,
-            .image-placeholder {
+            .mil-image-preview,
+            .mil-image-placeholder {
                 width: 80px;
                 height: 80px;
             }
+            .mil-about .container {
+                margin-left: auto;
+                margin-right: auto;
+                max-width: 100%;
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            .mil-form-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .mil-form-actions .mil-button {
+                width: 100%;
+            }
         }
-    
         @media (max-width: 576px) {
-            .main-container {
+            .mil-main-content {
                 padding: 10px;
                 width: 95%;
                 margin: 0 auto;
             }
-            
-            .registration-container {
-                padding: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .btn-create-account {
-                width: 100%;
-            }
-            
-            .modal-content {
+            .mil-modal-content {
                 padding: 15px;
             }
         }
     </style>
+
+    <title>Profile</title>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="new-sidebar" id="newSidebar">
-        <div class="logo">
-            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
         </div>
-        <div class="greeting">Welcome, <%= username %>!</div>
-        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
-        <a href="/home" class="nav-link"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-        <a href="/profile" class="nav-link active"><i class="fas fa-user"></i> <span>Profile</span></a>
-        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </nav>
+        <!-- scrollbar progress end -->
 
-    <!-- Toggle Button -->
-    <button class="new-toggle-btn" id="newToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+        <!-- sidebar -->
+        <div class="mil-sidebar" id="sidebar">
+            <div class="mil-logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+            </div>
+            <h2 class="mil-up">Welcome, <%= username %>!</h2>
+            <a href="/pos" class="mil-up"><i class="fas fa-shopping-bag"></i> Point of Sale</a>
+            <a href="/update-stock" class="mil-up"><i class="fas fa-boxes"></i> Manage Inventory</a>
+            <a href="/invoices" class="mil-up"><i class="fas fa-file-invoice"></i> Generate Invoice</a>
+            <a href="/transactions" class="mil-up"><i class="fas fa-chart-bar"></i> View Transactions</a>
+            <a href="/customers" class="mil-up"><i class="fas fa-users"></i> Customers</a>
+            <a href="/home" class="mil-up"><i class="fas fa-store"></i> Manage Outlets</a>
+            <a href="/profile" class="mil-up active"><i class="fas fa-user"></i> Profile</a>
+            <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
+        </div>
+        <!-- sidebar end -->
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
-                        <h4 style="color: #333; font-size: 16px;">Profile Settings</h4>
-                    </div>
+        <!-- toggle button -->
+        <button class="mil-toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
 
-                    <!-- Error/Success Messages -->
-                    <% if (error) { %>
-                        <div class="error">
-                            <i class="fa-solid fa-exclamation-circle mr-2"></i><%= error %>
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
                         </div>
-                    <% } %>
-                    <% if (success) { %>
-                        <div class="success">
-                            <i class="fa-solid fa-check-circle mr-2"></i><%= success %>
-                        </div>
-                    <% } %>
-
-                    <!-- View Mode -->
-                    <div id="profileView">
-                        <div class="profile-details">
-                            <div class="form-group">
-                                <label>First Name <i class="fa-solid fa-user"></i></label>
-                                <div class="value"><%= admin.firstName || 'N/A' %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Last Name <i class="fa-solid fa-user"></i></label>
-                                <div class="value"><%= admin.lastName || 'N/A' %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Username <i class="fa-solid fa-user"></i></label>
-                                <div class="value"><%= admin.username %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Email <i class="fa-solid fa-envelope"></i></label>
-                                <div class="value"><%= admin.email %> (<%= admin.publicEmail ? 'Public' : 'Private' %>)</div>
-                            </div>
-                            <div class="form-group">
-                                <label>Business Name <i class="fa-solid fa-building"></i></label>
-                                <div class="value"><%= admin.businessName || 'N/A' %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Currency <i class="fa-solid fa-money-bill-wave"></i></label>
-                                <div class="value"><%= admin.currency || 'N/A' %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Phone <i class="fa-solid fa-phone"></i></label>
-                                <div class="value"><%= admin.phone || 'N/A' %> (<%= admin.publicPhone ? 'Public' : 'Private' %>)</div>
-                            </div>
-                            <div class="form-group">
-                                <label>Address <i class="fa-solid fa-map-marker-alt"></i></label>
-                                <div class="value"><%= admin.address || 'N/A' %> (<%= admin.publicAddress ? 'Public' : 'Private' %>)</div>
-                            </div>
-                            <div class="form-group">
-                                <label>Facebook <i class="fa-brands fa-facebook"></i></label>
-                                <div class="value"><%= admin.facebook || 'N/A' %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>Instagram <i class="fa-brands fa-instagram"></i></label>
-                                <div class="value"><%= admin.instagram || 'N/A' %></div>
-                            </div>
-                            <div class="form-group">
-                                <label>X <i class="fa-brands fa-x-twitter"></i></label>
-                                <div class="value"><%= admin.twitter || 'N/A' %></div>
-                            </div>
-                        </div>
-
-                        <!-- Social Media Links -->
-                        <div class="social-links">
-                            <% if (admin.facebook) { %>
-                                <a href="<%= admin.facebook %>" target="_blank">Facebook</a>
-                            <% } %>
-                            <% if (admin.instagram) { %>
-                                <a href="<%= admin.instagram %>" target="_blank">Instagram</a>
-                            <% } %>
-                            <% if (admin.twitter) { %>
-                                <a href="<%= admin.twitter %>" target="_blank">X</a>
-                            <% } %>
-                        </div>
-
-                        <!-- Account Information -->
-                        <div class="account-section">
-                            <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Bank Account Information</h5>
-                            <div class="account-info">
-                                <div class="form-group">
-                                    <label>Primary Account Name <i class="fa-solid fa-university"></i></label>
-                                    <div class="value"><%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : 'N/A' %></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Primary Account Number <i class="fa-solid fa-university"></i></label>
-                                    <div class="value"><%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : 'N/A' %></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Primary Bank Name <i class="fa-solid fa-university"></i></label>
-                                    <div class="value"><%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : 'N/A' %></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Secondary Account Name <i class="fa-solid fa-university"></i></label>
-                                    <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : 'N/A' %></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Secondary Account Number <i class="fa-solid fa-university"></i></label>
-                                    <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : 'N/A' %></div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Secondary Bank Name <i class="fa-solid fa-university"></i></label>
-                                    <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : 'N/A' %></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-actions">
-                            <button class="btn btn-round btn-create-account edit-btn" id="editProfileBtn">
-                                Edit Profile <i class="fa-solid fa-edit"></i>
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Edit Mode -->
-                    <div class="edit-form" id="profileEdit" style="display: none;">
-                        <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
-                            <div class="form-group">
-                                <label>First Name <i class="fa-solid fa-user"></i></label>
-                                <input type="text" name="firstName" class="form-control" value="<%= admin.firstName || '' %>" placeholder="First Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Last Name <i class="fa-solid fa-user"></i></label>
-                                <input type="text" name="lastName" class="form-control" value="<%= admin.lastName || '' %>" placeholder="Last Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Business Name <i class="fa-solid fa-building"></i></label>
-                                <input type="text" name="businessName" class="form-control" value="<%= admin.businessName || '' %>" placeholder="Business Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Currency <i class="fa-solid fa-money-bill-wave"></i></label>
-                                <select name="currency" class="form-control">
-                                    <option value="">Select Currency</option>
-                                    <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD</option>
-                                    <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
-                                    <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
-                                    <option value="NGN" <%= admin.currency === 'NGN' ? 'selected' : '' %>>NGN</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Email <i class="fa-solid fa-envelope"></i></label>
-                                <input type="email" name="email" class="form-control" value="<%= admin.email || '' %>" placeholder="Email">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" name="publicEmail" id="publicEmail" <%= admin.publicEmail ? 'checked' : '' %>>
-                                    <label for="publicEmail">Make email public on storefront</label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Phone <i class="fa-solid fa-phone"></i></label>
-                                <input type="text" name="phone" class="form-control" value="<%= admin.phone || '' %>" placeholder="Phone">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" name="publicPhone" id="publicPhone" <%= admin.publicPhone ? 'checked' : '' %>>
-                                    <label for="publicPhone">Make phone public on storefront</label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Address <i class="fa-solid fa-map-marker-alt"></i></label>
-                                <input type="text" name="address" class="form-control" value="<%= admin.address || '' %>" placeholder="Address">
-                                <div class="form-group checkbox-group">
-                                    <input type="checkbox" name="publicAddress" id="publicAddress" <%= admin.publicAddress ? 'checked' : '' %>>
-                                    <label for="publicAddress">Make address public on storefront</label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Facebook URL <i class="fa-brands fa-facebook"></i></label>
-                                <input type="url" name="facebook" class="form-control" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/yourbusiness">
-                            </div>
-                            <div class="form-group">
-                                <label>Instagram URL <i class="fa-brands fa-instagram"></i></label>
-                                <input type="url" name="instagram" class="form-control" value="<%= admin.instagram || '' %>" placeholder="https://instagram.com/yourbusiness">
-                            </div>
-                            <div class="form-group">
-                                <label>X URL <i class="fa-brands fa-x-twitter"></i></label>
-                                <input type="url" name="twitter" class="form-control" value="<%= admin.twitter || '' %>" placeholder="https://twitter.com/yourbusiness">
-                            </div>
-                            <div class="form-group">
-                                <label>Business Logo <i class="fa-solid fa-camera"></i></label>
-                                <div class="image-preview-container">
-                                    <div class="image-placeholder" id="imagePlaceholder" style="<%= admin.logo ? 'display: none;' : 'display: flex;' %>">
-                                        <span>No image selected</span>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Profile </span>Settings</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Manage your personal and business profile details.</p>
                                     </div>
-                                    <img id="imagePreview" class="image-preview" src="<%= admin.logo || '#' %>" alt="Logo Preview" style="<%= admin.logo ? 'display: block;' : 'display: none;' %>">
-                                    <input type="file" id="logoInput" name="logo" accept="image/*" class="d-none">
-                                    <input type="hidden" name="croppedImageData" id="croppedImageData">
-                                    <button type="button" class="btn btn-round btn-create-account image-upload-btn" onclick="document.getElementById('logoInput').click()">
-                                        Choose Logo <i class="fa-solid fa-upload"></i>
-                                    </button>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <label>Primary Account Name <i class="fa-solid fa-university"></i></label>
-                                <input type="text" name="primaryBankAccountName" class="form-control" value="<%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : '' %>" placeholder="Account Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Primary Account Number <i class="fa-solid fa-university"></i></label>
-                                <input type="text" name="primaryAccountNumber" class="form-control" value="<%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : '' %>" placeholder="Account Number">
-                            </div>
-                            <div class="form-group">
-                                <label>Primary Bank Name <i class="fa-solid fa-university"></i></label>
-                                <input type="text" name="primaryBankName" class="form-control" value="<%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : '' %>" placeholder="Bank Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Secondary Account Name <i class="fa-solid fa-university"></i></label>
-                                <input type="text" name="secondaryBankAccountName" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : '' %>" placeholder="Account Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Secondary Account Number <i class="fa-solid fa-university"></i></label>
-                                <input type="text" name="secondaryAccountNumber" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : '' %>" placeholder="Account Number">
-                            </div>
-                            <div class="form-group">
-                                <label>Secondary Bank Name <i class="fa-solid fa-university"></i></label>
-                                <input type="text" name="secondaryBankName" class="form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : '' %>" placeholder="Bank Name">
-                            </div>
-                            <div class="form-actions">
-                                <button type="submit" class="btn btn-round btn-create-account update-btn">
-                                    Save Changes <i class="fa-solid fa-save"></i>
-                                </button>
-                                <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cancelEditBtn">
-                                    Cancel <i class="fa-solid fa-times"></i>
-                                </button>
-                            </div>
-                        </form>
+                        </div>
                     </div>
-                </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- main content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8 mil-main-content" id="mainContent">
+                                <!-- Business Info -->
+                                <div class="mil-form-section mil-up">
+                                    <div class="mil-center">
+                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo" style="height: 50px; margin-bottom: 10px;">
+                                        <h4 style="color: #333; font-size: 16px;">Profile for <%= admin.businessName || 'Your Business' %></h4>
+                                    </div>
+                                </div>
+
+                                <!-- Error/Success Messages -->
+                                <% if (error) { %>
+                                    <div class="mil-error mil-up">
+                                        <i class="fas fa-exclamation-circle"></i><%= error %>
+                                    </div>
+                                <% } %>
+                                <% if (success) { %>
+                                    <div class="mil-success mil-up">
+                                        <i class="fas fa-check-circle"></i><%= success %>
+                                    </div>
+                                <% } %>
+
+                                <!-- View Mode -->
+                                <div id="profileView" class="mil-form-section mil-up">
+                                    <div class="mil-profile-details">
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-user"></i> First Name</label>
+                                            <div class="value"><%= admin.firstName || 'N/A' %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-user"></i> Last Name</label>
+                                            <div class="value"><%= admin.lastName || 'N/A' %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-user"></i> Username</label>
+                                            <div class="value"><%= admin.username %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-envelope"></i> Email</label>
+                                            <div class="value"><%= admin.email %> (<%= admin.publicEmail ? 'Public' : 'Private' %>)</div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-building"></i> Business Name</label>
+                                            <div class="value"><%= admin.businessName || 'N/A' %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-money-bill-wave"></i> Currency</label>
+                                            <div class="value"><%= admin.currency || 'N/A' %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-phone"></i> Phone</label>
+                                            <div class="value"><%= admin.phone || 'N/A' %> (<%= admin.publicPhone ? 'Public' : 'Private' %>)</div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-map-marker-alt"></i> Address</label>
+                                            <div class="value"><%= admin.address || 'N/A' %> (<%= admin.publicAddress ? 'Public' : 'Private' %>)</div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-brands fa-facebook"></i> Facebook</label>
+                                            <div class="value"><%= admin.facebook || 'N/A' %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-brands fa-instagram"></i> Instagram</label>
+                                            <div class="value"><%= admin.instagram || 'N/A' %></div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-brands fa-x-twitter"></i> X</label>
+                                            <div class="value"><%= admin.twitter || 'N/A' %></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Social Media Links -->
+                                    <div class="mil-social-links">
+                                        <% if (admin.facebook) { %>
+                                            <a href="<%= admin.facebook %>" target="_blank">Facebook</a>
+                                        <% } %>
+                                        <% if (admin.instagram) { %>
+                                            <a href="<%= admin.instagram %>" target="_blank">Instagram</a>
+                                        <% } %>
+                                        <% if (admin.twitter) { %>
+                                            <a href="<%= admin.twitter %>" target="_blank">X</a>
+                                        <% } %>
+                                    </div>
+
+                                    <!-- Account Information -->
+                                    <div class="mil-account-section">
+                                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Bank Account Information</h5>
+                                        <div class="account-info">
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-university"></i> Primary Account Name</label>
+                                                <div class="value"><%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : 'N/A' %></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-university"></i> Primary Account Number</label>
+                                                <div class="value"><%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : 'N/A' %></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-university"></i> Primary Bank Name</label>
+                                                <div class="value"><%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : 'N/A' %></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-university"></i> Secondary Account Name</label>
+                                                <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : 'N/A' %></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-university"></i> Secondary Account Number</label>
+                                                <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : 'N/A' %></div>
+                                            </div>
+                                            <div class="mil-form-group">
+                                                <label><i class="fa-solid fa-university"></i> Secondary Bank Name</label>
+                                                <div class="value"><%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : 'N/A' %></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mil-form-actions">
+                                        <button class="mil-button edit-btn" id="editProfileBtn">
+                                            Edit Profile <i class="fa-solid fa-edit"></i>
+                                        </button>
+                                    </divblow
+                                </div>
+
+                                <!-- Edit Mode -->
+                                <div class="mil-form-section mil-up hidden" id="profileEdit">
+                                    <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-user"></i> First Name</label>
+                                            <input type="text" name="firstName" class="mil-form-control" value="<%= admin.firstName || '' %>" placeholder="First Name">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-user"></i> Last Name</label>
+                                            <input type="text" name="lastName" class="mil-form-control" value="<%= admin.lastName || '' %>" placeholder="Last Name">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-building"></i> Business Name</label>
+                                            <input type="text" name="businessName" class="mil-form-control" value="<%= admin.businessName || '' %>" placeholder="Business Name">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-money-bill-wave"></i> Currency</label>
+                                            <select name="currency" class="mil-form-control">
+                                                <option value="">Select Currency</option>
+                                                <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD</option>
+                                                <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR</option>
+                                                <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP</option>
+                                                <option value="NGN" <%= admin.currency === 'NGN' ? 'selected' : '' %>>NGN</option>
+                                            </select>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-envelope"></i> Email</label>
+                                            <input type="email" name="email" class="mil-form-control" value="<%= admin.email || '' %>" placeholder="Email">
+                                            <div class="mil-form-group checkbox-group">
+                                                <input type="checkbox" name="publicEmail" id="publicEmail" <%= admin.publicEmail ? 'checked' : '' %>>
+                                                <label for="publicEmail">Make email public on storefront</label>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-phone"></i> Phone</label>
+                                            <input type="text" name="phone" class="mil-form-control" value="<%= admin.phone || '' %>" placeholder="Phone">
+                                            <div class="mil-form-group checkbox-group">
+                                                <input type="checkbox" name="publicPhone" id="publicPhone" <%= admin.publicPhone ? 'checked' : '' %>>
+                                                <label for="publicPhone">Make phone public on storefront</label>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-map-marker-alt"></i> Address</label>
+                                            <input type="text" name="address" class="mil-form-control" value="<%= admin.address || '' %>" placeholder="Address">
+                                            <div class="mil-form-group checkbox-group">
+                                                <input type="checkbox" name="publicAddress" id="publicAddress" <%= admin.publicAddress ? 'checked' : '' %>>
+                                                <label for="publicAddress">Make address public on storefront</label>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-brands fa-facebook"></i> Facebook URL</label>
+                                            <input type="url" name="facebook" class="mil-form-control" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/yourbusiness">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-brands fa-instagram"></i> Instagram URL</label>
+                                            <input type="url" name="instagram" class="mil-form-control" value="<%= admin.instagram || '' %>" placeholder="https://instagram.com/yourbusiness">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-brands fa-x-twitter"></i> X URL</label>
+                                            <input type="url" name="twitter" class="mil-form-control" value="<%= admin.twitter || '' %>" placeholder="https://twitter.com/yourbusiness">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-camera"></i> Business Logo</label>
+                                            <div class="mil-image-preview-container">
+                                                <div class="mil-image-placeholder" id="imagePlaceholder" <%= admin.logo ? 'class="hidden"' : '' %>>
+                                                    <span>No image selected</span>
+                                                </div>
+                                                <img id="imagePreview" class="mil-image-preview" src="<%= admin.logo || '#' %>" alt="Logo Preview" <%= admin.logo ? '' : 'class="hidden"' %>>
+                                                <input type="file" id="logoInput" name="logo" accept="image/*" class="hidden">
+                                                <input type="hidden" name="croppedImageData" id="croppedImageData">
+                                                <button type="button" class="mil-button image-upload-btn" onclick="document.getElementById('logoInput').click()">
+                                                    Choose Logo <i class="fa-solid fa-upload"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-university"></i> Primary Account Name</label>
+                                            <input type="text" name="primaryBankAccountName" class="mil-form-control" value="<%= admin.primaryAccount && admin.primaryAccount.bankAccountName ? admin.primaryAccount.bankAccountName : '' %>" placeholder="Account Name">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-university"></i> Primary Account Number</label>
+                                            <input type="text" name="primaryAccountNumber" class="mil-form-control" value="<%= admin.primaryAccount && admin.primaryAccount.accountNumber ? admin.primaryAccount.accountNumber : '' %>" placeholder="Account Number">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-university"></i> Primary Bank Name</label>
+                                            <input type="text" name="primaryBankName" class="mil-form-control" value="<%= admin.primaryAccount && admin.primaryAccount.bankName ? admin.primaryAccount.bankName : '' %>" placeholder="Bank Name">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-university"></i> Secondary Account Name</label>
+                                            <input type="text" name="secondaryBankAccountName" class="mil-form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankAccountName ? admin.secondaryAccount.bankAccountName : '' %>" placeholder="Account Name">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-university"></i> Secondary Account Number</label>
+                                            <input type="text" name="secondaryAccountNumber" class="mil-form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.accountNumber ? admin.secondaryAccount.accountNumber : '' %>" placeholder="Account Number">
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-university"></i> Secondary Bank Name</label>
+                                            <input type="text" name="secondaryBankName" class="mil-form-control" value="<%= admin.secondaryAccount && admin.secondaryAccount.bankName ? admin.secondaryAccount.bankName : '' %>" placeholder="Bank Name">
+                                        </div>
+                                        <div class="mil-form-actions">
+                                            <button type="submit" class="mil-button update-btn">
+                                                Save Changes <i class="fa-solid fa-save"></i>
+                                            </button>
+                                            <button type="button" class="mil-button cancel-btn" id="cancelEditBtn">
+                                                Cancel <i class="fa-solid fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             </div>
         </div>
-    </div>
 
-    <!-- Cropper Modal -->
-    <div class="modal" id="cropModal" tabindex="-1" role="dialog" aria-labelledby="cropModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="cropModalLabel">Crop Logo</h5>
-                    <button type="button" class="close" id="cropModalCloseBtn" aria-label="Close">
+        <!-- Cropper Modal -->
+        <div class="mil-modal" id="cropModal" tabindex="-1" role="dialog" aria-labelledby="cropModalLabel" aria-hidden="true">
+            <div class="mil-modal-content">
+                <div class="mil-modal-header">
+                    <h5 class="mil-modal-title" id="cropModalLabel">Crop Logo</h5>
+                    <button type="button" class="mil-modal-close" id="cropModalCloseBtn" aria-label="Close">
                         <span aria-hidden="true">×</span>
                     </button>
                 </div>
-                <div class="modal-body">
+                <div class="mil-modal-body">
                     <img id="imageToCrop" src="#" alt="Image to crop">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-round btn-create-account update-btn" id="cropButton">
+                <div class="mil-modal-footer">
+                    <button type="button" class="mil-button update-btn" id="cropButton">
                         Crop & Save <i class="fa-solid fa-crop"></i>
                     </button>
-                    <button type="button" class="btn btn-round btn-create-account cancel-btn" id="cropCancelButton">
+                    <button type="button" class="mil-button cancel-btn" id="cropCancelButton">
                         Cancel <i class="fa-solid fa-times"></i>
                     </button>
                 </div>
             </div>
         </div>
+
+        <!-- footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container-fluid mil-p-120-60">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-lg-6 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mil-vert-between text-lg-end">
+                                <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer end -->
+
+        <!-- hidden elements -->
+        <div class="mil-hidden-elements">
+            <div class="mil-dodecahedron">
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+                <div class="mil-pentagon">
+                    <div></div><div></div><div></div><div></div><div></div>
+                </div>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+            </svg>
+            <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+            </svg>
+        </div>
+        <!-- hidden elements end -->
     </div>
+    <!-- wrapper end -->
 
-    <!-- Scripts -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- Cropper.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
 
+    <!-- Sidebar Toggle -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('newSidebar');
-            const toggleBtn = document.getElementById('newToggleBtn');
-            const editProfileBtn = document.getElementById('editProfileBtn');
-            const cancelEditBtn = document.getElementById('cancelEditBtn');
-            const profileView = document.getElementById('profileView');
-            const profileEdit = document.getElementById('profileEdit');
+            try {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                const toggleBtn = document.getElementById('toggleBtn');
 
-            let isCollapsed = false;
-            let isOpenOnMobile = false;
-
-            // Toggle sidebar
-            if (toggleBtn && sidebar) {
-                toggleBtn.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        isOpenOnMobile = !isOpenOnMobile;
-                        if (isOpenOnMobile) {
-                            sidebar.classList.add('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                        } else {
-                            sidebar.classList.remove('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    } else {
-                        isCollapsed = !isCollapsed;
-                        if (isCollapsed) {
-                            sidebar.classList.add('collapsed');
-                        } else {
-                            sidebar.classList.remove('collapsed');
-                        }
-                    }
-                });
-            }
-
-            // Close sidebar on outside click (mobile only)
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                    if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
-                        sidebar.classList.remove('open');
-                        isOpenOnMobile = false;
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    }
-                }
-            });
-
-            // Set initial sidebar state
-            function setSidebarState() {
-                if (!sidebar || !toggleBtn) return;
-                if (window.innerWidth <= 768) {
-                    sidebar.classList.remove('collapsed');
-                    if (!isOpenOnMobile) {
-                        sidebar.classList.remove('open');
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    }
-                } else {
-                    sidebar.classList.remove('open');
-                    isOpenOnMobile = false;
+                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+                if (isSidebarHidden) {
+                    sidebar.classList.add('hidden');
+                    mainContent.classList.add('full-width');
                     toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    if (isCollapsed) {
-                        sidebar.classList.add('collapsed');
+                } else {
+                    sidebar.classList.remove('hidden');
+                    mainContent.classList.remove('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                }
+
+                toggleBtn.addEventListener('click', () => {
+                    sidebar.classList.toggle('hidden');
+                    mainContent.classList.toggle('full-width');
+                    toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                    localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+                });
+
+                function setSidebarState() {
+                    if (sidebar.classList.contains('hidden')) {
+                        mainContent.classList.add('full-width');
                     } else {
-                        sidebar.classList.remove('collapsed');
+                        mainContent.classList.remove('full-width');
                     }
                 }
+                setSidebarState();
+                window.addEventListener('resize', setSidebarState);
+            } catch (error) {
+                console.error('Error initializing sidebar:', error);
             }
-            setSidebarState();
-            window.addEventListener('resize', setSidebarState);
+        });
+    </script>
 
-            // Toggle edit mode
-            if (editProfileBtn && profileView && profileEdit) {
-                editProfileBtn.addEventListener('click', () => {
-                    profileView.style.display = 'none';
-                    profileEdit.style.display = 'block';
-                });
-            }
+    <!-- Profile Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                const editProfileBtn = document.getElementById('editProfileBtn');
+                const cancelEditBtn = document.getElementById('cancelEditBtn');
+                const profileView = document.getElementById('profileView');
+                const profileEdit = document.getElementById('profileEdit');
 
-            if (cancelEditBtn && profileView && profileEdit) {
-                cancelEditBtn.addEventListener('click', () => {
-                    profileEdit.style.display = 'none';
-                    profileView.style.display = 'block';
-                    document.getElementById('updateProfileForm').reset();
-                    document.getElementById('imagePreview').style.display = '<%= admin.logo ? "block" : "none" %>';
-                    document.getElementById('imagePreview').src = '<%= admin.logo || "#" %>';
-                    document.getElementById('imagePlaceholder').style.display = '<%= admin.logo ? "none" : "flex" %>';
-                    document.getElementById('croppedImageData').value = '';
-                });
-            }
-
-            // Cropper.js logic
-            let cropper;
-            const cropModal = document.getElementById('cropModal');
-            const logoInput = document.getElementById('logoInput');
-            const imageToCrop = document.getElementById('imageToCrop');
-            const imagePreview = document.getElementById('imagePreview');
-            const imagePlaceholder = document.getElementById('imagePlaceholder');
-            const croppedImageData = document.getElementById('croppedImageData');
-
-            // Function to show modal
-            const showModal = () => {
-                cropModal.style.display = 'flex';
-                cropModal.classList.add('show');
-                cropModal.setAttribute('aria-hidden', 'false');
-                document.body.classList.add('modal-open');
-                const backdrop = document.createElement('div');
-                backdrop.className = 'modal-backdrop fade show';
-                document.body.appendChild(backdrop);
-            };
-
-            // Function to close modal
-            const closeModal = () => {
-                cropModal.style.display = 'none';
-                cropModal.classList.remove('show');
-                cropModal.setAttribute('aria-hidden', 'true');
-                document.body.classList.remove('modal-open');
-                const backdrop = document.querySelector('.modal-backdrop');
-                if (backdrop) {
-                    backdrop.remove();
+                // Toggle edit mode
+                if (editProfileBtn && profileView && profileEdit) {
+                    editProfileBtn.addEventListener('click', () => {
+                        profileView.classList.add('hidden');
+                        profileEdit.classList.remove('hidden');
+                    });
                 }
-                if (cropper) {
-                    cropper.destroy();
-                    cropper = null;
-                }
-            };
 
-            if (logoInput) {
-                logoInput.addEventListener('change', function(e) {
-                    const files = e.target.files;
-                    if (files && files.length > 0) {
-                        const reader = new FileReader();
-                        reader.onload = function(event) {
-                            imageToCrop.src = event.target.result;
-                            showModal();
-                            setTimeout(() => {
-                                if (cropper) {
-                                    cropper.destroy();
-                                }
-                                cropper = new Cropper(imageToCrop, {
-                                    aspectRatio: 1,
-                                    viewMode: 1,
-                                    autoCropArea: 0.8,
-                                    responsive: true,
-                                    zoomable: true,
-                                    scalable: true,
-                                    movable: true,
-                                    background: true,
-                                    minContainerHeight: 300,
-                                });
-                            }, 500);
-                        };
-                        reader.readAsDataURL(files[0]);
+                // Cancel edit mode
+                if (cancelEditBtn && profileView && profileEdit) {
+                    cancelEditBtn.addEventListener('click', () => {
+                        profileEdit.classList.add('hidden');
+                        profileView.classList.remove('hidden');
+                        document.getElementById('updateProfileForm').reset();
+                        document.getElementById('imagePreview').classList.toggle('hidden', !'<%= admin.logo %>');
+                        document.getElementById('imagePreview').src = '<%= admin.logo || "#" %>';
+                        document.getElementById('imagePlaceholder').classList.toggle('hidden', '<%= admin.logo %>');
+                        document.getElementById('croppedImageData').value = '';
+                    });
+                }
+
+                // Cropper.js logic
+                let cropper;
+                const cropModal = document.getElementById('cropModal');
+                const logoInput = document.getElementById('logoInput');
+                const imageToCrop = document.getElementById('imageToCrop');
+                const imagePreview = document.getElementById('imagePreview');
+                const imagePlaceholder = document.getElementById('imagePlaceholder');
+                const croppedImageData = document.getElementById('croppedImageData');
+
+                // Function to show modal
+                const showModal = () => {
+                    cropModal.classList.add('show');
+                    cropModal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('modal-open');
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'modal-backdrop fade show';
+                    document.body.appendChild(backdrop);
+                };
+
+                // Function to close modal
+                const closeModal = () => {
+                    cropModal.classList.remove('show');
+                    cropModal.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('modal-open');
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
                     }
-                });
-            }
-
-            // Crop button
-            const cropButton = document.getElementById('cropButton');
-            if (cropButton) {
-                cropButton.addEventListener('click', () => {
                     if (cropper) {
-                        const canvas = cropper.getCroppedCanvas({
-                            width: 200,
-                            height: 200,
-                            imageSmoothingEnabled: true,
-                            imageSmoothingQuality: 'high',
-                        });
-                        const croppedDataUrl = canvas.toDataURL('image/png');
-                        imagePreview.src = croppedDataUrl;
-                        imagePreview.style.display = 'block';
-                        imagePlaceholder.style.display = 'none';
-                        croppedImageData.value = croppedDataUrl;
-                        closeModal();
+                        cropper.destroy();
+                        cropper = null;
                     }
-                });
-            }
+                };
 
-            // Cancel crop button
-            const cropCancelButton = document.getElementById('cropCancelButton');
-            if (cropCancelButton) {
-                cropCancelButton.addEventListener('click', () => {
-                    closeModal();
-                    imageToCrop.src = '#';
-                    logoInput.value = '';
-                });
-            }
+                if (logoInput) {
+                    logoInput.addEventListener('change', function(e) {
+                        const files = e.target.files;
+                        if (files && files.length > 0) {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                imageToCrop.src = event.target.result;
+                                showModal();
+                                setTimeout(() => {
+                                    if (cropper) {
+                                        cropper.destroy();
+                                    }
+                                    cropper = new Cropper(imageToCrop, {
+                                        aspectRatio: 1,
+                                        viewMode: 1,
+                                        autoCropArea: 0.8,
+                                        responsive: true,
+                                        zoomable: true,
+                                        scalable: true,
+                                        movable: true,
+                                        background: true,
+                                        minContainerHeight: 300,
+                                    });
+                                }, 500);
+                            };
+                            reader.readAsDataURL(files[0]);
+                        }
+                    });
+                }
 
-            // Close modal button
-            const cropModalCloseBtn = document.getElementById('cropModalCloseBtn');
-            if (cropModalCloseBtn) {
-                cropModalCloseBtn.addEventListener('click', () => {
-                    closeModal();
-                    imageToCrop.src = '#';
-                    logoInput.value = '';
-                });
+                // Crop button
+                const cropButton = document.getElementById('cropButton');
+                if (cropButton) {
+                    cropButton.addEventListener('click', () => {
+                        if (cropper) {
+                            const canvas = cropper.getCroppedCanvas({
+                                width: 200,
+                                height: 200,
+                                imageSmoothingEnabled: true,
+                                imageSmoothingQuality: 'high',
+                            });
+                            const croppedDataUrl = canvas.toDataURL('image/png');
+                            imagePreview.src = croppedDataUrl;
+                            imagePreview.classList.remove('hidden');
+                            imagePlaceholder.classList.add('hidden');
+                            croppedImageData.value = croppedDataUrl;
+                            closeModal();
+                        }
+                    });
+                }
+
+                // Cancel crop button
+                const cropCancelButton = document.getElementById('cropCancelButton');
+                if (cropCancelButton) {
+                    cropCancelButton.addEventListener('click', () => {
+                        closeModal();
+                        imageToCrop.src = '#';
+                        logoInput.value = '';
+                    });
+                }
+
+                // Close modal button
+                const cropModalCloseBtn = document.getElementById('cropModalCloseBtn');
+                if (cropModalCloseBtn) {
+                    cropModalCloseBtn.addEventListener('click', () => {
+                        closeModal();
+                        imageToCrop.src = '#';
+                        logoInput.value = '';
+                    });
+                }
+            } catch (error) {
+                console.error('Error initializing profile scripts:', error);
             }
         });
     </script>

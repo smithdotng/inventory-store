@@ -2372,7 +2372,13 @@ app.get('/outlet-details/:outletId', isAuthenticated, async (req, res) => {
     const outletId = req.params.outletId;
     const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
     if (!outlet) return res.status(404).send('Outlet not found');
-    res.render('outlet-details', { outlet, admin, username: req.session.admin });
+    res.render('outlet-details', { 
+      outlet, 
+      admin, 
+      username: req.session.admin,
+      error: null, // Add default value
+      success: null // Add default value
+    });
   } catch (err) {
     console.error('Error in /outlet-details/:outletId:', err.message, err.stack);
     res.status(500).send('Internal Server Error');
