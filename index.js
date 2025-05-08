@@ -437,6 +437,10 @@ app.post('/referrals/signup', async (req, res) => {
   }
 });
 
+app.get('/referrals/', (req, res) => {
+  res.render('referrals-register', { error: req.flash('error')[0] || null });
+});
+
 // Update GET route to pass flash messages
 app.get('/referrals/signup', (req, res) => {
   res.render('referrals-register', { error: req.flash('error')[0] || null });
