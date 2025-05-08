@@ -284,12 +284,18 @@ function isAffiliateAuthenticated(req, res, next) {
 }
 
 // Referral Routes
-app.get('/referrals/signup', (req, res) => {
-  res.render('referrals-signup', { error: null });
-});
+
 
 const flash = require('connect-flash');
 app.use(flash());
+
+app.get('/referrals/signup', (req, res) => {
+  res.render('referrals-signup', { error: req.flash('error')[0] || null });
+});
+
+app.get('/referrals/', (req, res) => {
+  res.render('referrals-signup', { error: req.flash('error')[0] || null });
+});
 
 app.post('/referrals/signup', async (req, res) => {
   let broadcastLog;
@@ -437,14 +443,7 @@ app.post('/referrals/signup', async (req, res) => {
   }
 });
 
-app.get('/referrals/', (req, res) => {
-  res.render('referrals-register', { error: req.flash('error')[0] || null });
-});
 
-// Update GET route to pass flash messages
-app.get('/referrals/signup', (req, res) => {
-  res.render('referrals-register', { error: req.flash('error')[0] || null });
-});
 
 app.get('/referrals/login', (req, res) => {
   res.render('referrals-login', { error: null });
