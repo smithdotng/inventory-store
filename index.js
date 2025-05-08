@@ -577,6 +577,7 @@ app.post('/admin-register', uploadLogo, async (req, res) => {
     if (referralCode) {
       const referrer = await db.collection('affiliates').findOne({ referralCode });
       if (referrer) {
+        // Log to referral_activities
         await db.collection('referral_activities').insertOne({
           affiliateId: referrer._id,
           action: 'New Admin Signup',
@@ -825,6 +826,74 @@ app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res)
     res.status(500).send('Internal Server Error');
   }
 });
+
+app.get('/superadmin/affiliates', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    console.log('Accessing /superadmin/affiliates for user:', req.session.admin);
+
+    // Fetch affiliates
+    const affiliates = await db.collection('affiliates').find().toArray();
+    if (!affiliates.length) console.warn('No affiliates found in database');
+
+    const affiliateIds = affiliates.map(affiliate => affiliate._id);
+
+    // Aggregate click counts from referral_activities (filtering for 'Referral Link Clicked')
+    const clickLogs = await db.collection('referral_activities')
+      .aggregate([
+        { $match: { affiliateId: { $in: affiliateIds }, action: 'Referral Link Clicked' } },
+        { $group: { _id: '$affiliateId', clickCount: { $sum: 1 } } }
+      ])
+      .toArray();
+
+    // Aggregate signup counts from referral_activities (filtering for 'New Admin Signup')
+    const signupLogs = await db.collection('referral_activities')
+      .aggregate([
+        { $match: { affiliateId: { $in: affiliateIds }, action: 'New Admin Signup' } },
+        { $group: { _id: '$affiliateId', signupCount: { $sum: 1 } } }
+      ])
+      .toArray();
+
+    const enrichedAffiliates = affiliates.map(affiliate => {
+      const clickData = clickLogs.find(log => log._id.toString() === affiliate._id.toString()) || {};
+      const signupData = signupLogs.find(log => log._id.toString() === affiliate._id.toString()) || {};
+      return {
+        ...affiliate,
+        clickCount: clickData.clickCount || 0,
+        signupCount: signupData.signupCount || 0
+      };
+    });
+
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    res.render('superadmin-affiliates', { 
+      affiliates: enrichedAffiliates,
+      currentAdminId: currentAdmin._id.toString()
+    });
+  } catch (err) {
+    console.error('Error in /superadmin/affiliates:', err.message, err.stack);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+app.get('/referral/:code', async (req, res) => {
+  try {
+    const { code } = req.params;
+    const affiliate = await db.collection('affiliates').findOne({ referralCode: code });
+    if (affiliate) {
+      await db.collection('clicks').insertOne({
+        affiliateId: affiliate._id,
+        clickTime: new Date()
+      });
+      res.redirect('/signup'); // Redirect to your signup page
+    } else {
+      res.status(404).send('Invalid referral code');
+    }
+  } catch (err) {
+    console.error('Error tracking click:', err);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
 
 // Superadmin Password Reset Routes
 async function sendPasswordResetEmail(email, username, resetToken) {
