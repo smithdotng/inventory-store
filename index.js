@@ -292,31 +292,127 @@ const flash = require('connect-flash');
 app.use(flash());
 
 app.post('/referrals/signup', async (req, res) => {
+  let broadcastLog;
   try {
-    const { email, country, password } = req.body;
-    if (!email || !country || !password) {
+    const { firstName, lastName, email, country, password, countryCode, mobileNumber } = req.body;
+    if (!firstName || !lastName || !email || !country || !password || !countryCode || !mobileNumber) {
       req.flash('error', 'All fields are required.');
       return res.redirect('/referrals/signup');
     }
+
     const existingAffiliate = await db.collection('affiliates').findOne({ email });
     if (existingAffiliate) {
       req.flash('error', 'Email already registered as an affiliate.');
       return res.redirect('/referrals/signup');
     }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     const referralCode = crypto.randomBytes(8).toString('hex');
     const affiliate = {
+      firstName,
+      lastName,
       email,
       country,
       password: hashedPassword,
+      countryCode,
+      mobileNumber,
       referralCode,
       createdAt: new Date()
     };
+
     const result = await db.collection('affiliates').insertOne(affiliate);
+
+    // Start broadcast log for email
+    broadcastLog = await db.collection('broadcast_logs').insertOne({
+      type: 'affiliate_welcome',
+      initiatedBy: 'system',
+      startTime: new Date(),
+      totalRecipients: 1,
+      status: 'processing'
+    });
+
+    // Send welcome email
+    let successCount = 0;
+    let failCount = 0;
+    const failedEmails = [];
+
+    try {
+      const mailOptions = {
+        from: `"Shed Affiliate Programme" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: '🎉 Welcome to Our Affiliate Program!',
+        html: `
+          <h1>Congratulations on Joining Our Affiliate Program!</h1>
+          <p>Dear ${firstName} ${lastName},</p>
+          <p>We're thrilled to welcome you to our affiliate family! This is an exciting opportunity for you to earn cash rewards and exclusive non-cash benefits by promoting our products/services.</p>
+          <p>Your unique referral code is: <strong>${referralCode}</strong></p>
+          <p>Start sharing your referral code today and watch your rewards grow!</p>
+          <p>Best regards,<br>Shed Affiliate Team</p>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      successCount++;
+
+      // Log email success
+      await db.collection('broadcast_progress').insertOne({
+        broadcastId: broadcastLog._id,
+        batchIndex: 0,
+        processed: 1,
+        successes: 1,
+        failures: 0,
+        timestamp: new Date()
+      });
+    } catch (err) {
+      console.error(`Failed to send welcome email to ${email}:`, err);
+      failCount++;
+      failedEmails.push(email);
+
+      // Log email failure
+      await db.collection('broadcast_progress').insertOne({
+        broadcastId: broadcastLog._id,
+        batchIndex: 0,
+        processed: 1,
+        successes: 0,
+        failures: 1,
+        timestamp: new Date()
+      });
+    }
+
+    // Update broadcast log
+    await db.collection('broadcast_logs').updateOne(
+      { _id: broadcastLog._id },
+      {
+        $set: {
+          endTime: new Date(),
+          status: 'completed',
+          successCount,
+          failCount,
+          failedEmails
+        }
+      }
+    );
+
     req.session.affiliate = result.insertedId.toString();
     res.redirect('/referrals/dashboard');
+
   } catch (error) {
     console.error('Error signing up affiliate:', error);
+
+    // Update broadcast log if error occurs
+    if (broadcastLog?._id) {
+      await db.collection('broadcast_logs').updateOne(
+        { _id: broadcastLog._id },
+        {
+          $set: {
+            endTime: new Date(),
+            status: 'failed',
+            error: error.message
+          }
+        }
+      );
+    }
+
     req.flash('error', 'An unexpected error occurred. Please try again later.');
     res.redirect('/referrals/signup');
   }
