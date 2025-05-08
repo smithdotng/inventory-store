@@ -713,7 +713,7 @@
                                         <button class="mil-button edit-btn" id="editProfileBtn">
                                             Edit Profile <i class="fa-solid fa-edit"></i>
                                         </button>
-                                    </divblow
+                                    </div>
                                 </div>
 
                                 <!-- Edit Mode -->
@@ -1001,25 +1001,50 @@
                 const profileView = document.getElementById('profileView');
                 const profileEdit = document.getElementById('profileEdit');
 
+                // Debug: Verify elements exist
+                console.log('editProfileBtn:', editProfileBtn);
+                console.log('profileView:', profileView);
+                console.log('profileEdit:', profileEdit);
+
                 // Toggle edit mode
-                if (editProfileBtn && profileView && profileEdit) {
+                if (editProfileBtn) {
                     editProfileBtn.addEventListener('click', () => {
-                        profileView.classList.add('hidden');
-                        profileEdit.classList.remove('hidden');
+                        console.log('Edit Profile button clicked');
+                        if (profileView && profileEdit) {
+                            profileView.classList.add('hidden');
+                            profileEdit.classList.remove('hidden');
+                        } else {
+                            console.error('Profile view or edit section not found');
+                        }
                     });
+                } else {
+                    console.error('Edit Profile button not found');
                 }
 
                 // Cancel edit mode
-                if (cancelEditBtn && profileView && profileEdit) {
+                if (cancelEditBtn) {
                     cancelEditBtn.addEventListener('click', () => {
-                        profileEdit.classList.add('hidden');
-                        profileView.classList.remove('hidden');
-                        document.getElementById('updateProfileForm').reset();
-                        document.getElementById('imagePreview').classList.toggle('hidden', !'<%= admin.logo %>');
-                        document.getElementById('imagePreview').src = '<%= admin.logo || "#" %>';
-                        document.getElementById('imagePlaceholder').classList.toggle('hidden', '<%= admin.logo %>');
-                        document.getElementById('croppedImageData').value = '';
+                        console.log('Cancel button clicked');
+                        if (profileView && profileEdit) {
+                            profileEdit.classList.add('hidden');
+                            profileView.classList.remove('hidden');
+                            const form = document.getElementById('updateProfileForm');
+                            if (form) form.reset();
+                            const imagePreview = document.getElementById('imagePreview');
+                            const imagePlaceholder = document.getElementById('imagePlaceholder');
+                            const croppedImageData = document.getElementById('croppedImageData');
+                            if (imagePreview && imagePlaceholder && croppedImageData) {
+                                imagePreview.src = '<%= admin.logo || "#" %>';
+                                imagePreview.classList.toggle('hidden', !'<%= admin.logo %>');
+                                imagePlaceholder.classList.toggle('hidden', '<%= admin.logo %>');
+                                croppedImageData.value = '';
+                            }
+                        } else {
+                            console.error('Profile view or edit section not found');
+                        }
                     });
+                } else {
+                    console.error('Cancel button not found');
                 }
 
                 // Cropper.js logic
@@ -1033,22 +1058,24 @@
 
                 // Function to show modal
                 const showModal = () => {
-                    cropModal.classList.add('show');
-                    cropModal.setAttribute('aria-hidden', 'false');
-                    document.body.classList.add('modal-open');
-                    const backdrop = document.createElement('div');
-                    backdrop.className = 'modal-backdrop fade show';
-                    document.body.appendChild(backdrop);
+                    if (cropModal) {
+                        cropModal.classList.add('show');
+                        cropModal.setAttribute('aria-hidden', 'false');
+                        document.body.classList.add('modal-open');
+                        const backdrop = document.createElement('div');
+                        backdrop.className = 'modal-backdrop fade show';
+                        document.body.appendChild(backdrop);
+                    }
                 };
 
                 // Function to close modal
                 const closeModal = () => {
-                    cropModal.classList.remove('show');
-                    cropModal.setAttribute('aria-hidden', 'true');
-                    document.body.classList.remove('modal-open');
-                    const backdrop = document.querySelector('.modal-backdrop');
-                    if (backdrop) {
-                        backdrop.remove();
+                    if (cropModal) {
+                        cropModal.classList.remove('show');
+                        cropModal.setAttribute('aria-hidden', 'true');
+                        document.body.classList.remove('modal-open');
+                        const backdrop = document.querySelector('.modal-backdrop');
+                        if (backdrop) backdrop.remove();
                     }
                     if (cropper) {
                         cropper.destroy();
@@ -1062,24 +1089,24 @@
                         if (files && files.length > 0) {
                             const reader = new FileReader();
                             reader.onload = function(event) {
-                                imageToCrop.src = event.target.result;
-                                showModal();
-                                setTimeout(() => {
-                                    if (cropper) {
-                                        cropper.destroy();
-                                    }
-                                    cropper = new Cropper(imageToCrop, {
-                                        aspectRatio: 1,
-                                        viewMode: 1,
-                                        autoCropArea: 0.8,
-                                        responsive: true,
-                                        zoomable: true,
-                                        scalable: true,
-                                        movable: true,
-                                        background: true,
-                                        minContainerHeight: 300,
-                                    });
-                                }, 500);
+                                if (imageToCrop) {
+                                    imageToCrop.src = event.target.result;
+                                    showModal();
+                                    setTimeout(() => {
+                                        if (cropper) cropper.destroy();
+                                        cropper = new Cropper(imageToCrop, {
+                                            aspectRatio: 1,
+                                            viewMode: 1,
+                                            autoCropArea: 0.8,
+                                            responsive: true,
+                                            zoomable: true,
+                                            scalable: true,
+                                            movable: true,
+                                            background: true,
+                                            minContainerHeight: 300,
+                                        });
+                                    }, 500);
+                                }
                             };
                             reader.readAsDataURL(files[0]);
                         }
@@ -1090,7 +1117,7 @@
                 const cropButton = document.getElementById('cropButton');
                 if (cropButton) {
                     cropButton.addEventListener('click', () => {
-                        if (cropper) {
+                        if (cropper && imagePreview && imagePlaceholder && croppedImageData) {
                             const canvas = cropper.getCroppedCanvas({
                                 width: 200,
                                 height: 200,
@@ -1112,8 +1139,10 @@
                 if (cropCancelButton) {
                     cropCancelButton.addEventListener('click', () => {
                         closeModal();
-                        imageToCrop.src = '#';
-                        logoInput.value = '';
+                        if (imageToCrop && logoInput) {
+                            imageToCrop.src = '#';
+                            logoInput.value = '';
+                        }
                     });
                 }
 
@@ -1122,8 +1151,10 @@
                 if (cropModalCloseBtn) {
                     cropModalCloseBtn.addEventListener('click', () => {
                         closeModal();
-                        imageToCrop.src = '#';
-                        logoInput.value = '';
+                        if (imageToCrop && logoInput) {
+                            imageToCrop.src = '#';
+                            logoInput.value = '';
+                        }
                     });
                 }
             } catch (error) {
