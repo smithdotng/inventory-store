@@ -189,7 +189,7 @@
                   <td><%= item.quantity %></td>
                   <td><%= transaction.customerName %></td>
                   <td><%= new Date(transaction.date).toLocaleString() %></td>
-                  <td><%= admin.currency || '$' %><%= item.commissionAmount ? item.commissionAmount.toFixed(2) : '0.00' %></td>
+                  <td><%= admin.currency || '$' %><%= item.commissionAmount ? item.commissionAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' %></td>
                 </tr>
               <% }) %>
             <% }) %>

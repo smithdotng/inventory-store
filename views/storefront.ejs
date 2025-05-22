@@ -11,10 +11,10 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="<%= admin.businessName %> Storefront" />
-    <meta property="og:description" content="Shop the latest inventory from <%= admin.businessName %> with ease." />
+    <meta property="og:title" content="<%= outlet ? outlet.name : admin.businessName %> Storefront" />
+    <meta property="og:description" content="Shop the latest inventory from <%= outlet ? outlet.name : admin.businessName %> with ease." />
     <meta property="og:image" content="<%= admin.logo || '/android-chrome-512x512.png' %>" />
-    <title><%= admin.businessName %> Storefront</title>
+    <title><%= outlet ? outlet.name : admin.businessName %> Storefront</title>
     <!-- Bootstrap Grid CSS -->
     <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
     <!-- Font Awesome CSS -->
@@ -32,7 +32,7 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
-        /* Custom styles for storefront */
+        /* Custom styles for storefront (unchanged) */
         .mil-frame-top {
             display: flex;
             align-items: center;
@@ -507,7 +507,7 @@
         </div>
 
         <div class="mil-frame-top">
-            <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= admin.businessName %> Logo"></a>
+            <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= outlet ? outlet.name : admin.businessName %> Logo"></a>
             <div class="mil-subscribe-form">
                 <input type="text" id="inventorySearchInput" placeholder="Search inventory..." class="mil-search-input">
                 <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
@@ -529,27 +529,40 @@
                         <div class="mil-gradient"></div>
                         <div class="container">
                             <div class="mil-banner-content mil-up">
-                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Welcome to </span><%= admin.businessName || 'Shed Store' %></h1>
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Welcome to </span><%= outlet ? outlet.name : admin.businessName || 'Shed Store' %></h1>
                                 <div class="row">
                                     <div class="col-md-7 col-lg-5">
                                         <p class="mil-light-soft mil-mb-60">Shop our latest inventory <strong>with ease!</strong></p>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Business contact information -->
                                 <div class="mil-contact-info mil-light-soft mil-mb-30">
-                                    <% if (admin.publicPhone && admin.phone) { %>
-                                        <p><i class="fas fa-phone mil-mr-5"></i> Phone: <%= admin.phone %></p>
-                                    <% } %>
-                                    <% if (admin.publicEmail && admin.email) { %>
-                                        <p><i class="fas fa-envelope mil-mr-5"></i> Email: <a href="mailto:<%= admin.email %>" class="mil-light-soft"><%= admin.email %></a></p>
-                                    <% } %>
-                                    <% if (admin.publicAddress && admin.address) { %>
-                                        <p><i class="fas fa-map-marker-alt mil-mr-5"></i> Address: <%= admin.address %></p>
+                                    <% if (outlet) { %>
+                                        <!-- Outlet contact information -->
+                                        <p><i class="fas fa-store mil-mr-5"></i> Business: <%= outlet.name %></p>
+                                        <% if (outlet.location) { %>
+                                            <p><i class="fas fa-map-marker-alt mil-mr-5"></i> Location: <%= outlet.location %></p>
+                                        <% } %>
+                                        <% if (outlet.mobile) { %>
+                                            <p><i class="fas fa-phone mil-mr-5"></i> Phone: <%= outlet.mobile %></p>
+                                        <% } %>
+                                    <% } else { %>
+                                        <!-- Admin contact information -->
+                                        <p><i class="fas fa-store mil-mr-5"></i> Business: <%= admin.businessName %></p>
+                                        <% if (admin.publicPhone && admin.phone) { %>
+                                            <p><i class="fas fa-phone mil-mr-5"></i> Phone: <%= admin.phone %></p>
+                                        <% } %>
+                                        <% if (admin.publicEmail && admin.email) { %>
+                                            <p><i class="fas fa-envelope mil-mr-5"></i> Email: <a href="mailto:<%= admin.email %>" class="mil-light-soft"><%= admin.email %></a></p>
+                                        <% } %>
+                                        <% if (admin.publicAddress && admin.address) { %>
+                                            <p><i class="fas fa-map-marker-alt mil-mr-5"></i> Address: <%= admin.address %></p>
+                                        <% } %>
                                     <% } %>
                                 </div>
-                
-                                <!-- Social media links with handles -->
+
+                                <!-- Social media links with handles (tied to admin) -->
                                 <div class="mil-social-links">
                                     <% if (admin.facebook) { %>
                                         <a href="<%= admin.facebook %>" target="_blank" class="mil-social-link mil-facebook">
@@ -641,10 +654,10 @@
                                             <tbody>
                                                 <% saleItems.forEach(item => { %>
                                                     <tr>
-                                                        <td><%= item.itemName || 'N/A' %></td>
+                                                        <td><%= item.itemName || item.name || 'N/A' %></td>
                                                         <td><%= item.quantity || 0 %></td>
-                                                        <td><%= currency %><%= formatCurrency(item.unitCost || 0) %></td>
-                                                        <td><%= currency %><%= formatCurrency(item.totalCost || 0) %></td>
+                                                        <td><%= currency %><%= formatCurrency(item.unitCost || item.cost || 0) %></td>
+                                                        <td><%= currency %><%= formatCurrency(item.totalCost || (item.cost * item.quantity) || 0) %></td>
                                                     </tr>
                                                 <% }) %>
                                             </tbody>
@@ -665,7 +678,7 @@
                                             <a href="<%= invoiceUrl %>" class="mil-button">
                                                 <i class="fas fa-file-download mil-mr-5"></i> Download Invoice
                                             </a>
-                                            <a href="/store/<%= admin.username %>" class="mil-button mil-border">
+                                            <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>" class="mil-button mil-border">
                                                 <i class="fas fa-shopping-bag mil-mr-5"></i> Continue Shopping
                                             </a>
                                         </div>
@@ -681,9 +694,9 @@
                                             
                                             <div class="mil-inventory-grid" id="inventoryGrid">
                                                 <% inventory.forEach(item => { %>
-                                                    <div class="mil-inventory-item" data-item-id="<%= item._id %>">
+                                                    <div class="mil-inventory-item" data-item-id="<%= item._id || item.id %>">
                                                         <div class="mil-product-image-container">
-                                                            <a href="/store/<%= admin.username %>/product/<%= item._id %>" class="mil-product-image-link">
+                                                            <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>/product/<%= item._id || item.id %>" class="mil-product-image-link">
                                                                 <% if (item.images && item.images.length > 0) { %>
                                                                     <img src="<%= item.images[0] %>" class="mil-product-image" alt="<%= item.name %>">
                                                                 <% } else { %>
@@ -695,12 +708,12 @@
                                                         </div>
                                                         <div class="mil-product-details">
                                                             <h3 class="mil-product-title">
-                                                                <a href="/store/<%= admin.username %>/product/<%= item._id %>"><%= item.name %></a>
+                                                                <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>/product/<%= item._id || item.id %>"><%= item.name %></a>
                                                             </h3>
                                                             <div class="mil-product-price"><%= currency %><%= formatCurrency(item.cost) %></div>
                                                             <div class="mil-product-stock">Stock: <%= item.stock %></div>
                                                             <input type="number" class="mil-quantity-input" min="1" max="<%= item.stock %>" value="1">
-                                                            <button class="mil-add-to-cart" onclick="addToCart('<%= item._id %>', '<%= item.name %>', <%= item.cost %>, <%= item.stock %>, this)">
+                                                            <button class="mil-add-to-cart" onclick="addToCart('<%= item._id || item.id %>', '<%= item.name %>', <%= item.cost %>, <%= item.stock %>, this)">
                                                                 <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
                                                             </button>
                                                         </div>
@@ -721,7 +734,7 @@
         <div class="mil-checkout-form" id="checkoutForm">
             <h2 class="mil-mb-20">Checkout</h2>
             <div class="mil-cart-summary" id="cartSummary">
-                <h3>Your Cart - <%= admin.businessName || 'Shed Store' %></h3>
+                <h3>Your Cart - <%= outlet ? outlet.name : admin.businessName || 'Shed Store' %></h3>
                 <table>
                     <thead>
                         <tr>
@@ -736,7 +749,7 @@
                 </table>
                 <div class="mil-total" id="cartTotal"></div>
             </div>
-            <form id="checkoutFormSubmit" action="/store/<%= admin.username %>/checkout" method="POST">
+            <form id="checkoutFormSubmit" action="<%= outlet ? `/outlet/${outlet.username}/checkout` : `/store/${admin.username}/checkout` %>" method="POST">
                 <div class="mil-form-group mil-mb-15">
                     <label for="customerName"><i class="fas fa-user mil-mr-5"></i> Name</label>
                     <input type="text" id="customerName" name="customerName" class="mil-form-control" required>

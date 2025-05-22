@@ -1777,6 +1777,94 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   }
 });
 
+app.get('/outlet/:outletUsername', async (req, res) => {
+  try {
+    const outletUsername = req.params.outletUsername;
+    const saleId = req.query.saleId; // Optional for confirmation page
+
+    // Fetch outlet by username (case-insensitive)
+    const outlet = await db.collection('outlets').findOne({ 
+      username: { $regex: `^${outletUsername}$`, $options: 'i' } // Case-insensitive
+    });
+    if (!outlet) {
+      return res.status(404).render('404', { message: 'Outlet store not found' });
+    }
+
+    // Fetch the associated admin for branding and currency
+    const admin = await db.collection('admins').findOne({ _id: outlet.adminId });
+    if (!admin) {
+      return res.status(404).render('404', { message: 'Associated admin not found' });
+    }
+
+    // Fetch sale details if saleId is provided
+    let sale = null;
+    if (saleId && ObjectId.isValid(saleId)) {
+      sale = await db.collection('sales').findOne({
+        _id: new ObjectId(saleId),
+        outletId: outlet._id, // Use outletId instead of adminId
+        source: 'outlet-storefront' // Differentiate from admin storefront sales
+      });
+    }
+
+    // Use outlet's inventory directly (already includes id, name, stock, cost)
+    const inventory = outlet.inventory.filter(item => item.stock > 0);
+
+    // Define getSocialHandle function (reused from admin store)
+    const getSocialHandle = (url, platform) => {
+      try {
+        if (!url) return 'N/A';
+        const urlObj = new URL(url);
+        const path = urlObj.pathname;
+        let handle = path.split('/').filter(segment => segment).pop() || 'N/A';
+        if (platform === 'twitter') {
+          handle = '@' + handle;
+        }
+        return handle;
+      } catch (e) {
+        console.error(`Error parsing ${platform} URL:`, e);
+        return 'N/A';
+      }
+    };
+
+    // Define formatCurrency function (with thousands separator)
+    const formatCurrency = (amount) => {
+      if (!amount) return '0.00';
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    const templateData = {
+      outlet, // Pass outlet instead of admin
+      admin, // Pass admin for branding (logo, businessName, currency)
+      inventory,
+      currency: admin.currency || '₦', // Use admin's currency, default to ₦
+      formatCurrency,
+      getSocialHandle
+    };
+
+    if (sale) {
+      // Add confirmation data if sale exists
+      Object.assign(templateData, {
+        saleId: sale._id,
+        customerName: sale.customerName,
+        phoneNumber: sale.phoneNumber,
+        email: sale.email,
+        saleItems: sale.items,
+        totalAmount: sale.totalAmount,
+        invoiceUrl: `/outlet/${outletUsername}/confirmation/${sale._id}?token=${req.query.token}&format=pdf`,
+        paymentInstructions: admin.paymentInstructions // Use admin's payment instructions
+      });
+    }
+
+    res.render('storefront', templateData); // Reuse storefront template
+  } catch (error) {
+    console.error('Error rendering outlet storefront:', error);
+    res.status(500).render('500', {
+      message: 'Error loading outlet store',
+      error: process.env.NODE_ENV === 'development' ? error : undefined
+    });
+  }
+});
+
 app.get('/store-view', isAuthenticated, async (req, res) => {
   const admin = await db.collection('admins').findOne({ username: req.session.admin });
   const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
