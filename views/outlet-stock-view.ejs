@@ -175,7 +175,8 @@
               <tr>
                 <td><%= item.name %></td>
                 <td><%= item.stock %></td>
-                <td><%= admin.currency || '$' %><%= item.cost ? item.cost.toFixed(2) : '0.00' %></td>
+                <td><%= admin.currency || '$' %><%= item.cost ? item.cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '0.00' %></td>
+                
               </tr>
             <% }) %>
           </tbody>

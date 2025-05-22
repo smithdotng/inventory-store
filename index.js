@@ -1399,9 +1399,16 @@ app.post('/delete-stock', isAuthenticated, async (req, res) => {
 });
 
 app.get('/create-outlet', isAuthenticated, async (req, res) => {
-  const admin = await db.collection('admins').findOne({ username: req.session.admin });
-  const username = req.session.admin;
-  res.render('create-outlet', { error: null, admin, username });
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const outlets = await db.collection('outlets').find({ adminId: admin._id }).toArray(); // Fetch outlets for this admin
+    const username = req.session.admin;
+    res.render('create-outlet', { error: req.session.error || null, admin, username, outlets });
+    req.session.error = null; // Clear error after rendering
+  } catch (error) {
+    console.error('Error fetching outlets:', error);
+    res.render('create-outlet', { error: 'Error fetching outlets', admin: null, username: req.session.admin, outlets: [] });
+  }
 });
 
 
@@ -1756,7 +1763,8 @@ app.post('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
           inventory: { 
             id: itemId, 
             name: item.name, 
-            stock: qty 
+            stock: qty,
+            cost: item.cost // Add the cost field from the admin's inventory
           } 
         } }
       );
@@ -2420,8 +2428,10 @@ app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) 
     outlet, 
     admin: {
       logo: admin?.logo || '/images/logo.jpg',
-      businessName: admin?.businessName || 'Shed'
-    }
+      businessName: admin?.businessName || 'Shed',
+      currency: admin?.currency || '$'
+    },
+    formatCurrency,
   });
 });
 
