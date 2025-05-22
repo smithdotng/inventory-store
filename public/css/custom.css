@@ -354,6 +354,23 @@ li::before {
     margin-right: auto;
     padding-left: 15px;
 }
+/* Business Info Section (Logo and Text) */
+.mil-form-section .mil-center {
+    text-align: center;
+}
+.mil-form-section .mil-center img {
+    max-width: 150px; /* Default size for larger screens */
+    height: auto;
+    margin-bottom: 15px;
+}
+.mil-form-section .mil-center h4 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+.mil-form-section .mil-center p {
+    font-size: 14px;
+    margin-bottom: 5px;
+}
 /* Table styling */
 .mil-table-section table {
     width: 100%;
@@ -626,6 +643,17 @@ li::before {
         width: 100%;
         white-space: normal;
     }
+    /* Adjust logo size on small screens */
+    .mil-form-section .mil-center img {
+        max-width: 100px; /* Smaller size for small screens */
+        height: auto;
+    }
+    .mil-form-section .mil-center h4 {
+        font-size: 18px; /* Slightly smaller heading */
+    }
+    .mil-form-section .mil-center p {
+        font-size: 12px; /* Slightly smaller text */
+    }
     /* Form adjustments */
     .mil-form-col {
         flex: 0 0 100%;
@@ -772,6 +800,16 @@ li::before {
     }
     .mil-modal-content p {
         font-size: 12px;
+    }
+    /* Further adjust logo size for very small screens */
+    .mil-form-section .mil-center img {
+        max-width: 80px; /* Even smaller for very small screens */
+    }
+    .mil-form-section .mil-center h4 {
+        font-size: 16px;
+    }
+    .mil-form-section .mil-center p {
+        font-size: 11px;
     }
 }
 
