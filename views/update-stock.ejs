@@ -30,689 +30,14 @@
     <link rel="stylesheet" href="/css/style.css">
     <!-- Font Awesome CDN -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/custom.css">
 
     <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-
-    <!-- Inline CSS -->
-    <style>
-        /* Ensure .row is visible */
-        .mil-banner-content .row {
-            display: flex;
-            visibility: visible;
-            opacity: 1;
-            max-height: none;
-        }
-        .mil-banner-content .col-md-7.col-lg-5 {
-            display: block;
-            visibility: visible;
-            opacity: 1;
-        }
-        .mil-banner-content .col-md-7.col-lg-5 p {
-            display: block;
-            visibility: visible;
-            opacity: 1;
-            color: #fff;
-        }
-        /* Banner starts at top */
-        .mil-banner {
-            margin-top: 0;
-            padding-top: 0;
-            position: relative;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000;
-        }
-        /* Content padding */
-        .mil-content {
-            padding-bottom: 30px;
-        }
-        /* Footer adjustments */
-        footer.mil-dark-bg {
-            padding-bottom: 0;
-        }
-        .mil-light-soft {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            color: #fff !important;
-            font-size: 16px !important;
-        }
-        .mil-soft-bg .mil-light-soft {
-            color: #333 !important;
-        }
-        .mil-banner-content, .mil-content, .mil-footer, .mil-about, .mil-services-grid {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-        .mil-up {
-            transform: none !important;
-            opacity: 1 !important;
-        }
-        /* Add tick to all <li> elements */
-        li {
-            position: relative;
-            padding-left: 25px;
-        }
-        li::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #008B8B;
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-        }
-        .mil-footer-menu ul li::before,
-        .mil-social-icons li::before {
-            content: none;
-        }
-        .mil-menu-list li::before {
-            color: #fff;
-        }
-        .mil-accordion-content ol li {
-            padding-left: 30px;
-            margin-bottom: 10px;
-        }
-        .mil-accordion-content ol li::before {
-            font-size: 16px;
-            color: #008B8B;
-        }
-        /* Form styling */
-        .mil-form-group {
-            margin-bottom: 15px;
-        }
-        .mil-form-group label {
-            color: #333;
-            margin-bottom: 6px;
-            display: block;
-            font-weight: 500;
-            font-size: 13px;
-            padding-top: 10px;
-        }
-        .mil-form-control {
-            background-color: white;
-            border: 1px solid #ced4da;
-            color: #495057;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            font-size: 13px;
-            padding: 0.375rem 0.75rem;
-            height: calc(1.5em + 0.75rem + 2px);
-            width: 100%;
-            box-sizing: border-box;
-            border-radius: 4px;
-            text-transform: none !important;
-        }
-        .mil-form-control:focus {
-            border-color: #80bdff;
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-            outline: none;
-        }
-        .mil-form-row {
-            display: flex;
-            flex-wrap: wrap;
-            margin-right: -5px;
-            margin-left: -5px;
-        }
-        .mil-form-col {
-            flex: 1;
-            padding-right: 5px;
-            padding-left: 5px;
-            min-width: 0;
-        }
-        .mil-alert {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 4px;
-            margin-bottom: 15px;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-        }
-        .mil-alert i {
-            margin-right: 8px;
-        }
-        .mil-alert.success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        /* Button styling */
-        .mil-button {
-            background-color: rgb(235, 166, 17);
-            color: #333;
-            border: none;
-            padding: 10px 20px;
-            font-size: 10px;
-            font-weight: 500;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .mil-button:hover {
-            background-color: #fff;
-            color: rgb(235, 166, 17);
-            border: 2px solid rgb(235, 166, 17);
-        }
-        .mil-button i {
-            margin-left: 8px;
-        }
-        .mil-button.add-product-btn {
-            background-color: rgb(255, 204, 0);
-            color: #333;
-        }
-        .mil-button.add-product-btn:hover {
-            background-color: #fff;
-            color: rgb(255, 204, 0);
-            border: 2px solid rgb(255, 204, 0);
-        }
-        .mil-button.update-btn {
-            background-color: rgb(40, 167, 69);
-            color: #fff;
-        }
-        .mil-button.update-btn:hover {
-            background-color: #fff;
-            color: rgb(40, 167, 69);
-            border: 2px solid rgb(40, 167, 69);
-        }
-        .mil-button.delete-btn {
-            background-color: rgb(220, 53, 69);
-            color: #fff;
-        }
-        .mil-button.delete-btn:hover {
-            background-color: #fff;
-            color: rgb(220, 53, 69);
-            border: 2px solid rgb(220, 53, 69);
-        }
-        .mil-button.cancel-btn {
-            background-color: rgb(108, 117, 125);
-            color: #fff;
-        }
-        .mil-button.cancel-btn:hover {
-            background-color: #fff;
-            color: rgb(108, 117, 125);
-            border: 2px solid rgb(108, 117, 125);
-        }
-        .mil-button.search-button {
-            background-color: rgb(0, 123, 255);
-            color: #fff;
-            padding: 0;
-            width: 38px;
-            height: 38px;
-            border-radius: 0 4px 4px 0;
-        }
-        .mil-button.search-button:hover {
-            background-color: #fff;
-            color: rgb(0, 123, 255);
-            border: 2px solid rgb(0, 123, 255);
-        }
-        .mil-button.image-upload-btn {
-            background-color: rgb(111, 66, 193);
-            color: #fff;
-        }
-        .mil-button.image-upload-btn:hover {
-            background-color: #fff;
-            color: rgb(111, 66, 193);
-            border: 2px solid rgb(111, 66, 193);
-        }
-        .mil-button.share-store-btn {
-            background-color: rgb(23, 162, 184);
-            color: #fff;
-        }
-        .mil-button.share-store-btn:hover {
-            background-color: #fff;
-            color: rgb(23, 162, 184);
-            border: 2px solid rgb(23, 162, 184);
-        }
-        .mil-button.edit-btn {
-            background-color: rgb(255, 193, 7);
-            color: #333;
-        }
-        .mil-button.edit-btn:hover {
-            background-color: #fff;
-            color: rgb(255, 193, 7);
-            border: 2px solid rgb(255, 193, 7);
-        }
-        .mil-button.clear-btn {
-            background-color: rgb(52, 58, 64);
-            color: #fff;
-        }
-        .mil-button.clear-btn:hover {
-            background-color: #fff;
-            color: rgb(52, 58, 64);
-            border: 2px solid rgb(52, 58, 64);
-        }
-        /* Sidebar styling */
-        .mil-wrapper .mil-sidebar {
-            width: 250px;
-            background-color: #f8f8f8 !important; /* Solid background */
-            opacity: 1 !important; /* Prevent inherited transparency */
-            position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            padding: 20px;
-            z-index: 1001; /* Above banner */
-            transition: transform 0.3s ease;
-            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-        }
-        .mil-wrapper .mil-sidebar.hidden {
-            transform: translateX(-100%);
-        }
-        /* Ensure child elements are not transparent */
-        .mil-wrapper .mil-sidebar * {
-            background-color: transparent !important; /* Prevent child backgrounds from overriding */
-            opacity: 1 !important; /* Ensure all children are opaque */
-        }
-        .mil-wrapper .mil-sidebar .mil-logo-container {
-            text-align: center;
-            margin-bottom: 20px;
-            background: none !important;
-        }
-        .mil-wrapper .mil-sidebar .mil-logo-container img {
-            width: 100px;
-            height: auto;
-        }
-        .mil-wrapper .mil-sidebar h2 {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 20px;
-            font-weight: 500;
-            background: none !important;
-        }
-        .mil-wrapper .mil-sidebar a {
-            display: block;
-            padding: 10px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            transition: background 0.3s ease;
-            background: none !important;
-        }
-        .mil-wrapper .mil-sidebar a:hover {
-            background: rgb(235, 166, 17) !important;
-            color: #fff;
-        }
-        .mil-wrapper .mil-sidebar a.active {
-            background: rgb(235, 166, 17) !important;
-            color: #fff;
-            font-weight: bold;
-        }
-        /* Toggle button */
-        .mil-toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            background: rgb(235, 166, 17);
-            color: #333;
-            border: none;
-            padding: 8px 12px;
-            font-size: 16px;
-            cursor: pointer;
-            border-radius: 4px;
-            z-index: 1002;
-        }
-        /* Main content */
-        .mil-main-content {
-            padding: 20px;
-            transition: margin-left 0.3s ease;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        .mil-main-content.full-width {
-            margin-left: 0;
-        }
-        /* Center the main content container */
-        .mil-about .container {
-            display: flex;
-            justify-content: center;
-            max-width: 800px; /* Matches col-lg-8 width */
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 15px;
-            padding-right: 15px;
-        }
-        /* Adjust container when sidebar is visible */
-        .mil-sidebar:not(.hidden) ~ .mil-content .mil-about .container {
-            margin-left: calc(250px + ((100% - 250px - 800px) / 2));
-            margin-right: auto;
-        }
-        /* Adjust container when sidebar is hidden */
-        .mil-sidebar.hidden ~ .mil-content .mil-about .container {
-            margin-left: auto;
-            margin-right: auto;
-        }
-        /* Table styling */
-        .mil-table-section table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-        .mil-table-section th,
-        .mil-table-section td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-            font-size: 13px;
-            color: #333;
-        }
-        .mil-table-section th {
-            background: rgb(235, 166, 17);
-            color: #fff;
-            font-weight: 500;
-        }
-        .mil-table-section tr:hover {
-            background: #f5f5f5;
-        }
-        /* Table column widths */
-        .mil-table-section th:nth-child(4), .mil-table-section td:nth-child(4) {
-            min-width: 120px; /* Stock column */
-        }
-        .mil-table-section th:nth-child(1), .mil-table-section td:nth-child(1) {
-            min-width: 150px; /* Product column */
-        }
-        .mil-table-section th:nth-child(2), .mil-table-section td:nth-child(2) {
-            min-width: 200px; /* Description column */
-        }
-        .mil-table-section th:nth-child(3), .mil-table-section td:nth-child(3) {
-            min-width: 150px; /* Images column */
-        }
-        .mil-table-section th:nth-child(5), .mil-table-section td:nth-child(5) {
-            min-width: 120px; /* Cost column */
-        }
-        .mil-table-section th:nth-child(6), .mil-table-section td:nth-child(6) {
-            min-width: 120px; /* Commission column */
-        }
-        .mil-table-section th:nth-child(7), .mil-table-section td:nth-child(7) {
-            min-width: 180px; /* Action column */
-        }
-        /* Delete icon styling */
-        .mil-delete-icon {
-            color: rgb(220, 53, 69);
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        .mil-delete-icon:hover {
-            color: #fff;
-            background: rgb(220, 53, 69);
-            border-radius: 4px;
-            padding: 6px;
-        }
-        /* Search section */
-        .mil-search-section form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-        .mil-search-section .mil-form-group {
-            flex: 1;
-            margin-bottom: 0;
-            position: relative;
-        }
-        .mil-search-section .mil-form-control {
-            width: 100%;
-            padding-right: 40px;
-        }
-        /* Image preview */
-        .image-preview-container {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        .image-preview {
-            max-width: 100px;
-            max-height: 100px;
-            border-radius: 4px;
-            border: 1px solid #ddd;
-            margin: 5px;
-            display: none;
-        }
-        .image-placeholder {
-            width: 200px;
-            height: 100px;
-            background-color: #f5f5f5;
-            border: 2px dashed #ccc;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #777;
-            margin: 0 auto;
-        }
-        .image-previews {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            justify-content: center;
-        }
-        .product-thumbnail {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 4px;
-            margin-right: 5px;
-        }
-        /* Modal styling */
-        .mil-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-            display: none;
-            align-items: center;
-            justify-content: center;
-        }
-        .mil-modal.active {
-            display: flex;
-        }
-        .mil-modal-content {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-        .mil-modal-content h5 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        .mil-modal-content p {
-            color: #333;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        .mil-modal-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-        /* Description modal */
-        .mil-description-modal textarea {
-            width: 100%;
-            min-height: 150px;
-            padding: 10px;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-            resize: vertical;
-        }
-        /* Description cell */
-        .description-cell {
-            cursor: pointer;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-        .description-cell:hover {
-            color: #007bff;
-            text-decoration: underline;
-        }
-        /* Button group */
-        .mil-button-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .mil-wrapper .mil-sidebar {
-                width: 200px;
-                background-color: #f8f8f8 !important;
-                opacity: 1 !important;
-            }
-            .mil-main-content {
-                margin-left: 0;
-            }
-            .mil-main-content.full-width {
-                margin-left: 0;
-            }
-            .mil-form-col {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-            .mil-form-group label {
-                font-size: 12px;
-                padding-top: 8px;
-            }
-            .mil-form-control {
-                font-size: 12px;
-                padding: 0.3rem 0.6rem;
-                height: calc(1.5em + 0.6rem + 2px);
-            }
-            .mil-button {
-                font-size: 13px;
-                padding: 8px 16px;
-            }
-            .mil-table-section table {
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            .mil-table-section th,
-            .mil-table-section td {
-                font-size: 12px;
-                padding: 8px;
-            }
-            .mil-table-section th:nth-child(4), .mil-table-section td:nth-child(4) {
-                min-width: 100px; /* Stock column */
-            }
-            .mil-table-section th:nth-child(1), .mil-table-section td:nth-child(1) {
-                min-width: 120px; /* Product column */
-            }
-            .mil-table-section th:nth-child(2), .mil-table-section td:nth-child(2) {
-                min-width: 150px; /* Description column */
-            }
-            .mil-table-section th:nth-child(3), .mil-table-section td:nth-child(3) {
-                min-width: 120px; /* Images column */
-            }
-            .mil-table-section th:nth-child(5), .mil-table-section td:nth-child(5) {
-                min-width: 100px; /* Cost column */
-            }
-            .mil-table-section th:nth-child(6), .mil-table-section td:nth-child(6) {
-                min-width: 100px; /* Commission column */
-            }
-            .mil-table-section th:nth-child(7), .mil-table-section td:nth-child(7) {
-                min-width: 150px; /* Action column */
-            }
-            .mil-delete-icon {
-                font-size: 14px;
-                padding: 5px;
-            }
-            .mil-table-section th,
-            .mil-table-section td {
-                font-size: 12px;
-                padding: 8px;
-            }
-            .mil-table-section th:nth-child(4), .mil-table-section td:nth-child(4) {
-                min-width: 100px; /* Stock column */
-            }
-            .mil-table-section th:nth-child(1), .mil-table-section td:nth-child(1) {
-                min-width: 120px; /* Product column */
-            }
-            .mil-table-section th:nth-child(2), .mil-table-section td:nth-child(2) {
-                min-width: 150px; /* Description column */
-            }
-            .mil-table-section th:nth-child(3), .mil-table-section td:nth-child(3) {
-                min-width: 120px; /* Images column */
-            }
-            .mil-table-section th:nth-child(5), .mil-table-section td:nth-child(5) {
-                min-width: 100px; /* Cost column */
-            }
-            .mil-table-section th:nth-child(6), .mil-table-section td:nth-child(6) {
-                min-width: 100px; /* Commission column */
-            }
-            .mil-table-section th:nth-child(7), .mil-table-section td:nth-child(7) {
-                min-width: 150px; /* Action column */
-            }
-            .mil-delete-icon {
-                font-size: 14px;
-                padding: 5px;
-            }
-            .product-thumbnail {
-                width: 40px;
-                height: 40px;
-            }
-            .mil-modal-content {
-                width: 95%;
-            }
-            .mil-search-section form {
-                flex-direction: column;
-                gap: 10px;
-                align-items: stretch;
-            }
-            .mil-search-section .mil-form-group {
-                margin-bottom: 10px;
-            }
-            .mil-search-section .mil-form-control {
-                margin-bottom: 40px;
-            }
-            .mil-button-group {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .mil-button-group .mil-button {
-                width: 100%;
-            }
-            .mil-modal-buttons {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            .mil-modal-buttons .mil-button {
-                width: 100%;
-            }
-            /* Center container on mobile */
-            .mil-about .container {
-                margin-left: auto;
-                margin-right: auto;
-                max-width: 100%;
-                padding-left: 15px;
-                padding-right: 15px;
-            }
-        }
-    </style>
 
     <title>Shed | Update Stock</title>
 </head>
@@ -750,7 +75,7 @@
         <div class="mil-content">
             <div id="swupMain" class="mil-main-transition">
                 <!-- banner -->
-                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                <section class="mil-banner mil-dark-bg">
                     <div class="mi-invert-fix">
                         <div class="mil-animation-frame">
                             <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
@@ -775,17 +100,17 @@
                 <!-- main content -->
                 <section class="mil-about">
                     <div class="container mil-p-120-60">
-                        <div class="row justify-content-center">
+                        <div class="row">
                             <div class="col-lg-8 mil-main-content" id="mainContent">
                                 <!-- Business Info -->
                                 <div class="mil-form-section mil-up">
                                     <div class="mil-center">
-                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo" style="height: 50px; margin-bottom: 10px;">
-                                        <h4 style="color: #333; font-size: 16px;">Update Stock for <%= admin.businessName || 'Your Business' %></h4>
-                                        <p style="color: #333; font-size: 13px;">
+                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo">
+                                        <h4>Update Stock for <%= admin.businessName || 'Your Business' %></h4>
+                                        <p>
                                             Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
                                         </p>
-                                        <p style="color: #333; font-size: 13px;">
+                                        <p>
                                             Store URL: <a href="<%= storeUrl %>" target="_blank"><%= storeUrl %></a>
                                         </p>
                                     </div>
@@ -808,8 +133,8 @@
                                     <form method="GET" action="/update-stock">
                                         <div class="mil-form-group">
                                             <label>Search Products <i class="fa-solid fa-search"></i></label>
-                                            <div style="position: relative; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                                <div style="position: relative; flex: 1;">
+                                            <div>
+                                                <div>
                                                     <input type="text" name="search" class="mil-form-control" placeholder="Search by product name" value="<%= search || '' %>">
                                                     <button type="submit" class="mil-button search-button">
                                                         <i class="fa-solid fa-search"></i>
@@ -892,7 +217,7 @@
                                 <div class="mil-table-section mil-up">
                                     <% if (inventory && inventory.length > 0) { %>
                                         <h2 class="mil-mb-30">Inventory</h2>
-                                        <table>
+                                        <table style="min-width: 1000px;">
                                             <thead>
                                                 <tr>
                                                     <th>Product</th>
@@ -957,7 +282,7 @@
                                             </tbody>
                                         </table>
                                     <% } else { %>
-                                        <p class="mil-center" style="color: #333;">No inventory items found.</p>
+                                        <p class="mil-center">No inventory items found.</p>
                                     <% } %>
                                 </div>
                             </div>
@@ -1074,8 +399,8 @@
     <script src="/js/plugins/fancybox.min.js"></script>
     <!-- gsap js -->
     <script src="/js/plugins/gsap.min.js"></script>
-    <!-- scroll smoother -->
-    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- Temporarily disable smooth-scroll to test -->
+    <!-- <script src="/js/plugins/smooth-scroll.js"></script> -->
     <!-- scroll trigger js -->
     <script src="/js/plugins/ScrollTrigger.min.js"></script>
     <!-- scroll to js -->
@@ -1096,39 +421,85 @@
     </script>
 
     <!-- Sidebar Toggle -->
+    
+        
+<!-- Sidebar Toggle -->
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const menuItems = document.querySelectorAll('.mil-sidebar a'); // Select all menu items
+
+        // Initial sidebar state from localStorage
+        const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+        if (isSidebarHidden) {
+            sidebar.classList.add('hidden');
+            mainContent.classList.add('full-width');
+            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+        } else {
+            sidebar.classList.remove('hidden');
+            mainContent.classList.remove('full-width');
+            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+        }
+
+        // Toggle sidebar on button click
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            mainContent.classList.toggle('full-width');
+            toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+            localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+        });
+
+        // Close sidebar when a menu item is clicked
+        menuItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Only close the sidebar if it's currently open
+                if (!sidebar.classList.contains('hidden')) {
+                    sidebar.classList.add('hidden');
+                    mainContent.classList.add('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    localStorage.setItem('sidebarHidden', 'true');
+                }
+            });
+        });
+
+        // Adjust sidebar state on window resize
+        function setSidebarState() {
+            if (sidebar.classList.contains('hidden')) {
+                mainContent.classList.add('full-width');
+            } else {
+                mainContent.classList.remove('full-width');
+            }
+        }
+        setSidebarState();
+        window.addEventListener('resize', setSidebarState);
+    });
+</script>
+    
+
+    <!-- Debug Horizontal Scrolling -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const sidebar = document.getElementById('sidebar');
-            const mainContent = document.getElementById('mainContent');
-            const toggleBtn = document.getElementById('toggleBtn');
+            const mainContent = document.querySelector('.mil-main-content');
+            const container = document.querySelector('.mil-about .container');
+            const row = document.querySelector('.mil-about .row');
+            const col = document.querySelector('.col-lg-8');
+            const table = document.querySelector('.mil-table-section table');
 
-            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
-            if (isSidebarHidden) {
-                sidebar.classList.add('hidden');
-                mainContent.classList.add('full-width');
-                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-            } else {
-                sidebar.classList.remove('hidden');
-                mainContent.classList.remove('full-width');
-                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-            }
+            console.log('Main content width:', mainContent.scrollWidth, 'Viewport width:', window.innerWidth);
+            console.log('Container width:', container.scrollWidth);
+            console.log('Row width:', row.scrollWidth);
+            console.log('Col width:', col.scrollWidth);
+            console.log('Table width:', table.scrollWidth);
 
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('hidden');
-                mainContent.classList.toggle('full-width');
-                toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
-                localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+            mainContent.addEventListener('scroll', () => {
+                console.log('Main content scrollLeft:', mainContent.scrollLeft);
+                console.log('Max scrollLeft:', mainContent.scrollWidth - mainContent.clientWidth);
             });
 
-            function setSidebarState() {
-                if (sidebar.classList.contains('hidden')) {
-                    mainContent.classList.add('full-width');
-                } else {
-                    mainContent.classList.remove('full-width');
-                }
-            }
-            setSidebarState();
-            window.addEventListener('resize', setSidebarState);
+            // Force scroll to left on load
+            mainContent.scrollLeft = 0;
         });
     </script>
 
