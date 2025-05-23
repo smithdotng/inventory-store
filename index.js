@@ -926,6 +926,75 @@ app.get('/superadmin/affiliates', isAuthenticated, isSuperAdmin, async (req, res
   }
 });
 
+app.get('/superadmin/outlets', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    console.log('Accessing /superadmin/outlets for user:', req.session.admin);
+
+    // Fetch all outlets
+    const outlets = await db.collection('outlets').find().toArray();
+    if (!outlets.length) console.warn('No outlets found in database');
+
+    // Fetch all admins
+    const admins = await db.collection('admins').find().toArray();
+    if (!admins.length) console.warn('No admins found in database');
+
+    // Create a map of adminId to admin details for efficient lookup
+    const adminMap = new Map(admins.map(admin => [admin._id.toString(), admin]));
+
+    // Fetch login logs for admins
+    const adminIds = admins.map(admin => admin._id);
+    const loginLogs = await db.collection('login_logs')
+      .aggregate([
+        { $match: { adminId: { $in: adminIds } } },
+        { $group: { _id: '$adminId', lastLogin: { $max: '$loginTime' }, loginCount: { $sum: 1 } } }
+      ])
+      .toArray();
+
+    // Create a map of adminId to login data
+    const loginMap = new Map(loginLogs.map(log => [log._id.toString(), log]));
+
+    // Enrich outlets with admin details and login data
+    const enrichedOutlets = outlets.map(outlet => {
+      const admin = adminMap.get(outlet.adminId) || {};
+      const loginData = loginMap.get(outlet.adminId) || {};
+      return {
+        ...outlet,
+        adminBusinessName: admin.businessName || 'N/A',
+        adminEmail: admin.email || 'N/A',
+        adminCurrency: admin.currency || '₦',
+        hasLoggedIn: !!loginData.loginCount,
+        loginCount: loginData.loginCount || 0,
+        lastLogin: loginData.lastLogin || null
+      };
+    });
+
+    // Fetch current superadmin
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!currentAdmin) {
+      console.error('Current superadmin not found:', req.session.admin);
+      return res.status(401).send('Unauthorized');
+    }
+
+    // Define formatCurrency function
+    const formatCurrency = (amount) => {
+      if (!amount) return '0.00';
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
+    res.render('superadmin-outlets', {
+      outlets: enrichedOutlets,
+      formatCurrency,
+      currentAdminId: currentAdmin._id.toString()
+    });
+  } catch (err) {
+    console.error('Error in /superadmin/outlets:', err.message, err.stack);
+    res.status(500).render('500', {
+      message: 'Error loading outlets dashboard',
+      error: process.env.NODE_ENV === 'development' ? err : undefined
+    });
+  }
+});
+
 
 
 
@@ -2799,8 +2868,15 @@ app.get('/store/:adminUsername', async (req, res) => {
       }
     };
 
+    // Define formatCurrency function (ensure it's defined if not imported)
+    const formatCurrency = (amount) => {
+      if (!amount) return '0.00';
+      return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    };
+
     const templateData = {
       admin,
+      outlet: undefined, // Explicitly pass outlet as undefined
       inventory,
       currency: admin.currency || '$',
       formatCurrency,

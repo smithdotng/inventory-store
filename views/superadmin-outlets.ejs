@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superadmin Outlets Dashboard | Shed</title>
+  <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .header {
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .header a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+    }
+    .table-container {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    th {
+      background: #333;
+      color: white;
+    }
+    tr:nth-child(even) {
+      background: #f9f9f9;
+    }
+    .inventory-details {
+      max-width: 300px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .no-data {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+    @media (max-width: 768px) {
+      .container {
+        padding: 10px;
+      }
+      th, td {
+        padding: 8px;
+        font-size: 14px;
+      }
+      .header h1 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>Superadmin Outlets Dashboard</h1>
+    <a href="/superadmin/dashboard"><i class="fas fa-arrow-left"></i> Back to Dashboard</a>
+  </div>
+  <div class="container">
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Outlet Name</th>
+            <th>Username</th>
+            <th>Location</th>
+            <th>Mobile</th>
+            <th>Admin Business</th>
+            <th>Admin Email</th>
+            <th>Inventory</th>
+            <th>Login Count</th>
+            <th>Last Login</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (outlets.length) { %>
+            <% outlets.forEach(outlet => { %>
+              <tr>
+                <td><%= outlet.name || 'N/A' %></td>
+                <td><%= outlet.username || 'N/A' %></td>
+                <td><%= outlet.location || 'N/A' %></td>
+                <td><%= outlet.mobile || 'N/A' %></td>
+                <td><%= outlet.adminBusinessName %></td>
+                <td><%= outlet.adminEmail %></td>
+                <td class="inventory-details">
+                  <% if (outlet.inventory && outlet.inventory.length) { %>
+                    <% outlet.inventory.forEach(item => { %>
+                      <%= item.name %>: <%= outlet.adminCurrency %><%= formatCurrency(item.cost) %> (Stock: <%= item.stock %>)<br>
+                    <% }) %>
+                  <% } else { %>
+                    No inventory
+                  <% } %>
+                </td>
+                <td><%= outlet.loginCount %></td>
+                <td><%= outlet.lastLogin ? new Date(outlet.lastLogin).toLocaleString() : 'Never' %></td>
+              </tr>
+            <% }) %>
+          <% } else { %>
+            <tr>
+              <td colspan="9" class="no-data">No outlets found</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
