@@ -2828,6 +2828,7 @@ app.get('/api/stores/search', async (req, res) => {
 
 
 const countryCodes = require('country-code-lookup'); // Add this dependency for country-to-phone-code mapping
+
 app.get('/store/:adminUsername', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
@@ -2863,11 +2864,18 @@ app.get('/store/:adminUsername', async (req, res) => {
       if (!phone.startsWith('+')) {
         let countryCode = '+234'; // Default to Nigeria
         if (admin.country) {
-          // Map admin.country to country code using country-code-lookup
-          const country = countryCodes.byIso(admin.country) || countryCodes.byCountry(admin.country);
-          if (country && country.countryCallingCodes && country.countryCallingCodes.length > 0) {
-            countryCode = country.countryCallingCodes[0].replace(/\D/g, ''); // e.g., "+234"
-            countryCode = '+' + countryCode; // Ensure '+' prefix
+          try {
+            // Try to map admin.country to country code
+            const country = countryCodes.byIso(admin.country) || countryCodes.byCountry(admin.country);
+            if (country && country.countryCallingCodes && country.countryCallingCodes.length > 0) {
+              countryCode = country.countryCallingCodes[0].replace(/\D/g, ''); // e.g., "234"
+              countryCode = '+' + countryCode; // Ensure '+' prefix
+            } else {
+              console.warn(`No country code found for admin.country: ${admin.country}, defaulting to +234`);
+            }
+          } catch (error) {
+            console.warn(`Error parsing admin.country: ${admin.country}, defaulting to +234`, error.message);
+            // Continue with default countryCode (+234)
           }
         }
         // Remove leading zeros and append country code
@@ -2876,6 +2884,12 @@ app.get('/store/:adminUsername', async (req, res) => {
       } else {
         // If phone already has a country code, use it as is
         whatsappNumber = '+' + phone;
+      }
+
+      // Validate whatsappNumber (basic check for length)
+      if (whatsappNumber.length < 10 || whatsappNumber.length > 15) {
+        console.warn(`Invalid WhatsApp number generated for admin ${admin.username}: ${whatsappNumber}`);
+        whatsappNumber = ''; // Prevent invalid number from being used
       }
     }
 
@@ -2905,7 +2919,7 @@ app.get('/store/:adminUsername', async (req, res) => {
       outlet: undefined,
       inventory,
       currency: admin.currency || '$',
-      whatsappNumber, // Pass normalized WhatsApp number
+      whatsappNumber,
       formatCurrency,
       getSocialHandle
     };
