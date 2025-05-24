@@ -2914,12 +2914,16 @@ app.get('/store/:adminUsername', async (req, res) => {
       return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    // Get host for store URL (use environment variable or req.get('host'))
+    const host = process.env.BASE_URL || req.get('host') || 'localhost:3000';
+
     const templateData = {
       admin,
       outlet: undefined,
       inventory,
       currency: admin.currency || '$',
       whatsappNumber,
+      host, // Add host to templateData
       formatCurrency,
       getSocialHandle
     };
