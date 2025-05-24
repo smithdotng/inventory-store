@@ -2826,13 +2826,15 @@ app.get('/api/stores/search', async (req, res) => {
 });
 
 
+
+const countryCodes = require('country-code-lookup'); // Add this dependency for country-to-phone-code mapping
 app.get('/store/:adminUsername', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
-    const saleId = req.query.saleId; // Optional for confirmation page
+    const saleId = req.query.saleId;
 
     const admin = await db.collection('admins').findOne({ 
-      username: { $regex: `^${adminUsername}$`, $options: 'i' } // Case-insensitive username check
+      username: { $regex: `^${adminUsername}$`, $options: 'i' }
     });
     if (!admin) {
       return res.status(404).render('404', { message: 'Store not found' });
@@ -2851,7 +2853,32 @@ app.get('/store/:adminUsername', async (req, res) => {
       .find({ adminId: admin._id, stock: { $gt: 0 } })
       .toArray();
 
-    // Define getSocialHandle function
+    // Normalize phone number for WhatsApp
+    let whatsappNumber = '';
+    if (admin.publicPhone && admin.phone) {
+      // Remove non-digits
+      let phone = admin.phone.replace(/\D/g, '');
+      
+      // Check if phone already includes a country code
+      if (!phone.startsWith('+')) {
+        let countryCode = '+234'; // Default to Nigeria
+        if (admin.country) {
+          // Map admin.country to country code using country-code-lookup
+          const country = countryCodes.byIso(admin.country) || countryCodes.byCountry(admin.country);
+          if (country && country.countryCallingCodes && country.countryCallingCodes.length > 0) {
+            countryCode = country.countryCallingCodes[0].replace(/\D/g, ''); // e.g., "+234"
+            countryCode = '+' + countryCode; // Ensure '+' prefix
+          }
+        }
+        // Remove leading zeros and append country code
+        phone = phone.replace(/^0+/, '');
+        whatsappNumber = countryCode + phone;
+      } else {
+        // If phone already has a country code, use it as is
+        whatsappNumber = '+' + phone;
+      }
+    }
+
     const getSocialHandle = (url, platform) => {
       try {
         if (!url) return 'N/A';
@@ -2868,7 +2895,6 @@ app.get('/store/:adminUsername', async (req, res) => {
       }
     };
 
-    // Define formatCurrency function (ensure it's defined if not imported)
     const formatCurrency = (amount) => {
       if (!amount) return '0.00';
       return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -2876,15 +2902,15 @@ app.get('/store/:adminUsername', async (req, res) => {
 
     const templateData = {
       admin,
-      outlet: undefined, // Explicitly pass outlet as undefined
+      outlet: undefined,
       inventory,
       currency: admin.currency || '$',
+      whatsappNumber, // Pass normalized WhatsApp number
       formatCurrency,
-      getSocialHandle // Add getSocialHandle to templateData
+      getSocialHandle
     };
 
     if (sale) {
-      // Add confirmation data if sale exists
       Object.assign(templateData, {
         saleId: sale._id,
         customerName: sale.customerName,
@@ -3131,8 +3157,6 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
     });
   }
 });
-
-
 
 app.get('/store/:adminUsername/confirmation/:saleId', async (req, res) => {
   try {
