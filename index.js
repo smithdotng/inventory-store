@@ -12,6 +12,7 @@ const PDFDocument = require('pdfkit');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { setupBroadcastRoute } = require('./utils/emailBroadcast');
+const moment = require('moment');
 
 const app = express();
 const port = 3000;
@@ -545,6 +546,224 @@ app.get('/referrals/logout', (req, res) => {
     // Redirect to login page with a query parameter to trigger sidebar reset
     res.redirect('/referrals/login?resetSidebar=true');
   });
+});
+
+// Forgot Password Route
+app.get('/referrals/forgot-password', (req, res) => {
+  const error = req.flash('error');
+  const message = req.flash('success'); // Use 'success' flash message as 'message'
+  res.render('referral-forgot-password', { error, message });
+});
+
+app.post('/referrals/forgot-password', async (req, res) => {
+  let broadcastLog;
+  try {
+    const { email } = req.body;
+    if (!email) {
+      req.flash('error', 'Email is required.');
+      return res.redirect('/referrals/forgot-password');
+    }
+
+    // Normalize email: trim whitespace and convert to lowercase
+    const normalizedEmail = email.trim().toLowerCase();
+    console.log('Searching for email:', normalizedEmail); // Debugging
+
+    // Case-insensitive query
+    const affiliate = await db.collection('affiliates').findOne({
+      email: { $regex: `^${normalizedEmail}$`, $options: 'i' }
+    });
+
+    if (!affiliate) {
+      console.log('No affiliate found for email:', normalizedEmail); // Debugging
+      req.flash('error', 'No affiliate found with this email.');
+      return res.redirect('/referrals/forgot-password');
+    }
+
+    console.log('Found affiliate:', affiliate); // Debugging
+
+    // Generate reset token and expiration
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    const resetTokenExpiry = moment().add(1, 'hour').toDate();
+
+    // Update affiliate with reset token and expiry
+    await db.collection('affiliates').updateOne(
+      { _id: affiliate._id },
+      { $set: { resetToken, resetTokenExpiry } }
+    );
+
+    // Construct reset link
+    const baseUrl = process.env.BASE_URL || 
+                    `${req.headers['x-forwarded-proto'] || req.protocol}://${req.headers['x-forwarded-host'] || req.get('host')}`;
+    const resetLink = `${baseUrl}/referrals/reset-password/${resetToken}`;
+
+    // Start broadcast log for email
+    broadcastLog = await db.collection('broadcast_logs').insertOne({
+      type: 'password_reset',
+      initiatedBy: 'system',
+      startTime: new Date(),
+      totalRecipients: '1',
+      status: 'processing'
+    });
+
+    // Send reset email
+    let successCount = 0;
+    let failCount = 0;
+    const failedEmails = [];
+
+    try {
+      const mailOptions = {
+        from: `"Shed Affiliate Programme" <${process.env.EMAIL_USER}>`,
+        to: email,
+        subject: '🔒 Reset Your Shed Affiliate Password',
+        html: `
+          <div style="font-family: Arial; color: #333; padding: 20px; max-width: 600px; margin: auto;">
+            <img src="${baseUrl}/images/logo.png" alt="Shed Logo" style="width: auto; margin-bottom: 150px;"> width: 150px; height: auto; margin-bottom: 20px;">
+            <h1 style="color: #eba611;">Password Reset Request</h1>
+            <p>Dear ${affiliate.firstName} ${affiliate.lastName},</p>
+            <p>We received a request to reset your Shed Affiliate Program password. Click the link below to reset your password:</p>
+            <p><a href="${resetLink}" style="background-color: #eba611; color: #333; padding: 8px 16px; text-decoration: none; border-radius: 4px; display: inline-block;">Reset Password</a></p>
+            <p>This link will expire in 1 hour for security reasons.</p>
+            <p>If you didn’t request a password reset, please ignore this email or contact us at <a href="mailto:support@shed.ng" style="color: #eba611; text-decoration: underline;">support@shed.ng</a>.</p>
+            <p>Best regards,<br>The Shed Affiliate Team</p>
+            <p style="font-size: 12px; color: #666; margin-top: 20px;">Need help? Contact us at <a href="mailto:support@shed.ng" style="color: #eba611; text-decoration: underline;">support@shed.ng</a></p>
+          </div>
+        `
+      };
+
+      await transporter.sendMail(mailOptions);
+      successCount++;
+
+      // Log email success
+      await db.collection('broadcast_progress').insertOne({
+        broadcastId: broadcastLog._id,
+        batchIndex: 0,
+        processed: 1,
+        successes: 1,
+        failures: 0,
+        timestamp: new Date()
+      });
+    } catch (err) {
+      console.error(`Failed to send reset email to ${email}:`, err);
+      failCount++;
+      failedEmails.push(email);
+
+      // Log email failure
+      await db.collection('broadcast_progress').insertOne({
+        broadcastId: broadcastLog._id,
+        batchIndex: 0,
+        processed: 1,
+        successes: 0,
+        failures: 1,
+        timestamp: new Date()
+      });
+    }
+
+    // Update broadcast log
+    await db.collection('broadcast_logs').updateOne(
+      { _id: broadcastLog._id },
+      {
+        $set: {
+          endTime: new Date(),
+          status: 'completed',
+          successCount,
+          failCount,
+          failedEmails
+        }
+      }
+    );
+
+    req.flash('success', 'A password reset link has been sent to your email.');
+    res.redirect('/referrals/forgot-password');
+
+  } catch (error) {
+    console.error('Error processing forgot password:', error);
+
+    // Update broadcast log if error occurs
+    if (broadcastLog?._id) {
+      await db.collection('broadcast_logs').updateOne(
+        { _id: broadcastLog._id },
+        {
+          $set: {
+            endTime: new Date(),
+            status: 'failed',
+            error: error.message
+          }
+        }
+      );
+    }
+
+    req.flash('error', 'An unexpected error occurred. Please try again later.');
+    res.redirect('/referrals/forgot-password');
+  }
+});
+
+// Reset Password Route
+app.get('/referrals/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const affiliate = await db.collection('affiliates').findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: new Date() }
+    });
+
+    if (!affiliate) {
+      req.flash('error', 'Invalid or expired reset token.');
+      return res.redirect('/referrals/forgot-password');
+    }
+
+    res.render('referral-reset-password', { error: req.flash('error'), token });
+  } catch (error) {
+    console.error('Error accessing reset password:', error);
+    req.flash('error', 'An unexpected error occurred. Please try again.');
+    res.redirect('/referrals/forgot-password');
+  }
+});
+
+app.post('/referrals/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+
+    if (!password || !confirmPassword) {
+      req.flash('error', 'Both password fields are required.');
+      return res.redirect(`/referrals/reset-password/${token}`);
+    }
+
+    if (password !== confirmPassword) {
+      req.flash('error', 'Passwords do not match.');
+      return res.redirect(`/referrals/reset-password/${token}`);
+    }
+
+    const affiliate = await db.collection('affiliates').findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: new Date() }
+    });
+
+    if (!affiliate) {
+      req.flash('error', 'Invalid or expired reset token.');
+      return res.redirect('/referrals/forgot-password');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Update password and clear reset token
+    await db.collection('affiliates').updateOne(
+      { _id: affiliate._id },
+      {
+        $set: { password: hashedPassword },
+        $unset: { resetToken: '', resetTokenExpiry: '' }
+      }
+    );
+
+    req.flash('success', 'Password reset successfully. Please log in.');
+    res.redirect('/referrals/login');
+
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    req.flash('error', 'An unexpected error occurred. Please try again.');
+    res.redirect(`/referrals/referral-reset-password/${token}`);
+  }
 });
 
 
