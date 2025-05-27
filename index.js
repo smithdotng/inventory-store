@@ -447,27 +447,38 @@ app.post('/referrals/signup', async (req, res) => {
 
 
 app.get('/referrals/login', (req, res) => {
-  res.render('referrals-login', { error: null });
+  res.render('referrals-login', { error: req.flash('error') });
 });
 
 app.post('/referrals/login', async (req, res) => {
   try {
     const { usernameOrEmail, password } = req.body;
+    if (!usernameOrEmail || !password) {
+      req.flash('error', 'All fields are required.');
+      return res.redirect('/referrals/login');
+    }
+
+    // Normalize input: trim whitespace and convert email to lowercase
+    const normalizedInput = usernameOrEmail.trim().toLowerCase();
+
     const affiliate = await db.collection('affiliates').findOne({
       $or: [
-        { username: usernameOrEmail },
-        { email: usernameOrEmail }
+        { username: normalizedInput },
+        { email: { $regex: `^${normalizedInput}$`, $options: 'i' } }
       ]
     });
+
     if (!affiliate || !(await bcrypt.compare(password, affiliate.password))) {
-      return res.status(401).send('Invalid username/email or password.');
+      req.flash('error', 'Invalid username/email or password.');
+      return res.redirect('/referrals/login');
     }
 
     req.session.affiliate = affiliate._id.toString();
     res.redirect('/referrals/dashboard');
   } catch (error) {
     console.error('Error logging in affiliate:', error);
-    res.status(500).send('Internal Server Error');
+    req.flash('error', 'An unexpected error occurred. Please try again later.');
+    res.redirect('/referrals/login');
   }
 });
 
