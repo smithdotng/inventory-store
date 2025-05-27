@@ -1098,14 +1098,23 @@ app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res)
     });
 
     const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!currentAdmin) {
+      console.error('Current admin not found for username:', req.session.admin);
+      req.flash('error', 'Session invalid. Please log in again.');
+      return res.redirect('/superadmin/login');
+    }
+
     res.render('superadmin-dashboard', { 
-      admins: enrichedAdmins, 
+      adminItems: enrichedAdmins, // Changed from admins to adminItems
       formatCurrency, 
-      currentAdminId: currentAdmin._id.toString() 
+      currentAdminId: currentAdmin._id.toString(),
+      success: req.flash('success') || [], // Add flash messages
+      error: req.flash('error') || [] // Add flash messages
     });
   } catch (err) {
     console.error('Error in /superadmin/dashboard:', err.message, err.stack);
-    res.status(500).send('Internal Server Error');
+    req.flash('error', 'Failed to load dashboard. Please try again.');
+    res.redirect('/superadmin/login');
   }
 });
 
@@ -1260,15 +1269,42 @@ async function sendPasswordResetEmail(email, username, resetToken) {
 app.post('/superadmin/update-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
   try {
     const adminId = req.params.id;
-    const { businessName, currency, role } = req.body;
+    const { businessName, currency, role, username, phone } = req.body;
+
+    // Validate required fields
+    if (!username || !role) {
+      req.flash('error', 'Username and role are required.');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    // Validate role
+    if (!['admin', 'superadmin'].includes(role)) {
+      req.flash('error', 'Role must be either "admin" or "superadmin".');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    // Check for duplicate username (excluding current admin)
+    const existingAdmin = await db.collection('admins').findOne({
+      username,
+      _id: { $ne: new ObjectId(adminId) }
+    });
+    if (existingAdmin) {
+      req.flash('error', 'Username already exists.');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    // Update admin
     await db.collection('admins').updateOne(
       { _id: new ObjectId(adminId) },
-      { $set: { businessName: businessName || null, currency: currency || null, role } }
+      { $set: { businessName: businessName || null, currency: currency || null, role, username, phone: phone || null } }
     );
+
+    req.flash('success', 'Admin updated successfully.');
     res.redirect('/superadmin/dashboard');
   } catch (error) {
     console.error('Error updating admin:', error);
-    res.status(500).send('Internal Server Error');
+    req.flash('error', 'An unexpected error occurred. Please try again later.');
+    res.redirect('/superadmin/dashboard');
   }
 });
 
