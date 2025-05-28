@@ -1,360 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta property="og:title" content="Superadmin Dashboard | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Superadmin Dashboard</title>
 
-    <!-- Font Awesome -->
+    <!-- Google Tag Manager -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    
-    <!-- Favicons -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Favicon -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <!-- Inline CSS with Enhanced Responsiveness -->
     <style>
+        :root {
+            --primary-color: rgb(235, 166, 17);
+            --secondary-color: #008B8B;
+            --dark-bg: #1a1a1a;
+            --light-bg: #f8f8f8;
+            --text-dark: #333;
+            --text-light: #fff;
+            --success-color: #388e3c;
+            --error-color: #d32f2f;
+            --warning-color: #ffa000;
+            --border-radius: 4px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            background-color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .mil-wrapper {
             position: relative;
             min-height: 100vh;
-            font-size: 14px;
-            margin: 0;
+            display: flex;
+            flex-direction: column;
         }
-        
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }
-        
-        /* Sidebar */
-        .new-sidebar {
-            width: 250px;
+
+        /* Scrollbar Progress */
+        .mil-progress-track {
             position: fixed;
-            left: 0;
             top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: transparent;
+            z-index: 10000;
+        }
+
+        .mil-progress {
+            height: 100%;
+            width: 0;
+            background-color: var(--primary-color);
+            transition: width 0.1s ease;
+        }
+
+        /* Sidebar Styles */
+        .mil-sidebar {
+            width: 250px;
+            background-color: var(--light-bg) !important;
+            position: fixed;
+            top: 0;
+            left: 0;
             bottom: 0;
-            background: darkcyan;
-            color: white;
-            padding: 60px 20px 20px 20px;
-            transition: width 0.3s ease, left 0.3s ease;
-            z-index: 3000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            z-index: 1001;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
         }
-        
-        .new-sidebar.collapsed {
-            width: 80px;
+
+        .mil-sidebar.hidden {
+            transform: translateX(-100%);
         }
-        
-        .new-sidebar.collapsed .logo img {
-            max-width: 50px;
+
+        .mil-sidebar * {
+            background-color: transparent !important;
+            opacity: 1 !important;
         }
-        
-        .new-sidebar.collapsed .greeting,
-        .new-sidebar.collapsed .nav-link span {
-            display: none;
-        }
-        
-        .new-sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px 5px;
-        }
-        
-        .new-sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-        
-        .new-sidebar .logo {
+
+        .mil-sidebar .mil-logo-container {
             text-align: center;
             margin-bottom: 20px;
+            padding-top: 10px;
         }
-        
-        .new-sidebar .logo img {
-            max-width: 80%;
+
+        .mil-sidebar .mil-logo-container img {
+            max-width: 100%;
             height: auto;
-            transition: max-width 0.3s ease;
         }
-        
-        .new-sidebar .greeting {
-            font-size: 1.2rem;
-            text-align: center;
+
+        .mil-sidebar h2 {
+            font-size: 16px;
+            color: var(--text-dark);
             margin-bottom: 20px;
-            color: white;
+            font-weight: 500;
+            padding: 0 10px;
         }
-        
-        .new-sidebar .nav-link {
+
+        .mil-sidebar a {
             display: flex;
             align-items: center;
-            color: rgba(255, 255, 255, 0.8);
             padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 4px;
+            color: var(--text-dark);
             text-decoration: none;
-            transition: all 0.3s ease;
+            font-size: 14px;
+            margin-bottom: 8px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
         }
-        
-        .new-sidebar .nav-link i {
+
+        .mil-sidebar a i {
             margin-right: 10px;
-            font-size: 1rem;
+            width: 20px;
+            text-align: center;
         }
-        
-        .new-sidebar .nav-link:hover {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
+
+        .mil-sidebar a:hover {
+            background: var(--primary-color) !important;
+            color: var(--text-light);
         }
-        
-        .new-sidebar .nav-link.active {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
+
+        .mil-sidebar a.active {
+            background: var(--primary-color) !important;
+            color: var(--text-light);
             font-weight: bold;
         }
-        
+
         /* Toggle Button */
-        .new-toggle-btn {
+        .mil-toggle-btn {
             position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 3100;
-            background: rgb(235, 166, 17);
-            color: darkcyan;
+            top: 15px;
+            left: 15px;
+            background: var(--primary-color);
+            color: var(--text-dark);
             border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            z-index: 1002;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
+            transition: var(--transition);
         }
-        
-        .new-sidebar.collapsed + .main-container .new-toggle-btn {
-            left: 20px;
+
+        .mil-toggle-btn:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
         }
-        
-        /* Main Container */
-        .main-container {
-            min-height: 100vh;
-            padding: 20px;
-            max-width: 1000px;
-            margin-left: 250px;
-            margin-right: 20px;
+
+        /* Main Content */
+        .mil-content {
+            flex: 1;
+            padding-bottom: 30px;
             transition: margin-left 0.3s ease;
-            position: relative;
-            z-index: 1000;
+        }
+
+        .mil-main-content {
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
             background-color: white;
             border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--box-shadow);
+            overflow-x: visible;
         }
-        
-        .new-sidebar.collapsed + .main-container {
-            margin-left: 80px;
+
+        .mil-main-content.full-width {
+            margin-left: 0;
         }
-        
-        /* Backdrop for mobile */
-        .new-sidebar.open + .main-container::before {
-            content: '';
-            position: fixed;
+
+        /* Banner Section */
+        .mil-banner {
+            margin-top: 0;
+            padding-top: 0;
+            position: relative;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
-        }
-        
-        .registration-container {
             width: 100%;
-            padding: 20px;
+            z-index: 1000;
+            height: auto;
+            min-height: 300px;
         }
-        
-        .registration-card {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #e0e0e0;
+
+        .mil-banner-content {
+            padding: 60px 0;
         }
-        
-        .logo-container {
-            text-align: center;
+
+        .mil-banner-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: var(--text-light) !important;
+            font-size: 16px !important;
+        }
+
+        /* Form Elements */
+        .mil-form-section {
+            margin-bottom: 30px;
+        }
+
+        .mil-form-section h4 {
+            color: var(--text-dark);
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .mil-form-group {
             margin-bottom: 15px;
-            padding-top: 15px;
         }
-        
-        .logo-container img {
-            height: 50px;
-            margin-bottom: 10px;
-            max-width: 100%;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .btn-create-account {
-            background-color: rgb(235, 166, 17);
-            color: #fff;
-            transition: all 0.3s ease;
-            border: none;
+
+        .mil-form-group label {
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            display: block;
             font-weight: 500;
             font-size: 14px;
+        }
+
+        .mil-form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #495057;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 14px;
+            padding: 10px 12px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            text-transform: none !important;
+        }
+
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        textarea.mil-form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Buttons */
+        .mil-button {
+            background-color: var(--primary-color);
+            color: var(--text-dark);
+            border: none;
             padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
+            text-decoration: none;
+            white-space: nowrap;
         }
-        
-        .btn-create-account:hover {
-            background-color: rgb(200, 142, 14);
-            color: #fff;
-        }
-        
-        .btn-create-account.add-product-btn {
-            background-color: rgb(255, 204, 0);
-            color: #333;
-        }
-        
-        .btn-create-account.add-product-btn:hover {
-            background-color: rgb(230, 184, 0);
-            color: #333;
-        }
-        
-        .btn-create-account.update-btn {
-            background-color: rgb(40, 167, 69);
-            color: #fff;
-        }
-        
-        .btn-create-account.update-btn:hover {
-            background-color: rgb(34, 139, 57);
-            color: #fff;
-        }
-        
-        .btn-create-account.delete-btn {
-            background-color: rgb(220, 53, 69);
-            color: #fff;
-        }
-        
-        .btn-create-account.delete-btn:hover {
-            background-color: rgb(200, 48, 63);
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn {
-            background-color: rgb(108, 117, 125);
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn:hover {
-            background-color: rgb(90, 98, 104);
-            color: #fff;
-        }
-        
-        .btn-create-account.reset-btn {
-            background-color: rgb(0, 123, 255);
-            color: #fff;
-        }
-        
-        .btn-create-account.reset-btn:hover {
-            background-color: rgb(0, 105, 217);
-            color: #fff;
-        }
-        
-        .table-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        
-        .table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
-    margin-bottom: 20px;
-}
 
-.table {
-    min-width: 800px; /* Ensures table has minimum width before scrolling */
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-}
-        
-        .table th, .table td {
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            text-align: left;
-            color: #333;
+        .mil-button:hover {
+            background-color: var(--text-light);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
         }
-        
-        .table th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: 500;
+
+        .mil-button i {
+            margin-left: 8px;
         }
-        
-        .table td {
-            background-color: white;
+
+        .mil-button.edit-btn {
+            background-color: rgb(255, 193, 7);
+            color: var(--text-dark);
         }
-        
-        .edit-input {
-            background-color: white;
-            border: 1px solid #ced4da;
-            color: #333;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            font-size: 13px;
-            padding: 0.375rem 0.75rem;
-            height: 38px;
-            width: 100%;
-            box-sizing: border-box;
-            border-radius: 4px;
+
+        .mil-button.edit-btn:hover {
+            background-color: var(--text-light);
+            color: rgb(255, 193, 7);
+            border: 2px solid rgb(255, 193, 7);
         }
-        
-        .action-buttons {
+
+        .mil-button.update-btn {
+            background-color: var(--success-color);
+            color: var(--text-light);
+        }
+
+        .mil-button.update-btn:hover {
+            background-color: var(--text-light);
+            color: var(--success-color);
+            border: 2px solid var(--success-color);
+        }
+
+        .mil-button.cancel-btn {
+            background-color: rgb(108, 117, 125);
+            color: var(--text-light);
+        }
+
+        .mil-button.cancel-btn:hover {
+            background-color: var(--text-light);
+            color: rgb(108, 117, 125);
+            border: 2px solid rgb(108, 117, 125);
+        }
+
+        .mil-button.delete-btn {
+            background-color: var(--error-color);
+            color: var(--text-light);
+        }
+
+        .mil-button.delete-btn:hover {
+            background-color: var(--text-light);
+            color: var(--error-color);
+            border: 2px solid var(--error-color);
+        }
+
+        .mil-button.reset-btn {
+            background-color: rgb(111, 66, 193);
+            color: var(--text-light);
+        }
+
+        .mil-button.reset-btn:hover {
+            background-color: var(--text-light);
+            color: rgb(111, 66, 193);
+            border: 2px solid rgb(111, 66, 193);
+        }
+
+        .mil-form-actions {
             display: flex;
+            justify-content: flex-start;
             gap: 10px;
+            margin-top: 15px;
             flex-wrap: wrap;
         }
-        
+
+        /* Alert Messages */
+        .mil-success {
+            color: var(--success-color);
+            background-color: #e8f5e9;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mil-error {
+            color: var(--error-color);
+            background-color: #fde8e8;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mil-error i, .mil-success i {
+            margin-right: 8px;
+        }
+
+        /* Table Styles */
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .mil-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1000px;
+        }
+
+        .mil-table th, .mil-table td {
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .mil-table th {
+            background-color: #f8f9fa;
+            color: var(--text-dark);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .mil-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        .mil-table tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .mil-table .edit-input {
+            display: none;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .mil-table .display-value {
+            display: inline-block;
+        }
+
         /* Modal Styles */
-        .modal {
+        .mil-modal {
             position: fixed;
             top: 0;
             left: 0;
@@ -362,495 +465,755 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
             z-index: 9999;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
+            padding: 15px;
         }
-        
-        .modal-content {
+
+        .mil-modal.show {
+            display: flex;
+        }
+
+        .mil-modal-content {
             background: white;
             padding: 20px;
             border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
+            max-width: 500px;
+            width: 100%;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
-        
-        .modal-content h5 {
-            color: #333;
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        
-        .modal-content p {
-            color: #333;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-        
-        .modal-buttons {
+
+        .mil-modal-header {
             display: flex;
-            gap: 10px;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mil-modal-title {
+            color: var(--text-dark);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .mil-modal-body {
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+
+        .mil-modal-footer {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+            display: flex;
             justify-content: flex-end;
+            gap: 10px;
         }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .new-sidebar {
-                left: -250px;
+
+        .mil-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 0;
+            line-height: 1;
+        }
+
+        /* Footer */
+        footer.mil-dark-bg {
+            padding: 60px 0;
+            width: 100%;
+            margin: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+        }
+
+        footer .mil-muted {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Utility Classes */
+        .mil-up {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        /* List Styles */
+        li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+        }
+
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 1199px) {
+            .mil-sidebar {
+                width: 220px;
             }
             
-            .new-sidebar.open {
-                left: 0;
+            .mil-banner-content h1 {
+                font-size: 2.2rem;
             }
             
-            .new-sidebar.open + .main-container::before {
-                display: block;
-            }
-            
-            .main-container {
-                margin-left: 0 !important;
-                margin-right: 0;
-                width: 100%;
-                padding: 15px;
-            }
-            
-            .registration-container {
-                padding: 15px;
-            }
-            
-            .edit-input {
-                font-size: 12px;
-                padding: 0.3rem 0.6rem;
-                height: 34x;
-            }
-            
-            .btn-create-account {
+            .mil-table th, 
+            .mil-table td {
+                padding: 10px 12px;
                 font-size: 13px;
-                padding: 8px 16px;
-                height: 34px;
-            }
-
-            .table-responsive {
-                border: 1px solid #dee2e6;
-                border-radius: 4px;
-            }
-
-            
-            .table {
-               min-width: 100%;
-               font-size: 12px;
-               margin-bottom: 0;
-            }
-    
-           .table th, .table td {
-               white-space: nowrap;
-               padding: 8px;
-            }
-            
-           
-            
-            .table th:first-child, .table td:first-child {
-                min-width: 120px;
-            }
-            
-            .modal-content {
-                width: 95%;
             }
         }
-    
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 10px;
-                width: 95%;
-                margin: 0 auto;
+
+        @media (max-width: 991px) {
+            .mil-sidebar {
+                width: 200px;
             }
             
-            .registration-container {
-                padding: 10px;
+            .mil-banner-content {
+                padding: 40px 0;
             }
             
-            .card-body {
+            .mil-banner-content h1 {
+                font-size: 2rem;
+            }
+            
+            .mil-form-control {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+            
+            .mil-button {
+                padding: 8px 16px;
+                font-size: 13px;
+            }
+            
+            .mil-table {
+                min-width: 900px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .mil-sidebar {
+                width: 180px;
+                transform: translateX(-100%);
+                padding-top: 50px;
+            }
+            
+            .mil-sidebar:not(.hidden) {
+                transform: translateX(0);
+            }
+            
+            .mil-toggle-btn {
+                display: block;
+            }
+            
+            .mil-banner {
+                min-height: 250px;
+            }
+            
+            .mil-banner-content {
+                padding: 30px 0;
+            }
+            
+            .mil-banner-content h1 {
+                font-size: 1.8rem;
+                margin-bottom: 15px;
+            }
+            
+            .mil-light-soft {
+                font-size: 14px !important;
+            }
+            
+            .mil-main-content {
                 padding: 15px;
             }
             
-            .action-buttons {
-                flex-direction: row;
-                flex-wrap: wrap;
-                align-items: stretch;
+            .mil-form-section h4 {
+                font-size: 16px;
             }
             
-            .table {
+            .mil-form-control {
                 font-size: 12px;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
             }
             
-            .table th, .table td {
-                padding: 6px;
-                
+            .mil-button {
+                padding: 7px 14px;
+                font-size: 12px;
             }
             
-            .table th:first-child, .table td:first-child {
-                min-width: 90px;
+            .mil-form-actions {
+                gap: 8px;
             }
             
-            .modal-buttons {
+            footer.mil-dark-bg {
+                padding: 40px 0;
+            }
+        }
+
+        @media (max-width: 575px) {
+            .mil-sidebar {
+                width: 160px;
+            }
+            
+            .mil-banner-content h1 {
+                font-size: 1.5rem;
+            }
+            
+            .mil-light-soft {
+                font-size: 13px !important;
+            }
+            
+            .mil-main-content {
+                padding: 10px;
+            }
+            
+            .mil-form-section h4 {
+                font-size: 15px;
+            }
+            
+            .mil-form-control {
+                padding: 6px 8px;
+                font-size: 12px;
+            }
+            
+            .mil-button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .mil-form-actions {
+                gap: 6px;
+            }
+            
+            .mil-success,
+            .mil-error {
+                padding: 10px;
+                font-size: 13px;
+            }
+            
+            .mil-modal-content {
+                padding: 15px;
+            }
+            
+            .mil-modal-title {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            .mil-toggle-btn {
+                top: 10px;
+                left: 10px;
+                padding: 6px 10px;
+                font-size: 14px;
+            }
+            
+            .mil-sidebar {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .mil-form-actions {
                 flex-direction: column;
                 align-items: stretch;
             }
             
-            .modal-buttons .btn-create-account {
+            .mil-button {
                 width: 100%;
-            }
-
-            .action-buttons .btn-create-account {
                 margin-bottom: 5px;
+            }
+            
+            .mil-button:last-child {
+                margin-bottom: 0;
             }
         }
     </style>
+
+    <title>Superadmin Dashboard</title>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="new-sidebar" id="newSidebar">
-        <div class="logo">
-            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
+    <div class="mil-wrapper" id="top">
+        <!-- Scrollbar Progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
         </div>
-        <div class="greeting">Welcome, Superadmin!</div>
-        <a href="/superadmin/dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i> <span>Dashboard</span></a>
-        <a href="/superadmin/create-admin" class="nav-link"><i class="fas fa-user-plus"></i> <span>Create Admin</span></a>
-        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </nav>
 
-    <!-- Toggle Button -->
-    <button class="new-toggle-btn" id="newToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+        <!-- Sidebar -->
+        <div class="mil-sidebar hidden" id="sidebar">
+            <div class="mil-logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+            </div>
+            <h2 class="mil-up">Welcome, <%= escapeEjs(currentAdmin ? currentAdmin.username : 'Superadmin') %>!</h2>
+            <a href="/superadmin/dashboard" class="mil-up active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/superadmin/create-admin" class="mil-up"><i class="fas fa-user-plus"></i> Create Admin</a>
+            <a href="/superadmin/sent-messages" class="mil-up"><i class="fas fa-envelope"></i> Sent Messages</a>
+            <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
+        </div>
 
-    <div class="main-container">
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-                        <h4 style="color: #333; font-size: 16px;">Superadmin Dashboard</h4>
-                    </div>
+        <!-- Toggle Button -->
+        <button class="mil-toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
 
-                    <!-- Flash Messages -->
-                    <% if (success && success.length > 0) { %>
-                        <div class="alert alert-success" style="font-size: 13px; margin-bottom: 20px;">
-                            <i class="fa-solid fa-check"></i> <%= success %>
+        <!-- Content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- Banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
                         </div>
-                    <% } %>
-                    <% if (error && error.length > 0) { %>
-                        <div class="alert alert-danger" style="font-size: 13px; margin-bottom: 20px;">
-                            <i class="fa-solid fa-bell"></i> <%= error %>
-                        </div>
-                    <% } %>
-
-                    <!-- Table Section -->
-                    <div class="table-section">
-                        <% if (adminItems && adminItems.length > 0) { %>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th>Username</th>
-                                            <th>Business Name</th>
-                                            <th>Email</th>
-                                            <th>Phone</th>
-                                            <th>Currency</th>
-                                            <th>Role</th>
-                                            <th>Has Logged In?</th>
-                                            <th>Login Count</th>
-                                            <th>Last Login</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <% adminItems.forEach(item => { %>
-                                            <tr id="row-<%= item._id %>">
-                                                <td>
-                                                    <span class="display-value"><%= item.username %></span>
-                                                    <input type="text" class="edit-input" name="username" value="<%= item.username || '' %>" required style="display: none;">
-                                                </td>
-                                                <td>
-                                                    <span class="display-value"><%= item.name || 'N/A' %></span>
-                                                    <input type="text" class="edit-input-name" name="name" value="<%= item.name || '' %>" style="display: none;">
-                                                </td>
-                                                <td><%= item.email || 'N/A' %></td>
-                                                <td>
-                                                    <span class="display-value"><%= item.phone || 'N/A' %></span>
-                                                    <input type="text" class="edit-input" name="phone" value="<%= item.phone || '' %>" style="display: none;">
-                                                </td>
-                                                <td>
-                                                    <span class="display-value"><%= item.currency || 'N/A' %></span>
-                                                    <input type="text" class="edit-input" name="currency" value="<%= item.currency || '' %>" style="display: none;">
-                                                </td>
-                                                <td>
-                                                    <span class="display-value"><%= item.role %></span>
-                                                    <select class="edit-input" name="role" style="display: none;">
-                                                        <option value="admin" <%= item.role === 'admin' ? 'selected' : '' %>>Admin</option>
-                                                        <option value="superadmin" <%= item.role === 'superadmin' ? 'selected' : '' %>>Superadmin</option>
-                                                    </select>
-                                                </td>
-                                                <td><%= item.hasLoggedIn ? 'Yes' : 'No' %></td>
-                                                <td><%= item.loginCount || 0 %></td>
-                                                <td><%= item.lastLogin ? new Date(item.lastLogin).toLocaleString() : 'Never' %></td>
-                                                <td>
-                                                    <div class="action-buttons">
-                                                        <button class="btn btn-round btn-create-account edit-btn" data-id="<%= item._id %>">
-                                                            Edit <i class="fa-solid fa-edit"></i>
-                                                        </button>
-                                                        <form action="/superadmin/update-admin/<%= item._id %>" method="POST" class="update-form">
-                                                            <input type="hidden" name="username" class="hidden-username">
-                                                            <input type="hidden" name="name" class="hidden-name">
-                                                            <input type="hidden" name="phone" class="hidden-phone">
-                                                            <input type="hidden" name="currency" class="hidden-currency">
-                                                            <input type="hidden" name="role" class="hidden-role">
-                                                            <button type="submit" class="btn btn-round btn-create-account update-btn" style="display: none;">
-                                                                Update <i class="fa-solid fa-check"></i>
-                                                            </button>
-                                                            <button type="button" class="btn btn-round btn-create-account cancel-btn" style="display: none;" data-username="<%= item.username || '' %>" data-name="<%= item.name || 'N/A' %>" data-phone="<%= item.phone || 'N/A' %>" data-currency="<%= item.currency || 'N/A' %>" data-role="<%= item.role %>">
-                                                                Cancel <i class="fa-solid fa-times"></i>
-                                                            </button>
-                                                        </form>
-                                                        <form action="/superadmin/reset-password/<%= item._id %>" method="POST">
-                                                            <button type="submit" class="btn btn-round btn-create-account reset-btn">
-                                                                Reset PW <i class="fa-solid fa-key"></i>
-                                                            </button>
-                                                        </form>
-                                                        <% if (item._id.toString() !== currentAdminId) { %>
-                                                            <button class="btn btn-round btn-create-account delete-btn" data-id="<%= item._id %>" data-username="<%= item.username ? item.username.replace(/'/g, "\\'") : 'Admin' %>">
-                                                                Delete <i class="fa-solid fa-trash"></i>
-                                                            </button>
-                                                        <% } %>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        <% }) %>
-                                    </tbody>
-                                </table>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Superadmin </span>Dashboard</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Manage admins and communicate effectively.</p>
+                                    </div>
+                                </div>
                             </div>
-                        <% } else { %>
-                            <p style="text-align: center; color: #333;">No admins found.</p>
-                        <% } %>
+                        </div>
                     </div>
+                </section>
 
-                    <!-- Create Admin Button -->
-                    <div class="button-group">
-                        <a href="/superadmin/create-admin" class="btn btn-round btn-create-account add-product-btn">
-                            Create New Admin <i class="fa-solid fa-plus"></i>
-                        </a>
+                <!-- Main Content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-10 mil-main-content" id="mainContent">
+                                <!-- Flash Messages -->
+                                <% if (Array.isArray(success) && success.length > 0) { %>
+                                    <% success.forEach(function(msg) { %>
+                                        <div class="mil-success mil-up">
+                                            <i class="fas fa-check-circle"></i><%= escapeEjs(msg) %>
+                                        </div>
+                                    <% }) %>
+                                <% } %>
+                                <% if (Array.isArray(error) && error.length > 0) { %>
+                                    <% error.forEach(function(msg) { %>
+                                        <div class="mil-error mil-up">
+                                            <i class="fas fa-exclamation-circle"></i><%= escapeEjs(msg) %>
+                                        </div>
+                                    <% }) %>
+                                <% } %>
+
+                                <!-- Admin Table -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>Admin Management</h4>
+                                    <% if (adminItems && adminItems.length > 0) { %>
+                                        <div class="table-responsive" aria-label="Scrollable admin table">
+                                            <table class="mil-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Username</th>
+                                                        <th>Business Name</th>
+                                                        <th>Email</th>
+                                                        <th>Phone</th>
+                                                        <th>Currency</th>
+                                                        <th>Role</th>
+                                                        <th>Has Logged In?</th>
+                                                        <th>Login Count</th>
+                                                        <th>Last Login</th>
+                                                        <th>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <% adminItems.forEach(item => { %>
+                                                        <tr id="row-<%= item._id %>">
+                                                            <td>
+                                                                <span class="display-value"><%= escapeEjs(item.username) %></span>
+                                                                <input type="text" class="edit-input mil-form-control" name="username" value="<%= escapeEjs(item.username || '') %>" required>
+                                                            </td>
+                                                            <td>
+                                                                <span class="display-value"><%= escapeEjs(item.name || 'N/A') %></span>
+                                                                <input type="text" class="edit-input mil-form-control" name="name" value="<%= escapeEjs(item.name || '') %>">
+                                                            </td>
+                                                            <td><%= escapeEjs(item.email || 'N/A') %></td>
+                                                            <td>
+                                                                <span class="display-value"><%= escapeEjs(item.phone || 'N/A') %></span>
+                                                                <input type="text" class="edit-input mil-form-control" name="phone" value="<%= escapeEjs(item.phone || '') %>">
+                                                            </td>
+                                                            <td>
+                                                                <span class="display-value"><%= escapeEjs(item.currency || 'N/A') %></span>
+                                                                <input type="text" class="edit-input mil-form-control" name="currency" value="<%= escapeEjs(item.currency || '') %>">
+                                                            </td>
+                                                            <td>
+                                                                <span class="display-value"><%= escapeEjs(item.role) %></span>
+                                                                <select class="edit-input mil-form-control" name="role">
+                                                                    <option value="admin" <%= item.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                                                                    <option value="superadmin" <%= item.role === 'superadmin' ? 'selected' : '' %>>Superadmin</option>
+                                                                </select>
+                                                            </td>
+                                                            <td><%= item.hasLoggedIn ? 'Yes' : 'No' %></td>
+                                                            <td><%= item.loginCount || 0 %></td>
+                                                            <td><%= item.lastLogin ? new Date(item.lastLogin).toLocaleString() : 'Never' %></td>
+                                                            <td>
+                                                                <div class="mil-form-actions">
+                                                                    <button class="mil-button edit-btn" data-id="<%= item._id %>">
+                                                                        Edit <i class="fa-solid fa-edit"></i>
+                                                                    </button>
+                                                                    <form action="/superadmin/update-admin/<%= item._id %>" method="POST" class="update-form">
+                                                                        <input type="hidden" name="username" class="hidden-username">
+                                                                        <input type="hidden" name="name" class="hidden-name">
+                                                                        <input type="hidden" name="phone" class="hidden-phone">
+                                                                        <input type="hidden" name="currency" class="hidden-currency">
+                                                                        <input type="hidden" name="role" class="hidden-role">
+                                                                        <button type="submit" class="mil-button update-btn hidden">
+                                                                            Update <i class="fa-solid fa-check"></i>
+                                                                        </button>
+                                                                        <button type="button" class="mil-button cancel-btn hidden" data-username="<%= escapeEjs(item.username || '') %>" data-name="<%= escapeEjs(item.name || 'N/A') %>" data-phone="<%= escapeEjs(item.phone || 'N/A') %>" data-currency="<%= escapeEjs(item.currency || 'N/A') %>" data-role="<%= escapeEjs(item.role) %>">
+                                                                            Cancel <i class="fa-solid fa-times"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                    <form action="/superadmin/reset-password/<%= item._id %>" method="POST">
+                                                                        <button type="submit" class="mil-button reset-btn">
+                                                                            Reset PW <i class="fa-solid fa-key"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                    <% if (item._id.toString() !== currentAdminId) { %>
+                                                                        <button class="mil-button delete-btn" data-id="<%= item._id %>" data-username="<%= escapeEjs(item.username || 'Admin') %>">
+                                                                            Delete <i class="fa-solid fa-trash"></i>
+                                                                        </button>
+                                                                    <% } %>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <% }) %>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    <% } else { %>
+                                        <p class="text-center">No admins found.</p>
+                                    <% } %>
+                                </div>
+
+                                <!-- Send Message Section -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>Send Message to Admins</h4>
+                                    <form action="/superadmin/send-message" method="POST">
+                                        <div class="mil-form-group">
+                                            <label for="recipientId"><i class="fa-solid fa-user"></i> Recipient</label>
+                                            <select name="recipientId" id="recipientId" class="mil-form-control">
+                                                <option value="">All Admins</option>
+                                                <% adminItems.forEach(item => { %>
+                                                    <% if (item.role === 'admin') { %>
+                                                        <option value="<%= item._id %>"><%= escapeEjs(item.username) %></option>
+                                                    <% } %>
+                                                <% }) %>
+                                            </select>
+                                        </div>
+                                        <div class="mil-form-group">
+                                            <label for="content"><i class="fa-solid fa-envelope"></i> Message</label>
+                                            <textarea name="content" id="content" class="mil-form-control" rows="4" required placeholder="Enter your message"></textarea>
+                                        </div>
+                                        <div class="mil-form-actions">
+                                            <button type="submit" class="mil-button">
+                                                Send Message <i class="fa-solid fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <!-- Create Admin Button -->
+                                <div class="mil-form-section mil-up">
+                                    <div class="mil-form-actions">
+                                        <a href="/superadmin/create-admin" class="mil-button">
+                                            Create New Admin <i class="fa-solid fa-plus"></i>
+                                        </a>
+                                        <a href="/superadmin/sent-messages" class="mil-button">
+                                            View Sent Messages <i class="fa-solid fa-envelope-open"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="mil-modal" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="mil-modal-content">
+                <div class="mil-modal-header">
+                    <h5 class="mil-modal-title">Delete Admin</h5>
+                    <button type="button" class="mil-modal-close" id="deleteModalCloseBtn" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="mil-modal-body">
+                    <p>Are you sure you want to delete <span id="deleteUsername"></span>? This action cannot be undone.</p>
+                </div>
+                <div class="mil-modal-footer">
+                    <button type="button" class="mil-button cancel-btn" id="deleteCancelBtn">
+                        Cancel <i class="fa-solid fa-times"></i>
+                    </button>
+                    <form id="deleteForm" action="" method="POST">
+                        <button type="submit" class="mil-button delete-btn">
+                            Delete <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container-fluid">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-lg-6 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mil-vert-between text-lg-end">
+                                <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
     </div>
 
     <!-- JavaScript Dependencies -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/1.5.6/perfect-scrollbar.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/main.js"></script>
 
+    <!-- Dashboard Scripts -->
     <script>
-        // Table editing functions
-        function toggleEdit(id) {
-            const row = document.getElementById(`row-${id}`);
-            if (!row) return;
-            const displayValues = row.querySelectorAll('.display-value');
-            const editInputs = row.querySelectorAll('.edit-input');
-            const editBtn = row.querySelector('.edit-btn');
-            const updateBtn = row.querySelector('.update-btn');
-            const cancelBtn = row.querySelector('.cancel-btn');
-
-            // Enable inputs
-            editInputs.forEach(input => input.disabled = false);
-
-            // Toggle visibility
-            displayValues.forEach(span => span.style.display = 'none');
-            editInputs.forEach(input => input.style.display = 'inline-block');
-            editBtn.style.display = 'none';
-            updateBtn.style.display = 'inline-block';
-            cancelBtn.style.display = 'inline-block';
-
-            // Initialize hidden inputs
-            updateHiddenInputs(id);
-        }
-
-        function updateHiddenInputs(id) {
-            const row = document.getElementById(`row-${id}`);
-            if (!row) return;
-            const usernameInput = row.querySelector('input[name="username"]');
-            const nameInput = row.querySelector('input[name="name"]');
-            const phoneInput = row.querySelector('input[name="phone"]');
-            const currencyInput = row.querySelector('input[name="currency"]');
-            const roleInput = row.querySelector('select[name="role"]');
-            const hiddenUsername = row.querySelector('.hidden-username');
-            const hiddenName = row.querySelector('.hidden-name');
-            const hiddenPhone = row.querySelector('.hidden-phone');
-            const hiddenCurrency = row.querySelector('.hidden-currency');
-            const hiddenRole = row.querySelector('.hidden-role');
-
-            hiddenUsername.value = usernameInput.value;
-            hiddenName.value = nameInput.value;
-            hiddenPhone.value = phoneInput.value;
-            hiddenCurrency.value = currencyInput.value;
-            hiddenRole.value = roleInput.value;
-        }
-
-        function cancelEdit(id) {
-            const row = document.getElementById(`row-${id}`);
-            if (!row) return;
-            const displayValues = row.querySelectorAll('.display-value');
-            const editInputs = row.querySelectorAll('.edit-input');
-            const editBtn = row.querySelector('.edit-btn');
-            const updateBtn = row.querySelector('.update-btn');
-            const cancelBtn = row.querySelector('.cancel-btn');
-
-            // Revert inputs using data attributes
-            editInputs[0].value = cancelBtn.dataset.username;
-            editInputs[1].value = cancelBtn.dataset.name === 'N/A' ? '' : cancelBtn.dataset.name;
-            editInputs[2].value = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
-            editInputs[3].value = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
-            editInputs[4].value = cancelBtn.dataset.role;
-
-            // Disable inputs
-            editInputs.forEach(input => input.disabled = true);
-
-            // Toggle visibility
-            displayValues[0].textContent = cancelBtn.dataset.username;
-            displayValues[1].textContent = cancelBtn.dataset.name;
-            displayValues[2].textContent = cancelBtn.dataset.phone;
-            displayValues[3].textContent = cancelBtn.dataset.currency;
-            displayValues[4].textContent = cancelBtn.dataset.role;
-            displayValues.forEach(span => span.style.display = 'inline');
-            editInputs.forEach(input => input.style.display = 'none');
-            editBtn.style.display = 'inline-block';
-            updateBtn.style.display = 'none';
-            cancelBtn.style.display = 'none';
-        }
-
-        function showDeleteModal(id, username) {
-            const modal = document.createElement('div');
-            modal.className = 'modal';
-            modal.innerHTML = `
-                <div class="modal-content">
-                    <h5>Delete ${username}?</h5>
-                    <p>Are you sure you want to delete this admin? This action cannot be undone.</p>
-                    <div class="modal-buttons">
-                        <button class="btn btn-round btn-create-account cancel-btn" type="button">Cancel <i class="fa-solid fa-times"></i></button>
-                        <form action="/superadmin/delete-admin/${id}" method="POST">
-                            <button type="submit" class="btn btn-round btn-create-account delete-btn">Delete <i class="fa-solid fa-trash"></i></button>
-                        </form>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(modal);
-
-            // Add event listener for Cancel button
-            modal.querySelector('.modal-buttons button[type="button"]').addEventListener('click', () => {
-                modal.remove();
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Dashboard script loaded');
             try {
-                const sidebar = document.getElementById('newSidebar');
-                const toggleBtn = document.getElementById('newToggleBtn');
-                let isCollapsed = false;
-                let isOpenOnMobile = false;
+                // Sidebar Toggle
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                const toggleBtn = document.getElementById('toggleBtn');
 
-                // Toggle sidebar
-                if (toggleBtn && sidebar) {
-                    toggleBtn.addEventListener('click', () => {
-                        if (window.innerWidth <= 768) {
-                            isOpenOnMobile = !isOpenOnMobile;
-                            if (isOpenOnMobile) {
-                                sidebar.classList.add('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                            } else {
-                                sidebar.classList.remove('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                            }
-                        } else {
-                            isCollapsed = !isCollapsed;
-                            if (isCollapsed) {
-                                sidebar.classList.add('collapsed');
-                            } else {
-                                sidebar.classList.remove('collapsed');
-                            }
-                        }
-                    });
+                if (!sidebar || !mainContent || !toggleBtn) {
+                    console.error('Sidebar, mainContent, or toggleBtn not found');
+                    return;
                 }
 
-                // Close sidebar on outside click (mobile only)
-                document.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
-                            sidebar.classList.remove('open');
-                            isOpenOnMobile = false;
-                            if (toggleBtn) toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                // Check if mobile device
+                const isMobile = window.matchMedia('(max-width: 767px)').matches;
+                
+                // Initialize sidebar state
+                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || isMobile;
+                if (isSidebarHidden) {
+                    sidebar.classList.add('hidden');
+                    mainContent.classList.add('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    sidebar.classList.remove('hidden');
+                    mainContent.classList.remove('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                }
+
+                // Toggle sidebar function
+                function toggleSidebar() {
+                    sidebar.classList.toggle('hidden');
+                    mainContent.classList.toggle('full-width');
+                    toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                    localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+                }
+
+                // Toggle button click event
+                toggleBtn.addEventListener('click', toggleSidebar);
+
+                // Close sidebar when clicking outside on mobile
+                document.addEventListener('click', function(e) {
+                    if (isMobile && !sidebar.contains(e.target) {
+                        if (!sidebar.classList.contains('hidden') && e.target !== toggleBtn) {
+                            toggleSidebar();
                         }
                     }
                 });
 
-                // Set initial sidebar state
-                function setSidebarState() {
-                    if (!sidebar || !toggleBtn) return;
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.remove('collapsed');
-                        if (!isOpenOnMobile) {
-                            sidebar.classList.remove('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    } else {
-                        sidebar.classList.remove('open');
-                        isOpenOnMobile = false;
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        if (isCollapsed) {
-                            sidebar.classList.add('collapsed');
-                        } else {
-                            sidebar.classList.remove('collapsed');
+                // Table Editing
+                function toggleEdit(id) {
+                    const row = document.getElementById(`row-${id}`);
+                    if (!row) return;
+                    const displayValues = row.querySelectorAll('.display-value');
+                    const editInputs = row.querySelectorAll('.edit-input');
+                    const editBtn = row.querySelector('.edit-btn');
+                    const updateBtn = row.querySelector('.update-btn');
+                    const cancelBtn = row.querySelector('.cancel-btn');
+
+                    editInputs.forEach(input => input.disabled = false);
+                    displayValues.forEach(span => span.style.display = 'none');
+                    editInputs.forEach(input => input.style.display = 'inline-block');
+                    editBtn.classList.add('hidden');
+                    updateBtn.classList.remove('hidden');
+                    cancelBtn.classList.remove('hidden');
+                    updateHiddenInputs(id);
+                }
+
+                function updateHiddenInputs(id) {
+                    const row = document.getElementById(`row-${id}`);
+                    if (!row) return;
+                    const inputs = {
+                        username: row.querySelector('input[name="username"]'),
+                        name: row.querySelector('input[name="name"]'),
+                        phone: row.querySelector('input[name="phone"]'),
+                        currency: row.querySelector('input[name="currency"]'),
+                        role: row.querySelector('select[name="role"]')
+                    };
+                    const hiddenInputs = {
+                        username: row.querySelector('.hidden-username'),
+                        name: row.querySelector('.hidden-name'),
+                        phone: row.querySelector('.hidden-phone'),
+                        currency: row.querySelector('.hidden-currency'),
+                        role: row.querySelector('.hidden-role')
+                    };
+                    for (const key in inputs) {
+                        if (inputs[key] && hiddenInputs[key]) {
+                            hiddenInputs[key].value = inputs[key].value;
                         }
                     }
                 }
-                setSidebarState();
-                window.addEventListener('resize', setSidebarState);
 
-                // Edit buttons
-                document.querySelectorAll('.edit-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const id = button.dataset.id;
-                        toggleEdit(id);
-                    });
-                });
+                function cancelEdit(id) {
+                    const row = document.getElementById(`row-${id}`);
+                    if (!row) return;
+                    const displayValues = row.querySelectorAll('.display-value');
+                    const editInputs = row.querySelectorAll('.edit-input');
+                    const editBtn = row.querySelector('.edit-btn');
+                    const updateBtn = row.querySelector('.update-btn');
+                    const cancelBtn = row.querySelector('.cancel-btn');
 
-                // Cancel buttons
-                document.querySelectorAll('.cancel-btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        const id = button.closest('tr').id.replace('row-', '');
-                        cancelEdit(id);
-                    });
-                });
+                    editInputs[0].value = cancelBtn.dataset.username;
+                    editInputs[1].value = cancelBtn.dataset.name === 'N/A' ? '' : cancelBtn.dataset.name;
+                    editInputs[2].value = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
+                    editInputs[3].value = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
+                    editInputs[4].value = cancelBtn.dataset.role;
 
-                // Delete buttons
+                    editInputs.forEach(input => input.disabled = true);
+                    displayValues.forEach(span => span.style.display = 'inline-block');
+                    editInputs.forEach(input => input.style.display = 'none');
+                    editBtn.classList.remove('hidden');
+                    updateBtn.classList.add('hidden');
+                    cancelBtn.classList.add('hidden');
+
+                    displayValues[0].textContent = cancelBtn.dataset.username;
+                    displayValues[1].textContent = cancelBtn.dataset.name;
+                    displayValues[2].textContent = cancelBtn.dataset.phone;
+                    displayValues[3].textContent = cancelBtn.dataset.currency;
+                    displayValues[4].textContent = cancelBtn.dataset.role;
+                }
+
+                // Delete Modal
+                const deleteModal = document.getElementById('deleteModal');
+                const deleteUsernameSpan = document.getElementById('deleteUsername');
+                const deleteForm = document.getElementById('deleteForm');
+                const deleteCancelBtn = document.getElementById('deleteCancelBtn');
+                const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
+
+                function showDeleteModal(id, username) {
+                    if (deleteUsernameSpan && deleteForm) {
+                        deleteUsernameSpan.textContent = username;
+                        deleteForm.action = `/superadmin/delete-admin/${id}`;
+                        deleteModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+
+                function closeDeleteModal() {
+                    if (deleteModal) {
+                        deleteModal.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                }
+
                 document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', () => {
+                    button.addEventListener('click', function() {
                         const id = button.dataset.id;
                         const username = button.dataset.username;
                         showDeleteModal(id, username);
                     });
                 });
 
-                // Update hidden inputs on change
+                if (deleteCancelBtn) deleteCancelBtn.addEventListener('click', closeDeleteModal);
+                if (deleteModalCloseBtn) deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
+
+                // Event Listeners
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = button.dataset.id;
+                        toggleEdit(id);
+                    });
+                });
+
+                document.querySelectorAll('.cancel-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = button.closest('tr').id.replace('row-', '');
+                        cancelEdit(id);
+                    });
+                });
+
+                document.querySelectorAll('.update-form').forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const usernameInput = form.querySelector('input[name="username"]');
+                        const roleInput = form.querySelector('select[name="role"]');
+                        if (!usernameInput.value.trim()) {
+                            e.preventDefault();
+                            alert('Username is required.');
+                        } else if (roleInput && !['admin', 'superadmin'].includes(roleInput.value)) {
+                            e.preventDefault();
+                            alert('Role must be valid.');
+                        }
+                    });
+                });
+
                 document.querySelectorAll('.edit-input').forEach(input => {
                     input.addEventListener('change', function() {
-                        const row = this.closest('tr');
+                        const row = input.closest('tr');
                         if (row) {
                             const id = row.id.replace('row-', '');
                             updateHiddenInputs(id);
@@ -858,22 +1221,38 @@
                     });
                 });
 
-                // Client-side validation for updates
-                document.querySelectorAll('.update-form').forEach(form => {
-                    form.addEventListener('submit', (e) => {
-                        const usernameInput = form.querySelector('.edit-input[name="username"]');
-                        const roleInput = form.querySelector('.edit-input[name="role"]');
-                        if (!usernameInput.value.trim()) {
-                            alert('Username is required.');
-                            e.preventDefault();
-                        } else if (roleInput && !['admin', 'superadmin'].includes(roleInput.value)) {
-                            alert('Role must be either "admin" or "superadmin".');
-                            e.preventDefault();
-                        }
-                    });
+                // Progress bar
+                window.addEventListener('scroll', function() {
+                    const progressTrack = document.querySelector('.mil-progress-track');
+                    const progressBar = document.querySelector('.mil-progress');
+                    if (progressBar) {
+                        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                        const scrolled = (scrollTop / scrollHeight) * 100;
+                        progressBar.style.width = scrolled + '%';
+                    }
                 });
+
+                // Responsive adjustments
+                function handleResize() {
+                    if (window.innerWidth <= 767) {
+                        // Mobile view
+                        if (!sidebar.classList.contains('hidden')) {
+                            toggleSidebar();
+                        }
+                    } else {
+                        // Desktop view
+                        if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
+                            toggleSidebar();
+                        }
+                    }
+                }
+
+                window.addEventListener('resize', handleResize);
+                handleResize();
+
             } catch (error) {
-                console.error('Error initializing scripts:', error);
+                console.error('Error in dashboard scripts:', error);
             }
         });
     </script>

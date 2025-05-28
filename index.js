@@ -1105,11 +1105,12 @@ app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res)
     }
 
     res.render('superadmin-dashboard', { 
-      adminItems: enrichedAdmins, // Changed from admins to adminItems
-      formatCurrency, 
+      adminItems: enrichedAdmins,
+      currentAdmin: currentAdmin, // Add currentAdmin for template
       currentAdminId: currentAdmin._id.toString(),
-      success: req.flash('success') || [], // Add flash messages
-      error: req.flash('error') || [] // Add flash messages
+      formatCurrency, 
+      success: req.flash('success') || [],
+      error: req.flash('error') || []
     });
   } catch (err) {
     console.error('Error in /superadmin/dashboard:', err.message, err.stack);
@@ -1234,8 +1235,94 @@ app.get('/superadmin/outlets', isAuthenticated, isSuperAdmin, async (req, res) =
   }
 });
 
+app.get('/superadmin/sent-messages', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    // Get current admin details
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!currentAdmin) {
+      req.flash('error', 'Session invalid. Please log in again.');
+      return res.redirect('/superadmin/login');
+    }
+
+    // Get messages sent by this admin
+    const messages = await db.collection('messages')
+      .find({ senderId: new ObjectId(currentAdmin._id) })
+      .sort({ createdAt: -1 })
+      .toArray();
+
+    // Enrich messages with recipient usernames
+    const enrichedMessages = await Promise.all(messages.map(async (msg) => {
+      let recipient = 'All Admins';
+      if (msg.recipientId) {
+        const admin = await db.collection('admins').findOne({ _id: msg.recipientId });
+        recipient = admin ? admin.username : 'Unknown';
+      }
+      return { 
+        ...msg, 
+        recipient,
+        formattedDate: new Date(msg.createdAt).toLocaleString(),
+        readAtFormatted: msg.readAt ? new Date(msg.readAt).toLocaleString() : null
+      };
+    }));
+
+    res.render('superadmin-sent-messages', {
+      messages: enrichedMessages,
+      currentAdmin: currentAdmin, // Pass currentAdmin to template
+      success: req.flash('success') || [],
+      error: req.flash('error') || []
+    });
+  } catch (err) {
+    console.error('Error fetching sent messages:', err);
+    req.flash('error', 'Failed to load sent messages.');
+    res.redirect('/superadmin/dashboard');
+  }
+});
+
+app.post('/superadmin/send-message', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    const { content, recipientId } = req.body;
+    if (!content || content.trim().length < 1) {
+      req.flash('error', 'Message content is required.');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    const sender = await db.collection('admins').findOne({ _id: new ObjectId(req.session.adminId) });
+    if (!sender) {
+      req.flash('error', 'Sender not found.');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    const message = {
+      sender: sender.username, // Add sender username
+      senderId: new ObjectId(req.session.adminId),
+      recipientId: recipientId ? new ObjectId(recipientId) : null,
+      content: content.trim(),
+      createdAt: new Date(),
+      read: false,
+      readAt: null
+    };
+
+    await db.collection('messages').insertOne(message);
+    req.flash('success', 'Message sent successfully.');
+    res.redirect('/superadmin/dashboard');
+  } catch (err) {
+    console.error('Error sending message:', err);
+    req.flash('error', 'Failed to send message. Please try again.');
+    res.redirect('/superadmin/dashboard');
+  }
+});
 
 
+// EJS Helper to escape special characters
+app.locals.escapeEjs = function (str) {
+  if (typeof str !== 'string') return str || '';
+  return str
+    .replace(/%/g, '&#37;') // Escape %
+    .replace(/</g, '&lt;')   // Escape <
+    .replace(/>/g, '&gt;')   // Escape >
+    .replace(/"/g, '&quot;') // Escape "
+    .replace(/'/g, '&#39;'); // Escape '
+};
 
 
 // Superadmin Password Reset Routes
@@ -1638,6 +1725,66 @@ app.post('/update-stock', isAuthenticated, async (req, res) => {
       error: error.message,
       success: null
     });
+  }
+});
+
+app.get('/admin-messages', isAuthenticated, async (req, res) => {
+  try {
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          req.flash('error', 'Admin not found.');
+          return res.redirect('/home');
+      }
+
+      let query = {
+          $or: [
+              { recipientId: admin._id }, // Match ObjectId
+              { recipientId: null } // Include broadcast messages
+          ]
+      };
+      if (req.query.search) {
+          query.$and = [
+              {
+                  $or: [
+                      { sender: { $regex: req.query.search, $options: 'i' } },
+                      { subject: { $regex: req.query.search, $options: 'i' } }
+                  ]
+              }
+          ];
+      }
+      const messages = await db.collection('messages').find(query).sort({ createdAt: -1 }).toArray();
+      res.render('admin-messages', {
+          username: req.session.admin,
+          admin,
+          messages,
+          search: req.query.search || '',
+          success: req.flash('success'),
+          error: req.flash('error')
+      });
+  } catch (err) {
+      console.error('Error in /admin-messages:', err);
+      req.flash('error', 'Failed to load messages.');
+      res.redirect('/home');
+  }
+});
+
+app.post('/admin/mark-message', isAuthenticated, async (req, res) => {
+  try {
+    const { _id, read } = req.body;
+    const update = {
+      $set: {
+        read,
+        readAt: read ? new Date() : null
+      }
+    };
+    await db.collection('messages').updateOne(
+      { _id: new ObjectId(_id) },
+      update
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error in /admin/mark-message:', err);
+    res.json({ success: false, error: 'Failed to update message status' });
   }
 });
 
