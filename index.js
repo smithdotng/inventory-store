@@ -2739,7 +2739,7 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
       const pdfData = Buffer.concat(buffers);
 
       const mailOptions = {
-        from: process.env.EMAIL_USER,
+        from: process.env.BUSINESS_USER,
         to: email,
         subject: `Receipt for Your Purchase from ${admin.businessName || 'Shed'}`,
         html: `
@@ -2750,8 +2750,8 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
           <p>Date: ${new Date(sale.date).toLocaleDateString()}</p>
           <p>Total Amount: ${admin.currency || '$'}${parseFloat(sale.totalAmount || 0).toFixed(2)}</p>
           <p>Best regards,</p>
-          <p>Stanley, Chief Relationship Officer, Shedfactory</p>
-          <a href="https://shedfactory.co">shedfactory.co</a>
+          <p>The Business Team</p>
+          <a href="https://shed.ng">Shed: Sell Everywhere. Manage Everything</a>
         `,
         attachments: [
           {
@@ -2767,7 +2767,7 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
       res.redirect(`/sale-success/${saleId}`);
     });
 
-    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
+    doc.fontSize(10).text('Shed: Sell Anywhere, Manage Everything', 50, 30, { align: 'center' });
     doc.moveTo(50, 45).lineTo(550, 45).stroke();
     doc.moveDown(2);
 
@@ -2838,7 +2838,7 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
 
     const footerY = doc.page.height - 50;
     doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
-    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
+    doc.fontSize(10).text('Shed: Sell Anywhere, Manage Everything', 50, footerY + 10, { align: 'center' });
 
     doc.end();
   } catch (error) {
@@ -2863,10 +2863,10 @@ app.get('/receipt/:saleId', isAuthenticated, async (req, res) => {
     const drawFooter = () => {
       const footerY = doc.page.height - 50;
       doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
-      doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, footerY + 10, { align: 'center' });
+      doc.fontSize(10).text('Shed: Sell Anywhere, Manage Everything', 50, footerY + 10, { align: 'center' });
     };
 
-    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
+    doc.fontSize(10).text('Shed: Sell Anywhere, Manage Everything', 50, 30, { align: 'center' });
     doc.moveTo(50, 45).lineTo(550, 45).stroke();
     doc.moveDown(2);
 
@@ -2986,8 +2986,6 @@ app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
     res.status(500).send('Internal Server Error');
   }
 });
-
-
 
 app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
   const outletId = req.params.outletId;

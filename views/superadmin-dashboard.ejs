@@ -7,7 +7,6 @@
     <meta property="og:title" content="Superadmin Dashboard | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-
     <!-- Google Tag Manager -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
     <script>
@@ -446,6 +445,11 @@
             background-color: #f1f1f1;
         }
 
+        .mil-table tr.editing {
+            background-color: #fff3cd;
+            transition: background-color 0.3s ease;
+        }
+
         .mil-table .edit-input {
             display: none;
             width: 100%;
@@ -775,7 +779,6 @@
         <div class="mil-progress-track">
             <div class="mil-progress"></div>
         </div>
-
         <!-- Sidebar -->
         <div class="mil-sidebar hidden" id="sidebar">
             <div class="mil-logo-container">
@@ -865,8 +868,8 @@
                                                                 <input type="text" class="edit-input mil-form-control" name="username" value="<%= escapeEjs(item.username || '') %>" required>
                                                             </td>
                                                             <td>
-                                                                <span class="display-value"><%= escapeEjs(item.name || 'N/A') %></span>
-                                                                <input type="text" class="edit-input mil-form-control" name="name" value="<%= escapeEjs(item.name || '') %>">
+                                                                <span class="display-value"><%= escapeEjs(item.businessName || 'N/A') %></span>
+                                                                <input type="text" class="edit-input mil-form-control" name="businessName" value="<%= escapeEjs(item.businessName || '') %>">
                                                             </td>
                                                             <td><%= escapeEjs(item.email || 'N/A') %></td>
                                                             <td>
@@ -894,14 +897,19 @@
                                                                     </button>
                                                                     <form action="/superadmin/update-admin/<%= item._id %>" method="POST" class="update-form">
                                                                         <input type="hidden" name="username" class="hidden-username">
-                                                                        <input type="hidden" name="name" class="hidden-name">
+                                                                        <input type="hidden" name="businessName" class="hidden-businessName">
                                                                         <input type="hidden" name="phone" class="hidden-phone">
                                                                         <input type="hidden" name="currency" class="hidden-currency">
                                                                         <input type="hidden" name="role" class="hidden-role">
                                                                         <button type="submit" class="mil-button update-btn hidden">
                                                                             Update <i class="fa-solid fa-check"></i>
                                                                         </button>
-                                                                        <button type="button" class="mil-button cancel-btn hidden" data-username="<%= escapeEjs(item.username || '') %>" data-name="<%= escapeEjs(item.name || 'N/A') %>" data-phone="<%= escapeEjs(item.phone || 'N/A') %>" data-currency="<%= escapeEjs(item.currency || 'N/A') %>" data-role="<%= escapeEjs(item.role) %>">
+                                                                        <button type="button" class="mil-button cancel-btn hidden" 
+                                                                                data-username="<%= escapeEjs(item.username || '') %>" 
+                                                                                data-businessName="<%= escapeEjs(item.businessName || 'N/A') %>" 
+                                                                                data-phone="<%= escapeEjs(item.phone || 'N/A') %>" 
+                                                                                data-currency="<%= escapeEjs(item.currency || 'N/A') %>" 
+                                                                                data-role="<%= escapeEjs(item.role) %>">
                                                                             Cancel <i class="fa-solid fa-times"></i>
                                                                         </button>
                                                                     </form>
@@ -978,7 +986,7 @@
                 <div class="mil-modal-header">
                     <h5 class="mil-modal-title">Delete Admin</h5>
                     <button type="button" class="mil-modal-close" id="deleteModalCloseBtn" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">×</span>
                     </button>
                 </div>
                 <div class="mil-modal-body">
@@ -1069,8 +1077,8 @@
 
                 // Close sidebar when clicking outside on mobile
                 document.addEventListener('click', function(e) {
-                    if (isMobile && !sidebar.contains(e.target) {
-                        if (!sidebar.classList.contains('hidden') && e.target !== toggleBtn) {
+                    if (isMobile && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+                        if (!sidebar.classList.contains('hidden')) {
                             toggleSidebar();
                         }
                     }
@@ -1078,74 +1086,116 @@
 
                 // Table Editing
                 function toggleEdit(id) {
-                    const row = document.getElementById(`row-${id}`);
-                    if (!row) return;
-                    const displayValues = row.querySelectorAll('.display-value');
-                    const editInputs = row.querySelectorAll('.edit-input');
-                    const editBtn = row.querySelector('.edit-btn');
-                    const updateBtn = row.querySelector('.update-btn');
-                    const cancelBtn = row.querySelector('.cancel-btn');
+                    try {
+                        const row = document.getElementById(`row-${id}`);
+                        if (!row) {
+                            console.error(`Row with id row-${id} not found`);
+                            return;
+                        }
+                        const displayValues = row.querySelectorAll('.display-value');
+                        const editInputs = row.querySelectorAll('.edit-input');
+                        const editBtn = row.querySelector('.edit-btn');
+                        const updateBtn = row.querySelector('.update-btn');
+                        const cancelBtn = row.querySelector('.cancel-btn');
 
-                    editInputs.forEach(input => input.disabled = false);
-                    displayValues.forEach(span => span.style.display = 'none');
-                    editInputs.forEach(input => input.style.display = 'inline-block');
-                    editBtn.classList.add('hidden');
-                    updateBtn.classList.remove('hidden');
-                    cancelBtn.classList.remove('hidden');
-                    updateHiddenInputs(id);
+                        if (!editBtn || !updateBtn || !cancelBtn) {
+                            console.error('Button elements not found in row');
+                            return;
+                        }
+
+                        row.classList.add('editing');
+                        editInputs.forEach(input => {
+                            input.disabled = false;
+                            input.style.display = 'inline-block';
+                        });
+                        displayValues.forEach(span => span.style.display = 'none');
+                        editBtn.classList.add('hidden');
+                        updateBtn.classList.remove('hidden');
+                        cancelBtn.classList.remove('hidden');
+                        updateHiddenInputs(id);
+                    } catch (error) {
+                        console.error('Error in toggleEdit:', error);
+                        alert('Failed to enable edit mode. Please try again.');
+                    }
                 }
 
                 function updateHiddenInputs(id) {
-                    const row = document.getElementById(`row-${id}`);
-                    if (!row) return;
-                    const inputs = {
-                        username: row.querySelector('input[name="username"]'),
-                        name: row.querySelector('input[name="name"]'),
-                        phone: row.querySelector('input[name="phone"]'),
-                        currency: row.querySelector('input[name="currency"]'),
-                        role: row.querySelector('select[name="role"]')
-                    };
-                    const hiddenInputs = {
-                        username: row.querySelector('.hidden-username'),
-                        name: row.querySelector('.hidden-name'),
-                        phone: row.querySelector('.hidden-phone'),
-                        currency: row.querySelector('.hidden-currency'),
-                        role: row.querySelector('.hidden-role')
-                    };
-                    for (const key in inputs) {
-                        if (inputs[key] && hiddenInputs[key]) {
-                            hiddenInputs[key].value = inputs[key].value;
+                    try {
+                        const row = document.getElementById(`row-${id}`);
+                        if (!row) {
+                            console.error(`Row with id row-${id} not found`);
+                            return;
                         }
+                        const inputs = {
+                            username: row.querySelector('input[name="username"]'),
+                            businessName: row.querySelector('input[name="businessName"]'),
+                            phone: row.querySelector('input[name="phone"]'),
+                            currency: row.querySelector('input[name="currency"]'),
+                            role: row.querySelector('select[name="role"]')
+                        };
+                        const hiddenInputs = {
+                            username: row.querySelector('.hidden-username'),
+                            businessName: row.querySelector('.hidden-businessName'),
+                            phone: row.querySelector('.hidden-phone'),
+                            currency: row.querySelector('.hidden-currency'),
+                            role: row.querySelector('.hidden-role')
+                        };
+                        for (const key in inputs) {
+                            if (inputs[key] && hiddenInputs[key]) {
+                                hiddenInputs[key].value = inputs[key].value || '';
+                            } else {
+                                console.warn(`Input or hidden input for ${key} not found in row-${id}`);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error in updateHiddenInputs:', error);
+                        alert('Failed to update form data. Please try again.');
                     }
                 }
 
                 function cancelEdit(id) {
-                    const row = document.getElementById(`row-${id}`);
-                    if (!row) return;
-                    const displayValues = row.querySelectorAll('.display-value');
-                    const editInputs = row.querySelectorAll('.edit-input');
-                    const editBtn = row.querySelector('.edit-btn');
-                    const updateBtn = row.querySelector('.update-btn');
-                    const cancelBtn = row.querySelector('.cancel-btn');
+                    try {
+                        const row = document.getElementById(`row-${id}`);
+                        if (!row) {
+                            console.error(`Row with id row-${id} not found`);
+                            return;
+                        }
+                        const displayValues = row.querySelectorAll('.display-value');
+                        const editInputs = row.querySelectorAll('.edit-input');
+                        const editBtn = row.querySelector('.edit-btn');
+                        const updateBtn = row.querySelector('.update-btn');
+                        const cancelBtn = row.querySelector('.cancel-btn');
 
-                    editInputs[0].value = cancelBtn.dataset.username;
-                    editInputs[1].value = cancelBtn.dataset.name === 'N/A' ? '' : cancelBtn.dataset.name;
-                    editInputs[2].value = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
-                    editInputs[3].value = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
-                    editInputs[4].value = cancelBtn.dataset.role;
+                        if (!editBtn || !updateBtn || !cancelBtn) {
+                            console.error('Button elements not found in row');
+                            return;
+                        }
 
-                    editInputs.forEach(input => input.disabled = true);
-                    displayValues.forEach(span => span.style.display = 'inline-block');
-                    editInputs.forEach(input => input.style.display = 'none');
-                    editBtn.classList.remove('hidden');
-                    updateBtn.classList.add('hidden');
-                    cancelBtn.classList.add('hidden');
+                        editInputs[0].value = cancelBtn.dataset.username || '';
+                        editInputs[1].value = cancelBtn.dataset.businessName === 'N/A' ? '' : cancelBtn.dataset.businessName;
+                        editInputs[2].value = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
+                        editInputs[3].value = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
+                        editInputs[4].value = cancelBtn.dataset.role;
 
-                    displayValues[0].textContent = cancelBtn.dataset.username;
-                    displayValues[1].textContent = cancelBtn.dataset.name;
-                    displayValues[2].textContent = cancelBtn.dataset.phone;
-                    displayValues[3].textContent = cancelBtn.dataset.currency;
-                    displayValues[4].textContent = cancelBtn.dataset.role;
+                        editInputs.forEach(input => {
+                            input.disabled = true;
+                            input.style.display = 'none';
+                        });
+                        displayValues.forEach(span => span.style.display = 'inline-block');
+                        editBtn.classList.remove('hidden');
+                        updateBtn.classList.add('hidden');
+                        cancelBtn.classList.add('hidden');
+                        row.classList.remove('editing');
+
+                        displayValues[0].textContent = cancelBtn.dataset.username || 'N/A';
+                        displayValues[1].textContent = cancelBtn.dataset.businessName || 'N/A';
+                        displayValues[2].textContent = cancelBtn.dataset.phone || 'N/A';
+                        displayValues[3].textContent = cancelBtn.dataset.currency || 'N/A';
+                        displayValues[4].textContent = cancelBtn.dataset.role || 'N/A';
+                    } catch (error) {
+                        console.error('Error in cancelEdit:', error);
+                        alert('Failed to cancel edit. Please try again.');
+                    }
                 }
 
                 // Delete Modal
@@ -1223,7 +1273,6 @@
 
                 // Progress bar
                 window.addEventListener('scroll', function() {
-                    const progressTrack = document.querySelector('.mil-progress-track');
                     const progressBar = document.querySelector('.mil-progress');
                     if (progressBar) {
                         const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
@@ -1236,12 +1285,10 @@
                 // Responsive adjustments
                 function handleResize() {
                     if (window.innerWidth <= 767) {
-                        // Mobile view
                         if (!sidebar.classList.contains('hidden')) {
                             toggleSidebar();
                         }
                     } else {
-                        // Desktop view
                         if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
                             toggleSidebar();
                         }
@@ -1253,6 +1300,7 @@
 
             } catch (error) {
                 console.error('Error in dashboard scripts:', error);
+                alert('An unexpected error occurred. Please refresh the page.');
             }
         });
     </script>
