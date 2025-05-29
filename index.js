@@ -3573,7 +3573,7 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
           expires
         }, { session });
 
-        // Send confirmation email (in background)
+        // Send confirmation email to customer (in background)
         if (process.env.SENDGRID_API_KEY && typeof sendConfirmationEmail === 'function') {
           sendConfirmationEmail({
             to: email,
@@ -3582,7 +3582,63 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
             totalAmount,
             currency: admin.currency || '$',
             businessName: admin.businessName || 'Our Store'
-          }).catch(err => console.error('Email send error:', err));
+          }).catch(err => console.error('Customer email send error:', err));
+        }
+
+        // Send notification email to store owner (in background)
+        if (admin.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(admin.email)) {
+          const mailOptions = {
+            from: process.env.EMAIL_USER, // e.g., stanley@shed.ng
+            to: admin.email,
+            subject: `New Transaction on Your Store: Sale #${saleResult.insertedId}`,
+            html: `
+              <h1>New Transaction Notification</h1>
+              <p>Dear ${admin.username || 'Store Owner'},</p>
+              <p>A new transaction has been completed on your online store.</p>
+              <h2>Transaction Details</h2>
+              <ul>
+                <li><strong>Sale ID:</strong> ${saleResult.insertedId}</li>
+                <li><strong>Customer Name:</strong> ${customerName || 'N/A'}</li>
+                <li><strong>Customer Email:</strong> ${email || 'N/A'}</li>
+                <li><strong>Customer Phone:</strong> ${phoneNumber || 'N/A'}</li>
+                <li><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</li>
+                <li><strong>Total Amount:</strong> ${admin.currency || '$'}${parseFloat(totalAmount || 0).toFixed(2)}</li>
+              </ul>
+              <h3>Items Purchased</h3>
+              <table style="border-collapse: collapse; width: 100%;">
+                <thead>
+                  <tr style="background-color: #f2f2f2;">
+                    <th style="border: 1px solid #ddd; padding: 8px;">Item</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Quantity</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Unit Cost</th>
+                    <th style="border: 1px solid #ddd; padding: 8px;">Total Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${saleItems.map(item => `
+                    <tr>
+                      <td style="border: 1px solid #ddd; padding: 8px;">${item.itemName || 'N/A'}</td>
+                      <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${item.quantity}</td>
+                      <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${admin.currency}${parseFloat(item.unitCost || 0).toFixed(2)}</td>
+                      <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${admin.currency}${parseFloat(item.totalCost || 0).toFixed(2)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+              <p><strong>Payment Method:</strong> ${sale.paymentMethod || 'N/A'}</p>
+              <p><strong>Payment Status:</strong> ${sale.paymentStatus || 'Pending'}</p>
+              <p>View full details in your dashboard: <a href="https://${process.env.BASE_URL || req.get('host')}/sales/${saleResult.insertedId}">Sale Details</a></p>
+              <p>Best regards,</p>
+              <p>The Shed Team</p>
+              <p><a href="https://shed.ng">Shed: Sell Everywhere. Manage Everything</a></p>
+            `
+          };
+
+          transporter.sendMail(mailOptions).catch(err => {
+            console.error('Error sending notification email to store owner:', err);
+          });
+        } else {
+          console.warn(`No valid email found for admin ${admin.username}, skipping notification email`);
         }
 
         // Return success with invoice URL
