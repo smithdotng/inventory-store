@@ -8,109 +8,151 @@
     <meta property="og:title" content="Messages | Shed: Inventory, Invoices and More" />
     <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
     <meta property="og:image" content="/android-chrome-512x512.png" />
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-<script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag() { dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-GJRGT3KCZ7');
-</script>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
 
-<!-- CSS Dependencies -->
-<link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
-<link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
-<link rel="stylesheet" href="/css/plugins/swiper.min.css">
-<link rel="stylesheet" href="/css/plugins/fancybox.min.css">
-<link rel="stylesheet" href="/css/style.css">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-<link rel="stylesheet" href="/css/custom.css">
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/custom.css">
 
-<!-- Favicon -->
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
 
-<!-- Inline CSS -->
-<style>
-    /* Match update-stock styling */
-    .mil-banner { height: 400px; }
-    .mil-main-content { padding: 20px; transition: margin-left 0.3s ease; width: 100%; box-sizing: border-box; }
-    .mil-main-content.full-width { margin-left: 0; }
-    .mil-sidebar { width: 250px; background-color: #f8f8f8; position: fixed; top: 0; left: 0; bottom: 0; padding: 20px; z-index: 1001; transition: transform 0.3s ease; overflow-y: auto; }
-    .mil-sidebar.hidden { transform: translateX(-100%); }
-    .mil-toggle-btn { position: fixed; top: 10px; left: 10px; background: #eba611; color: #333; border: none; padding: 8px 12px; font-size: 16px; cursor: pointer; border-radius: 4px; z-index: 1002; }
-    .mil-form-group { margin-bottom: 15px; }
-    .mil-form-control { background-color: white; border: 1px solid #ced4da; color: #495057; font-size: 13px; padding: 0.375rem 0.75rem; width: 100%; border-radius: 4px; }
-    .mil-form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); outline: none; }
-    .mil-button { background-color: #eba611; color: #333; border: none; padding: 10px 20px; font-size: 13px; font-weight: 500; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; }
-    .mil-button:hover { background-color: #fff; color: #eba611; border: 2px solid #eba611; }
-    .mil-button i { margin-left: 8px; }
-    .mil-button.delete-btn { background-color: #dc3545; color: #fff; }
-    .mil-button.delete-btn:hover { background-color: #fff; color: #dc3545; border: 2px solid #dc3545; }
-    .mil-button.mark-read-btn { background-color: #28a745; color: #fff; }
-    .mil-button.mark-read-btn:hover { background-color: #fff; color: #28a745; border: 2px solid #28a745; }
-    .mil-alert { color: #d32f2f; background-color: #fde8e8; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f5c2c7; font-size: 14px; display: flex; align-items: center; }
-    .mil-alert.success { color: #388e3c; background-color: #e8f5e9; border: 1px solid #c8e6c9; }
-    .mil-alert i { margin-right: 8px; }
-    .mil-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
-    .mil-modal.active { display: flex; }
-    .mil-modal-content { background: white; padding: 20px; border-radius: 8px; max-width: 500px; width: 90%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); }
-    .mil-modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
-    .mil-table-section table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
-    .mil-table-section th, .mil-table-section td { padding: 10px; border: 1px solid #dee2e6; text-align: left; }
-    .mil-table-section th { background-color: #f8f9fa; color: #333; font-weight: 500; }
-    .mil-table-section tr:nth-child(even) { background-color: #f9f9f9; }
-    .mil-table-section .content-cell { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
-    .mil-table-section .unread { font-weight: bold; background-color: #e6f3ff; }
-    .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; position: relative; }
-    .table-responsive::-webkit-scrollbar { height: 8px; }
-    .table-responsive::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
-    .table-responsive::-webkit-scrollbar-track { background: #f1f1f1; }
-    
-    /* Sidebar overlay for mobile */
-    .mil-sidebar-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 1000;
-        display: none;
-    }
-    
-    @media (max-width: 768px) {
-        .mil-sidebar { 
-            width: 250px; 
-            transform: translateX(-100%); 
-            overflow-y: auto;
+    <!-- Inline CSS -->
+    <style>
+        /* Match update-stock styling */
+        .mil-banner { height: 400px; }
+        .mil-main-content { padding: 20px; transition: margin-left 0.3s ease; width: 100%; box-sizing: border-box; }
+        .mil-main-content.full-width { margin-left: 0; }
+        .mil-sidebar { width: 250px; background-color: #f8f8f8; position: fixed; top: 0; left: 0; bottom: 0; padding: 20px; z-index: 1001; transition: transform 0.3s ease; overflow-y: auto; }
+        .mil-sidebar.hidden { transform: translateX(-100%); }
+        .mil-toggle-btn { position: fixed; top: 10px; left: 10px; background: #eba611; color: #333; border: none; padding: 8px 12px; font-size: 16px; cursor: pointer; border-radius: 4px; z-index: 1002; }
+        .mil-form-group { margin-bottom: 15px; }
+        .mil-form-control { background-color: white; border: 1px solid #ced4da; color: #495057; font-size: 13px; padding: 0.375rem 0.75rem; width: 100%; border-radius: 4px; }
+        .mil-form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25); outline: none; }
+        .mil-button { background-color: #eba611; color: #333; border: none; padding: 10px 20px; font-size: 13px; font-weight: 500; border-radius: 5px; cursor: pointer; transition: all 0.3s ease; }
+        .mil-button:hover { background-color: #fff; color: #eba611; border: 2px solid #eba611; }
+        .mil-button i { margin-left: 8px; }
+        .mil-button.delete-btn { background-color: #dc3545; color: #fff; }
+        .mil-button.delete-btn:hover { background-color: #fff; color: #dc3545; border: 2px solid #dc3545; }
+        .mil-button.mark-read-btn { background-color: #28a745; color: #fff; }
+        .mil-button.mark-read-btn:hover { background-color: #fff; color: #28a745; border: 2px solid #28a745; }
+        .mil-alert { color: #d32f2f; background-color: #fde8e8; padding: 12px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #f5c2c7; font-size: 14px; display: flex; align-items: center; }
+        .mil-alert.success { color: #388e3c; background-color: #e8f5e9; border: 1px solid #c8e6c9; }
+        .mil-alert i { margin-right: 8px; }
+        .mil-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 9999; display: none; align-items: center; justify-content: center; }
+        .mil-modal.active { display: flex; }
+        .mil-modal-content { background: white; padding: 20px; border-radius: 8px; max-width: 800px; width: 90%; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); max-height: 80vh; overflow-y: auto; }
+        .mil-modal-buttons { display: flex; justify-content: flex-end; gap: 10px; margin-top: 15px; }
+        .mil-table-section table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1000px; }
+        .mil-table-section th, .mil-table-section td { padding: 10px; border: 1px solid #dee2e6; text-align: left; }
+        .mil-table-section th { background-color: #f8f9fa; color: #333; font-weight: 500; }
+        .mil-table-section tr:nth-child(even) { background-color: #f9f9f9; }
+        .mil-table-section .content-cell { max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+        .mil-table-section .unread { font-weight: bold; background-color: #e6f3ff; }
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; width: 100%; position: relative; }
+        .table-responsive::-webkit-scrollbar { height: 8px; }
+        .table-responsive::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+        .table-responsive::-webkit-scrollbar-track { background: #f1f1f1; }
+        
+        /* Message content styling */
+        .message-content-container {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
         }
-        .mil-sidebar.hidden { 
-            transform: translateX(-100%); 
+        .message-content-container h1, 
+        .message-content-container h2, 
+        .message-content-container h3 {
+            color: #2c3e50;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
         }
-        .mil-sidebar:not(.hidden) {
-            transform: translateX(0);
+        .message-content-container p {
+            margin-bottom: 1em;
         }
-        .mil-sidebar-overlay.active {
-            display: block;
+        .message-content-container ul, 
+        .message-content-container ol {
+            margin-bottom: 1em;
+            padding-left: 1.5em;
         }
-        .mil-main-content { padding: 10px; }
-        .mil-table-section table { min-width: 800px; }
-        .mil-form-control { font-size: 12px; }
-        .mil-button { font-size: 12px; padding: 8px 16px; }
-        .mil-modal-content { width: 95%; padding: 15px; }
-    }
-    @media (max-width: 576px) {
-        .mil-table-section table { min-width: 600px; }
-        .mil-form-control { font-size: 11px; }
-        .mil-button { font-size: 11px; padding: 6px 12px; }
-    }
-</style>
+        .message-content-container table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1em;
+        }
+        .message-content-container table th,
+        .message-content-container table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .message-content-container table th {
+            background-color: #f2f2f2;
+        }
+        .message-content-container .info-box {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #eba611;
+        }
+        
+        /* Sidebar overlay for mobile */
+        .mil-sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .mil-sidebar { 
+                width: 250px; 
+                transform: translateX(-100%); 
+                overflow-y: auto;
+            }
+            .mil-sidebar.hidden { 
+                transform: translateX(-100%); 
+            }
+            .mil-sidebar:not(.hidden) {
+                transform: translateX(0);
+            }
+            .mil-sidebar-overlay.active {
+                display: block;
+            }
+            .mil-main-content { padding: 10px; }
+            .mil-table-section table { min-width: 800px; }
+            .mil-form-control { font-size: 12px; }
+            .mil-button { font-size: 12px; padding: 8px 16px; }
+            .mil-modal-content { width: 95%; padding: 15px; }
+        }
+        @media (max-width: 576px) {
+            .mil-table-section table { min-width: 600px; }
+            .mil-form-control { font-size: 11px; }
+            .mil-button { font-size: 11px; padding: 6px 12px; }
+        }
+    </style>
 
-<title>Shed | Messages</title>
-
+    <title>Shed | Messages</title>
 </head>
 
 <body>
@@ -229,25 +271,35 @@
                                                     <th>Sender</th>
                                                     <th>Subject</th>
                                                     <th>Date</th>
-                                                    <th>Content</th>
-                                                    <th>Action</th>
+                                                    <th>Preview</th>
+                                                    <th>Actions</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 <% messages.forEach(message => { %>
                                                     <tr id="row-<%= message._id %>" class="<%= message.read ? '' : 'unread' %>">
-                                                        <td><%= message.sender || 'N/A' %></td>
+                                                        <td><%= message.sender || 'System' %></td>
                                                         <td><%= message.subject || 'No Subject' %></td>
                                                         <td><%= message.createdAt ? new Date(message.createdAt).toLocaleString() : 'N/A' %></td>
-                                                        <td class="content-cell" data-id="<%= message._id %>" data-content="<%= message.content ? message.content.replace(/'/g, "\\'") : '' %>">
-                                                            <%= message.content ? (message.content.length > 50 ? message.content.substring(0, 50) + '...' : message.content) : 'N/A' %>
+                                                        <td class="content-cell" data-id="<%= message._id %>" data-content="<%= message.content ? message.content.replace(/"/g, '&quot;') : '' %>" data-is-html="<%= message.isHtml || false %>">
+                                                            <% if (message.content) { %>
+                                                                <% if (message.isHtml) { %>
+                                                                    <%= message.content.replace(/<[^>]*>/g, '').substring(0, 50) + (message.content.length > 50 ? '...' : '') %>
+                                                                <% } else { %>
+                                                                    <%= message.content.substring(0, 50) + (message.content.length > 50 ? '...' : '') %>
+                                                                <% } %>
+                                                            <% } else { %>
+                                                                N/A
+                                                            <% } %>
                                                         </td>
                                                         <td>
                                                             <div class="mil-form-row">
                                                                 <button class="mil-button mark-read-btn" data-id="<%= message._id %>" data-read="<%= message.read %>" aria-label="<%= message.read ? 'Mark as Unread' : 'Mark as Read' %>">
                                                                     <%= message.read ? 'Mark Unread' : 'Mark Read' %> <i class="fa-solid fa-envelope<%= message.read ? '-open' : '' %>"></i>
                                                                 </button>
-                                                                <i class="fa-solid fa-trash mil-delete-icon" data-id="<%= message._id %>" data-subject="<%= message.subject ? message.subject.replace(/'/g, "\\'") : 'Message' %>" aria-label="Delete Message"></i>
+                                                                <button class="mil-button delete-btn" data-id="<%= message._id %>" data-subject="<%= message.subject ? message.subject.replace(/"/g, '&quot;') : 'Message' %>" aria-label="Delete Message">
+                                                                    Delete <i class="fa-solid fa-trash"></i>
+                                                                </button>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -269,26 +321,28 @@
     <!-- Content Modal -->
     <div id="contentModal" class="mil-modal">
         <div class="mil-modal-content">
-            <h5>Message Content</h5>
-            <div class="mil-content-modal">
-                <p id="contentText"></p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 id="contentModalTitle">Message Content</h5>
+                <button id="closeContentModal" class="mil-button" style="padding: 5px 10px;">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div>
-            <div>
+            <div id="contentText" class="message-content-container"></div>
+        </div>
+    </div>
 
     <!-- Delete Modal -->
     <div id="deleteModal" class="mil-modal">
-        <div class="modal-content">
+        <div class="mil-modal-content">
             <h5>Delete Message</h5>
             <p>Are you sure you want to delete "<span id="deleteModalSubject"></span>"? This action cannot be undone.</p>
-            <div>
             <div class="mil-modal-buttons">
-                <button type="mil-button cancel-btn" id="cancelDeleteModal">
+                <button type="button" class="mil-button" id="cancelDeleteModal">
                     Cancel <i class="fa-solid fa-times"></i>
                 </button>
                 <form id="deleteForm" action="/admin/delete-message" method="POST">
                     <input type="hidden" name="_id" id="deleteMessageId">
-                    <input type="submit" class="mil-button delete-btn">
+                    <button type="submit" class="mil-button delete-btn">
                         Delete <i class="fa-solid fa-trash"></i>
                     </button>
                 </form>
@@ -316,261 +370,221 @@
         </div>
     </footer>
 
-    <!-- hidden elements -->
-    <div class="mil-hidden-elements">
-        <div class="mil-dodecahedron">
-            <div class="mil-pentagon">
-                <div></div><div><div></div></div><div></div></div><div><div></div><div>
-            </div>
-            </div class="mil-pentagon">
-                <div></div><div></div></div><div><div></div></div><div></div>
-            </div>
-            <div class="mil-pentagon">
-                <div><div><div></div></div><div></div></div><div><div></div>
-            </div>
-            </div class="mil-pentagon">
-                <div></div><div></div><div><div></div></div><div></div>
-            </div>
-            <div class="mil-pentagon">
-                <div><div><div></div></div><div></div></div><div>
-            </div>
-            </div class="mil-pentagon">
-                <div><div></div><div><div></div></div><div><div></div>
-            </div>
-            </div class="mil-pentagon">
-                <div></div><div><div></div><div></div></div><div><div></div>
-            </div>
-            <div class="mil-pentagon">
-                <div><div></div><div></div></div><div><div></div></div><div>
-            </div>
-            <div class="mil-pentagon">
-                <div></div><div><div><div></div><div><div><div></div>
-            </div>
-            <div class="mil-pentagon">
-                <div><div></div><div><div></div><div></div></div><div>
-            </div>
-            <div class="mil-pentagon">
-                <div></div><div><div></div><div><div></div></div><div>
-            </div>
-            <div class="mil-pentagon">
-                <div><div></div><div><div><div></div></div><div></div>
-            </div>
-        </div>
-        <svg viewBox="0 0 24 24" class="mil-arrow-svg">
-            <path d="M 14 5.3417969 C 13.744125 5.3417969 13.48796875 5.4412187 13.29296875 5.6367188 L 13.2070312 5.7226562 C 12.8160312 6.1136563 12.8160312 6.7467188 13.2070312 7.1367188 L 17.0703125 11 L 4 11 C 3.448 11 3 11.448 11 3 12 C 3 12.552 3.448 12 12 13 L 4 13 L 17.0703125 13 L 13.2070312 16.863281 C 12.8160312 17.254281 12.8160312 17.887344 13.2070312 18.277344 L 13.292968 18.363281 C 13.683968 18.754281 14.3170312 18.754281 14.7070312 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.7070312 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
-        </svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
-            <path fill-rule="evenodd" clip-path="evenodd" d="M1 892L1 1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 0 942H0" class="mil-move" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M299 miliH1H1 V1403H299V1ZM0 0 0V1404H300V0H0Z" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L 150 1404L 149 1404L 149 0L 150 -4.37115e-08Z" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1 1092.71 1175C1 1 1257.29 1175 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
-            <path fill-rule="evenodd" clip-rule="M150" 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C638 300 446.157 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 633 150 679Z" class="mil-move" />
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0" class="mil-move" />
-        </svg>
-    </div>
-</div>
-<!-- wrapper end -->
+    <!-- JavaScript Dependencies -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/main.js"></script>
 
-<!-- JavaScript Dependencies -->
-<script src="/js/plugins/jquery.min.js"></script>
-<script src="/js/plugins/swiper.min.js"></script>
-<script src="/js/plugins/fancybox.min.js"></script>
-<script src="/js/plugins/gsap.min.js"></script>
-<!-- <script src="/js/plugins/smooth-scroll.js"></script> -->
-<script src="/js/plugins/ScrollTrigger.min.js"></script>
-<script src="/js/plugins/ScrollTo.min.js"></script>
-<script src="/js/main.js"></script>
+    <!-- Sidebar Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const menuItems = document.querySelectorAll('.mil-sidebar a');
+            const overlay = document.getElementById('sidebarOverlay');
 
-<!-- Fallback for .row visibility -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const row = document.querySelector('.mil-banner-content .row');
-        if (row) {
-            row.style.display = 'flex';
-            row.style.visibility = 'visible';
-            row.style.opacity = '1';
-        }
-    });
-</script>
-
-<!-- Sidebar Toggle -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const menuItems = document.querySelectorAll('.mil-sidebar a');
-        const overlay = document.getElementById('sidebarOverlay');
-
-        // Initialize based on screen size
-        function initializeSidebar() {
-            const isMobile = window.innerWidth <= 768;
-            const storedState = localStorage.getItem('sidebarHidden');
-            
-            if (isMobile) {
-                // On mobile, always start hidden regardless of stored state
-                sidebar.classList.add('hidden');
-                mainContent.classList.add('full-width');
-                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                if (overlay) overlay.classList.remove('active');
-            } else {
-                // On desktop, use stored state or default to visible
-                const shouldHide = storedState === 'true';
-                sidebar.classList.toggle('hidden', shouldHide);
-                mainContent.classList.toggle('full-width', shouldHide);
-                toggleBtn.innerHTML = shouldHide ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
-                if (overlay) overlay.classList.remove('active');
-            }
-        }
-
-        // Set up toggle button
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('hidden');
-            mainContent.classList.toggle('full-width');
-            
-            // Update button icon and overlay
-            const isHidden = sidebar.classList.contains('hidden');
-            toggleBtn.innerHTML = isHidden ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
-            if (overlay) overlay.classList.toggle('active', !isHidden);
-            
-            // Only store state on larger screens
-            if (window.innerWidth > 768) {
-                localStorage.setItem('sidebarHidden', isHidden);
-            }
-        });
-
-        // Close sidebar when menu item is clicked (mobile only)
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth <= 768) {
+            // Initialize based on screen size
+            function initializeSidebar() {
+                const isMobile = window.innerWidth <= 768;
+                const storedState = localStorage.getItem('sidebarHidden');
+                
+                if (isMobile) {
+                    // On mobile, always start hidden regardless of stored state
                     sidebar.classList.add('hidden');
                     mainContent.classList.add('full-width');
                     toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
                     if (overlay) overlay.classList.remove('active');
+                } else {
+                    // On desktop, use stored state or default to visible
+                    const shouldHide = storedState === 'true';
+                    sidebar.classList.toggle('hidden', shouldHide);
+                    mainContent.classList.toggle('full-width', shouldHide);
+                    toggleBtn.innerHTML = shouldHide ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                    if (overlay) overlay.classList.remove('active');
+                }
+            }
+
+            // Set up toggle button
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('full-width');
+                
+                // Update button icon and overlay
+                const isHidden = sidebar.classList.contains('hidden');
+                toggleBtn.innerHTML = isHidden ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                if (overlay) overlay.classList.toggle('active', !isHidden);
+                
+                // Only store state on larger screens
+                if (window.innerWidth > 768) {
+                    localStorage.setItem('sidebarHidden', isHidden);
                 }
             });
+
+            // Close sidebar when menu item is clicked (mobile only)
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.add('hidden');
+                        mainContent.classList.add('full-width');
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        if (overlay) overlay.classList.remove('active');
+                    }
+                });
+            });
+
+            // Close sidebar when overlay is clicked
+            if (overlay) {
+                overlay.addEventListener('click', () => {
+                    sidebar.classList.add('hidden');
+                    mainContent.classList.add('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    overlay.classList.remove('active');
+                });
+            }
+
+            // Initialize on load
+            initializeSidebar();
+            
+            // Update on resize
+            window.addEventListener('resize', initializeSidebar);
         });
+    </script>
 
-        // Close sidebar when overlay is clicked
-        if (overlay) {
-            overlay.addEventListener('click', () => {
-                sidebar.classList.add('hidden');
-                mainContent.classList.add('full-width');
-                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                overlay.classList.remove('active');
-            });
+    <!-- Messages Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            try {
+                // Content Modal
+                function showContentModal(content, isHtml, subject) {
+                    const modal = document.getElementById('contentModal');
+                    const contentText = document.getElementById('contentText');
+                    const title = document.getElementById('contentModalTitle');
+                    
+                    title.textContent = subject || 'Message Content';
+                    
+                    if (isHtml) {
+                        contentText.innerHTML = content || '<p>No content available</p>';
+                    } else {
+                        contentText.textContent = content || 'No content available';
+                    }
+                    
+                    modal.classList.add('active');
+                }
+
+                function hideContentModal() {
+                    const modal = document.getElementById('contentModal');
+                    modal.classList.remove('active');
+                }
+
+                // Delete Modal
+                function showDeleteModal(id, subject) {
+                    const modal = document.getElementById('deleteModal');
+                    const subjectSpan = document.getElementById('deleteModalSubject');
+                    const deleteForm = document.getElementById('deleteForm');
+                    subjectSpan.textContent = subject;
+                    deleteForm.querySelector('#deleteMessageId').value = id;
+                    modal.classList.add('active');
+                }
+
+                function hideDeleteModal() {
+                    const modal = document.getElementById('deleteModal');
+                    modal.classList.remove('active');
+                }
+
+                // Mark Read/Unread
+                document.querySelectorAll('.mark-read-btn').forEach(button => {
+                    button.addEventListener('click', async () => {
+                        const id = button.dataset.id;
+                        const isRead = button.dataset.read === 'true';
+                        
+                        try {
+                            const response = await fetch('/mark-as-read', {
+                                method: 'POST',
+                                headers: { 
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json'
+                                },
+                                body: JSON.stringify({ 
+                                    _id: id, 
+                                    read: !isRead 
+                                })
+                            });
+                            
+                            const data = await response.json();
+                            
+                            if (data.success) {
+                                const row = document.getElementById(`row-${id}`);
+                                button.dataset.read = !isRead;
+                                button.innerHTML = `${isRead ? 'Mark Read' : 'Mark Unread'} <i class="fa-solid fa-envelope${isRead ? '' : '-open'}"></i>`;
+                                row.classList.toggle('unread', !isRead);
+                            } else {
+                                alert('Failed to update message status: ' + (data.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            console.error('Error:', error);
+                            alert('Error updating message status');
+                        }
+                    });
+                });
+
+                // Delete Button
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    if (button.tagName === 'BUTTON') {
+                        button.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            const id = button.dataset.id;
+                            const subject = button.dataset.subject;
+                            showDeleteModal(id, subject);
+                        });
+                    }
+                });
+
+                // Content Cell
+                document.querySelectorAll('.content-cell').forEach(cell => {
+                    cell.addEventListener('click', () => {
+                        const content = cell.dataset.content;
+                        const isHtml = cell.dataset.isHtml === 'true';
+                        const subject = cell.closest('tr').querySelector('td:nth-child(2)').textContent;
+                        showContentModal(content, isHtml, subject);
+                    });
+                });
+
+                // Modal Controls
+                document.getElementById('cancelDeleteModal')?.addEventListener('click', hideDeleteModal);
+                document.getElementById('closeContentModal')?.addEventListener('click', hideContentModal);
+                
+                document.getElementById('contentModal')?.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) hideContentModal();
+                });
+                
+                document.getElementById('deleteModal')?.addEventListener('click', (e) => {
+                    if (e.target === e.currentTarget) hideDeleteModal();
+                });
+
+                // Escape key to close modals
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        hideContentModal();
+                        hideDeleteModal();
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error in messages scripts:', error);
+            }
+        });
+    </script>
+
+    <script>
+        if (navigator.serviceWorker) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
         }
-
-        // Initialize on load
-        initializeSidebar();
-        
-        // Update on resize
-        window.addEventListener('resize', initializeSidebar);
-    });
-</script>
-
-<!-- Messages Scripts -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        try {
-            // Content Modal
-            function showContentModal(content) {
-                const modal = document.getElementById('contentModal');
-                const contentText = document.getElementById('contentText');
-                contentText.textContent = content || 'No content available';
-                modal.classList.add('active');
-            }
-
-            function hideContentModal() {
-                const modal = document.getElementById('contentModal');
-                modal.classList.remove('active');
-            }
-
-            // Delete Modal
-            function showDeleteModal(id, subject) {
-                const modal = document.getElementById('deleteModal');
-                const subjectSpan = document.getElementById('deleteModalSubject');
-                const deleteForm = document.getElementById('deleteForm');
-                subjectSpan.textContent = subject;
-                deleteForm.querySelector('#deleteMessageId').value = id;
-                modal.classList.add('active');
-            }
-
-            function hideDeleteModal() {
-                const modal = document.getElementById('deleteModal');
-                modal.classList.remove('active');
-            }
-
-            // Mark Read/Unread
-            document.querySelectorAll('.mark-read-btn').forEach(button => {
-                button.addEventListener('click', () => {
-                    const id = button.dataset.id;
-                    const isRead = button.dataset.read === 'true';
-                    fetch('/admin/mark-message', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ _id: id, read: !isRead })
-                    }).then(response => response.json())
-                      .then(data => {
-                          if (data.success) {
-                              const row = document.getElementById(`row-${id}`);
-                              button.dataset.read = !isRead;
-                              button.innerHTML = `${isRead ? 'Mark Read' : 'Mark Unread'} <i class="fa-solid fa-envelope${isRead ? '' : '-open'}"></i>`;
-                              row.classList.toggle('unread', !isRead);
-                          } else {
-                              alert('Failed to update message status: ' + (data.error || 'Unknown error'));
-                          }
-                      }).catch(error => {
-                          console.error('Error:', error);
-                          alert('Error updating message status');
-                      });
-                });
-            });
-
-            // Delete Icon
-            document.querySelectorAll('.mil-delete-icon').forEach(icon => {
-                icon.addEventListener('click', () => {
-                    const id = icon.dataset.id;
-                    const subject = icon.dataset.subject;
-                    showDeleteModal(id, subject);
-                });
-            });
-
-            // Content Cell
-            document.querySelectorAll('.content-cell').forEach(cell => {
-                cell.addEventListener('click', () => {
-                    showContentModal(cell.dataset.content);
-                });
-            });
-
-            // Modal Controls
-            document.getElementById('cancelDeleteModal')?.addEventListener('click', hideDeleteModal);
-            document.getElementById('contentModal')?.addEventListener('click', (e) => {
-                if (e.target === e.currentTarget) hideContentModal();
-            });
-
-            // Debug Table Scrolling
-            const tableContainer = document.querySelector('.table-responsive');
-            if (tableContainer) {
-                console.log('Table scrollWidth:', tableContainer.scrollWidth, 'offsetWidth:', tableContainer.offsetWidth);
-                tableContainer.scrollLeft = tableContainer.scrollWidth;
-                setTimeout(() => {
-                    console.log('Current scrollLeft:', tableContainer.scrollLeft);
-                }, 100);
-            }
-        } catch (error) {
-            console.error('Error in messages scripts:', error);
-        }
-    });
-</script>
-
-<script>
-    if (navigator.serviceWorker) {
-        navigator.serviceWorker.register('/sw.js', { scope: '/' });
-    }
-</script>
+    </script>
 
 </body>
-
 </html>

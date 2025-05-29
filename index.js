@@ -1738,28 +1738,67 @@ app.get('/admin-messages', isAuthenticated, async (req, res) => {
 
       let query = {
           $or: [
-              { recipientId: admin._id }, // Match ObjectId
-              { recipientId: null } // Include broadcast messages
-          ]
+              { recipientId: admin._id },
+              { recipientId: null }
+          ],
+          deleted: { $ne: true } // Only show non-deleted messages
       };
+      
       if (req.query.search) {
+          const senderAdmins = await db.collection('admins')
+              .find({ username: { $regex: req.query.search, $options: 'i' } })
+              .project({ _id: 1 })
+              .toArray();
+          const senderIds = senderAdmins.map(a => a._id);
           query.$and = [
               {
                   $or: [
-                      { sender: { $regex: req.query.search, $options: 'i' } },
-                      { subject: { $regex: req.query.search, $options: 'i' } }
+                      { senderId: { $in: senderIds } },
+                      { subject: { $regex: req.query.search, $options: 'i' } },
+                      { content: { $regex: req.query.search, $options: 'i' } }
                   ]
               }
           ];
       }
-      const messages = await db.collection('messages').find(query).sort({ createdAt: -1 }).toArray();
+
+      const messages = await db.collection('messages')
+          .aggregate([
+              { $match: query },
+              {
+                  $lookup: {
+                      from: 'admins',
+                      localField: 'senderId',
+                      foreignField: '_id',
+                      as: 'senderInfo'
+                  }
+              },
+              {
+                  $project: {
+                      _id: 1,
+                      sender: { $arrayElemAt: ['$senderInfo.username', 0] },
+                      subject: 1,
+                      content: 1,
+                      createdAt: 1,
+                      read: 1,
+                      readAt: 1,
+                      isHtml: 1
+                  }
+              },
+              { $sort: { createdAt: -1 } }
+          ])
+          .toArray();
+
       res.render('admin-messages', {
           username: req.session.admin,
           admin,
           messages,
           search: req.query.search || '',
           success: req.flash('success'),
-          error: req.flash('error')
+          error: req.flash('error'),
+          formatDate: (date) => {
+              return new Date(date).toLocaleString();
+          },
+          currentPage: 'messages'
       });
   } catch (err) {
       console.error('Error in /admin-messages:', err);
@@ -1785,6 +1824,346 @@ app.post('/admin/mark-message', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error in /admin/mark-message:', err);
     res.json({ success: false, error: 'Failed to update message status' });
+  }
+});
+
+// Mark message as read/unread route
+app.post('/mark-as-read', isAuthenticated, async (req, res) => {
+  try {
+      const { _id, read } = req.body;
+
+      // Validate input
+      if (!_id || !ObjectId.isValid(_id)) {
+          return res.status(400).json({ 
+              error: 'Invalid message ID',
+              success: false
+          });
+      }
+
+      // Check database connection
+      if (!db || !db.collection) {
+          throw new Error('Database connection not initialized');
+      }
+
+      // Get current admin
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          return res.status(403).json({ 
+              error: 'Admin not found',
+              success: false
+          });
+      }
+
+      // Update message status
+      const updateResult = await db.collection('messages').updateOne(
+          {
+              _id: new ObjectId(_id),
+              $or: [
+                  { recipientId: admin._id },
+                  { recipientId: null } // Allow updating broadcast messages
+              ]
+          },
+          {
+              $set: { 
+                  read: read === 'false', // Convert string to boolean
+                  readAt: new Date() 
+              }
+          }
+      );
+
+      if (updateResult.modifiedCount === 0) {
+          return res.status(404).json({ 
+              error: 'Message not found or no changes made',
+              success: false
+          });
+      }
+
+      res.json({ 
+          success: true,
+          read: read === 'false' // Return the new read status
+      });
+  } catch (error) {
+      console.error('Error marking message as read:', {
+          message: error.message,
+          stack: error.stack,
+          body: req.body,
+          admin: req.session.admin
+      });
+      res.status(500).json({ 
+          error: 'Error updating message status',
+          success: false
+      });
+  }
+});
+
+// Soft delete message route
+app.post('/admin/delete-message', isAuthenticated, async (req, res) => {
+  try {
+      const { _id } = req.body;
+
+      // Validate message ID
+      if (!_id || !ObjectId.isValid(_id)) {
+          req.flash('error', 'Invalid message ID');
+          return res.redirect('/admin-messages');
+      }
+
+      // Check database connection
+      if (!db || !db.collection) {
+          throw new Error('Database connection not initialized');
+      }
+
+      // Get current admin
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          req.flash('error', 'Admin not found');
+          return res.redirect('/admin-login');
+      }
+
+      // Update message with deleted flag instead of deleting
+      const result = await db.collection('messages').updateOne(
+          {
+              _id: new ObjectId(_id),
+              $or: [
+                  { recipientId: admin._id },
+                  { recipientId: null } // Allow "deletion" of broadcast messages
+              ]
+          },
+          {
+              $set: { 
+                  deleted: true,
+                  deletedAt: new Date(),
+                  deletedBy: admin._id
+              }
+          }
+      );
+
+      if (result.modifiedCount === 0) {
+          req.flash('error', 'Message not found or you do not have permission to delete it');
+      } else {
+          req.flash('success', 'Message moved to trash');
+      }
+
+      res.redirect('/admin-messages');
+  } catch (error) {
+      console.error('Error soft deleting message:', error);
+      req.flash('error', 'Error deleting message');
+      res.redirect('/admin-messages');
+  }
+});
+
+app.get('/admin-messages/trash', isAuthenticated, async (req, res) => {
+  try {
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          req.flash('error', 'Admin not found.');
+          return res.redirect('/home');
+      }
+
+      let query = {
+          $or: [
+              { recipientId: admin._id },
+              { recipientId: null }
+          ],
+          deleted: true
+      };
+
+      if (req.query.search) {
+          const senderAdmins = await db.collection('admins')
+              .find({ username: { $regex: req.query.search, $options: 'i' } })
+              .project({ _id: 1 })
+              .toArray();
+          const senderIds = senderAdmins.map(a => a._id);
+          query.$and = [
+              {
+                  $or: [
+                      { senderId: { $in: senderIds } },
+                      { subject: { $regex: req.query.search, $options: 'i' } },
+                      { content: { $regex: req.query.search, $options: 'i' } }
+                  ]
+              }
+          ];
+      }
+
+      const deletedMessages = await db.collection('messages')
+          .aggregate([
+              { $match: query },
+              {
+                  $lookup: {
+                      from: 'admins',
+                      localField: 'senderId',
+                      foreignField: '_id',
+                      as: 'senderInfo'
+                  }
+              },
+              {
+                  $lookup: {
+                      from: 'admins',
+                      localField: 'deletedBy',
+                      foreignField: '_id',
+                      as: 'deletedByInfo'
+                  }
+              },
+              {
+                  $project: {
+                      _id: 1,
+                      sender: { $arrayElemAt: ['$senderInfo.username', 0] },
+                      deletedBy: { $arrayElemAt: ['$deletedByInfo.username', 0] },
+                      subject: 1,
+                      content: 1,
+                      createdAt: 1,
+                      deletedAt: 1,
+                      read: 1,
+                      readAt: 1,
+                      isHtml: 1
+                  }
+              },
+              { $sort: { deletedAt: -1 } }
+          ])
+          .toArray();
+
+      res.render('admin-messages-trash', {
+          username: req.session.admin,
+          admin,
+          messages: deletedMessages,
+          search: req.query.search || '',
+          success: req.flash('success'),
+          error: req.flash('error'),
+          formatDate: (date) => {
+              return new Date(date).toLocaleString();
+          },
+          currentPage: 'trash'
+      });
+  } catch (err) {
+      console.error('Error in /admin-messages/trash:', err);
+      req.flash('error', 'Failed to load trash.');
+      res.redirect('/admin-messages');
+  }
+});
+
+
+app.post('/admin/delete-message', isAuthenticated, async (req, res) => {
+  try {
+      const { _id } = req.body;
+
+      if (!_id || !ObjectId.isValid(_id)) {
+          req.flash('error', 'Invalid message ID');
+          return res.redirect('/admin-messages');
+      }
+
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          req.flash('error', 'Admin not found');
+          return res.redirect('/admin-login');
+      }
+
+      // Soft delete by setting deleted flag
+      const result = await db.collection('messages').updateOne(
+          {
+              _id: new ObjectId(_id),
+              $or: [
+                  { recipientId: admin._id },
+                  { recipientId: null }
+              ]
+          },
+          {
+              $set: { 
+                  deleted: true,
+                  deletedAt: new Date(),
+                  deletedBy: admin._id
+              }
+          }
+      );
+
+      if (result.modifiedCount === 0) {
+          req.flash('error', 'Message not found or no permission');
+      } else {
+          req.flash('success', 'Message moved to trash');
+      }
+
+      res.redirect('/admin-messages');
+  } catch (error) {
+      console.error('Error soft deleting message:', error);
+      req.flash('error', 'Error deleting message');
+      res.redirect('/admin-messages');
+  }
+});
+
+app.post('/admin/restore-message', isAuthenticated, async (req, res) => {
+  try {
+      const { _id } = req.body;
+
+      if (!_id || !ObjectId.isValid(_id)) {
+          req.flash('error', 'Invalid message ID');
+          return res.redirect('/admin-messages/trash');
+      }
+
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          req.flash('error', 'Admin not found');
+          return res.redirect('/admin-login');
+      }
+
+      // Restore by removing deleted flag
+      const result = await db.collection('messages').updateOne(
+          {
+              _id: new ObjectId(_id),
+              deletedBy: admin._id // Only allow restore if admin was the one who deleted it
+          },
+          {
+              $unset: { 
+                  deleted: "",
+                  deletedAt: "",
+                  deletedBy: ""
+              }
+          }
+      );
+
+      if (result.modifiedCount === 0) {
+          req.flash('error', 'Message not found or no permission to restore');
+      } else {
+          req.flash('success', 'Message restored successfully');
+      }
+
+      res.redirect('/admin-messages/trash');
+  } catch (error) {
+      console.error('Error restoring message:', error);
+      req.flash('error', 'Error restoring message');
+      res.redirect('/admin-messages/trash');
+  }
+});
+
+app.post('/admin/permanently-delete-message', isAuthenticated, async (req, res) => {
+  try {
+      const { _id } = req.body;
+
+      if (!_id || !ObjectId.isValid(_id)) {
+          req.flash('error', 'Invalid message ID');
+          return res.redirect('/admin-messages/trash');
+      }
+
+      const admin = await db.collection('admins').findOne({ username: req.session.admin });
+      if (!admin) {
+          req.flash('error', 'Admin not found');
+          return res.redirect('/admin-login');
+      }
+
+      // Permanent delete
+      const result = await db.collection('messages').deleteOne({
+          _id: new ObjectId(_id),
+          deletedBy: admin._id // Only allow permanent delete if admin was the one who deleted it
+      });
+
+      if (result.deletedCount === 0) {
+          req.flash('error', 'Message not found or no permission to delete');
+      } else {
+          req.flash('success', 'Message permanently deleted');
+      }
+
+      res.redirect('/admin-messages/trash');
+  } catch (error) {
+      console.error('Error permanently deleting message:', error);
+      req.flash('error', 'Error deleting message');
+      res.redirect('/admin-messages/trash');
   }
 });
 
@@ -3573,6 +3952,87 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
           expires
         }, { session });
 
+        // Get or create System superadmin for senderId
+        let systemAdmin = await db.collection('admins').findOne(
+          { username: 'System', role: 'superadmin' },
+          { session }
+        );
+        if (!systemAdmin) {
+          // Create a System superadmin if it doesn't exist
+          systemAdmin = await db.collection('admins').insertOne(
+            {
+              username: 'System',
+              email: 'system@shed.ng',
+              password: 'N/A', // Not used for authentication
+              role: 'superadmin',
+              createdAt: new Date()
+            },
+            { session }
+          );
+          systemAdmin._id = systemAdmin.insertedId;
+        }
+
+        // Insert transaction notification message for admin
+        // Replace the message content in your checkout route with this:
+const message = {
+  senderId: systemAdmin._id,
+  subject: `New Transaction: Sale #${saleResult.insertedId}`,
+  content: `
+    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
+      <h2 style="color: #2c3e50;">New Transaction Notification</h2>
+      <p>A new transaction has been completed on your online store.</p>
+      
+      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3 style="color: #2c3e50; margin-top: 0;">Transaction Details</h3>
+        <p><strong>Sale ID:</strong> ${saleResult.insertedId}</p>
+        <p><strong>Customer Name:</strong> ${customerName || 'N/A'}</p>
+        <p><strong>Customer Email:</strong> ${email || 'N/A'}</p>
+        <p><strong>Customer Phone:</strong> ${phoneNumber || 'N/A'}</p>
+        <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
+        <p><strong>Total Amount:</strong> ${admin.currency || '$'}${parseFloat(totalAmount || 0).toFixed(2)}</p>
+      </div>
+      
+      <div style="margin-bottom: 20px;">
+        <h3 style="color: #2c3e50;">Items Purchased</h3>
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #e9ecef;">
+                <th style="padding: 10px; text-align: left; border: 1px solid #dee2e6;">Item</th>
+                <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Quantity</th>
+                <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Unit Cost</th>
+                <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Total Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${saleItems.map(item => `
+                <tr>
+                  <td style="padding: 10px; border: 1px solid #dee2e6;">${item.itemName || 'N/A'}</td>
+                  <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">${item.quantity}</td>
+                  <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">${admin.currency}${parseFloat(item.unitCost || 0).toFixed(2)}</td>
+                  <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">${admin.currency}${parseFloat(item.totalCost || 0).toFixed(2)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px;">
+        <p><strong>Payment Method:</strong> ${sale.paymentMethod || 'N/A'}</p>
+        <p><strong>Payment Status:</strong> ${sale.paymentStatus || 'Pending'}</p>
+        <p>View full details in your dashboard: <a href="https://${process.env.BASE_URL || req.get('host')}/sales/${saleResult.insertedId}" style="color: #3498db;">Sale Details</a></p>
+      </div>
+    </div>
+  `,
+  recipientId: admin._id,
+  createdAt: new Date(),
+  read: false,
+  readAt: null,
+  isHtml: true // Add this flag to indicate HTML content
+};
+        await db.collection('messages').insertOne(message, { session });
+
         // Send confirmation email to customer (in background)
         if (process.env.SENDGRID_API_KEY && typeof sendConfirmationEmail === 'function') {
           sendConfirmationEmail({
@@ -3588,7 +4048,7 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
         // Send notification email to store owner (in background)
         if (admin.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(admin.email)) {
           const mailOptions = {
-            from: process.env.EMAIL_USER, // e.g., stanley@shed.ng
+            from: process.env.BUSINESS_USER, //
             to: admin.email,
             subject: `New Transaction on Your Store: Sale #${saleResult.insertedId}`,
             html: `
