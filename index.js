@@ -2728,9 +2728,22 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
   try {
     const saleId = req.params.saleId;
     const { email } = req.body;
+    if (!email) {
+      req.flash('error', 'Recipient email is required.');
+      return res.redirect(`/sale-success/${saleId}`);
+    }
+
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      req.flash('error', 'Admin not found.');
+      return res.redirect(`/sale-success/${saleId}`);
+    }
+
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
-    if (!sale) return res.status(404).send('Sale not found.');
+    if (!sale) {
+      req.flash('error', 'Sale not found.');
+      return res.redirect(`/sale-success/${saleId}`);
+    }
 
     const doc = new PDFDocument({ margin: 50 });
     let buffers = [];
@@ -2739,7 +2752,7 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
       const pdfData = Buffer.concat(buffers);
 
       const mailOptions = {
-        from: process.env.BUSINESS_USER,
+        from: process.env.EMAIL_USER, // Use authenticated email (stanley@shed.ng)
         to: email,
         subject: `Receipt for Your Purchase from ${admin.businessName || 'Shed'}`,
         html: `
@@ -2762,9 +2775,16 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
         ]
       };
 
-      await transporter.sendMail(mailOptions);
-      console.log('Receipt email sent to:', email);
-      res.redirect(`/sale-success/${saleId}`);
+      try {
+        await transporter.sendMail(mailOptions);
+        console.log('Receipt email sent to:', email);
+        req.flash('success', 'Receipt email sent successfully.');
+        res.redirect(`/sale-success/${saleId}`);
+      } catch (emailError) {
+        console.error('Error sending email:', emailError);
+        req.flash('error', 'Failed to send receipt email. Please try again.');
+        res.redirect(`/sale-success/${saleId}`);
+      }
     });
 
     doc.fontSize(10).text('Shed: Sell Anywhere, Manage Everything', 50, 30, { align: 'center' });
@@ -2843,7 +2863,8 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
     doc.end();
   } catch (error) {
     console.error('Error sending receipt email:', error);
-    res.status(500).send('Internal Server Error');
+    req.flash('error', 'An unexpected error occurred while sending the receipt. Please try again.');
+    res.redirect(`/sale-success/${saleId}`);
   }
 });
 
