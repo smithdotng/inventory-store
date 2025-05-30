@@ -777,6 +777,18 @@ app.post('/referrals/reset-password/:token', async (req, res) => {
   }
 });
 
+// EJS Helper to escape special characters
+app.locals.escapeEjs = function (str) {
+  if (typeof str !== 'string') return str || '';
+  return str
+    .replace(/%/g, '&#37;') // Escape %
+    .replace(/</g, '&lt;')   // Escape <
+    .replace(/>/g, '&gt;')   // Escape >
+    .replace(/"/g, '&quot;') // Escape "
+    .replace(/'/g, '&#39;'); // Escape '
+};
+
+
 
 
 
@@ -1073,13 +1085,18 @@ app.post('/reset-password', async (req, res) => {
 });
 
 // Superadmin Dashboard
+// /superadmin/dashboard: Enhanced to show POS and online sales
 app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res) => {
   try {
     console.log('Accessing /superadmin/dashboard for user:', req.session.admin);
+
+    // Fetch all admins
     const admins = await db.collection('admins').find().toArray();
     if (!admins.length) console.warn('No admins found in database');
 
     const adminIds = admins.map(admin => admin._id);
+
+    // Fetch login logs
     const loginLogs = await db.collection('login_logs')
       .aggregate([
         { $match: { adminId: { $in: adminIds } } },
@@ -1087,16 +1104,56 @@ app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res)
       ])
       .toArray();
 
+    // Fetch sales (POS and online) for all admins
+    const sales = await db.collection('sales')
+      .aggregate([
+        { $match: { adminId: { $in: adminIds } } },
+        {
+          $group: {
+            _id: { adminId: '$adminId', source: '$source' },
+            totalSales: { $sum: 1 },
+            totalRevenue: { $sum: '$totalAmount' },
+            sales: { $push: {
+              saleId: '$_id',
+              customerName: '$customerName',
+              totalAmount: '$totalAmount',
+              paymentMethod: '$paymentMethod',
+              paymentStatus: '$paymentStatus',
+              date: '$date',
+              items: '$items'
+            }}
+          }
+        }
+      ])
+      .toArray();
+
+    // Enrich admins with login and sales data
     const enrichedAdmins = admins.map(admin => {
       const loginData = loginLogs.find(log => log._id.toString() === admin._id.toString()) || {};
-      return { 
-        ...admin, 
+      const adminSales = sales.filter(s => s._id.adminId.toString() === admin._id.toString());
+
+      const posSales = adminSales.find(s => s._id.source === 'pos') || { totalSales: 0, totalRevenue: 0, sales: [] };
+      const onlineSales = adminSales.find(s => s._id.source === 'storefront') || { totalSales: 0, totalRevenue: 0, sales: [] };
+
+      return {
+        ...admin,
         hasLoggedIn: !!loginData.loginCount,
         loginCount: loginData.loginCount || 0,
-        lastLogin: loginData.lastLogin || null 
+        lastLogin: loginData.lastLogin || null,
+        posSales: {
+          count: posSales.totalSales,
+          revenue: posSales.totalRevenue,
+          sales: posSales.sales
+        },
+        onlineSales: {
+          count: onlineSales.totalSales,
+          revenue: onlineSales.totalRevenue,
+          sales: onlineSales.sales
+        }
       };
     });
 
+    // Fetch current admin
     const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!currentAdmin) {
       console.error('Current admin not found for username:', req.session.admin);
@@ -1104,11 +1161,11 @@ app.get('/superadmin/dashboard', isAuthenticated, isSuperAdmin, async (req, res)
       return res.redirect('/superadmin/login');
     }
 
-    res.render('superadmin-dashboard', { 
+    res.render('superadmin-dashboard', {
       adminItems: enrichedAdmins,
-      currentAdmin: currentAdmin, // Add currentAdmin for template
+      currentAdmin,
       currentAdminId: currentAdmin._id.toString(),
-      formatCurrency, 
+      formatCurrency,
       success: req.flash('success') || [],
       error: req.flash('error') || []
     });
@@ -1312,17 +1369,112 @@ app.post('/superadmin/send-message', isAuthenticated, isSuperAdmin, async (req, 
   }
 });
 
+// Route to display individual admin details
+app.get('/superadmin/admin/:adminUsername', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    const adminUsername = req.params.adminUsername;
+    console.log('Requested admin username:', adminUsername);
 
-// EJS Helper to escape special characters
-app.locals.escapeEjs = function (str) {
-  if (typeof str !== 'string') return str || '';
-  return str
-    .replace(/%/g, '&#37;') // Escape %
-    .replace(/</g, '&lt;')   // Escape <
-    .replace(/>/g, '&gt;')   // Escape >
-    .replace(/"/g, '&quot;') // Escape "
-    .replace(/'/g, '&#39;'); // Escape '
-};
+    // Validate username
+    if (!adminUsername || typeof adminUsername !== 'string' || adminUsername.trim() === '') {
+      console.error('Invalid username:', adminUsername);
+      req.session.error = ['Invalid admin username'];
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    // Fetch admin details with case-insensitive query
+    const admin = await db.collection('admins').findOne({
+      username: { $regex: `^${adminUsername}$`, $options: 'i' }
+    });
+
+    if (!admin) {
+      console.log('Admin not found for username:', adminUsername);
+      req.session.error = ['Admin not found'];
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    // Redirect to correct case if mismatch
+    if (admin.username !== adminUsername) {
+      console.log(`Case mismatch: redirecting to ${admin.username}`);
+      return res.redirect(`/superadmin/admin/${encodeURIComponent(admin.username)}`);
+    }
+
+    console.log('Admin found:', admin._id, admin.username);
+
+    // Fetch transactions by adminId
+    const transactions = await db.collection('transactions').find({ adminId: new ObjectId(admin._id) }).toArray().catch(err => {
+      console.error('Transaction query error:', err);
+      return [];
+    });
+    console.log('Transactions found:', transactions.length);
+
+    // Current admin
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!currentAdmin) {
+      console.log('Current admin not found:', req.session.admin);
+      req.session.error = ['Current admin not found'];
+      return res.redirect('/admin-login');
+    }
+
+    // Render the page
+    res.render('superadmin-admin-details', {
+      admin,
+      transactions,
+      currentAdminId: currentAdmin._id.toString(),
+      currentAdmin,
+      success: req.session.success || [],
+      error: req.session.error || [],
+      escapeEjs: (str) => {
+        if (str == null || str === undefined) return 'N/A';
+        return require('ejs').escapeXML(str.toString());
+      },
+      formatCurrency: (amount, currency) => {
+        try {
+          return new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: currency || 'NGN',
+            minimumFractionDigits: 2
+          }).format(amount || 0);
+        } catch (e) {
+          return `${currency || '₦'} ${parseFloat(amount || 0).toFixed(2)}`;
+        }
+      }
+    });
+
+    // Clear session messages
+    req.session.success = null;
+    req.session.error = null;
+
+  } catch (error) {
+    console.error('Error in admin details route:', error.stack);
+    req.session.error = [`Failed to load admin details: ${error.message}`];
+    res.redirect('/superadmin/dashboard');
+  }
+});
+
+app.post('/superadmin/delete-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    const adminId = req.params.id;
+    if (!ObjectId.isValid(adminId)) {
+      req.session.error = ['Invalid admin ID'];
+      return res.redirect('/superadmin/dashboard');
+    }
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (currentAdmin._id.toString() === adminId) {
+      req.session.error = ['Cannot delete your own account'];
+      return res.redirect('/superadmin/dashboard');
+    }
+    await db.collection('admins').deleteOne({ _id: new ObjectId(adminId) });
+    req.session.success = ['Admin deleted successfully'];
+    res.redirect('/superadmin/dashboard');
+  } catch (error) {
+    console.error('Error deleting admin:', error);
+    req.session.error = ['Failed to delete admin'];
+    res.redirect('/superadmin/dashboard');
+  }
+});
+
+
 
 
 // Superadmin Password Reset Routes
@@ -1736,6 +1888,15 @@ app.get('/admin-messages', isAuthenticated, async (req, res) => {
           return res.redirect('/home');
       }
 
+      // Get count of deleted messages for this admin
+      const deletedCount = await db.collection('messages').countDocuments({
+          $or: [
+              { recipientId: admin._id },
+              { recipientId: null }
+          ],
+          deleted: true
+      });
+
       let query = {
           $or: [
               { recipientId: admin._id },
@@ -1792,6 +1953,7 @@ app.get('/admin-messages', isAuthenticated, async (req, res) => {
           username: req.session.admin,
           admin,
           messages,
+          deletedCount, // Pass the deletedCount to the template
           search: req.query.search || '',
           success: req.flash('success'),
           error: req.flash('error'),
@@ -2537,6 +2699,71 @@ app.post('/create-outlet', isAuthenticated, async (req, res) => {
   }
 });
 
+app.post('/delete-outlet', isAuthenticated, async (req, res) => {
+  try {
+    const adminId = req.session.adminId;
+    const outletId = req.body._id;
+
+    // Validate input
+    if (!ObjectId.isValid(outletId)) {
+      console.error('Invalid outlet ID:', outletId);
+      return res.redirect('/home?error=Invalid outlet ID');
+    }
+
+    // Fetch admin
+    const admin = await db.collection('admins').findOne({ _id: new ObjectId(adminId) });
+    if (!admin) {
+      console.error('Admin not found for ID:', adminId);
+      return res.redirect('/home?error=Admin not found');
+    }
+
+    // Fetch outlet and verify ownership
+    const outlet = await db.collection('outlets').findOne({ 
+      _id: new ObjectId(outletId), 
+      adminId: new ObjectId(adminId) 
+    });
+    if (!outlet) {
+      console.error('Outlet not found or not owned by admin:', outletId, adminId);
+      return res.redirect('/home?error=Outlet not found or unauthorized');
+    }
+
+    // Start transaction for atomicity
+    const session = db.client.startSession();
+    try {
+      await session.withTransaction(async () => {
+        // Delete outlet
+        const deleteResult = await db.collection('outlets').deleteOne(
+          { _id: new ObjectId(outletId) },
+          { session }
+        );
+        if (deleteResult.deletedCount === 0) {
+          throw new Error('Failed to delete outlet');
+        }
+
+        // Optionally clean up related data
+        // Delete pending commissions
+        await db.collection('commissions').deleteMany(
+          { outletId: new ObjectId(outletId), status: 'pending' },
+          { session }
+        );
+
+        // Note: Sales and transactions are not deleted to preserve history
+        // If you want to delete them, add:
+        // await db.collection('sales').deleteMany({ outletId: new ObjectId(outletId) }, { session });
+        // await db.collection('transactions').deleteMany({ outletId: new ObjectId(outletId) }, { session });
+      });
+
+      console.log(`Outlet deleted: ${outletId} by admin ${admin.username}`);
+      res.redirect('/home?success=Outlet deleted successfully');
+    } finally {
+      await session.endSession();
+    }
+  } catch (error) {
+    console.error('Error deleting outlet:', error);
+    res.redirect(`/home?error=Failed to delete outlet: ${encodeURIComponent(error.message)}`);
+  }
+});
+
 // Updated dispense-to-outlet route
 app.get('/dispense-to-outlet/:outletId', isAuthenticated, async (req, res) => {
   try {
@@ -2645,10 +2872,16 @@ app.get('/outlet/:outletUsername', async (req, res) => {
 
     // Fetch outlet by username (case-insensitive)
     const outlet = await db.collection('outlets').findOne({ 
-      username: { $regex: `^${outletUsername}$`, $options: 'i' } // Case-insensitive
+      username: { $regex: `^${outletUsername}$`, $options: 'i' }
     });
     if (!outlet) {
       return res.status(404).render('404', { message: 'Outlet store not found' });
+    }
+
+    // Redirect to correct case if mismatch
+    if (outlet.username !== outletUsername) {
+      console.log(`Case mismatch: redirecting to ${outlet.username}`);
+      return res.redirect(`/outlet/${encodeURIComponent(outlet.username)}`);
     }
 
     // Fetch the associated admin for branding and currency
@@ -2662,15 +2895,49 @@ app.get('/outlet/:outletUsername', async (req, res) => {
     if (saleId && ObjectId.isValid(saleId)) {
       sale = await db.collection('sales').findOne({
         _id: new ObjectId(saleId),
-        outletId: outlet._id, // Use outletId instead of adminId
-        source: 'outlet-storefront' // Differentiate from admin storefront sales
+        outletId: outlet._id,
+        source: 'outlet-storefront'
       });
     }
 
-    // Use outlet's inventory directly (already includes id, name, stock, cost)
-    const inventory = outlet.inventory.filter(item => item.stock > 0);
+    // Use outlet's inventory directly
+    const inventory = outlet.inventory ? outlet.inventory.filter(item => item.stock > 0) : [];
 
-    // Define getSocialHandle function (reused from admin store)
+    // Normalize phone number for WhatsApp
+    let whatsappNumber = '';
+    if ((outlet.phone || admin.phone) && (outlet.publicPhone || admin.publicPhone)) {
+      // Prefer outlet.phone, fallback to admin.phone
+      let phone = (outlet.phone || admin.phone).replace(/\D/g, '');
+      
+      if (!phone.startsWith('+')) {
+        let countryCode = '+234'; // Default to Nigeria
+        const country = outlet.country || admin.country;
+        if (country) {
+          try {
+            const countryData = countryCodes.byIso(country) || countryCodes.byCountry(country);
+            if (countryData && countryData.countryCallingCodes && countryData.countryCallingCodes.length > 0) {
+              countryCode = countryData.countryCallingCodes[0].replace(/\D/g, '');
+              countryCode = '+' + countryCode;
+            } else {
+              console.warn(`No country code found for country: ${country}, defaulting to +234`);
+            }
+          } catch (error) {
+            console.warn(`Error parsing country: ${country}, defaulting to +234`, error.message);
+          }
+        }
+        phone = phone.replace(/^0+/, '');
+        whatsappNumber = countryCode + phone;
+      } else {
+        whatsappNumber = '+' + phone;
+      }
+
+      if (whatsappNumber.length < 10 || whatsappNumber.length > 15) {
+        console.warn(`Invalid WhatsApp number generated for outlet ${outlet.username}: ${whatsappNumber}`);
+        whatsappNumber = '';
+      }
+    }
+
+    // Define getSocialHandle function
     const getSocialHandle = (url, platform) => {
       try {
         if (!url) return 'N/A';
@@ -2687,23 +2954,27 @@ app.get('/outlet/:outletUsername', async (req, res) => {
       }
     };
 
-    // Define formatCurrency function (with thousands separator)
+    // Define formatCurrency function
     const formatCurrency = (amount) => {
       if (!amount) return '0.00';
       return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    // Get host for store URL
+    const host = process.env.BASE_URL || req.get('host') || 'localhost:3000';
+
     const templateData = {
-      outlet, // Pass outlet instead of admin
-      admin, // Pass admin for branding (logo, businessName, currency)
+      outlet,
+      admin,
       inventory,
-      currency: admin.currency || '₦', // Use admin's currency, default to ₦
+      currency: admin.currency || '₦',
+      whatsappNumber,
+      host,
       formatCurrency,
       getSocialHandle
     };
 
     if (sale) {
-      // Add confirmation data if sale exists
       Object.assign(templateData, {
         saleId: sale._id,
         customerName: sale.customerName,
@@ -2711,12 +2982,12 @@ app.get('/outlet/:outletUsername', async (req, res) => {
         email: sale.email,
         saleItems: sale.items,
         totalAmount: sale.totalAmount,
-        invoiceUrl: `/outlet/${outletUsername}/confirmation/${sale._id}?token=${req.query.token}&format=pdf`,
-        paymentInstructions: admin.paymentInstructions // Use admin's payment instructions
+        invoiceUrl: `/outlet/${encodeURIComponent(outlet.username)}/confirmation/${sale._id}?token=${req.query.token}&format=pdf`,
+        paymentInstructions: admin.paymentInstructions
       });
     }
 
-    res.render('storefront', templateData); // Reuse storefront template
+    res.render('storefront', templateData);
   } catch (error) {
     console.error('Error rendering outlet storefront:', error);
     res.status(500).render('500', {
@@ -3062,33 +3333,128 @@ app.get('/payment-sales-confirmation/:saleId', isAuthenticated, async (req, res)
 });
 
 app.post('/confirm-sale', isAuthenticated, async (req, res) => {
-  const { customerName, phoneNumber, email, saleItems, totalOrderAmount, paymentMethod } = req.body;
   try {
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    for (const item of saleItems) {
-      await db.collection('inventory').updateOne(
-        { _id: new ObjectId(item.itemId) },
-        { $inc: { stock: -item.quantity } }
-      );
+    const { customerName, phoneNumber, email, saleItems, totalOrderAmount, paymentMethod } = req.body;
+
+    // Validation
+    const missingFields = [];
+    if (!customerName) missingFields.push('customerName');
+    if (!saleItems) missingFields.push('saleItems');
+    if (!totalOrderAmount) missingFields.push('totalOrderAmount');
+    if (!paymentMethod) missingFields.push('paymentMethod');
+    if (missingFields.length > 0) {
+      console.log('Missing fields:', missingFields, 'Form data:', req.body);
+      return res.status(400).json({ error: `Missing required fields: ${missingFields.join(', ')}` });
     }
-    const sale = {
-      adminId: admin._id,
-      customerName,
-      phoneNumber: phoneNumber || 'N/A',
-      email: email || 'N/A',
-      items: saleItems,
-      totalAmount: totalOrderAmount || 0,
-      paymentMethod: paymentMethod || 'N/A',
-      paymentStatus: 'Pending',
-      date: new Date()
-    };
-    const result = await db.collection('sales').insertOne(sale);
-    res.redirect(`/sale-success/${result.insertedId}`);
+
+    // Validate email if provided
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate phone if provided
+    if (phoneNumber && !/^\+?[\d\s-]{6,}$/.test(phoneNumber)) {
+      return res.status(400).json({ error: 'Invalid phone number format' });
+    }
+
+    // Parse and validate saleItems
+    let parsedSaleItems;
+    try {
+      parsedSaleItems = Array.isArray(saleItems) ? saleItems : JSON.parse(saleItems);
+      if (!Array.isArray(parsedSaleItems)) throw new Error('Invalid sale items format');
+    } catch (err) {
+      console.error('Sale items parse error:', err, 'saleItems:', saleItems);
+      return res.status(400).json({ error: 'Invalid sale items data' });
+    }
+
+    if (parsedSaleItems.length === 0) {
+      return res.status(400).json({ error: 'No items in sale' });
+    }
+
+    for (const item of parsedSaleItems) {
+      if (!item.itemId || !item.quantity || !item.unitCost) {
+        return res.status(400).json({ error: 'Invalid sale item format' });
+      }
+      if (item.quantity <= 0) {
+        return res.status(400).json({ error: `Invalid quantity for ${item.itemName || 'item'}` });
+      }
+      if (!ObjectId.isValid(item.itemId)) {
+        return res.status(400).json({ error: `Invalid item ID: ${item.itemId}` });
+      }
+    }
+
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      return res.status(404).json({ error: 'Admin not found' });
+    }
+
+    // Start transaction
+    const session = db.client.startSession();
+    try {
+      await session.withTransaction(async () => {
+        // Update inventory
+        for (const item of parsedSaleItems) {
+          const inventoryItem = await db.collection('inventory').findOne(
+            { _id: new ObjectId(item.itemId), adminId: admin._id },
+            { session }
+          );
+          if (!inventoryItem) {
+            throw new Error(`Item not found: ${item.itemName || item.itemId}`);
+          }
+          if (inventoryItem.stock < item.quantity) {
+            throw new Error(`Insufficient stock for ${inventoryItem.name}`);
+          }
+          await db.collection('inventory').updateOne(
+            { _id: new ObjectId(item.itemId) },
+            { $inc: { stock: -item.quantity } },
+            { session }
+          );
+        }
+
+        // Store customer
+        const customer = {
+          adminId: admin._id,
+          name: customerName.trim(),
+          phone: phoneNumber ? phoneNumber.trim() : 'N/A',
+          email: email ? email.trim().toLowerCase() : 'N/A',
+          createdAt: new Date()
+        };
+        const customerResult = await db.collection('customers').insertOne(customer, { session });
+
+        // Record sale
+        const sale = {
+          adminId: admin._id,
+          customerId: customerResult.insertedId,
+          customerName: customerName.trim(),
+          phoneNumber: phoneNumber ? phoneNumber.trim() : 'N/A',
+          email: email ? email.trim().toLowerCase() : 'N/A',
+          items: parsedSaleItems.map(item => ({
+            itemId: new ObjectId(item.itemId),
+            itemName: item.itemName || 'Unknown',
+            quantity: item.quantity,
+            unitCost: parseFloat(item.unitCost),
+            totalCost: parseFloat(item.unitCost) * item.quantity
+          })),
+          totalAmount: parseFloat(totalOrderAmount),
+          paymentMethod: paymentMethod || 'N/A',
+          paymentStatus: 'Confirmed',
+          date: new Date(),
+          source: 'pos', // Added for filtering
+          status: 'completed'
+        };
+        const result = await db.collection('sales').insertOne(sale, { session });
+
+        res.redirect(`/sale-success/${result.insertedId}`);
+      });
+    } finally {
+      await session.endSession();
+    }
   } catch (error) {
-    console.error('Error confirming sale:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error confirming sale:', error.message, error.stack);
+    res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
 
 app.get('/sale-success/:saleId', isAuthenticated, async (req, res) => {
   try {
@@ -3807,6 +4173,10 @@ app.get('/store/:adminUsername/product/:productId', async (req, res) => {
   }
 });
 
+const axios = require('axios');
+const { countries } = require('country-data');
+
+
 app.post('/store/:adminUsername/checkout', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
@@ -3830,8 +4200,9 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
     }
 
     // Validate phone number
-    if (!/[\d]{6,}/.test(phoneNumber)) {
-      return res.status(400).json({ error: 'Invalid phone number' });
+    if (!/^\+?[\d\s-]{6,}$/.test(phoneNumber)) {
+      console.log('Invalid phone number:', phoneNumber);
+      return res.status(400).json({ error: 'Invalid phone number format' });
     }
 
     // Check database connection
@@ -3849,11 +4220,11 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
       console.log('Raw cartItems received:', cartItems);
       parsedCart = JSON.parse(cartItems);
       if (!Array.isArray(parsedCart)) {
-        throw new Error('Invalid cart format');
+        throw new Error('Invalid cart items format');
       }
     } catch (err) {
-      console.log('Cart parse error:', err, 'cartItems:', cartItems);
-      return res.status(400).json({ error: 'Invalid cart data' });
+      console.error('Cart items parse error:', err, 'cartItems:', cartItems);
+      return res.status(400).json({ error: 'Invalid cart items data' });
     }
 
     if (parsedCart.length === 0) {
@@ -3862,11 +4233,11 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
 
     // Validate cart items
     for (const item of parsedCart) {
-      if (!item.id || !item.name || !item.cost || !item.quantity) {
+      if (!item.id || !item.quantity) {
         return res.status(400).json({ error: 'Invalid cart item format' });
       }
       if (item.quantity <= 0) {
-        return res.status(400).json({ error: `Invalid quantity for ${item.name}` });
+        return res.status(400).json({ error: `Invalid quantity for ${item.name || 'item'}` });
       }
       if (!ObjectId.isValid(item.id)) {
         return res.status(400).json({ error: `Invalid item ID: ${item.id}` });
@@ -3888,7 +4259,7 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
         const customerResult = await db.collection('customers').insertOne(customer, { session });
 
         // Process sale items
-        const saleItems = [];
+        const saleItemsArray = [];
         let totalAmount = 0;
         
         for (const cartItem of parsedCart) {
@@ -3901,19 +4272,19 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
           );
           
           if (!item) {
-            throw new Error(`Item not found: ${cartItem.name}`);
+            throw new Error(`Item not found: ${cartItem.name || cartItem.id}`);
           }
           
           if (item.stock < cartItem.quantity) {
             throw new Error(`Insufficient stock for ${item.name}`);
           }
 
-          const totalCost = item.cost * cartItem.quantity;
-          saleItems.push({
+          const totalCost = parseFloat(cartItem.cost || item.cost) * cartItem.quantity;
+          saleItemsArray.push({
             itemId: item._id,
             itemName: item.name,
             quantity: cartItem.quantity,
-            unitCost: item.cost,
+            unitCost: parseFloat(cartItem.cost || item.cost),
             totalCost
           });
           totalAmount += totalCost;
@@ -3932,7 +4303,7 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
           customerName: customer.name,
           phoneNumber: customer.phone,
           email: customer.email,
-          items: saleItems,
+          items: saleItemsArray,
           totalAmount,
           paymentMethod: 'Online',
           paymentStatus: 'Pending',
@@ -3943,27 +4314,39 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
 
         const saleResult = await db.collection('sales').insertOne(sale, { session });
 
+        // Create transaction record
+        const transaction = {
+          adminId: admin._id,
+          type: 'sale',
+          amount: totalAmount,
+          date: new Date(),
+          description: `Online store sale #${saleResult.insertedId}`,
+          reference: `SALE-${saleResult.insertedId}`,
+          balanceImpact: 1 // Positive for sales revenue
+        };
+        await db.collection('transactions').insertOne(transaction, { session });
+        console.log('Transaction recorded:', transaction.reference);
+
         // Generate temporary invoice token
         const token = crypto.randomBytes(32).toString('hex');
-        const expires = Date.now() + 3600000; // 1 hour expiration
+        const expires = Date.now() + 3600000; // 1 hour
         await db.collection('invoice_tokens').insertOne({
           saleId: saleResult.insertedId,
           token,
           expires
         }, { session });
 
-        // Get or create System superadmin for senderId
+        // Get or create System superadmin
         let systemAdmin = await db.collection('admins').findOne(
           { username: 'System', role: 'superadmin' },
           { session }
         );
         if (!systemAdmin) {
-          // Create a System superadmin if it doesn't exist
           systemAdmin = await db.collection('admins').insertOne(
             {
               username: 'System',
               email: 'system@shed.ng',
-              password: 'N/A', // Not used for authentication
+              password: 'N/A',
               role: 'superadmin',
               createdAt: new Date()
             },
@@ -3972,68 +4355,48 @@ app.post('/store/:adminUsername/checkout', async (req, res) => {
           systemAdmin._id = systemAdmin.insertedId;
         }
 
-        // Insert transaction notification message for admin
-        // Replace the message content in your checkout route with this:
-const message = {
-  senderId: systemAdmin._id,
-  subject: `New Transaction: Sale #${saleResult.insertedId}`,
-  content: `
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto;">
-      <h2 style="color: #2c3e50;">New Transaction Notification</h2>
-      <p>A new transaction has been completed on your online store.</p>
-      
-      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-        <h3 style="color: #2c3e50; margin-top: 0;">Transaction Details</h3>
-        <p><strong>Sale ID:</strong> ${saleResult.insertedId}</p>
-        <p><strong>Customer Name:</strong> ${customerName || 'N/A'}</p>
-        <p><strong>Customer Email:</strong> ${email || 'N/A'}</p>
-        <p><strong>Customer Phone:</strong> ${phoneNumber || 'N/A'}</p>
-        <p><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</p>
-        <p><strong>Total Amount:</strong> ${admin.currency || '$'}${parseFloat(totalAmount || 0).toFixed(2)}</p>
-      </div>
-      
-      <div style="margin-bottom: 20px;">
-        <h3 style="color: #2c3e50;">Items Purchased</h3>
-        <div style="overflow-x: auto;">
-          <table style="width: 100%; border-collapse: collapse;">
-            <thead>
-              <tr style="background-color: #e9ecef;">
-                <th style="padding: 10px; text-align: left; border: 1px solid #dee2e6;">Item</th>
-                <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Quantity</th>
-                <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Unit Cost</th>
-                <th style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">Total Cost</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${saleItems.map(item => `
-                <tr>
-                  <td style="padding: 10px; border: 1px solid #dee2e6;">${item.itemName || 'N/A'}</td>
-                  <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">${item.quantity}</td>
-                  <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">${admin.currency}${parseFloat(item.unitCost || 0).toFixed(2)}</td>
-                  <td style="padding: 10px; text-align: right; border: 1px solid #dee2e6;">${admin.currency}${parseFloat(item.totalCost || 0).toFixed(2)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      
-      <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px;">
-        <p><strong>Payment Method:</strong> ${sale.paymentMethod || 'N/A'}</p>
-        <p><strong>Payment Status:</strong> ${sale.paymentStatus || 'Pending'}</p>
-        <p>View full details in your dashboard: <a href="https://${process.env.BASE_URL || req.get('host')}/sales/${saleResult.insertedId}" style="color: #3498db;">Sale Details</a></p>
-      </div>
-    </div>
-  `,
-  recipientId: admin._id,
-  createdAt: new Date(),
-  read: false,
-  readAt: null,
-  isHtml: true // Add this flag to indicate HTML content
-};
+        // Prepare notification content
+        const itemsText = saleItemsArray
+          .map(item => 
+            `- ${item.itemName || 'N/A'}: ${item.quantity} x ${admin.currency || '$'}${parseFloat(item.unitCost || 0).toFixed(2)} = ${admin.currency}${parseFloat(item.totalCost || 0).toFixed(2)}`
+          )
+          .join('\n');
+        const notificationText = `New Transaction Notification
+A new transaction has been completed on your online store.
+
+Transaction Details:
+- Sale ID: ${saleResult.insertedId}
+- Customer Name: ${customerName || 'N/A'}
+- Customer Email: ${email || 'N/A'}
+- Customer Phone: ${phoneNumber || 'N/A'}
+- Date: ${new Date(sale.date).toLocaleString()}
+- Total Amount: ${admin.currency || '$'}${parseFloat(totalAmount || 0).toFixed(2)}
+
+Items Purchased:
+${itemsText}
+
+Payment Method: ${sale.paymentMethod || 'N/A'}
+Payment Status: ${sale.paymentStatus || 'Pending'}
+
+View full details in your dashboard: https://${process.env.BASE_URL || req.get('host')}/sales/${saleResult.insertedId}`;
+
+        // Insert in-app notification
+        const message = {
+          senderId: systemAdmin._id,
+          subject: `New Transaction: Sale #${saleResult.insertedId}`,
+          content: `<pre>${notificationText}</pre>`,
+          recipientId: admin._id,
+          createdAt: new Date(),
+          read: false,
+          readAt: null,
+          isHtml: true
+        };
         await db.collection('messages').insertOne(message, { session });
 
-        // Send confirmation email to customer (in background)
+        // Skip WhatsApp notification due to 133010 error
+        console.warn(`WhatsApp notifications disabled for admin ${admin.username} due to unresolved Meta API error (133010). Please complete Meta WhatsApp setup.`);
+
+        // Send customer email
         if (process.env.SENDGRID_API_KEY && typeof sendConfirmationEmail === 'function') {
           sendConfirmationEmail({
             to: email,
@@ -4045,10 +4408,10 @@ const message = {
           }).catch(err => console.error('Customer email send error:', err));
         }
 
-        // Send notification email to store owner (in background)
+        // Send admin email
         if (admin.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(admin.email)) {
           const mailOptions = {
-            from: process.env.BUSINESS_USER, //
+            from: process.env.BUSINESS_USER || 'stanley@shed.ng',
             to: admin.email,
             subject: `New Transaction on Your Store: Sale #${saleResult.insertedId}`,
             html: `
@@ -4059,7 +4422,7 @@ const message = {
               <ul>
                 <li><strong>Sale ID:</strong> ${saleResult.insertedId}</li>
                 <li><strong>Customer Name:</strong> ${customerName || 'N/A'}</li>
-                <li><strong>Customer Email:</strong> ${email || 'N/A'}</li>
+                <li><strong>Customer Email:</strong> ${customerName || 'N/A'}</li>
                 <li><strong>Customer Phone:</strong> ${phoneNumber || 'N/A'}</li>
                 <li><strong>Date:</strong> ${new Date(sale.date).toLocaleString()}</li>
                 <li><strong>Total Amount:</strong> ${admin.currency || '$'}${parseFloat(totalAmount || 0).toFixed(2)}</li>
@@ -4075,7 +4438,7 @@ const message = {
                   </tr>
                 </thead>
                 <tbody>
-                  ${saleItems.map(item => `
+                  ${saleItemsArray.map(item => `
                     <tr>
                       <td style="border: 1px solid #ddd; padding: 8px;">${item.itemName || 'N/A'}</td>
                       <td style="border: 1px solid #ddd; padding: 8px; text-align: right;">${item.quantity}</td>
@@ -4101,7 +4464,7 @@ const message = {
           console.warn(`No valid email found for admin ${admin.username}, skipping notification email`);
         }
 
-        // Return success with invoice URL
+        // Return success
         const invoiceUrl = `/store/${adminUsername}/confirmation/${saleResult.insertedId}?token=${token}`;
         return res.json({ success: true, invoiceUrl });
       });
@@ -4123,6 +4486,7 @@ const message = {
     });
   }
 });
+
 
 app.get('/store/:adminUsername/confirmation/:saleId', async (req, res) => {
   try {

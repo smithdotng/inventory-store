@@ -915,17 +915,15 @@
         </div>
 
         <!-- WhatsApp Widget -->
-        <% if (whatsappNumber && admin.publicPhone) { %>
-            <div class="mil-whatsapp-widget">
-              <a href="https://wa.me/<%= whatsappNumber %>?text=Hello%20<%= encodeURIComponent(outlet ? outlet.name : admin.businessName) %>,%20I%27m%20interested%20in%20your%20products!%20I%20found%20your%20store%20at%20https://<%= host %>/store/<%= encodeURIComponent(admin.username) %>"
-                 class="mil-whatsapp-button" 
-                 target="_blank" 
-                 title="Chat with us on WhatsApp"
-                 onclick="gtag('event', 'whatsapp_click', { 'event_category': 'engagement', 'event_label': '<%= admin.username %>' });">
-                <i class="fab fa-whatsapp"></i>
-              </a>
-            </div>
-        <% } %>
+<% if (whatsappNumber && (outlet ? outlet.publicPhone : admin.publicPhone)) { %>
+    <div class="mil-whatsapp-widget">
+      <a href="https://wa.me/<%= whatsappNumber %>?text=Hello%20<%= encodeURIComponent(outlet ? outlet.name : admin.businessName) %>,%20I%27m%20interested%20in%20your%20products!%20I%20found%20your%20store%20at%20https://<%= host %>/<%= outlet ? 'outlet' : 'store' %>/<%= encodeURIComponent(outlet ? outlet.username : admin.username) %>"
+         class="mil-whatsapp-button" 
+         target="_blank">
+        <i class="fab fa-whatsapp"></i> Contact via WhatsApp
+      </a>
+    </div>
+  <% } %>
     </div>
 
     <script src="/js/plugins/jquery.min.js"></script>

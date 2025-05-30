@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:title" content="Admin Details | Shed: Inventory, Invoices and More" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="/android-chrome-512x512.png" />
+    <!-- Google Tag Manager -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <!-- CSS Dependencies -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Inline CSS (same as dashboard) -->
+    <style>
+        :root {
+            --primary-color: rgb(235, 166, 17);
+            --secondary-color: #008B8B;
+            --dark-bg: #1a1a1a;
+            --light-bg: #f8f8f8;
+            --text-dark: #333;
+            --text-light: #fff;
+            --success-color: #388e3c;
+            --error-color: #d32f2f;
+            --warning-color: #ffa000;
+            --border-radius: 4px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+            background-color: #fff;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .mil-wrapper {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mil-progress-track {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: transparent;
+            z-index: 10000;
+        }
+
+        .mil-progress {
+            height: 100%;
+            width: 0;
+            background-color: var(--primary-color);
+            transition: width 0.1s ease;
+        }
+
+        .mil-sidebar {
+            width: 250px;
+            background-color: var(--light-bg) !important;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            padding: 20px;
+            z-index: 1001;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+        }
+
+        .mil-sidebar.hidden { transform: translateX(-100%); }
+
+        .mil-sidebar * { background-color: transparent !important; opacity: 1 !important; }
+
+        .mil-sidebar .mil-logo-container {
+            text-align: center;
+            margin-bottom: 20px;
+            padding-top: 10px;
+        }
+
+        .mil-sidebar .mil-logo-container img { max-width: 100%; height: auto; }
+
+        .mil-sidebar h2 {
+            font-size: 16px;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            font-weight: 500;
+            padding: 0 10px;
+        }
+
+        .mil-sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: var(--text-dark);
+            text-decoration: none;
+            font-size: 14px;
+            margin-bottom: 8px;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+
+        .mil-sidebar a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .mil-sidebar a:hover {
+            background: var(--primary-color) !important;
+            color: var(--text-light);
+        }
+
+        .mil-sidebar a.active {
+            background: var(--primary-color) !important;
+            color: var(--text-light);
+            font-weight: bold;
+        }
+
+        .mil-toggle-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background: var(--primary-color);
+            color: var(--text-dark);
+            border: none;
+            padding: 8px 12px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: var(--border-radius);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .mil-toggle-btn:hover {
+            background: var(--text-light);
+            color: var(--primary-color);
+        }
+
+        .mil-content {
+            flex: 1;
+            padding-bottom: 30px;
+            transition: margin-left 0.3s ease;
+        }
+
+        .mil-main-content {
+            padding: 20px;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--box-shadow);
+            overflow-x: visible;
+        }
+
+        .mil-main-content.full-width { margin-left: 0; }
+
+        .mil-banner {
+            margin-top: 0;
+            padding-top: 0;
+            position: relative;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            height: auto;
+            min-height: 300px;
+        }
+
+        .mil-banner-content { padding: 60px 0; }
+
+        .mil-banner-content h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--text-light);
+        }
+
+        .mil-light-soft {
+            display: block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            color: var(--text-light) !important;
+            font-size: 16px !important;
+        }
+
+        .mil-form-section { margin-bottom: 30px; }
+
+        .mil-form-section h4 {
+            color: var(--text-dark);
+            font-size: 18px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .mil-form-group { margin-bottom: 15px; }
+
+        .mil-form-group label {
+            color: var(--text-dark);
+            margin-bottom: 6px;
+            display: block;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .mil-form-control {
+            background-color: white;
+            border: 1px solid #ced4da;
+            color: #495057;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            font-size: 14px;
+            padding: 10px 12px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            text-transform: none !important;
+        }
+
+        .mil-form-control:focus {
+            border-color: #80bdff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        textarea.mil-form-control {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .mil-button {
+            background-color: var(--primary-color);
+            color: var(--text-dark);
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .mil-button:hover {
+            background-color: var(--text-light);
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+        }
+
+        .mil-button i { margin-left: 8px; }
+
+        .mil-button.edit-btn {
+            background-color: rgb(255, 193, 7);
+            color: var(--text-dark);
+        }
+
+        .mil-button.edit-btn:hover {
+            background-color: var(--text-light);
+            color: rgb(255, 193, 7);
+            border: 2px solid rgb(255, 193, 7);
+        }
+
+        .mil-button.message-btn {
+            background-color: #007bff;
+            color: var(--text-light);
+        }
+
+        .mil-button.message-btn:hover {
+            background-color: var(--text-light);
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        .mil-button.delete-btn {
+            background-color: var(--error-color);
+            color: var(--text-light);
+        }
+
+        .mil-button.delete-btn:hover {
+            background-color: var(--text-light);
+            color: var(--error-color);
+            border: 2px solid var(--error-color);
+        }
+
+        .mil-form-actions {
+            display: flex;
+            justify-content: flex-start;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .mil-success {
+            color: var(--success-color);
+            background-color: #e8f5e9;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #c8e6c9;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mil-error {
+            color: var(--error-color);
+            background-color: #fde8e8;
+            padding: 12px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            border: 1px solid #f5c2c7;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mil-error i, .mil-success i { margin-right: 8px; }
+
+        .table-responsive {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+            position: relative;
+            margin-bottom: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+        }
+
+        .mil-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            min-width: 1000px;
+        }
+
+        .mil-table th, .mil-table td {
+            padding: 12px 15px;
+            border: 1px solid #dee2e6;
+            text-align: left;
+            word-break: break-word;
+        }
+
+        .mil-table th {
+            background-color: #f8f9fa;
+            color: var(--text-dark);
+            font-weight: 500;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .mil-table tr:nth-child(even) { background-color: #f9f9f9; }
+
+        .mil-table tr:hover { background-color: #f1f1f1; }
+
+        .mil-sales-section {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+
+        .mil-sales-toggle {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mil-sales-toggle i {
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .mil-sales-toggle.collapsed i { transform: rotate(-90deg); }
+
+        .mil-sales-content { display: none; }
+
+        .mil-sales-content.show { display: block; }
+
+        .mil-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 15px;
+        }
+
+        .mil-modal.show { display: flex; }
+
+        .mil-modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .mil-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .mil-modal-title {
+            color: var(--text-dark);
+            font-size: 18px;
+            margin: 0;
+        }
+
+        .mil-modal-body {
+            padding: 15px 0;
+            margin-bottom: 15px;
+        }
+
+        .mil-modal-footer {
+            border-top: 1px solid #e0e0e0;
+            padding-top: 15px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .mil-modal-close {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-dark);
+            padding: 0;
+            line-height: 1;
+        }
+
+        footer.mil-dark-bg {
+            padding: 60px 0;
+            width: 100%;
+            margin: 0;
+            background-color: var(--dark-bg);
+            color: var(--text-light);
+        }
+
+        footer .mil-muted {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        footer a:hover { text-decoration: underline; }
+
+        .mil-up { transform: none !important; opacity: 1 !important; }
+
+        .hidden { display: none !important; }
+
+        .text-center { text-align: center; }
+
+        li {
+            position: relative;
+            padding-left: 25px;
+            margin-bottom: 8px;
+        }
+
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: var(--secondary-color);
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before { content: none; }
+
+        @media (max-width: 1199px) {
+            .mil-sidebar { width: 220px; }
+            .mil-banner-content h1 { font-size: 2.2rem; }
+            .mil-table th, .mil-table td { padding: 10px 12px; font-size: 13px; }
+        }
+
+        @media (max-width: 991px) {
+            .mil-sidebar { width: 200px; }
+            .mil-banner-content { padding: 40px 0; }
+            .mil-banner-content h1 { font-size: 2rem; }
+            .mil-form-control { padding: 8px 10px; font-size: 13px; }
+            .mil-button { padding: 8px 16px; font-size: 13px; }
+            .mil-table { min-width: 900px; }
+        }
+
+        @media (max-width: 767px) {
+            .mil-sidebar {
+                width: 180px;
+                transform: translateX(-100%);
+                padding-top: 50px;
+            }
+            .mil-sidebar:not(.hidden) { transform: translateX(0); }
+            .mil-toggle-btn { display: block; }
+            .mil-banner { min-height: 250px; }
+            .mil-banner-content { padding: 30px 0; }
+            .mil-banner-content h1 { font-size: 1.8rem; margin-bottom: 15px; }
+            .mil-light-soft { font-size: 14px !important; }
+            .mil-main-content { padding: 15px; }
+            .mil-form-section h4 { font-size: 16px; }
+            .mil-form-control { font-size: 12px; }
+            .mil-button { padding: 7px 14px; font-size: 12px; }
+            .mil-form-actions { gap: 8px; }
+            footer.mil-dark-bg { padding: 40px 0; }
+        }
+
+        @media (max-width: 575px) {
+            .mil-sidebar { width: 160px; }
+            .mil-banner-content h1 { font-size: 1.5rem; }
+            .mil-light-soft { font-size: 13px !important; }
+            .mil-main-content { padding: 10px; }
+            .mil-form-section h4 { font-size: 15px; }
+            .mil-form-control { padding: 6px 8px; font-size: 12px; }
+            .mil-button { padding: 6px 12px; font-size: 12px; }
+            .mil-form-actions { gap: 6px; }
+            .mil-success, .mil-error { padding: 10px; font-size: 13px; }
+            .mil-modal-content { padding: 15px; }
+            .mil-modal-title { font-size: 16px; }
+        }
+
+        @media (max-width: 400px) {
+            .mil-toggle-btn { top: 10px; left: 10px; padding: 6px 10px; font-size: 14px; }
+            .mil-sidebar { width: 100%; max-width: 280px; }
+            .mil-form-actions { flex-direction: column; align-items: stretch; }
+            .mil-button { width: 100%; margin-bottom: 5px; }
+            .mil-button:last-child { margin-bottom: 0; }
+        }
+    </style>
+
+    <title>Admin Details - <%= escapeEjs(admin.username) %></title>
+</head>
+<body>
+    <div class="mil-wrapper" id="top">
+        <!-- Scrollbar Progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- Sidebar -->
+        <div class="mil-sidebar hidden" id="sidebar">
+            <div class="mil-logo-container">
+                <img src="/images/logo.png" alt="Shed Logo">
+            </div>
+            <h2 class="mil-up">Welcome, Superadmin!</h2>
+            <a href="/superadmin/dashboard" class="mil-up"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/superadmin/create-admin" class="mil-up"><i class="fas fa-user-plus"></i> Create Admin</a>
+            <a href="/superadmin/sent-messages" class="mil-up"><i class="fas fa-envelope"></i> Sent Messages</a>
+            <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
+        </div>
+
+        <!-- Toggle Button -->
+        <button class="mil-toggle-btn" id="toggleBtn"><i class="fas fa-bars"></i></button>
+
+        <!-- Content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- Banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Admin </span>Details</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">View profile, bank accounts, and transactions for <%= escapeEjs(admin.username) %>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Main Content -->
+                <section class="mil-about">
+                    <div class="container mil-p-120-60">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-10 mil-main-content" id="mainContent">
+                                <!-- Flash Messages -->
+                                <% if (success) { %>
+                                    <div class="mil-success mil-up">
+                                        <i class="fas fa-check-circle"></i><%= escapeEjs(success) %>
+                                    </div>
+                                <% } %>
+                                <% if (error) { %>
+                                    <div class="mil-error mil-up">
+                                        <i class="fas fa-exclamation-circle"></i><%= escapeEjs(error) %>
+                                    </div>
+                                <% } %>
+
+                                <!-- Admin Profile -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>Admin Profile</h4>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Username:</strong> <%= escapeEjs(admin.username) %></p>
+                                            <p><strong>Full Name:</strong> <%= escapeEjs(admin.firstName || 'N/A') %> <%= escapeEjs(admin.lastName || '') %></p>
+                                            <p><strong>Business Name:</strong> <%= escapeEjs(admin.businessName || 'N/A') %></p>
+                                            <p><strong>Email:</strong> <%= escapeEjs(admin.email || 'N/A') %> <%= admin.publicEmail ? '(Public)' : '' %></p>
+                                            <p><strong>Phone:</strong> <%= escapeEjs(admin.phone || 'N/A') %> <%= admin.publicPhone ? '(Public)' : '' %></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Address:</strong> <%= escapeEjs(admin.address || 'N/A') %> <%= admin.publicAddress ? '(Public)' : '' %></p>
+                                            <p><strong>Country:</strong> <%= escapeEjs(admin.country || 'N/A') %></p>
+                                            <p><strong>Currency:</strong> <%= escapeEjs(admin.currency || 'N/A') %></p>
+                                            <p><strong>Role:</strong> <%= escapeEjs(admin.role) %></p>
+                                            <p><strong>Login Stats:</strong> <%= admin.hasLoggedIn ? 'Yes' : 'No' %> (Count: <%= admin.loginCount || 0 %>, Last: <%= admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : 'Never' %>)</p>
+                                        </div>
+                                    </div>
+                                    <% if (admin.logo) { %>
+                                        <p><strong>Logo:</strong> <img src="<%= admin.logo %>" alt="Admin Logo" style="max-width: 100px; height: auto;"></p>
+                                    <% } %>
+                                    <div class="mil-form-actions">
+                                        <a href="/superadmin/update-admin/<%= admin._id %>" class="mil-button edit-btn">
+                                            Edit Profile <i class="fas fa-edit"></i>
+                                        </a>
+                                        <% if (admin._id.toString() !== currentAdminId) { %>
+                                            <button class="mil-button delete-btn" data-id="<%= admin._id %>" data-username="<%= escapeEjs(admin.username) %>">
+                                                Delete Admin <i class="fas fa-trash"></i>
+                                            </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+
+                                <!-- Bank Accounts -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>Bank Accounts</h4>
+                                    <% if (admin.primaryAccount || admin.secondaryAccount) { %>
+                                        <div class="row">
+                                            <% if (admin.primaryAccount && admin.primaryAccount.accountNumber) { %>
+                                                <div class="col-md-6">
+                                                    <p><strong>Primary Account</strong></p>
+                                                    <p><strong>Account Name:</strong> <%= escapeEjs(admin.primaryAccount.bankAccountName || 'N/A') %></p>
+                                                    <p><strong>Account Number:</strong> <%= escapeEjs(admin.primaryAccount.accountNumber || 'N/A') %></p>
+                                                    <p><strong>Bank Name:</strong> <%= escapeEjs(admin.primaryAccount.bankName || 'N/A') %></p>
+                                                </div>
+                                            <% } %>
+                                            <% if (admin.secondaryAccount && admin.secondaryAccount.accountNumber) { %>
+                                                <div class="col-md-6">
+                                                    <p><strong>Secondary Account</strong></p>
+                                                    <p><strong>Account Name:</strong> <%= escapeEjs(admin.secondaryAccount.bankAccountName || 'N/A') %></p>
+                                                    <p><strong>Account Number:</strong> <%= escapeEjs(admin.secondaryAccount.accountNumber || 'N/A') %></p>
+                                                    <p><strong>Bank Name:</strong> <%= escapeEjs(admin.secondaryAccount.bankName || 'N/A') %></p>
+                                                </div>
+                                            <% } %>
+                                        </div>
+                                    <% } else { %>
+                                        <p>No bank accounts configured.</p>
+                                    <% } %>
+                                </div>
+
+                                <!-- Transactions (POS Sales) -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>POS Sales</h4>
+                                    <div class="mil-sales-section">
+                                        <div class="mil-sales-toggle" data-target="pos-sales">
+                                            <i class="fas fa-chevron-down"></i> POS Sales (<%= posSales.count %>) - Total: <%= formatCurrency(posSales.revenue, admin.currency || '₦') %>
+                                        </div>
+                                        <div class="mil-sales-content" id="pos-sales">
+                                            <% if (posSales.sales.length > 0) { %>
+                                                <div class="table-responsive">
+                                                    <table class="mil-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Sale ID</th>
+                                                                <th>Customer</th>
+                                                                <th>Amount</th>
+                                                                <th>Payment Method</th>
+                                                                <th>Status</th>
+                                                                <th>Date</th>
+                                                                <th>Items</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% posSales.sales.forEach(sale => { %>
+                                                                <tr>
+                                                                    <td><%= escapeEjs(sale.saleId) %></td>
+                                                                    <td><%= escapeEjs(sale.customerName || 'N/A') %></td>
+                                                                    <td><%= formatCurrency(sale.totalAmount, admin.currency || '₦') %></td>
+                                                                    <td><%= escapeEjs(sale.paymentMethod || 'N/A') %></td>
+                                                                    <td><%= escapeEjs(sale.paymentStatus || 'N/A') %></td>
+                                                                    <td><%= sale.date ? new Date(sale.date).toLocaleString() : 'N/A' %></td>
+                                                                    <td>
+                                                                        <ul>
+                                                                            <% sale.items.forEach(saleItem => { %>
+                                                                                <li><%= escapeEjs(saleItem.itemName || 'N/A') %>: <%= saleItem.quantity %> x <%= formatCurrency(saleItem.unitCost, admin.currency || '₦') %> = <%= formatCurrency(saleItem.totalCost, admin.currency || '₦') %></li>
+                                                                            <% }) %>
+                                                                        </ul>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }) %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No POS sales recorded.</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Transactions (Online Sales) -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>Online Sales</h4>
+                                    <div class="mil-sales-section">
+                                        <div class="mil-sales-toggle" data-target="online-sales">
+                                            <i class="fas fa-chevron-down"></i> Online Sales (<%= onlineSales.count %>) - Total: <%= formatCurrency(onlineSales.revenue, admin.currency || '₦') %>
+                                        </div>
+                                        <div class="mil-sales-content" id="online-sales">
+                                            <% if (onlineSales.sales.length > 0) { %>
+                                                <div class="table-responsive">
+                                                    <table class="mil-table">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Sale ID</th>
+                                                                <th>Customer</th>
+                                                                <th>Amount</th>
+                                                                <th>Payment Method</th>
+                                                                <th>Status</th>
+                                                                <th>Date</th>
+                                                                <th>Items</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <% onlineSales.sales.forEach(sale => { %>
+                                                                <tr>
+                                                                    <td><%= escapeEjs(sale.saleId) %></td>
+                                                                    <td><%= escapeEjs(sale.customerName || 'N/A') %></td>
+                                                                    <td><%= formatCurrency(sale.totalAmount, admin.currency || '₦') %></td>
+                                                                    <td><%= escapeEjs(sale.paymentMethod || 'N/A') %></td>
+                                                                    <td><%= escapeEjs(sale.paymentStatus || 'N/A') %></td>
+                                                                    <td><%= sale.date ? new Date(sale.date).toLocaleString() : 'N/A' %></td>
+                                                                    <td>
+                                                                        <ul>
+                                                                            <% sale.items.forEach(saleItem => { %>
+                                                                                <li><%= escapeEjs(saleItem.itemName || 'N/A') %>: <%= saleItem.quantity %> x <%= formatCurrency(saleItem.unitCost, admin.currency || '₦') %> = <%= formatCurrency(saleItem.totalCost, admin.currency || '₦') %></li>
+                                                                            <% }) %>
+                                                                        </ul>
+                                                                    </td>
+                                                                </tr>
+                                                            <% }) %>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            <% } else { %>
+                                                <p>No online sales recorded.</p>
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Send Message -->
+                                <div class="mil-form-section mil-up">
+                                    <h4>Send Message</h4>
+                                    <form action="/superadmin/send-message" method="POST">
+                                        <input type="hidden" name="recipientId" value="<%= admin._id %>">
+                                        <div class="mil-form-group">
+                                            <label for="content"><i class="fas fa-envelope"></i> Message</label>
+                                            <textarea name="content" id="content" class="mil-form-control" rows="4" required placeholder="Enter your message"></textarea>
+                                        </div>
+                                        <div class="mil-form-actions">
+                                            <button type="submit" class="mil-button message-btn">
+                                                Send Message <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Delete Modal -->
+        <div class="mil-modal" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+            <div class="mil-modal-content">
+                <div class="mil-modal-header">
+                    <h5 class="mil-modal-title">Delete Admin</h5>
+                    <button type="button" class="mil-modal-close" id="deleteModalCloseBtn" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="mil-modal-body">
+                    <p>Are you sure you want to delete <span id="deleteUsername"></span>? This action cannot be undone.</p>
+                </div>
+                <div class="mil-modal-footer">
+                    <button type="button" class="mil-button cancel-btn" id="deleteCancelBtn">
+                        Cancel <i class="fas fa-times"></i>
+                    </button>
+                    <form id="deleteForm" action="" method="POST">
+                        <button type="submit" class="mil-button delete-btn">
+                            Delete <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container-fluid">
+                    <div class="row justify-content-between align-items-center">
+                        <div class="col-lg-6 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="mil-vert-between text-lg-end">
+                                <p class="mil-light-soft">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/main.js"></script>
+
+    <!-- Scripts -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin details script loaded');
+            try {
+                // Sidebar Toggle
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
+                const toggleBtn = document.getElementById('toggleBtn');
+
+                if (!sidebar || !mainContent || !toggleBtn) {
+                    console.error('Sidebar, mainContent, or toggleBtn not found');
+                    return;
+                }
+
+                const isMobile = window.matchMedia('(max-width: 767px)').matches;
+                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || isMobile;
+                if (isSidebarHidden) {
+                    sidebar.classList.add('hidden');
+                    mainContent.classList.add('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                } else {
+                    sidebar.classList.remove('hidden');
+                    mainContent.classList.remove('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+                }
+
+                function toggleSidebar() {
+                    sidebar.classList.toggle('hidden');
+                    mainContent.classList.toggle('full-width');
+                    toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                    localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
+                }
+
+                toggleBtn.addEventListener('click', toggleSidebar);
+
+                document.addEventListener('click', function(e) {
+                    if (isMobile && !sidebar.contains(e.target) && e.target !== toggleBtn) {
+                        if (!sidebar.classList.contains('hidden')) {
+                            toggleSidebar();
+                        }
+                    }
+                });
+
+                // Sales Toggle
+                document.querySelectorAll('.mil-sales-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', function() {
+                        const targetId = this.dataset.target;
+                        const content = document.getElementById(targetId);
+                        if (content) {
+                            content.classList.toggle('show');
+                            this.classList.toggle('collapsed');
+                        }
+                    });
+                });
+
+                // Delete Modal
+                const deleteModal = document.getElementById('deleteModal');
+                const deleteUsernameSpan = document.getElementById('deleteUsername');
+                const deleteForm = document.getElementById('deleteForm');
+                const deleteCancelBtn = document.getElementById('deleteCancelBtn');
+                const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
+
+                function showDeleteModal(id, username) {
+                    if (deleteUsernameSpan && deleteForm) {
+                        deleteUsernameSpan.textContent = username;
+                        deleteForm.action = `/superadmin/delete-admin/${id}`;
+                        deleteModal.classList.add('show');
+                        document.body.style.overflow = 'hidden';
+                    }
+                }
+
+                function closeDeleteModal() {
+                    if (deleteModal) {
+                        deleteModal.classList.remove('show');
+                        document.body.style.overflow = '';
+                    }
+                }
+
+                document.querySelectorAll('.delete-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = button.dataset.id;
+                        const username = button.dataset.username;
+                        showDeleteModal(id, username);
+                    });
+                });
+
+                if (deleteCancelBtn) deleteCancelBtn.addEventListener('click', closeDeleteModal);
+                if (deleteModalCloseBtn) deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
+
+                // Progress Bar
+                window.addEventListener('scroll', function() {
+                    const progressBar = document.querySelector('.mil-progress');
+                    if (progressBar) {
+                        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                        const scrolled = (scrollTop / scrollHeight) * 100;
+                        progressBar.style.width = scrolled + '%';
+                    }
+                });
+
+                // Responsive Adjustments
+                function handleResize() {
+                    if (window.innerWidth <= 767) {
+                        if (!sidebar.classList.contains('hidden')) {
+                            toggleSidebar();
+                        }
+                    } else {
+                        if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
+                            toggleSidebar();
+                        }
+                    }
+                }
+
+                window.addEventListener('resize', handleResize);
+                handleResize();
+
+            } catch (error) {
+                console.error('Error in admin details scripts:', error);
+                alert('An unexpected error occurred. Please refresh the page.');
+            }
+        });
+    </script>
+</body>
+</html>

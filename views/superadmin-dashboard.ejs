@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Inline CSS with Enhanced Responsiveness -->
+    <!-- Inline CSS (unchanged) -->
     <style>
         :root {
             --primary-color: rgb(235, 166, 17);
@@ -460,6 +460,41 @@
             display: inline-block;
         }
 
+        /* Sales Section Styles */
+        .mil-sales-section {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: var(--border-radius);
+            border: 1px solid #dee2e6;
+        }
+
+        .mil-sales-toggle {
+            cursor: pointer;
+            color: var(--primary-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .mil-sales-toggle i {
+            margin-right: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .mil-sales-toggle.collapsed i {
+            transform: rotate(-90deg);
+        }
+
+        .mil-sales-content {
+            display: none;
+        }
+
+        .mil-sales-content.show {
+            display: block;
+        }
+
         /* Modal Styles */
         .mil-modal {
             position: fixed;
@@ -811,7 +846,7 @@
                                 <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Superadmin </span>Dashboard</h1>
                                 <div class="row">
                                     <div class="col-md-7 col-lg-5">
-                                        <p class="mil-light-soft mil-mb-60">Manage admins and communicate effectively.</p>
+                                        <p class="mil-light-soft mil-mb-60">Manage admins, sales, and communicate effectively.</p>
                                     </div>
                                 </div>
                             </div>
@@ -842,7 +877,7 @@
 
                                 <!-- Admin Table -->
                                 <div class="mil-form-section mil-up">
-                                    <h4>Admin Management</h4>
+                                    <h4>Admin Management & Sales</h4>
                                     <% if (adminItems && adminItems.length > 0) { %>
                                         <div class="table-responsive" aria-label="Scrollable admin table">
                                             <table class="mil-table">
@@ -926,6 +961,106 @@
                                                                 </div>
                                                             </td>
                                                         </tr>
+                                                        <!-- POS Sales -->
+                                                        <tr>
+                                                            <td colspan="10">
+                                                                <div class="mil-sales-section">
+                                                                    <div class="mil-sales-toggle" data-target="pos-sales-<%= item._id %>">
+                                                                        <i class="fas fa-chevron-down"></i> POS Sales (<%= item.posSales.count %>) - Total: <%= formatCurrency(item.posSales.revenue, item.currency || '₦') %>
+                                                                    </div>
+                                                                    <div class="mil-sales-content" id="pos-sales-<%= item._id %>">
+                                                                        <% if (item.posSales.sales.length > 0) { %>
+                                                                            <div class="table-responsive">
+                                                                                <table class="mil-table">
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Sale ID</th>
+                                                                                            <th>Customer</th>
+                                                                                            <th>Amount</th>
+                                                                                            <th>Payment Method</th>
+                                                                                            <th>Status</th>
+                                                                                            <th>Date</th>
+                                                                                            <th>Items</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        <% item.posSales.sales.forEach(sale => { %>
+                                                                                            <tr>
+                                                                                                <td><%= escapeEjs(sale.saleId) %></td>
+                                                                                                <td><%= escapeEjs(sale.customerName || 'N/A') %></td>
+                                                                                                <td><%= formatCurrency(sale.totalAmount, item.currency || '₦') %></td>
+                                                                                                <td><%= escapeEjs(sale.paymentMethod || 'N/A') %></td>
+                                                                                                <td><%= escapeEjs(sale.paymentStatus || 'N/A') %></td>
+                                                                                                <td><%= sale.date ? new Date(sale.date).toLocaleString() : 'N/A' %></td>
+                                                                                                <td>
+                                                                                                    <ul>
+                                                                                                        <% sale.items.forEach(saleItem => { %>
+                                                                                                            <li><%= escapeEjs(saleItem.itemName || 'N/A') %>: <%= saleItem.quantity %> x <%= formatCurrency(saleItem.unitCost, item.currency || '₦') %> = <%= formatCurrency(saleItem.totalCost, item.currency || '₦') %></li>
+                                                                                                        <% }) %>
+                                                                                                    </ul>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        <% }) %>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        <% } else { %>
+                                                                            <p>No POS sales recorded.</p>
+                                                                        <% } %>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                        <!-- Online Sales -->
+                                                        <tr>
+                                                            <td colspan="10">
+                                                                <div class="mil-sales-section">
+                                                                    <div class="mil-sales-toggle" data-target="online-sales-<%= item._id %>">
+                                                                        <i class="fas fa-chevron-down"></i> Online Sales (<%= item.onlineSales.count %>) - Total: <%= formatCurrency(item.onlineSales.revenue, item.currency || '₦') %>
+                                                                    </div>
+                                                                    <div class="mil-sales-content" id="online-sales-<%= item._id %>">
+                                                                        <% if (item.onlineSales.sales.length > 0) { %>
+                                                                            <div class="table-responsive">
+                                                                                <table class="mil-table">
+                                                                                    <thead>
+                                                                                        <tr>
+                                                                                            <th>Sale ID</th>
+                                                                                            <th>Customer</th>
+                                                                                            <th>Amount</th>
+                                                                                            <th>Payment Method</th>
+                                                                                            <th>Status</th>
+                                                                                            <th>Date</th>
+                                                                                            <th>Items</th>
+                                                                                        </tr>
+                                                                                    </thead>
+                                                                                    <tbody>
+                                                                                        <% item.onlineSales.sales.forEach(sale => { %>
+                                                                                            <tr>
+                                                                                                <td><%= escapeEjs(sale.saleId) %></td>
+                                                                                                <td><%= escapeEjs(sale.customerName || 'N/A') %></td>
+                                                                                                <td><%= formatCurrency(sale.totalAmount, item.currency || '₦') %></td>
+                                                                                                <td><%= escapeEjs(sale.paymentMethod || 'N/A') %></td>
+                                                                                                <td><%= escapeEjs(sale.paymentStatus || 'N/A') %></td>
+                                                                                                <td><%= sale.date ? new Date(sale.date).toLocaleString() : 'N/A' %></td>
+                                                                                                <td>
+                                                                                                    <ul>
+                                                                                                        <% sale.items.forEach(saleItem => { %>
+                                                                                                            <li><%= escapeEjs(saleItem.itemName || 'N/A') %>: <%= saleItem.quantity %> x <%= formatCurrency(saleItem.unitCost, item.currency || '₦') %> = <%= formatCurrency(saleItem.totalCost, item.currency || '₦') %></li>
+                                                                                                        <% }) %>
+                                                                                                    </ul>
+                                                                                                </td>
+                                                                                            </tr>
+                                                                                        <% }) %>
+                                                                                    </tbody>
+                                                                                </table>
+                                                                            </div>
+                                                                        <% } else { %>
+                                                                            <p>No online sales content recorded.</p>
+                                                                        <% } %>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
                                                     <% }) %>
                                                 </tbody>
                                             </table>
@@ -940,23 +1075,23 @@
                                     <h4>Send Message to Admins</h4>
                                     <form action="/superadmin/send-message" method="POST">
                                         <div class="mil-form-group">
-                                            <label for="recipientId"><i class="fa-solid fa-user"></i> Recipient</label>
+                                            <label for="recipientId"><i class="fas fa-user"></i> Recipient</label>
                                             <select name="recipientId" id="recipientId" class="mil-form-control">
                                                 <option value="">All Admins</option>
                                                 <% adminItems.forEach(item => { %>
-                                                    <% if (item.role === 'admin') { %>
-                                                        <option value="<%= item._id %>"><%= escapeEjs(item.username) %></option>
+                                                    <% if (item.role === 'superadmin') { %>
+                                                        <option value="${item._id}">${escapeEjs(item.username)}</option>
                                                     <% } %>
                                                 <% }) %>
                                             </select>
                                         </div>
                                         <div class="mil-form-group">
-                                            <label for="content"><i class="fa-solid fa-envelope"></i> Message</label>
+                                            <label for="content"><i class="fa-solid fa fa-envelope"></i> Message</label>
                                             <textarea name="content" id="content" class="mil-form-control" rows="4" required placeholder="Enter your message"></textarea>
                                         </div>
                                         <div class="mil-form-actions">
                                             <button type="submit" class="mil-button">
-                                                Send Message <i class="fa-solid fa-paper-plane"></i>
+                                                Send Message <i class="fa-solid fa fa-plane-plane"></i>
                                             </button>
                                         </div>
                                     </form>
@@ -966,10 +1101,10 @@
                                 <div class="mil-form-section mil-up">
                                     <div class="mil-form-actions">
                                         <a href="/superadmin/create-admin" class="mil-button">
-                                            Create New Admin <i class="fa-solid fa-plus"></i>
+                                            Create New Admin <i class="fa fa-user-plus"></i>
                                         </a>
                                         <a href="/superadmin/sent-messages" class="mil-button">
-                                            View Sent Messages <i class="fa-solid fa-envelope-open"></i>
+                                            View Sent Messages <i class="fa fa-solid fa-envelope-open"></i>
                                         </a>
                                     </div>
                                 </div>
@@ -978,10 +1113,8 @@
                     </div>
                 </section>
             </div>
-        </div>
-
-        <!-- Delete Modal -->
-        <div class="mil-modal" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- Delete Modal (unchanged) -->
+        <div class="mil-modal" id="deleteModal" tabindex="-1" role="dialog" role="dialog" aria-hidden="true">
             <div class="mil-modal-content">
                 <div class="mil-modal-header">
                     <h5 class="mil-modal-title">Delete Admin</h5>
@@ -993,10 +1126,10 @@
                     <p>Are you sure you want to delete <span id="deleteUsername"></span>? This action cannot be undone.</p>
                 </div>
                 <div class="mil-modal-footer">
-                    <button type="button" class="mil-button cancel-btn" id="deleteCancelBtn">
-                        Cancel <i class="fa-solid fa-times"></i>
+                    <button type="button" class="mil-button cancel-btn" id="deleteCancelBtn" type="button">
+                        Cancel <i class="fa-solid fa fa-times"></i>
                     </button>
-                    <form id="deleteForm" action="" method="POST">
+                    <form id="deleteForm" action="/superadmin/delete-admin" method="POST">
                         <button type="submit" class="mil-button delete-btn">
                             Delete <i class="fa-solid fa-trash"></i>
                         </button>
@@ -1005,7 +1138,7 @@
             </div>
         </div>
 
-        <!-- Footer -->
+        <!-- Footer (unchanged) -->
         <footer class="mil-dark-bg">
             <div class="mi-invert-fix">
                 <div class="container-fluid">
@@ -1015,7 +1148,7 @@
                         </div>
                         <div class="col-lg-6">
                             <div class="mil-vert-between text-lg-end">
-                                <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                                <p class="mil-light-soft">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
                             </div>
                         </div>
                     </div>
@@ -1024,7 +1157,7 @@
         </footer>
     </div>
 
-    <!-- JavaScript Dependencies -->
+    <!-- JavaScript Dependencies (unchanged) -->
     <script src="/js/plugins/jquery.min.js"></script>
     <script src="/js/plugins/swiper.min.js"></script>
     <script src="/js/plugins/fancybox.min.js"></script>
@@ -1034,48 +1167,56 @@
     <script src="/js/plugins/ScrollTo.min.js"></script>
     <script src="/js/main.js"></script>
 
-    <!-- Dashboard Scripts -->
+    <!-- Updated Dashboard Scripts -->
     <script>
+        // EJS Helper Function for Currency Formatting
+        function formatCurrency(amount, currency) {
+            try {
+                return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: currency || 'NGN',
+                    minimumFractionDigits: 2
+                }).format(amount || 0);
+            } catch (error) {
+                console.error('Error formatting currency:', error);
+                return `${currency || '₦'} ${parseFloat(amount || 0).toFixed(2)}`;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard script loaded');
             try {
-                // Sidebar Toggle
+                // Sidebar Toggle (unchanged)
                 const sidebar = document.getElementById('sidebar');
                 const mainContent = document.getElementById('mainContent');
                 const toggleBtn = document.getElementById('toggleBtn');
 
-                if (!sidebar || !mainContent || !toggleBtn) {
+                if (!sidebar || !mainContent) || !toggleBtn) {
                     console.error('Sidebar, mainContent, or toggleBtn not found');
                     return;
                 }
 
-                // Check if mobile device
                 const isMobile = window.matchMedia('(max-width: 767px)').matches;
-                
-                // Initialize sidebar state
-                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || isMobile;
+                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || || isMobile;
                 if (isSidebarHidden) {
                     sidebar.classList.add('hidden');
                     mainContent.classList.add('full-width');
-                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    toggleBtn.innerHTML = '<i class="fas fa-solid fa-bars"></i>';
                 } else {
                     sidebar.classList.remove('hidden');
                     mainContent.classList.remove('full-width');
                     toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
                 }
 
-                // Toggle sidebar function
                 function toggleSidebar() {
                     sidebar.classList.toggle('hidden');
                     mainContent.classList.toggle('full-width');
-                    toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                    toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-solid fa-bars"></i>' : '<i class="fas fa-times"></i>';
                     localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
                 }
 
-                // Toggle button click event
                 toggleBtn.addEventListener('click', toggleSidebar);
 
-                // Close sidebar when clicking outside on mobile
                 document.addEventListener('click', function(e) {
                     if (isMobile && !sidebar.contains(e.target) && e.target !== toggleBtn) {
                         if (!sidebar.classList.contains('hidden')) {
@@ -1084,98 +1225,95 @@
                     }
                 });
 
-                // Table Editing
-                function toggleEdit(id) {
+                // Sales Toggle
+                document.querySelectorAll('.mil-sales-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', function() {
+                        const targetId = this.dataset.target;
+                        const content = document.getElementById(targetId);
+                        if (content) {
+                            content.classList.toggle('show');
+                            this.classList.toggle('collapsed');
+                        }
+                    });
+                });
+
+                // Table Editing (unchanged)
+                function editRow(id) {
                     try {
-                        const row = document.getElementById(`row-${id}`);
-                        if (!row) {
-                            console.error(`Row with id row-${id} not found`);
-                            return;
-                        }
-                        const displayValues = row.querySelectorAll('.display-value');
-                        const editInputs = row.querySelectorAll('.edit-input');
-                        const editBtn = row.querySelector('.edit-btn');
-                        const updateBtn = row.querySelector('.update-btn');
-                        const cancelBtn = row.querySelector('.cancel-btn');
+                      const row = document.getElementById(`row-${id}`);
+                      if (!row) throw new Error(`Row with id row-${id} not found`);
+                      const displayValues = row.querySelectorAll('.display-value');
+                      const editInputs = row.querySelectorAll('.edit-input');
+                      const editBtn = row.querySelector('.edit-btn');
+                      const updateBtn = row.querySelector('.update-btn');
+                      const cancelBtn = row.querySelector('.cancel-btn');
 
-                        if (!editBtn || !updateBtn || !cancelBtn) {
-                            console.error('Button elements not found in row');
-                            return;
-                        }
+                      if (!editBtn || !updateBtn || !cancelBtn) throw new Error('Button elements not found in row');
 
-                        row.classList.add('editing');
-                        editInputs.forEach(input => {
-                            input.disabled = false;
-                            input.style.display = 'inline-block';
-                        });
-                        displayValues.forEach(span => span.style.display = 'none');
-                        editBtn.classList.add('hidden');
-                        updateBtn.classList.remove('hidden');
-                        cancelBtn.classList.remove('hidden');
-                        updateHiddenInputs(id);
+                      row.classList.add('editing');
+                      editInputs.forEach(input => {
+                        input.disabled = false;
+                        input.style.display = 'inline-block';
+                      });
+                      displayValues.forEach(span => span.style.display = 'none');
+                      editBtn.classList.add('hidden');
+                      updateBtn.classList.remove('hidden');
+                      cancelBtn.classList.remove('hidden');
+                      updateHiddenInputs(id);
                     } catch (error) {
-                        console.error('Error in toggleEdit:', error);
-                        alert('Failed to enable edit mode. Please try again.');
+                      console.error('Error in toggleEdit:', error);
+                      alert('Failed to enable edit mode. Please try again.');
                     }
-                }
+                  }
 
-                function updateHiddenInputs(id) {
+                  function updateHiddenInputs(id) {
                     try {
-                        const row = document.getElementById(`row-${id}`);
-                        if (!row) {
-                            console.error(`Row with id row-${id} not found`);
-                            return;
+                      const row = document.getElementById(`row-${id}`);
+                      if (!row) throw new Error(`Row with id row-${id} not found`);
+                      const inputs = {
+                        username: row.querySelector('input[name="username"]'),
+                        businessName: row.querySelector('input[name="businessName"]'),
+                        phone: row.querySelector('input[name="phone"]'),
+                        currency: row.querySelector('input[name="currency"]'),
+                        role: row.querySelector('select[name="role"]')
+                      };
+                      const hiddenInputs = {
+                        username: row.querySelector('.hidden-username'),
+                        businessName: row.querySelector('.hidden-businessName'),
+                        phone: row.querySelector('.hidden-phone'),
+                        totalCost: row.querySelector('.hidden-currency'),
+                        role: row.querySelector('.hidden-role')
+                      };
+                      for (const key in inputs) {
+                        if (inputs[key] && hiddenInputs[key]) {
+                          hiddenInputs[key].value = inputs[key].value || '';
+                          } else {
+                            console.warn(`Warning: Input or hidden input for ${key} not found in row-${id}`);
+                          }
                         }
-                        const inputs = {
-                            username: row.querySelector('input[name="username"]'),
-                            businessName: row.querySelector('input[name="businessName"]'),
-                            phone: row.querySelector('input[name="phone"]'),
-                            currency: row.querySelector('input[name="currency"]'),
-                            role: row.querySelector('select[name="role"]')
-                        };
-                        const hiddenInputs = {
-                            username: row.querySelector('.hidden-username'),
-                            businessName: row.querySelector('.hidden-businessName'),
-                            phone: row.querySelector('.hidden-phone'),
-                            currency: row.querySelector('.hidden-currency'),
-                            role: row.querySelector('.hidden-role')
-                        };
-                        for (const key in inputs) {
-                            if (inputs[key] && hiddenInputs[key]) {
-                                hiddenInputs[key].value = inputs[key].value || '';
-                            } else {
-                                console.warn(`Input or hidden input for ${key} not found in row-${id}`);
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error in updateHiddenInputs:', error);
+                      } catch (error) {
+                        console.error('Error updating hidden inputs:', error);
                         alert('Failed to update form data. Please try again.');
+                      }
                     }
-                }
 
-                function cancelEdit(id) {
-                    try {
+                    function cancelEdit(id) {
+                      try {
                         const row = document.getElementById(`row-${id}`);
-                        if (!row) {
-                            console.error(`Row with id row-${id} not found`);
-                            return;
-                        }
+                        if (!row) throw new Error(`Row with id row-${id} not found`);
                         const displayValues = row.querySelectorAll('.display-value');
                         const editInputs = row.querySelectorAll('.edit-input');
                         const editBtn = row.querySelector('.edit-btn');
                         const updateBtn = row.querySelector('.update-btn');
                         const cancelBtn = row.querySelector('.cancel-btn');
 
-                        if (!editBtn || !updateBtn || !cancelBtn) {
-                            console.error('Button elements not found in row');
-                            return;
-                        }
+                        if (!editBtn || !updateBtn || !cancelBtn) throw new Error('Button elements not found in row');
 
                         editInputs[0].value = cancelBtn.dataset.username || '';
-                        editInputs[1].value = cancelBtn.dataset.businessName === 'N/A' ? '' : cancelBtn.dataset.businessName;
-                        editInputs[2].value = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
-                        editInputs[3].value = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
-                        editInputs[4].value = cancelBtn.dataset.role;
+                        editInputs[1].cost = cancelBtn.dataset.businessName === 'N/A' ? '' : cancelBtn.dataset.businessName;
+                        editInputs[2].quantity = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
+                        editInputs[3].totalCost = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
+                        editInputs[4].totalCost = cancelBtn.dataset.role;
 
                         editInputs.forEach(input => {
                             input.disabled = true;
@@ -1189,120 +1327,119 @@
 
                         displayValues[0].textContent = cancelBtn.dataset.username || 'N/A';
                         displayValues[1].textContent = cancelBtn.dataset.businessName || 'N/A';
-                        displayValues[2].textContent = cancelBtn.dataset.phone || 'N/A';
-                        displayValues[3].textContent = cancelBtn.dataset.currency || 'N/A';
+                        displayValues[2].textContent || cancelBtn.dataset.phone || 'N/A';
+                        displayValues[3].textContent || cancelBtn.dataset.currency || 'N/A';
                         displayValues[4].textContent = cancelBtn.dataset.role || 'N/A';
-                    } catch (error) {
+                      } catch (error) {
                         console.error('Error in cancelEdit:', error);
                         alert('Failed to cancel edit. Please try again.');
+                      }
                     }
-                }
 
-                // Delete Modal
-                const deleteModal = document.getElementById('deleteModal');
-                const deleteUsernameSpan = document.getElementById('deleteUsername');
-                const deleteForm = document.getElementById('deleteForm');
-                const deleteCancelBtn = document.getElementById('deleteCancelBtn');
-                const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
+                    // Delete Modal (unchanged)
+                    const deleteModal = document.getElementById('deleteModal');
+                    const deleteUsernameSpan = document.getElementById('deleteUsername');
+                    const deleteForm = document.getElementById('deleteForm');
+                    const deleteCancelBtn = document.getElementById('deleteCancelBtn');
+                    const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
 
-                function showDeleteModal(id, username) {
-                    if (deleteUsernameSpan && deleteForm) {
+                    function showDeleteModal(id, username) {
+                      if (deleteUsernameSpan && deleteForm) {
                         deleteUsernameSpan.textContent = username;
                         deleteForm.action = `/superadmin/delete-admin/${id}`;
                         deleteModal.classList.add('show');
-                        document.body.style.overflow = 'hidden';
-                    }
-                }
-
-                function closeDeleteModal() {
-                    if (deleteModal) {
+                        document.body.style.overflowY = 'hidden';
+                      }
+                    function closeDeleteModal() {
+                      if (deleteModal) {
                         deleteModal.classList.remove('show');
                         document.body.style.overflow = '';
+                      }
                     }
-                }
 
-                document.querySelectorAll('.delete-btn').forEach(button => {
-                    button.addEventListener('click', function() {
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                      button.addEventListener('click', function() {
                         const id = button.dataset.id;
                         const username = button.dataset.username;
                         showDeleteModal(id, username);
+                      }
                     });
-                });
 
-                if (deleteCancelBtn) deleteCancelBtn.addEventListener('click', closeDeleteModal);
-                if (deleteModalCloseBtn) deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
+                    if (deleteModalCloseBtn) deleteCancelBtn.addEventListener('click', closeDeleteModal);
+                    if (deleteModalCloseBtn) deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
 
-                // Event Listeners
-                document.querySelectorAll('.edit-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const id = button.dataset.id;
-                        toggleEdit(id);
-                    });
-                });
+                    // Event Listeners
+                    document.querySelectorAll('.edit-btn').forEach(button => {
+                        button.addEventListener('click', function() {
+                          const id = button.dataset.id;
+                          toggleEdit(id);
+                        });
+                      });
 
-                document.querySelectorAll('.cancel-btn').forEach(button => {
-                    button.addEventListener('click', function() {
-                        const id = button.closest('tr').id.replace('row-', '');
-                        cancelEdit(id);
-                    });
-                });
+                      document.querySelectorAll('.cancel-btn').forEach(button => {
+                          .addEventListener('click', function() {
+                            const id = button.closest('tr').id.replace('row-', '');
+                            cancelEdit(id);
+                          });
+                      });
 
-                document.querySelectorAll('.update-form').forEach(form => {
-                    form.addEventListener('submit', function(e) {
-                        const usernameInput = form.querySelector('input[name="username"]');
-                        const roleInput = form.querySelector('select[name="role"]');
-                        if (!usernameInput.value.trim()) {
+                      document.querySelectorAll('.update-form').forEach(form => {
+                        form.addEventListener('submit', function(e) {
+                          const usernameInput = form.querySelector('input[name="username"]');
+                          const roleInput = form.querySelector('select[name="role"]');
+                          if (!usernameInput.value.trim()) {
                             e.preventDefault();
                             alert('Username is required.');
-                        } else if (roleInput && !['admin', 'superadmin'].includes(roleInput.value)) {
+                          } else if (roleInput && !['admin', 'superadmin'].includes(roleInput.value)) {
                             e.preventDefault();
                             alert('Role must be valid.');
-                        }
-                    });
-                });
+                          }
+                        });
+                      });
 
-                document.querySelectorAll('.edit-input').forEach(input => {
-                    input.addEventListener('change', function() {
-                        const row = input.closest('tr');
-                        if (row) {
+                      document.querySelectorAll('.edit-input').forEach(input => {
+                        input.addEventListener('change', function() {
+                          const row = input.closest('tr');
+                          if (row) {
                             const id = row.id.replace('row-', '');
                             updateHiddenInputs(id);
-                        }
-                    });
-                });
+                          }
+                        });
+                      });
 
-                // Progress bar
-                window.addEventListener('scroll', function() {
-                    const progressBar = document.querySelector('.mil-progress');
-                    if (progressBar) {
-                        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-                        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                        const scrolled = (scrollTop / scrollHeight) * 100;
-                        progressBar.style.width = scrolled + '%';
+                      // Progress bar
+                      window.addEventListener('scroll', function() {
+                        const progressBar = document.querySelector('.mil-progress');
+                        if (progressBar) {
+                          const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                          scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                          const scrolled = (scrollTop / scrollHeight) * 100;
+                          progressBar.style.width = scrolled + '%%';
+                        }
+                      });
+
+                      // Responsive adjustments
+                      function handleResize() {
+                        if (window.innerWidth <= 767) {
+                            if (!sidebar.classList.contains('hidden')) {
+                              toggleSidebar();
+                            }
+                          } else {
+                            if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
+                              toggleSidebar();
+                            }
+                          }
+                        }
+                      }
+
+                      window.addEventListener('resize', handleResize);
+                      handleResize();
+
+                    } catch (err) {
+                      console.error('Error in dashboard scripts:', err);
+                      alert('An unexpected error occurred. Please refresh the page.');
                     }
-                });
-
-                // Responsive adjustments
-                function handleResize() {
-                    if (window.innerWidth <= 767) {
-                        if (!sidebar.classList.contains('hidden')) {
-                            toggleSidebar();
-                        }
-                    } else {
-                        if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
-                            toggleSidebar();
-                        }
-                    }
-                }
-
-                window.addEventListener('resize', handleResize);
-                handleResize();
-
-            } catch (error) {
-                console.error('Error in dashboard scripts:', error);
-                alert('An unexpected error occurred. Please refresh the page.');
-            }
-        });
-    </script>
-</body>
-</html>
+                  });
+                </script>
+              </body>
+            </html>

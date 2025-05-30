@@ -124,6 +124,26 @@
             display: none;
         }
         
+        /* Trash link styling */
+        .trash-link {
+            position: relative;
+            display: inline-block;
+        }
+        .trash-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
         @media (max-width: 768px) {
             .mil-sidebar { 
                 width: 250px; 
@@ -176,6 +196,7 @@
         <a href="/home" class="mil-up"><i class="fas fa-store"></i> Manage Outlets</a>
         <a href="/profile" class="mil-up"><i class="fas fa-user"></i> Profile</a>
         <a href="/admin-messages" class="mil-up active"><i class="fas fa-envelope"></i> Messages</a>
+        
         <a href="/admin-logout" class="mil-up"><i class="fas fa-power-off"></i> Log Out</a>
     </div>
 
@@ -293,7 +314,7 @@
                                                             <% } %>
                                                         </td>
                                                         <td>
-                                                            <div class="mil-form-row">
+                                                            <div class="mil-form-row" style="display: flex; gap: 8px;">
                                                                 <button class="mil-button mark-read-btn" data-id="<%= message._id %>" data-read="<%= message.read %>" aria-label="<%= message.read ? 'Mark as Unread' : 'Mark as Read' %>">
                                                                     <%= message.read ? 'Mark Unread' : 'Mark Read' %> <i class="fa-solid fa-envelope<%= message.read ? '-open' : '' %>"></i>
                                                                 </button>
@@ -335,40 +356,17 @@
     <div id="deleteModal" class="mil-modal">
         <div class="mil-modal-content">
             <h5>Delete Message</h5>
-            <p>Are you sure you want to delete "<span id="deleteModalSubject"></span>"? This action cannot be undone.</p>
+            <p>Are you sure you want to move "<span id="deleteModalSubject"></span>" to trash?</p>
             <div class="mil-modal-buttons">
                 <button type="button" class="mil-button" id="cancelDeleteModal">
                     Cancel <i class="fa-solid fa-times"></i>
                 </button>
-                <form id="deleteForm" action="/admin/delete-message" method="POST">
-                    <input type="hidden" name="_id" id="deleteMessageId">
-                    <button type="submit" class="mil-button delete-btn">
-                        Delete <i class="fa-solid fa-trash"></i>
-                    </button>
-                </form>
+                <button type="button" class="mil-button delete-btn" id="confirmDeleteModal">
+                    Move to Trash <i class="fa-solid fa-trash"></i>
+                </button>
             </div>
         </div>
     </div>
-
-    <!-- footer -->
-    <footer class="mil-dark-bg">
-        <div class="mil-footer">
-            <div class="container mil-p-120-60">
-                <div class="row justify-content-between">
-                    <div class="col-md-4 col-lg-4 mil-mb-60">
-                        <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
-                    </div>
-                    <div class="col-md-7 col-lg-6">
-                        <div class="row justify-content-end">
-                            <div class="mil-vert-between">
-                                <p class="mil-light-soft mil-up"><a>New to Shed? <a href="/admin-register">Create New Shed!</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </footer>
 
     <!-- JavaScript Dependencies -->
     <script src="/js/plugins/jquery.min.js"></script>
@@ -474,26 +472,32 @@
                     }
                     
                     modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 }
 
                 function hideContentModal() {
                     const modal = document.getElementById('contentModal');
                     modal.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
 
                 // Delete Modal
+                let currentDeleteId = null;
+                
                 function showDeleteModal(id, subject) {
                     const modal = document.getElementById('deleteModal');
                     const subjectSpan = document.getElementById('deleteModalSubject');
-                    const deleteForm = document.getElementById('deleteForm');
                     subjectSpan.textContent = subject;
-                    deleteForm.querySelector('#deleteMessageId').value = id;
+                    currentDeleteId = id;
                     modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 }
 
                 function hideDeleteModal() {
                     const modal = document.getElementById('deleteModal');
                     modal.classList.remove('active');
+                    currentDeleteId = null;
+                    document.body.style.overflow = '';
                 }
 
                 // Mark Read/Unread
@@ -534,13 +538,53 @@
 
                 // Delete Button
                 document.querySelectorAll('.delete-btn').forEach(button => {
-                    if (button.tagName === 'BUTTON') {
+                    if (button.tagName === 'BUTTON' && !button.id) {
                         button.addEventListener('click', (e) => {
                             e.preventDefault();
                             const id = button.dataset.id;
                             const subject = button.dataset.subject;
                             showDeleteModal(id, subject);
                         });
+                    }
+                });
+
+                // Confirm Delete Button
+                document.getElementById('confirmDeleteModal')?.addEventListener('click', async () => {
+                    if (!currentDeleteId) return;
+                    
+                    try {
+                        const response = await fetch('/admin/delete-message', {
+                            method: 'POST',
+                            headers: { 
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ 
+                                _id: currentDeleteId
+                            })
+                        });
+                        
+                        const data = await response.json();
+                        
+                        if (response.ok) {
+                            // Remove the row from the table
+                            const row = document.getElementById(`row-${currentDeleteId}`);
+                            if (row) {
+                                row.remove();
+                            }
+                            hideDeleteModal();
+                            
+                            // Show success message
+                            alert('Message moved to trash successfully');
+                            
+                            // Reload the page to update the trash count
+                            window.location.reload();
+                        } else {
+                            alert('Failed to delete message: ' + (data.error || 'Unknown error'));
+                        }
+                    } catch (error) {
+                        console.error('Error:', error);
+                        alert('Error deleting message');
                     }
                 });
 

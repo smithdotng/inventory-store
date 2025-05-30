@@ -177,6 +177,15 @@
             color: rgb(108, 117, 125);
             border: 2px solid rgb(108, 117, 125);
         }
+        .mil-button.delete-btn {
+            background-color: rgb(220, 53, 69);
+            color: #fff;
+        }
+        .mil-button.delete-btn:hover {
+            background-color: #fff;
+            color: rgb(220, 53, 69);
+            border: 2px solid rgb(220, 53, 69);
+        }
         .mil-button.pay-commission-btn {
             background-color: rgb(0, 123, 255);
             color: #fff;
@@ -748,7 +757,8 @@
                             </div>
                         </div>
                     </div>
-                </section>
+                </div>
+                <!-- main content end -->
             </div>
         </div>
 
@@ -1023,7 +1033,7 @@
                     `;
                     document.body.appendChild(modal);
 
-                    modal.querySelector('.mil-modal-buttons button[type="button"]').addEventListener('click', () => {
+                    modal.querySelector('.mil-modal-buttons .cancel-btn').addEventListener('click', () => {
                         modal.remove();
                     });
                 }
