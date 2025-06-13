@@ -4925,7 +4925,15 @@ app.get('/invoices', isAuthenticated, async (req, res) => {
     }));
 
     const error = req.session.error || null;
-    const formData = req.session.formData || {};
+    const formData = req.session.formData || {
+      items: {
+        itemId: [],
+        quantity: [],
+        newProductName: [],
+        newProductCost: [],
+        newProductStock: []
+      }
+    };
     delete req.session.error;
     delete req.session.formData;
 
@@ -5008,7 +5016,7 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       }
 
       let item;
-      if (itemId === 'new' && newProductNames[i]) {
+      if (itemId === 'new' && newProductNames[i] && newProductCosts[i] && newProductStocks[i]) {
         const cost = parseFloat(newProductCosts[i]) || 0;
         const stock = parseInt(newProductStocks[i]) || 0;
         if (cost <= 0 || stock < qty) {
@@ -5026,7 +5034,12 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
         };
         const result = await db.collection('inventory').insertOne(item);
         item._id = result.insertedId;
-      } else {
+        // Decrement stock for new product
+        await db.collection('inventory').updateOne(
+          { _id: item._id },
+          { $inc: { stock: -qty } }
+        );
+      } else if (itemId !== 'new') {
         const objectId = new ObjectId(itemId);
         item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
         if (!item) {
@@ -5045,6 +5058,11 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
           { _id: objectId },
           { $inc: { stock: -qty } }
         );
+      } else {
+        req.session.error = `Invalid item data at index ${i}.`;
+        req.session.formData = req.body;
+        await new Promise((resolve) => req.session.save(resolve));
+        return res.redirect('/invoices');
       }
 
       const totalCost = item.cost * qty;
@@ -5064,6 +5082,12 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       paymentStatus: 'Pending',
       date: new Date()
     };
+
+    const formattedTotal = sale.formattedTotal || 
+    sale.totalAmount.toLocaleString('en-US', { 
+      minimumFractionDigits: 2, 
+      maximumFractionDigits: 2 
+    });
 
     if (paymentMethod === 'Bank Transfer') {
       if (!bankName || !bankAccountName || !accountNumber) {
@@ -5173,6 +5197,14 @@ app.get('/public-invoice/:saleId', async (req, res) => {
   try {
     const saleId = req.params.saleId;
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId) });
+
+    const formatCurrency = (amount) => {
+      const num = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
+      return num.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      });
+    };
     
     if (!sale) {
       return res.status(404).send('Invoice not found');
@@ -5240,8 +5272,8 @@ app.get('/public-invoice/:saleId', async (req, res) => {
       sale.items.forEach(item => {
         doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
         doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
-        doc.text(`${admin.currency} ${(Number(item.unitCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
-        doc.text(`${admin.currency} ${(Number(item.totalCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+        doc.text(`${admin.currency} ${(formatCurrency(item.unitCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+        doc.text(`${admin.currency} ${(formatCurrency(item.totalCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
         y += rowHeight;
       });
     } else {
@@ -5282,6 +5314,14 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
     if (!sale) return res.status(404).send('Sale not found');
+
+    const formatCurrency = (amount) => {
+      const num = typeof amount === 'number' ? amount : parseFloat(amount) || 0;
+      return num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    };
 
     const doc = new PDFDocument({ margin: 50 });
     const filename = `invoice-${saleId}.pdf`;
@@ -5334,8 +5374,8 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
       sale.items.forEach(item => {
         doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
         doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
-        doc.text(`${admin.currency} ${(Number(item.unitCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
-        doc.text(`${admin.currency} ${(Number(item.totalCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
+        doc.text(`${admin.currency}${formatCurrency(item.unitCost)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
+        doc.text(`${admin.currency}${formatCurrency(item.totalCost)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
         y += rowHeight;
       });
     } else {
@@ -5346,7 +5386,13 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
     doc.font('Helvetica-Bold');
     doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
-    doc.text(`${admin.currency} ${(parseFloat(sale.totalAmount) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
+    // Use formattedTotalAmount if available, otherwise format totalAmount
+    doc.text(
+      `${admin.currency}${sale.formattedTotalAmount || formatCurrency(sale.totalAmount)}`,
+      tableLeft + colWidths[0] + colWidths[1] + colWidths[2],
+      y + 10,
+      { width: colWidths[3], align: 'right' }
+    );
     doc.font('Helvetica');
 
     doc.moveDown(2);

@@ -84,14 +84,14 @@ body {
   }
 }
 
-*::-moz-selection {
+*::selection {
+  background-color: rgba(255, 152, 0, 0.2); /* orange with transparency */
   color: inherit;
-  background-color: transparent;
 }
 
-*::selection {
+*::-moz-selection {
+  background-color: rgba(255, 152, 0, 0.2); /* orange with transparency */
   color: inherit;
-  background-color: transparent;
 }
 
 .mil-wrapper {

@@ -39,6 +39,277 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <title>Invoices</title>
+
+    <!-- Responsive CSS -->
+    <style>
+        /* Ensure wrapper takes full height */
+        .mil-wrapper {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Sidebar */
+        .mil-sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 250px;
+            height: 100%;
+            background: #fff;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .mil-sidebar.hidden {
+            transform: translateX(-100%);
+        }
+
+        .mil-sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            font-size: 16px;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .mil-logo-container img {
+            max-width: 150px;
+            padding: 15px;
+        }
+
+        /* Content */
+        .mil-content {
+            margin-left: 250px;
+            transition: margin-left 0.3s ease;
+            flex: 1;
+        }
+
+        .mil-content.full-width {
+            margin-left: 0;
+        }
+
+        /* Toggle Button */
+        .mil-toggle-btn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            background: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        /* Banner */
+        .mil-banner {
+            padding: 20px;
+            height: auto !important;
+        }
+
+        .mil-banner h1 {
+            font-size: 2rem;
+        }
+
+        .mil-banner p {
+            font-size: 1rem;
+        }
+
+        /* Form */
+        .mil-form-section {
+            padding: 20px;
+        }
+
+        .mil-form-group {
+            margin-bottom: 20px;
+        }
+
+        .mil-form-control {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        .mil-item-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .mil-item-row select,
+        .mil-item-row input[type="number"] {
+            flex: 1;
+            min-width: 100px;
+        }
+
+        .mil-button {
+            padding: 10px 15px;
+            font-size: 14px;
+            border-radius: 5px;
+            cursor: pointer;
+            touch-action: manipulation;
+            border: none;
+        }
+
+        .mil-button-group,
+        .mil-form-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .mil-field-error {
+            color: red;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Table */
+        .mil-table-section {
+            overflow-x: auto;
+            padding: 20px;
+        }
+
+        .mil-table {
+            width: 100%;
+            min-width: 600px; /* Ensures table is scrollable on small screens */
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .mil-table th,
+        .mil-table td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .mil-action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Footer */
+        footer.mil-dark-bg {
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .mil-sidebar {
+                width: 200px;
+            }
+
+            .mil-content {
+                margin-left: 0;
+            }
+
+            .mil-content.full-width {
+                margin-left: 0;
+            }
+
+            .mil-sidebar.hidden {
+                transform: translateX(-100%);
+            }
+
+            .mil-toggle-btn {
+                display: block;
+            }
+
+            .mil-banner h1 {
+                font-size: 1.5rem;
+            }
+
+            .mil-banner p {
+                font-size: 0.9rem;
+            }
+
+            .mil-form-control {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .mil-button {
+                font-size: 12px;
+                padding: 8px 12px;
+            }
+
+            .mil-table th,
+            .mil-table td {
+                font-size: 12px;
+                padding: 8px;
+            }
+
+            .mil-logo-container img {
+                max-width: 120px;
+            }
+
+            .mil-sidebar a {
+                font-size: 14px;
+                padding: 10px;
+            }
+
+            .col-md-7, .col-lg-5, .col-lg-8 {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .mil-item-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .mil-item-row select,
+            .mil-item-row input[type="number"],
+            .mil-item-row button {
+                width: 100%;
+                min-width: auto;
+            }
+
+            .mil-table {
+                font-size: 12px;
+            }
+
+            .mil-table th,
+            .mil-table td {
+                padding: 6px;
+            }
+
+            .mil-action-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .mil-button {
+                width: 100%;
+                text-align: center;
+            }
+
+            .mil-form-group label {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- wrapper -->
@@ -74,7 +345,7 @@
         <div class="mil-content">
             <div id="swupMain" class="mil-main-transition">
                 <!-- banner -->
-                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                <section class="mil-banner mil-dark-bg">
                     <div class="mi-invert-fix">
                         <div class="mil-animation-frame">
                             <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
@@ -86,7 +357,7 @@
                             <div class="mil-banner-content mil-up">
                                 <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Generate </span>Invoice</h1>
                                 <div class="row">
-                                    <div class="col-md-7 col-lg-5">
+                                    <div class="col-12">
                                         <p class="mil-light-soft mil-mb-60">Manage invoices for <%= admin.businessName || 'Your Business' %>.</p>
                                     </div>
                                 </div>
@@ -100,11 +371,11 @@
                 <section class="mil-about">
                     <div class="container mil-p-120-60">
                         <div class="row justify-content-center">
-                            <div class="col-lg-8 mil-main-content" id="mainContent">
+                            <div class="col-12 mil-main-content" id="mainContent">
                                 <!-- Business Info -->
                                 <div class="mil-form-section mil-up">
                                     <div class="mil-center">
-                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo">
+                                        <img src="<%= admin.logo || '/images/logo.png' %>" alt="Business Logo" style="max-width: 100px;">
                                         <h4>Invoices for <%= admin.businessName || 'Your Business' %></h4>
                                         <p>
                                             Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
@@ -184,15 +455,20 @@
                                                             <div class="mil-new-product-fields hidden" id="newProductFields<%= index %>">
                                                                 <div class="mil-form-group">
                                                                     <label><i class="fa-solid fa-box"></i> Product Name</label>
-                                                                    <input type="text" name="items[newProductName][]" class="mil-form-control" placeholder="Product Name">
+                                                                    <input type="text" name="items[newProductName][]" class="mil-form-control new-product-name" placeholder="Product Name" value="<%= formData.items.newProductName && formData.items.newProductName[index] ? formData.items.newProductName[index] : '' %>">
                                                                 </div>
                                                                 <div class="mil-form-group">
                                                                     <label><i class="fa-solid fa-money-bill"></i> Cost</label>
-                                                                    <input type="number" name="items[newProductCost][]" class="mil-form-control" placeholder="Cost" min="0" step="0.01">
+                                                                    <input type="number" name="items[newProductCost][]" class="mil-form-control new-product-cost" placeholder="Cost" min="0" step="0.01" value="<%= formData.items.newProductCost && formData.items.newProductCost[index] ? formData.items.newProductCost[index] : '' %>">
                                                                 </div>
                                                                 <div class="mil-form-group">
                                                                     <label><i class="fa-solid fa-cubes"></i> Stock</label>
-                                                                    <input type="number" name="items[newProductStock][]" class="mil-form-control" placeholder="Stock" min="0">
+                                                                    <input type="number" name="items[newProductStock][]" class="mil-form-control new-product-stock" placeholder="Stock" min="0" value="<%= formData.items.newProductStock && formData.items.newProductStock[index] ? formData.items.newProductStock[index] : '' %>">
+                                                                </div>
+                                                                <div class="mil-form-actions">
+                                                                    <button type="button" class="mil-button confirm-new-product-btn">
+                                                                        Confirm Product <i class="fa-solid fa-check"></i>
+                                                                    </button>
                                                                 </div>
                                                             </div>
                                                             <div class="mil-field-error" id="itemError<%= index %>"></div>
@@ -216,15 +492,20 @@
                                                         <div class="mil-new-product-fields hidden" id="newProductFields0">
                                                             <div class="mil-form-group">
                                                                 <label><i class="fa-solid fa-box"></i> Product Name</label>
-                                                                <input type="text" name="items[newProductName][]" class="mil-form-control" placeholder="Product Name">
+                                                                <input type="text" name="items[newProductName][]" class="mil-form-control new-product-name" placeholder="Product Name">
                                                             </div>
                                                             <div class="mil-form-group">
                                                                 <label><i class="fa-solid fa-money-bill"></i> Cost</label>
-                                                                <input type="number" name="items[newProductCost][]" class="mil-form-control" placeholder="Cost" min="0" step="0.01">
+                                                                <input type="number" name="items[newProductCost][]" class="mil-form-control new-product-cost" placeholder="Cost" min="0" step="0.01">
                                                             </div>
                                                             <div class="mil-form-group">
                                                                 <label><i class="fa-solid fa-cubes"></i> Stock</label>
-                                                                <input type="number" name="items[newProductStock][]" class="mil-form-control" placeholder="Stock" min="0">
+                                                                <input type="number" name="items[newProductStock][]" class="mil-form-control new-product-stock" placeholder="Stock" min="0">
+                                                            </div>
+                                                            <div class="mil-form-actions">
+                                                                <button type="button" class="mil-button confirm-new-product-btn">
+                                                                    Confirm Product <i class="fa-solid fa-check"></i>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                         <div class="mil-field-error" id="itemError0"></div>
@@ -339,12 +620,12 @@
             <div class="mi-invert-fix">
                 <div class="container mil-p-120-60">
                     <div class="row justify-content-between">
-                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                        <div class="col-12 col-md-4 mil-mb-60">
                             <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
                         </div>
-                        <div class="col-md-7 col-lg-6">
+                        <div class="col-12 col-md-7">
                             <div class="row justify-content-end">
-                                <div class="col-md-6 col-lg-9">
+                                <div class="col-12 col-md-6">
                                     <div class="mil-vert-between">
                                         <p class="mil-light-soft mil-up">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
                                     </div>
@@ -414,14 +695,17 @@
         <!-- hidden elements end -->
     </div>
 
-    <!-- Sidebar Toggle -->
+    <!-- Sidebar Toggle Script -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sidebar = document.getElementById('sidebar');
             const mainContent = document.getElementById('mainContent');
             const toggleBtn = document.getElementById('toggleBtn');
 
-            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+            // Check screen size and sidebar state
+            const isMobile = window.innerWidth <= 768;
+            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || isMobile;
+
             if (isSidebarHidden) {
                 sidebar.classList.add('hidden');
                 mainContent.classList.add('full-width');
@@ -439,15 +723,22 @@
                 localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
             });
 
+            // Adjust sidebar visibility on resize
             function setSidebarState() {
-                if (sidebar.classList.contains('hidden')) {
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.add('hidden');
                     mainContent.classList.add('full-width');
-                } else {
+                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    localStorage.setItem('sidebarHidden', true);
+                } else if (!localStorage.getItem('sidebarHidden') || localStorage.getItem('sidebarHidden') === 'false') {
+                    sidebar.classList.remove('hidden');
                     mainContent.classList.remove('full-width');
+                    toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
                 }
             }
-            setSidebarState();
+
             window.addEventListener('resize', setSidebarState);
+            setSidebarState();
         });
     </script>
 
@@ -544,15 +835,20 @@
                             <div class="mil-new-product-fields hidden" id="newProductFields${itemIndex}">
                                 <div class="mil-form-group">
                                     <label><i class="fa-solid fa-box"></i> Product Name</label>
-                                    <input type="text" name="items[newProductName][]" class="mil-form-control" placeholder="Product Name">
+                                    <input type="text" name="items[newProductName][]" class="mil-form-control new-product-name" placeholder="Product Name">
                                 </div>
                                 <div class="mil-form-group">
                                     <label><i class="fa-solid fa-money-bill"></i> Cost</label>
-                                    <input type="number" name="items[newProductCost][]" class="mil-form-control" placeholder="Cost" min="0" step="0.01">
+                                    <input type="number" name="items[newProductCost][]" class="mil-form-control new-product-cost" placeholder="Cost" min="0" step="0.01">
                                 </div>
                                 <div class="mil-form-group">
                                     <label><i class="fa-solid fa-cubes"></i> Stock</label>
-                                    <input type="number" name="items[newProductStock][]" class="mil-form-control" placeholder="Stock" min="0">
+                                    <input type="number" name="items[newProductStock][]" class="mil-form-control new-product-stock" placeholder="Stock" min="0">
+                                </div>
+                                <div class="mil-form-actions">
+                                    <button type="button" class="mil-button confirm-new-product-btn">
+                                        Confirm Product <i class="fa-solid fa-check"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="mil-field-error" id="itemError${itemIndex}"></div>
@@ -585,6 +881,134 @@
                         input.required = isNewProduct;
                     });
                     validateItems();
+                }
+
+                // Handle confirming a new product
+                function handleConfirmNewProduct(button) {
+                    const row = button.closest('.mil-item-row');
+                    const index = row.dataset.index;
+                    const nameInput = row.querySelector('.new-product-name');
+                    const costInput = row.querySelector('.new-product-cost');
+                    const stockInput = row.querySelector('.new-product-stock');
+                    const select = row.querySelector('select');
+                    const quantityInput = row.querySelector('input[type="number"]');
+                    const errorElement = document.getElementById(`itemError${index}`);
+
+                    // Validate the new product
+                    const name = nameInput.value.trim();
+                    const cost = parseFloat(costInput.value) || 0;
+                    const stock = parseInt(stockInput.value) || 0;
+                    const qty = parseInt(quantityInput.value) || 0;
+
+                    if (!name) {
+                        errorElement.textContent = 'Product name is required.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else if (cost <= 0) {
+                        errorElement.textContent = 'Cost must be greater than 0.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else if (stock < 0) {
+                        errorElement.textContent = 'Stock cannot be negative.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else if (qty <= 0) {
+                        errorElement.textContent = 'Quantity must be greater than 0.';
+                        errorElement.style.display = 'block';
+                        return false;
+                    } else if (qty > stock) {
+                        errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+                        errorElement.style.display = 'block';
+                        return false;
+                    }
+
+                    // Create a new option for the select
+                    const newOption = document.createElement('option');
+                    newOption.value = `new_${Date.now()}`; // Temporary ID
+                    newOption.textContent = `${name} (Stock: ${stock})`;
+                    newOption.dataset.stock = stock;
+                    newOption.dataset.cost = cost;
+                    newOption.selected = true;
+                    
+                    // Clear existing options and add the new one
+                    select.innerHTML = '';
+                    select.appendChild(newOption);
+                    
+                    // Hide the new product fields
+                    document.getElementById(`newProductFields${index}`).classList.add('hidden');
+                    
+                    // Clear the error
+                    errorElement.style.display = 'none';
+                    
+                    // Log the new product (replace with actual API call if needed)
+                    console.log('New product confirmed:', {
+                        name: name,
+                        cost: cost,
+                        stock: stock,
+                        quantity: qty
+                    });
+                    
+                    return true;
+                }
+
+                // Add event listener for confirm buttons
+                document.addEventListener('click', (e) => {
+                    if (e.target.closest('.confirm-new-product-btn')) {
+                        handleConfirmNewProduct(e.target.closest('.confirm-new-product-btn'));
+                    }
+                });
+
+                // Validate items
+                function validateItems() {
+                    let isValid = true;
+                    const rows = itemsContainer.querySelectorAll('.mil-item-row');
+                    rows.forEach(row => {
+                        const index = row.dataset.index;
+                        const select = row.querySelector('select');
+                        const quantityInput = row.querySelector('input[type="number"]');
+                        const errorElement = document.getElementById(`itemError${index}`);
+                        const isNewProduct = select.value === 'new';
+                        const isConfirmedNewProduct = select.value.startsWith('new_');
+
+                        if (!select.value) {
+                            errorElement.textContent = 'Please select an item.';
+                            errorElement.style.display = 'block';
+                            isValid = false;
+                        } else if (isNewProduct) {
+                            errorElement.style.display = 'none';
+                        } else if (isConfirmedNewProduct) {
+                            const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
+                            const qty = parseInt(quantityInput.value) || 0;
+
+                            if (qty <= 0) {
+                                errorElement.textContent = 'Quantity must be greater than 0.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (qty > stock) {
+                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else {
+                                errorElement.style.display = 'none';
+                            }
+                        } else {
+                            const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
+                            const qty = parseInt(quantityInput.value) || 0;
+
+                            if (qty <= 0) {
+                                errorElement.textContent = 'Quantity must be greater than 0.';
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else if (qty > stock) {
+                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
+                                errorElement.style.display = 'block';
+                                isValid = false;
+                            } else {
+                                errorElement.style.display = 'none';
+                            }
+                        }
+                    });
+                    return isValid;
                 }
 
                 // Update remove buttons visibility
@@ -620,69 +1044,6 @@
                         errorElement.style.display = 'none';
                         return true;
                     }
-                }
-
-                function validateItems() {
-                    let isValid = true;
-                    const rows = itemsContainer.querySelectorAll('.mil-item-row');
-                    rows.forEach(row => {
-                        const index = row.dataset.index;
-                        const select = row.querySelector('select');
-                        const quantityInput = row.querySelector('input[type="number"]');
-                        const errorElement = document.getElementById(`itemError${index}`);
-                        const isNewProduct = select.value === 'new';
-
-                        if (!select.value) {
-                            errorElement.textContent = 'Please select an item.';
-                            errorElement.style.display = 'block';
-                            isValid = false;
-                        } else if (isNewProduct) {
-                            const name = row.querySelector('input[name="items[newProductName][]"]').value.trim();
-                            const cost = parseFloat(row.querySelector('input[name="items[newProductCost][]"]').value) || 0;
-                            const stock = parseInt(row.querySelector('input[name="items[newProductStock][]"]').value) || 0;
-                            const qty = parseInt(quantityInput.value) || 0;
-
-                            if (!name) {
-                                errorElement.textContent = 'Product name is required.';
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else if (cost <= 0) {
-                                errorElement.textContent = 'Cost must be greater than 0.';
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else if (stock < 0) {
-                                errorElement.textContent = 'Stock cannot be negative.';
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else if (qty <= 0) {
-                                errorElement.textContent = 'Quantity must be greater than 0.';
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else if (qty > stock) {
-                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else {
-                                errorElement.style.display = 'none';
-                            }
-                        } else {
-                            const stock = parseInt(select.selectedOptions[0].dataset.stock) || 0;
-                            const qty = parseInt(quantityInput.value) || 0;
-
-                            if (qty <= 0) {
-                                errorElement.textContent = 'Quantity must be greater than 0.';
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else if (qty > stock) {
-                                errorElement.textContent = `Insufficient stock. Only ${stock} available.`;
-                                errorElement.style.display = 'block';
-                                isValid = false;
-                            } else {
-                                errorElement.style.display = 'none';
-                            }
-                        }
-                    });
-                    return isValid;
                 }
 
                 function validatePaymentMethod() {

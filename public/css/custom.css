@@ -5,13 +5,8 @@
     display: flex;
     visibility: visible;
     opacity: 1;
-    max-height: none;
 }
-.mil-banner-content .col-md-7.col-lg-5 {
-    display: block;
-    visibility: visible;
-    opacity: 1;
-}
+
 .mil-banner-content .col-md-7.col-lg-5 p {
     display: block;
     visibility: visible;
