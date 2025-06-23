@@ -813,6 +813,21 @@ app.post('/admin-register', uploadLogo, async (req, res) => {
       });
     }
 
+    // Validate username (no spaces allowed)
+    if (username.includes(' ')) {
+      return res.render('admin-register', { 
+        error: 'Username cannot contain spaces.',
+        businessName,
+        email,
+        currency,
+        username,
+        country,
+        firstName,
+        lastName,
+        referralCode
+      });
+    }
+
     // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
