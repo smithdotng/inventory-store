@@ -30,7 +30,7 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <!-- Inline CSS (unchanged) -->
+    <!-- Inline CSS -->
     <style>
         :root {
             --primary-color: rgb(235, 166, 17);
@@ -1080,7 +1080,7 @@
                                                 <option value="">All Admins</option>
                                                 <% adminItems.forEach(item => { %>
                                                     <% if (item.role === 'superadmin') { %>
-                                                        <option value="${item._id}">${escapeEjs(item.username)}</option>
+                                                        <option value="<%= item._id %>"><%= escapeEjs(item.username) %></option>
                                                     <% } %>
                                                 <% }) %>
                                             </select>
@@ -1091,7 +1091,7 @@
                                         </div>
                                         <div class="mil-form-actions">
                                             <button type="submit" class="mil-button">
-                                                Send Message <i class="fa-solid fa fa-plane-plane"></i>
+                                                Send Message <i class="fa-solid fa fa-plane"></i>
                                             </button>
                                         </div>
                                     </form>
@@ -1113,51 +1113,54 @@
                     </div>
                 </section>
             </div>
-        <!-- Delete Modal (unchanged) -->
-        <div class="mil-modal" id="deleteModal" tabindex="-1" role="dialog" role="dialog" aria-hidden="true">
-            <div class="mil-modal-content">
-                <div class="mil-modal-header">
-                    <h5 class="mil-modal-title">Delete Admin</h5>
-                    <button type="button" class="mil-modal-close" id="deleteModalCloseBtn" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="mil-modal-body">
-                    <p>Are you sure you want to delete <span id="deleteUsername"></span>? This action cannot be undone.</p>
-                </div>
-                <div class="mil-modal-footer">
-                    <button type="button" class="mil-button cancel-btn" id="deleteCancelBtn" type="button">
-                        Cancel <i class="fa-solid fa fa-times"></i>
-                    </button>
-                    <form id="deleteForm" action="/superadmin/delete-admin" method="POST">
-                        <button type="submit" class="mil-button delete-btn">
-                            Delete <i class="fa-solid fa-trash"></i>
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
 
-        <!-- Footer (unchanged) -->
-        <footer class="mil-dark-bg">
-            <div class="mi-invert-fix">
-                <div class="container-fluid">
-                    <div class="row justify-content-between align-items-center">
-                        <div class="col-lg-6 mil-mb-60">
-                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="mil-vert-between text-lg-end">
-                                <p class="mil-light-soft">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+           <!-- Delete Modal -->
+<div class="mil-modal" id="deleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="mil-modal-content">
+        <div class="mil-modal-header">
+            <h5 class="mil-modal-title">Delete Admin</h5>
+            <button type="button" class="mil-modal-close" id="deleteModalCloseBtn" aria-label="Close">
+                <span aria-hidden="true">×</span>
+            </button>
+        </div>
+        <div class="mil-modal-body">
+            <p>Are you sure you want to delete <span id="deleteUsername"></span>? This action cannot be undone.</p>
+        </div>
+        <div class="mil-modal-footer">
+            <button type="button" class="mil-button cancel-btn" id="deleteCancelBtn">
+                Cancel <i class="fa-solid fa-times"></i>
+            </button>
+            <form id="deleteForm" action="" method="POST">
+                <input type="hidden" name="adminId" id="deleteAdminId" value="">
+                <button type="button" class="mil-button delete-btn" id="confirmDeleteBtn">
+                    Delete <i class="fa-solid fa-trash"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+            <!-- Footer -->
+            <footer class="mil-dark-bg">
+                <div class="mi-invert-fix">
+                    <div class="container-fluid">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-lg-6 mil-mb-60">
+                                <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mil-vert-between text-lg-end">
+                                    <p class="mil-light-soft">New to Shed? <a href="/admin-register">Create your Shed!</a></p>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </footer>
+            </footer>
+        </div>
     </div>
 
-    <!-- JavaScript Dependencies (unchanged) -->
+    <!-- JavaScript Dependencies -->
     <script src="/js/plugins/jquery.min.js"></script>
     <script src="/js/plugins/swiper.min.js"></script>
     <script src="/js/plugins/fancybox.min.js"></script>
@@ -1167,7 +1170,7 @@
     <script src="/js/plugins/ScrollTo.min.js"></script>
     <script src="/js/main.js"></script>
 
-    <!-- Updated Dashboard Scripts -->
+    <!-- Dashboard Scripts -->
     <script>
         // EJS Helper Function for Currency Formatting
         function formatCurrency(amount, currency) {
@@ -1186,18 +1189,18 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Dashboard script loaded');
             try {
-                // Sidebar Toggle (unchanged)
+                // Sidebar Toggle
                 const sidebar = document.getElementById('sidebar');
                 const mainContent = document.getElementById('mainContent');
                 const toggleBtn = document.getElementById('toggleBtn');
 
-                if (!sidebar || !mainContent) || !toggleBtn) {
+                if (!sidebar || !mainContent || !toggleBtn) {
                     console.error('Sidebar, mainContent, or toggleBtn not found');
                     return;
                 }
 
                 const isMobile = window.matchMedia('(max-width: 767px)').matches;
-                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || || isMobile;
+                const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true' || isMobile;
                 if (isSidebarHidden) {
                     sidebar.classList.add('hidden');
                     mainContent.classList.add('full-width');
@@ -1237,68 +1240,68 @@
                     });
                 });
 
-                // Table Editing (unchanged)
+                // Table Editing
                 function editRow(id) {
                     try {
-                      const row = document.getElementById(`row-${id}`);
-                      if (!row) throw new Error(`Row with id row-${id} not found`);
-                      const displayValues = row.querySelectorAll('.display-value');
-                      const editInputs = row.querySelectorAll('.edit-input');
-                      const editBtn = row.querySelector('.edit-btn');
-                      const updateBtn = row.querySelector('.update-btn');
-                      const cancelBtn = row.querySelector('.cancel-btn');
+                        const row = document.getElementById(`row-${id}`);
+                        if (!row) throw new Error(`Row with id row-${id} not found`);
+                        const displayValues = row.querySelectorAll('.display-value');
+                        const editInputs = row.querySelectorAll('.edit-input');
+                        const editBtn = row.querySelector('.edit-btn');
+                        const updateBtn = row.querySelector('.update-btn');
+                        const cancelBtn = row.querySelector('.cancel-btn');
 
-                      if (!editBtn || !updateBtn || !cancelBtn) throw new Error('Button elements not found in row');
+                        if (!editBtn || !updateBtn || !cancelBtn) throw new Error('Button elements not found in row');
 
-                      row.classList.add('editing');
-                      editInputs.forEach(input => {
-                        input.disabled = false;
-                        input.style.display = 'inline-block';
-                      });
-                      displayValues.forEach(span => span.style.display = 'none');
-                      editBtn.classList.add('hidden');
-                      updateBtn.classList.remove('hidden');
-                      cancelBtn.classList.remove('hidden');
-                      updateHiddenInputs(id);
+                        row.classList.add('editing');
+                        editInputs.forEach(input => {
+                            input.disabled = false;
+                            input.style.display = 'inline-block';
+                        });
+                        displayValues.forEach(span => span.style.display = 'none');
+                        editBtn.classList.add('hidden');
+                        updateBtn.classList.remove('hidden');
+                        cancelBtn.classList.remove('hidden');
+                        updateHiddenInputs(id);
                     } catch (error) {
-                      console.error('Error in toggleEdit:', error);
-                      alert('Failed to enable edit mode. Please try again.');
+                        console.error('Error in editRow:', error);
+                        alert('Failed to enable edit mode. Please try again.');
                     }
-                  }
+                }
 
-                  function updateHiddenInputs(id) {
+                function updateHiddenInputs(id) {
                     try {
-                      const row = document.getElementById(`row-${id}`);
-                      if (!row) throw new Error(`Row with id row-${id} not found`);
-                      const inputs = {
-                        username: row.querySelector('input[name="username"]'),
-                        businessName: row.querySelector('input[name="businessName"]'),
-                        phone: row.querySelector('input[name="phone"]'),
-                        currency: row.querySelector('input[name="currency"]'),
-                        role: row.querySelector('select[name="role"]')
-                      };
-                      const hiddenInputs = {
-                        username: row.querySelector('.hidden-username'),
-                        businessName: row.querySelector('.hidden-businessName'),
-                        phone: row.querySelector('.hidden-phone'),
-                        totalCost: row.querySelector('.hidden-currency'),
-                        role: row.querySelector('.hidden-role')
-                      };
-                      for (const key in inputs) {
-                        if (inputs[key] && hiddenInputs[key]) {
-                          hiddenInputs[key].value = inputs[key].value || '';
-                          } else {
-                            console.warn(`Warning: Input or hidden input for ${key} not found in row-${id}`);
-                          }
+                        const row = document.getElementById(`row-${id}`);
+                        if (!row) throw new Error(`Row with id row-${id} not found`);
+                        const inputs = {
+                            username: row.querySelector('input[name="username"]'),
+                            businessName: row.querySelector('input[name="businessName"]'),
+                            phone: row.querySelector('input[name="phone"]'),
+                            currency: row.querySelector('input[name="currency"]'),
+                            role: row.querySelector('select[name="role"]')
+                        };
+                        const hiddenInputs = {
+                            username: row.querySelector('.hidden-username'),
+                            businessName: row.querySelector('.hidden-businessName'),
+                            phone: row.querySelector('.hidden-phone'),
+                            currency: row.querySelector('.hidden-currency'),
+                            role: row.querySelector('.hidden-role')
+                        };
+                        for (const key in inputs) {
+                            if (inputs[key] && hiddenInputs[key]) {
+                                hiddenInputs[key].value = inputs[key].value || '';
+                            } else {
+                                console.warn(`Warning: Input or hidden input for ${key} not found in row-${id}`);
+                            }
                         }
-                      } catch (error) {
+                    } catch (error) {
                         console.error('Error updating hidden inputs:', error);
                         alert('Failed to update form data. Please try again.');
-                      }
                     }
+                }
 
-                    function cancelEdit(id) {
-                      try {
+                function cancelEdit(id) {
+                    try {
                         const row = document.getElementById(`row-${id}`);
                         if (!row) throw new Error(`Row with id row-${id} not found`);
                         const displayValues = row.querySelectorAll('.display-value');
@@ -1310,10 +1313,10 @@
                         if (!editBtn || !updateBtn || !cancelBtn) throw new Error('Button elements not found in row');
 
                         editInputs[0].value = cancelBtn.dataset.username || '';
-                        editInputs[1].cost = cancelBtn.dataset.businessName === 'N/A' ? '' : cancelBtn.dataset.businessName;
-                        editInputs[2].quantity = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
-                        editInputs[3].totalCost = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
-                        editInputs[4].totalCost = cancelBtn.dataset.role;
+                        editInputs[1].value = cancelBtn.dataset.businessName === 'N/A' ? '' : cancelBtn.dataset.businessName;
+                        editInputs[2].value = cancelBtn.dataset.phone === 'N/A' ? '' : cancelBtn.dataset.phone;
+                        editInputs[3].value = cancelBtn.dataset.currency === 'N/A' ? '' : cancelBtn.dataset.currency;
+                        editInputs[4].value = cancelBtn.dataset.role;
 
                         editInputs.forEach(input => {
                             input.disabled = true;
@@ -1327,119 +1330,177 @@
 
                         displayValues[0].textContent = cancelBtn.dataset.username || 'N/A';
                         displayValues[1].textContent = cancelBtn.dataset.businessName || 'N/A';
-                        displayValues[2].textContent || cancelBtn.dataset.phone || 'N/A';
-                        displayValues[3].textContent || cancelBtn.dataset.currency || 'N/A';
+                        displayValues[2].textContent = cancelBtn.dataset.phone || 'N/A';
+                        displayValues[3].textContent = cancelBtn.dataset.currency || 'N/A';
                         displayValues[4].textContent = cancelBtn.dataset.role || 'N/A';
-                      } catch (error) {
+                    } catch (error) {
                         console.error('Error in cancelEdit:', error);
                         alert('Failed to cancel edit. Please try again.');
-                      }
                     }
+                }
 
-                    // Delete Modal (unchanged)
-                    const deleteModal = document.getElementById('deleteModal');
-                    const deleteUsernameSpan = document.getElementById('deleteUsername');
-                    const deleteForm = document.getElementById('deleteForm');
-                    const deleteCancelBtn = document.getElementById('deleteCancelBtn');
-                    const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
+                // Delete Modal functionality
+const deleteModal = document.getElementById('deleteModal');
+const deleteUsernameSpan = document.getElementById('deleteUsername');
+const deleteForm = document.getElementById('deleteForm');
+const deleteAdminIdInput = document.getElementById('deleteAdminId');
+const deleteCancelBtn = document.getElementById('deleteCancelBtn');
+const deleteModalCloseBtn = document.getElementById('deleteModalCloseBtn');
+const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
-                    function showDeleteModal(id, username) {
-                      if (deleteUsernameSpan && deleteForm) {
-                        deleteUsernameSpan.textContent = username;
-                        deleteForm.action = `/superadmin/delete-admin/${id}`;
-                        deleteModal.classList.add('show');
-                        document.body.style.overflowY = 'hidden';
-                      }
-                    function closeDeleteModal() {
-                      if (deleteModal) {
-                        deleteModal.classList.remove('show');
-                        document.body.style.overflow = '';
-                      }
-                    }
+function showDeleteModal(id, username) {
+    console.log('Attempting to show delete modal for ID:', id, 'Username:', username);
+    if (!id) {
+        console.error('No ID provided for delete modal');
+        alert('Error: Invalid admin ID. Please try again.');
+        return;
+    }
+    if (deleteUsernameSpan && deleteForm && deleteAdminIdInput) {
+        deleteUsernameSpan.textContent = username || 'Admin';
+        deleteForm.action = `/superadmin/delete-admin/${id}`;
+        deleteAdminIdInput.value = id;
+        console.log('Delete form action set to:', deleteForm.action);
+        console.log('Hidden adminId input set to:', deleteAdminIdInput.value);
+        deleteModal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    } else {
+        console.error('deleteUsernameSpan, deleteForm, or deleteAdminIdInput not found');
+        alert('Error: Unable to open delete confirmation modal.');
+    }
+}
 
-                    document.querySelectorAll('.delete-btn').forEach(button => {
-                      button.addEventListener('click', function() {
+function closeDeleteModal() {
+    console.log('Closing delete modal');
+    if (deleteModal) {
+        deleteModal.classList.remove('show');
+        document.body.style.overflow = '';
+        deleteUsernameSpan.textContent = '';
+        deleteForm.action = '';
+        deleteAdminIdInput.value = '';
+    }
+}
+
+// Event listeners for delete buttons in the table
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        const id = this.dataset.id;
+        const username = this.dataset.username;
+        console.log('Delete button clicked for ID:', id, 'Username:', username);
+        if (!id || id === 'undefined') {
+            console.error('Invalid or missing data-id attribute on delete button:', this);
+            alert('Error: Invalid admin ID. Please refresh the page and try again.');
+            return;
+        }
+        showDeleteModal(id, username);
+    });
+});
+
+// Close modal handlers
+if (deleteCancelBtn) {
+    deleteCancelBtn.addEventListener('click', closeDeleteModal);
+} else {
+    console.error('deleteCancelBtn not found');
+}
+if (deleteModalCloseBtn) {
+    deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
+} else {
+    console.error('deleteModalCloseBtn not found');
+}
+
+// Handle delete form submission
+if (deleteForm && confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        console.log('Confirm Delete button clicked, form action:', deleteForm.action, 'adminId:', deleteAdminIdInput.value);
+        if (!deleteForm.action || !deleteAdminIdInput.value) {
+            console.error('Form action or adminId is not set');
+            alert('Error: Delete action not configured correctly.');
+            return;
+        }
+        try {
+            console.log('Submitting delete form to:', deleteForm.action);
+            deleteForm.submit();
+        } catch (error) {
+            console.error('Error submitting delete form:', error);
+            alert('Failed to delete admin. Please try again.');
+        }
+    });
+} else {
+    console.error('deleteForm or confirmDeleteBtn not found');
+}
+
+                // Event Listeners for Edit and Cancel
+                document.querySelectorAll('.edit-btn').forEach(button => {
+                    button.addEventListener('click', function() {
                         const id = button.dataset.id;
-                        const username = button.dataset.username;
-                        showDeleteModal(id, username);
-                      }
+                        editRow(id);
                     });
+                });
 
-                    if (deleteModalCloseBtn) deleteCancelBtn.addEventListener('click', closeDeleteModal);
-                    if (deleteModalCloseBtn) deleteModalCloseBtn.addEventListener('click', closeDeleteModal);
+                document.querySelectorAll('.cancel-btn').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const id = button.closest('tr').id.replace('row-', '');
+                        cancelEdit(id);
+                    });
+                });
 
-                    // Event Listeners
-                    document.querySelectorAll('.edit-btn').forEach(button => {
-                        button.addEventListener('click', function() {
-                          const id = button.dataset.id;
-                          toggleEdit(id);
-                        });
-                      });
-
-                      document.querySelectorAll('.cancel-btn').forEach(button => {
-                          .addEventListener('click', function() {
-                            const id = button.closest('tr').id.replace('row-', '');
-                            cancelEdit(id);
-                          });
-                      });
-
-                      document.querySelectorAll('.update-form').forEach(form => {
-                        form.addEventListener('submit', function(e) {
-                          const usernameInput = form.querySelector('input[name="username"]');
-                          const roleInput = form.querySelector('select[name="role"]');
-                          if (!usernameInput.value.trim()) {
+                document.querySelectorAll('.update-form').forEach(form => {
+                    form.addEventListener('submit', function(e) {
+                        const usernameInput = form.querySelector('input[name="username"]');
+                        const roleInput = form.querySelector('select[name="role"]');
+                        if (!usernameInput.value.trim()) {
                             e.preventDefault();
                             alert('Username is required.');
-                          } else if (roleInput && !['admin', 'superadmin'].includes(roleInput.value)) {
+                        } else if (roleInput && !['admin', 'superadmin'].includes(roleInput.value)) {
                             e.preventDefault();
                             alert('Role must be valid.');
-                          }
-                        });
-                      });
+                        }
+                    });
+                });
 
-                      document.querySelectorAll('.edit-input').forEach(input => {
-                        input.addEventListener('change', function() {
-                          const row = input.closest('tr');
-                          if (row) {
+                document.querySelectorAll('.edit-input').forEach(input => {
+                    input.addEventListener('change', function() {
+                        const row = input.closest('tr');
+                        if (row) {
                             const id = row.id.replace('row-', '');
                             updateHiddenInputs(id);
-                          }
-                        });
-                      });
-
-                      // Progress bar
-                      window.addEventListener('scroll', function() {
-                        const progressBar = document.querySelector('.mil-progress');
-                        if (progressBar) {
-                          const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
-                          scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-                          const scrolled = (scrollTop / scrollHeight) * 100;
-                          progressBar.style.width = scrolled + '%%';
                         }
-                      });
+                    });
+                });
 
-                      // Responsive adjustments
-                      function handleResize() {
-                        if (window.innerWidth <= 767) {
-                            if (!sidebar.classList.contains('hidden')) {
-                              toggleSidebar();
-                            }
-                          } else {
-                            if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
-                              toggleSidebar();
-                            }
-                          }
-                        }
-                      }
-
-                      window.addEventListener('resize', handleResize);
-                      handleResize();
-
-                    } catch (err) {
-                      console.error('Error in dashboard scripts:', err);
-                      alert('An unexpected error occurred. Please refresh the page.');
+                // Progress bar
+                window.addEventListener('scroll', function() {
+                    const progressBar = document.querySelector('.mil-progress');
+                    if (progressBar) {
+                        const scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+                        const scrollHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                        const scrolled = (scrollTop / scrollHeight) * 100;
+                        progressBar.style.width = scrolled + '%';
                     }
-                  });
-                </script>
-              </body>
-            </html>
+                });
+
+                // Responsive adjustments
+                function handleResize() {
+                    if (window.innerWidth <= 767) {
+                        if (!sidebar.classList.contains('hidden')) {
+                            toggleSidebar();
+                        }
+                    } else {
+                        if (sidebar.classList.contains('hidden') && localStorage.getItem('sidebarHidden') !== 'true') {
+                            toggleSidebar();
+                        }
+                    }
+                }
+
+                window.addEventListener('resize', handleResize);
+                handleResize();
+
+            } catch (err) {
+                console.error('Error in dashboard scripts:', err);
+                alert('An unexpected error occurred. Please refresh the page.');
+            }
+        });
+    </script>
+</body>
+</html>

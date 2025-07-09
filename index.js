@@ -1468,25 +1468,58 @@ app.get('/superadmin/admin/:adminUsername', isAuthenticated, isSuperAdmin, async
 });
 
 app.post('/superadmin/delete-admin/:id', isAuthenticated, isSuperAdmin, async (req, res) => {
-  try {
-    const adminId = req.params.id;
-    if (!ObjectId.isValid(adminId)) {
-      req.session.error = ['Invalid admin ID'];
-      return res.redirect('/superadmin/dashboard');
+    try {
+        const adminId = req.params.id;
+        console.log('Delete route hit for ID:', adminId);
+
+        // Validate ObjectId
+        if (!ObjectId.isValid(adminId)) {
+            console.log('Invalid admin ID:', adminId);
+            req.session.error = ['Valid admin ID'];
+            return res.redirect('/superadmin/dashboard');
+        }
+
+        // Check if deleting own account
+        const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+        if (!currentAdmin) {
+            console.log('Current admin not found in session:', req.session.admin);
+            req.session.error = ['Current admin not found'];
+            return res.redirect('/superadmin/dashboard');
+        }
+        if (currentAdmin._id.toString() === adminId) {
+            console.log('Attempted to delete own account:', adminId);
+            req.session.error = ['Cannot delete your own account'];
+            return res.redirect('/superadmin/dashboard');
+        }
+
+        // Check if admin exists before deletion
+        const adminToDelete = await db.collection('admins').findOne({ _id: new ObjectId(adminId) });
+        if (!adminToDelete) {
+            console.log('No admin found with ID:', adminId);
+            req.session.error = ['Admin not found'];
+            return res.redirect('/superadmin/dashboard');
+        }
+        console.log('Admin to delete:', adminToDelete);
+
+        // Perform the deletion
+        console.log('Attempting to delete admin with ID:', adminId);
+        const result = await db.collection('admins').deleteOne({ _id: new ObjectId(adminId) });
+        console.log('Delete result:', result);
+
+        if (result.deletedCount === 1) {
+            console.log('Admin deleted successfully:', adminId);
+            req.session.success = ['Admin deleted successfully'];
+        } else {
+            console.log('No admin found with ID:', adminId);
+            req.session.error = ['Admin not found'];
+        }
+
+        res.redirect('/superadmin/dashboard');
+    } catch (error) {
+        console.error('Error deleting admin:', error);
+        req.session.error = ['Failed to delete admin'];
+        res.redirect('/superadmin/dashboard');
     }
-    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
-    if (currentAdmin._id.toString() === adminId) {
-      req.session.error = ['Cannot delete your own account'];
-      return res.redirect('/superadmin/dashboard');
-    }
-    await db.collection('admins').deleteOne({ _id: new ObjectId(adminId) });
-    req.session.success = ['Admin deleted successfully'];
-    res.redirect('/superadmin/dashboard');
-  } catch (error) {
-    console.error('Error deleting admin:', error);
-    req.session.error = ['Failed to delete admin'];
-    res.redirect('/superadmin/dashboard');
-  }
 });
 
 
@@ -4969,18 +5002,168 @@ app.get('/invoices', isAuthenticated, async (req, res) => {
 });
 
 app.post('/invoices/create', isAuthenticated, async (req, res) => {
-  const { customerId, newCustomerName, newCustomerPhone, newCustomerEmail, items, paymentMethod, bankName, bankAccountName, accountNumber } = req.body;
+  // Extract and normalize form data
+  const { 
+    customerId: rawCustomerId, 
+    newCustomerName, 
+    newCustomerPhone, 
+    newCustomerEmail, 
+    items, 
+    paymentMethod, 
+    bankName, 
+    bankAccountName, 
+    accountNumber 
+  } = req.body;
+
+  // Handle case where customerId might be an array
+  const customerId = Array.isArray(rawCustomerId) ? rawCustomerId[0] : rawCustomerId;
+
   try {
+    // Verify admin session
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      req.session.error = 'Admin not found. Please log in again.';
+      await req.session.save();
+      return res.redirect('/admin-login');
+    }
+
+    // Validate required fields
     if (!items || !paymentMethod) {
       req.session.error = 'Items and payment method are required.';
       req.session.formData = req.body;
-      await new Promise((resolve) => req.session.save(resolve));
+      await req.session.save();
       return res.redirect('/invoices');
     }
 
+    // Normalize items data (handle both single and multiple items)
+    const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
+    const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
+    const newProductNames = Array.isArray(items.newProductName) ? items.newProductName : [items.newProductName].filter(Boolean);
+    const newProductCosts = Array.isArray(items.newProductCost) ? items.newProductCost : [items.newProductCost].filter(Boolean);
+    const newProductStocks = Array.isArray(items.newProductStock) ? items.newProductStock : [items.newProductStock].filter(Boolean);
+
+    // Validate items and quantities match
+    if (itemIds.length !== quantities.length) {
+      req.session.error = 'Mismatch between items and quantities.';
+      req.session.formData = req.body;
+      await req.session.save();
+      return res.redirect('/invoices');
+    }
+
+    // Process each item with proper validation
+    const saleItems = [];
+    let totalOrderAmount = 0;
+    
+    for (let i = 0; i < itemIds.length; i++) {
+      const itemId = itemIds[i];
+      const qty = parseInt(quantities[i]);
+      
+      // Validate quantity
+      if (isNaN(qty) || qty <= 0) {
+        req.session.error = `Invalid quantity for item ${i+1}.`;
+        req.session.formData = req.body;
+        await req.session.save();
+        return res.redirect('/invoices');
+      }
+
+      let item;
+      
+      // MODIFIED: Handle both "new" and "new_12345" format for new products
+      if ((itemId === 'new' || itemId.startsWith('new_')) && newProductNames[i] && newProductCosts[i] && newProductStocks[i]) {
+        // Handle new product creation
+        const cost = parseFloat(newProductCosts[i]) || 0;
+        const stock = parseInt(newProductStocks[i]) || 0;
+        
+        if (cost <= 0 || stock < qty) {
+          req.session.error = `Invalid cost or insufficient stock for new product "${newProductNames[i]}".`;
+          req.session.formData = req.body;
+          await req.session.save();
+          return res.redirect('/invoices');
+        }
+        
+        item = {
+          adminId: admin._id,
+          name: newProductNames[i],
+          cost: cost,
+          stock: stock,
+          createdAt: new Date()
+        };
+        
+        const result = await db.collection('inventory').insertOne(item);
+        item._id = result.insertedId;
+        
+        // Update stock
+        await db.collection('inventory').updateOne(
+          { _id: item._id },
+          { $inc: { stock: -qty } }
+        );
+      } else if (itemId && itemId !== 'new' && !itemId.startsWith('new_')) {
+        // Handle existing product - only if it's not a new product ID
+        
+        // Validate itemId format before conversion
+        if (typeof itemId !== 'string' || !/^[0-9a-fA-F]{24}$/.test(itemId)) {
+          req.session.error = `Invalid item ID format for item ${i+1}. Received: ${itemId}`;
+          req.session.formData = req.body;
+          await req.session.save();
+          return res.redirect('/invoices');
+        }
+
+        try {
+          const objectId = new ObjectId(itemId);
+          item = await db.collection('inventory').findOne({ 
+            _id: objectId, 
+            adminId: admin._id 
+          });
+        } catch (err) {
+          console.error('Error converting itemId:', err);
+          req.session.error = `Invalid item ID for item ${i+1}.`;
+          req.session.formData = req.body;
+          await req.session.save();
+          return res.redirect('/invoices');
+        }
+
+        if (!item) {
+          req.session.error = `Item with ID ${itemId} not found in inventory.`;
+          req.session.formData = req.body;
+          await req.session.save();
+          return res.redirect('/invoices');
+        }
+        
+        if (item.stock < qty) {
+          req.session.error = `Insufficient stock for ${item.name}. Only ${item.stock} available.`;
+          req.session.formData = req.body;
+          await req.session.save();
+          return res.redirect('/invoices');
+        }
+        
+        // Update stock
+        await db.collection('inventory').updateOne(
+          { _id: item._id },
+          { $inc: { stock: -qty } }
+        );
+      } else {
+        req.session.error = `Invalid item data at position ${i+1}.`;
+        req.session.formData = req.body;
+        await req.session.save();
+        return res.redirect('/invoices');
+      }
+
+      // Add to sale items
+      const totalCost = item.cost * qty;
+      saleItems.push({ 
+        itemId: item._id, 
+        itemName: item.name, 
+        quantity: qty, 
+        unitCost: item.cost, 
+        totalCost 
+      });
+      totalOrderAmount += totalCost;
+    }
+
+    // Handle customer creation/lookup
     let customer;
     if (customerId === 'new' && newCustomerName) {
+      // Create new customer
       const newCustomer = {
         adminId: admin._id,
         name: newCustomerName,
@@ -4990,101 +5173,43 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       };
       const result = await db.collection('customers').insertOne(newCustomer);
       customer = { _id: result.insertedId, ...newCustomer };
-    } else if (customerId !== 'new') {
-      customer = await db.collection('customers').findOne({ _id: new ObjectId(customerId), adminId: admin._id });
+    } else if (customerId && customerId !== 'new') {
+      // Validate customerId format before conversion
+      if (!/^[0-9a-fA-F]{24}$/.test(customerId)) {
+        req.session.error = 'Invalid customer ID format.';
+        req.session.formData = req.body;
+        await req.session.save();
+        return res.redirect('/invoices');
+      }
+
+      // Lookup existing customer
+      try {
+        customer = await db.collection('customers').findOne({ 
+          _id: new ObjectId(customerId), 
+          adminId: admin._id 
+        });
+      } catch (err) {
+        console.error('Error converting customerId:', err);
+        req.session.error = 'Invalid customer ID.';
+        req.session.formData = req.body;
+        await req.session.save();
+        return res.redirect('/invoices');
+      }
+
       if (!customer) {
         req.session.error = 'Customer not found or invalid.';
         req.session.formData = req.body;
-        await new Promise((resolve) => req.session.save(resolve));
+        await req.session.save();
         return res.redirect('/invoices');
       }
     } else {
       req.session.error = 'Invalid customer details.';
       req.session.formData = req.body;
-      await new Promise((resolve) => req.session.save(resolve));
+      await req.session.save();
       return res.redirect('/invoices');
     }
 
-    const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
-    const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
-    const newProductNames = Array.isArray(items.newProductName) ? items.newProductName : [items.newProductName].filter(Boolean);
-    const newProductCosts = Array.isArray(items.newProductCost) ? items.newProductCost : [items.newProductCost].filter(Boolean);
-    const newProductStocks = Array.isArray(items.newProductStock) ? items.newProductStock : [items.newProductStock].filter(Boolean);
-
-    if (itemIds.length !== quantities.length) {
-      req.session.error = 'Mismatch between items and quantities.';
-      req.session.formData = req.body;
-      await new Promise((resolve) => req.session.save(resolve));
-      return res.redirect('/invoices');
-    }
-
-    const saleItems = [];
-    let totalOrderAmount = 0;
-    for (let i = 0; i < itemIds.length; i++) {
-      const itemId = itemIds[i];
-      const qty = parseInt(quantities[i]);
-      if (isNaN(qty) || qty <= 0) {
-        req.session.error = `Invalid quantity for item ${itemId}.`;
-        req.session.formData = req.body;
-        await new Promise((resolve) => req.session.save(resolve));
-        return res.redirect('/invoices');
-      }
-
-      let item;
-      if (itemId === 'new' && newProductNames[i] && newProductCosts[i] && newProductStocks[i]) {
-        const cost = parseFloat(newProductCosts[i]) || 0;
-        const stock = parseInt(newProductStocks[i]) || 0;
-        if (cost <= 0 || stock < qty) {
-          req.session.error = `Invalid cost or insufficient stock for new product "${newProductNames[i]}".`;
-          req.session.formData = req.body;
-          await new Promise((resolve) => req.session.save(resolve));
-          return res.redirect('/invoices');
-        }
-        item = {
-          adminId: admin._id,
-          name: newProductNames[i],
-          cost: cost,
-          stock: stock,
-          createdAt: new Date()
-        };
-        const result = await db.collection('inventory').insertOne(item);
-        item._id = result.insertedId;
-        // Decrement stock for new product
-        await db.collection('inventory').updateOne(
-          { _id: item._id },
-          { $inc: { stock: -qty } }
-        );
-      } else if (itemId !== 'new') {
-        const objectId = new ObjectId(itemId);
-        item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
-        if (!item) {
-          req.session.error = `Item with ID ${itemId} not found in inventory.`;
-          req.session.formData = req.body;
-          await new Promise((resolve) => req.session.save(resolve));
-          return res.redirect('/invoices');
-        }
-        if (item.stock < qty) {
-          req.session.error = `Insufficient stock for ${item.name}. Only ${item.stock} available.`;
-          req.session.formData = req.body;
-          await new Promise((resolve) => req.session.save(resolve));
-          return res.redirect('/invoices');
-        }
-        await db.collection('inventory').updateOne(
-          { _id: objectId },
-          { $inc: { stock: -qty } }
-        );
-      } else {
-        req.session.error = `Invalid item data at index ${i}.`;
-        req.session.formData = req.body;
-        await new Promise((resolve) => req.session.save(resolve));
-        return res.redirect('/invoices');
-      }
-
-      const totalCost = item.cost * qty;
-      saleItems.push({ itemId: item._id, itemName: item.name, quantity: qty, unitCost: item.cost, totalCost });
-      totalOrderAmount += totalCost;
-    }
-
+    // Create sale record
     const sale = {
       adminId: admin._id,
       customerId: customer._id,
@@ -5095,32 +5220,39 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       totalAmount: totalOrderAmount || 0,
       paymentMethod: paymentMethod || 'N/A',
       paymentStatus: 'Pending',
-      date: new Date()
+      date: new Date(),
+      formattedTotal: totalOrderAmount.toLocaleString('en-US', { 
+        minimumFractionDigits: 2, 
+        maximumFractionDigits: 2 
+      })
     };
 
-    const formattedTotal = sale.formattedTotal || 
-    sale.totalAmount.toLocaleString('en-US', { 
-      minimumFractionDigits: 2, 
-      maximumFractionDigits: 2 
-    });
-
+    // Add bank details if payment method is bank transfer
     if (paymentMethod === 'Bank Transfer') {
       if (!bankName || !bankAccountName || !accountNumber) {
         req.session.error = 'Bank details required for bank transfers.';
         req.session.formData = req.body;
-        await new Promise((resolve) => req.session.save(resolve));
+        await req.session.save();
         return res.redirect('/invoices');
       }
       sale.bankDetails = { bankName, bankAccountName, accountNumber };
     }
 
+    // Save the sale
     await db.collection('sales').insertOne(sale);
+    
+    // Clear form data from session on success
+    if (req.session.formData) {
+      delete req.session.formData;
+      await req.session.save();
+    }
+    
     res.redirect('/invoices');
   } catch (error) {
     console.error('Error creating invoice:', error);
     req.session.error = 'An unexpected error occurred. Please try again.';
     req.session.formData = req.body;
-    await new Promise((resolve) => req.session.save(resolve));
+    await req.session.save();
     res.redirect('/invoices');
   }
 });
