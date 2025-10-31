@@ -336,6 +336,19 @@
             border-radius: 8px;
             margin-bottom: 20px;
         }
+        /* VAT Settings Section */
+        .mil-vat-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #17a2b8;
+        }
+        .mil-vat-section h5 {
+            color: #17a2b8 !important;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
         /* Social links */
         .mil-social-links {
             text-align: center;
@@ -411,6 +424,19 @@
         }
         .mil-error i, .mil-success i {
             margin-right: 8px;
+        }
+        /* Form text styles */
+        .form-text {
+            font-size: 0.75em;
+            color: #6c757d !important;
+            margin-top: 4px;
+            display: block;
+        }
+        .form-text.text-primary {
+            color: #007bff !important;
+        }
+        .form-text.text-warning {
+            color: #ffc107 !important;
         }
         /* Cropper Modal */
         .mil-modal {
@@ -652,6 +678,17 @@
                                             <label><i class="fa-solid fa-map-marker-alt"></i> Address</label>
                                             <div class="value"><%= admin.address || 'N/A' %> (<%= admin.publicAddress ? 'Public' : 'Private' %>)</div>
                                         </div>
+                                        <!-- VAT Settings Display -->
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-percentage"></i> VAT Settings</label>
+                                            <div class="value">
+                                                <% if (admin.applyVat) { %>
+                                                    VAT Enabled at <%= admin.vatRate || 0 %>%
+                                                <% } else { %>
+                                                    VAT Not Enabled
+                                                <% } %>
+                                            </div>
+                                        </div>
                                         <div class="mil-form-group">
                                             <label><i class="fa-brands fa-facebook"></i> Facebook</label>
                                             <div class="value"><%= admin.facebook || 'N/A' %></div>
@@ -766,6 +803,27 @@
                                                 <label for="publicAddress">Make address public on storefront</label>
                                             </div>
                                         </div>
+
+                                        <!-- VAT Settings Section -->
+                                        <div class="mil-vat-section">
+                                            <h5>VAT Settings</h5>
+                                            <div class="mil-form-group">
+                                                <div class="mil-form-group checkbox-group">
+                                                    <input type="checkbox" name="applyVat" id="applyVat" <%= admin.applyVat ? 'checked' : '' %>>
+                                                    <label for="applyVat">Apply VAT to my products</label>
+                                                </div>
+                                                <small class="form-text">Enable this to apply VAT rates to vatable products</small>
+                                            </div>
+                                            
+                                            <div class="mil-form-group" id="vatRateGroup" style="display: <%= admin.applyVat ? 'block' : 'none' %>;">
+                                                <label><i class="fa-solid fa-percentage"></i> VAT Rate (%)</label>
+                                                <input type="number" name="vatRate" class="mil-form-control" 
+                                                       value="<%= admin.vatRate || 0 %>" min="0" max="100" step="0.01"
+                                                       placeholder="Enter VAT rate (e.g., 7.5)">
+                                                <small class="form-text">Enter the VAT percentage rate to apply to vatable products</small>
+                                            </div>
+                                        </div>
+
                                         <div class="mil-form-group">
                                             <label><i class="fa-brands fa-facebook"></i> Facebook URL</label>
                                             <input type="url" name="facebook" class="mil-form-control" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/yourbusiness">
@@ -1002,6 +1060,27 @@
                 const profileView = document.getElementById('profileView');
                 const profileEdit = document.getElementById('profileEdit');
 
+                // VAT Settings Toggle
+                const vatCheckbox = document.querySelector('input[name="applyVat"]');
+                const vatRateGroup = document.getElementById('vatRateGroup');
+                
+                // Toggle VAT rate field visibility
+                function toggleVatRate() {
+                    if (vatCheckbox && vatRateGroup) {
+                        vatRateGroup.style.display = vatCheckbox.checked ? 'block' : 'none';
+                        if (!vatCheckbox.checked) {
+                            document.querySelector('input[name="vatRate"]').value = '0';
+                        }
+                    }
+                }
+
+                // Initialize VAT toggle
+                if (vatCheckbox) {
+                    vatCheckbox.addEventListener('change', toggleVatRate);
+                    // Initialize on page load
+                    toggleVatRate();
+                }
+
                 // Debug: Verify elements exist
                 console.log('editProfileBtn:', editProfileBtn);
                 console.log('profileView:', profileView);
@@ -1014,6 +1093,8 @@
                         if (profileView && profileEdit) {
                             profileView.classList.add('hidden');
                             profileEdit.classList.remove('hidden');
+                            // Ensure VAT settings are properly displayed
+                            toggleVatRate();
                         } else {
                             console.error('Profile view or edit section not found');
                         }
@@ -1040,12 +1121,32 @@
                                 imagePlaceholder.classList.toggle('hidden', '<%= admin.logo %>');
                                 croppedImageData.value = '';
                             }
+                            // Reset VAT settings to original values
+                            if (vatCheckbox) {
+                                vatCheckbox.checked = <%= admin.applyVat || false %>;
+                                toggleVatRate();
+                            }
                         } else {
                             console.error('Profile view or edit section not found');
                         }
                     });
                 } else {
                     console.error('Cancel button not found');
+                }
+
+                // Form validation for VAT
+                const profileForm = document.getElementById('updateProfileForm');
+                if (profileForm) {
+                    profileForm.addEventListener('submit', function(e) {
+                        if (vatCheckbox && vatCheckbox.checked) {
+                            const vatRate = document.querySelector('input[name="vatRate"]');
+                            if (vatRate && (!vatRate.value || parseFloat(vatRate.value) <= 0)) {
+                                e.preventDefault();
+                                alert('Please enter a valid VAT rate when VAT is enabled.');
+                                vatRate.focus();
+                            }
+                        }
+                    });
                 }
 
                 // Cropper.js logic

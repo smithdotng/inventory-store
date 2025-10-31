@@ -138,6 +138,18 @@
             font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ddd;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .mil-form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        textarea.mil-form-control {
+            resize: vertical;
+            min-height: 100px;
         }
 
         .mil-item-row {
@@ -146,6 +158,10 @@
             gap: 10px;
             margin-bottom: 15px;
             align-items: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
         }
 
         .mil-item-row select,
@@ -161,6 +177,58 @@
             cursor: pointer;
             touch-action: manipulation;
             border: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .mil-button.add-product-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .mil-button.add-product-btn:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .mil-button.update-btn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .mil-button.update-btn:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        .mil-button.cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .mil-button.cancel-btn:hover {
+            background-color: #545b62;
+            transform: translateY(-2px);
+        }
+
+        .mil-button.delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .mil-button.delete-btn:hover {
+            background-color: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .mil-button.download-btn {
+            background-color: #17a2b8;
+            color: white;
+        }
+
+        .mil-button.download-btn:hover {
+            background-color: #138496;
+            transform: translateY(-2px);
         }
 
         .mil-button-group,
@@ -172,13 +240,49 @@
         }
 
         .mil-field-error {
-            color: red;
+            color: #dc3545;
             font-size: 12px;
             margin-top: 5px;
+            display: none;
+        }
+
+        .mil-alert {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
         }
 
         .hidden {
             display: none;
+        }
+
+        /* New product fields styling */
+        .mil-new-product-fields {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .mil-new-customer-fields {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+
+        .mil-bank-details {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+            margin-bottom: 20px;
         }
 
         /* Table */
@@ -189,28 +293,60 @@
 
         .mil-table {
             width: 100%;
-            min-width: 600px; /* Ensures table is scrollable on small screens */
+            min-width: 600px;
             border-collapse: collapse;
             font-size: 14px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
         }
 
-        .mil-table th,
-        .mil-table td {
-            padding: 10px;
+        .mil-table th {
+            background-color: #2c5530;
+            color: white;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid #ddd;
+            font-weight: 600;
+        }
+
+        .mil-table td {
+            padding: 12px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .mil-table tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .payment-status {
+            font-weight: 600;
+            padding: 4px 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .payment-status.Pending {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .payment-status.Paid {
+            background-color: #d4edda;
+            color: #155724;
         }
 
         .mil-action-buttons {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
         }
 
         /* Footer */
         footer.mil-dark-bg {
             padding: 20px;
             text-align: center;
+            background: #2c5530 !important;
         }
 
         /* Responsive Styles */
@@ -271,6 +407,14 @@
             .col-md-7, .col-lg-5, .col-lg-8 {
                 width: 100%;
             }
+
+            .mil-action-buttons {
+                flex-direction: column;
+            }
+
+            .mil-action-buttons .mil-button {
+                width: 100%;
+            }
         }
 
         @media (max-width: 576px) {
@@ -307,6 +451,12 @@
 
             .mil-form-group label {
                 font-size: 14px;
+            }
+
+            .mil-new-product-fields,
+            .mil-new-customer-fields,
+            .mil-bank-details {
+                padding: 10px;
             }
         }
     </style>
@@ -379,6 +529,9 @@
                                         <h4>Invoices for <%= admin.businessName || 'Your Business' %></h4>
                                         <p>
                                             Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
+                                            <% if (admin.applyVat) { %>
+                                                | VAT Rate: <%= admin.vatRate || 0 %>%
+                                            <% } %>
                                         </p>
                                     </div>
                                 </div>
@@ -442,8 +595,8 @@
                                                             <select name="items[itemId][]" class="mil-form-control" required>
                                                                 <option value="">Select Item</option>
                                                                 <% inventory.forEach(item => { %>
-                                                                    <option value="<%= item._id %>" <%= itemId === item._id.toString() ? 'selected' : '' %> data-stock="<%= item.stock %>">
-                                                                        <%= item.name %> (Stock: <%= item.stock %>)
+                                                                    <option value="<%= item._id %>" <%= itemId === item._id.toString() ? 'selected' : '' %> data-stock="<%= item.stock %>" data-isVatable="<%= item.isVatable %>">
+                                                                        <%= item.name %> (Stock: <%= item.stock %>)<%= item.isVatable ? ' [VAT]' : '' %>
                                                                     </option>
                                                                 <% }) %>
                                                                 <option value="new">Create New Product</option>
@@ -479,8 +632,8 @@
                                                         <select name="items[itemId][]" class="mil-form-control" required>
                                                             <option value="">Select Item</option>
                                                             <% inventory.forEach(item => { %>
-                                                                <option value="<%= item._id %>" data-stock="<%= item.stock %>">
-                                                                    <%= item.name %> (Stock: <%= item.stock %>)
+                                                                <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-isVatable="<%= item.isVatable %>">
+                                                                    <%= item.name %> (Stock: <%= item.stock %>)<%= item.isVatable ? ' [VAT]' : '' %>
                                                                 </option>
                                                             <% }) %>
                                                             <option value="new">Create New Product</option>
@@ -518,6 +671,18 @@
                                             <button type="button" id="addItemBtn" class="mil-button add-product-btn">
                                                 Add Another Item <i class="fa-solid fa-plus"></i>
                                             </button>
+                                        </div>
+
+                                        <!-- NEW: Additional Comments Section -->
+                                        <div class="mil-form-group">
+                                            <label><i class="fa-solid fa-comment"></i> Additional Comments (Optional)</label>
+                                            <textarea 
+                                                name="additionalComments" 
+                                                class="mil-form-control" 
+                                                placeholder="Add any additional notes or comments for this invoice..."
+                                                rows="4"
+                                            ><%= formData.additionalComments || '' %></textarea>
+                                            <small class="text-muted">These comments will appear on the generated invoice PDF.</small>
                                         </div>
 
                                         <div class="mil-form-group">
@@ -564,49 +729,55 @@
                                 <!-- Invoices Table -->
                                 <div class="mil-table-section mil-up">
                                     <h2 class="mil-mb-30">Existing Invoices</h2>
-                                    <table class="mil-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Customer Name</th>
-                                                <th>Items</th>
-                                                <th>Total Amount</th>
-                                                <th>Payment Status</th>
-                                                <th>Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <% sales.forEach(sale => { %>
-                                                <tr id="sale-<%= sale._id %>">
-                                                    <td><%= new Date(sale.date).toLocaleDateString() %></td>
-                                                    <td><%= sale.customerName %></td>
-                                                    <td>
-                                                        <% if (sale.items) { %>
-                                                            <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
-                                                        <% } else { %>
-                                                            <%= `${sale.itemName} (${sale.quantity})` %>
-                                                        <% } %>
-                                                    </td>
-                                                    <td><%= admin.currency %><%= formatCurrency(sale.totalAmount || 0) %></td>
-                                                    <td class="payment-status"><%= sale.paymentStatus || 'Pending' %></td>
-                                                    <td>
-                                                        <div class="mil-action-buttons">
-                                                            <a href="/invoices/download/<%= sale._id %>" class="mil-button download-btn">
-                                                                Download PDF <i class="fa-solid fa-download"></i>
-                                                            </a>
-                                                            <% if (sale.paymentStatus !== 'Paid') { %>
-                                                                <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
-                                                                    <button type="submit" class="mil-button update-btn">
-                                                                        Mark as Paid <i class="fa-solid fa-check"></i>
-                                                                    </button>
-                                                                </form>
-                                                            <% } %>
-                                                        </div>
-                                                    </td>
+                                    <% if (sales.length === 0) { %>
+                                        <div class="mil-center">
+                                            <p>No invoices found. Create your first invoice above.</p>
+                                        </div>
+                                    <% } else { %>
+                                        <table class="mil-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>Date</th>
+                                                    <th>Customer Name</th>
+                                                    <th>Items</th>
+                                                    <th>Total Amount</th>
+                                                    <th>Payment Status</th>
+                                                    <th>Action</th>
                                                 </tr>
-                                            <% }) %>
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <% sales.forEach(sale => { %>
+                                                    <tr id="sale-<%= sale._id %>">
+                                                        <td><%= new Date(sale.date).toLocaleDateString() %></td>
+                                                        <td><%= sale.customerName %></td>
+                                                        <td>
+                                                            <% if (sale.items) { %>
+                                                                <%= sale.items.map(item => `${item.itemName} (${item.quantity})`).join(', ') %>
+                                                            <% } else { %>
+                                                                <%= `${sale.itemName} (${sale.quantity})` %>
+                                                            <% } %>
+                                                        </td>
+                                                        <td><%= admin.currency %><%= formatCurrency(sale.totalAmount || 0) %></td>
+                                                        <td class="payment-status <%= sale.paymentStatus || 'Pending' %>"><%= sale.paymentStatus || 'Pending' %></td>
+                                                        <td>
+                                                            <div class="mil-action-buttons">
+                                                                <a href="/invoices/download/<%= sale._id %>" class="mil-button download-btn">
+                                                                    Download PDF <i class="fa-solid fa-download"></i>
+                                                                </a>
+                                                                <% if (sale.paymentStatus !== 'Paid') { %>
+                                                                    <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" class="action-form" data-sale-id="<%= sale._id %>">
+                                                                        <button type="submit" class="mil-button update-btn">
+                                                                            Mark as Paid <i class="fa-solid fa-check"></i>
+                                                                        </button>
+                                                                    </form>
+                                                                <% } %>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <% }) %>
+                                            </tbody>
+                                        </table>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
@@ -822,8 +993,8 @@
                             <select name="items[itemId][]" class="mil-form-control" required>
                                 <option value="">Select Item</option>
                                 <% inventory.forEach(item => { %>
-                                    <option value="<%= item._id %>" data-stock="<%= item.stock %>">
-                                        <%= item.name %> (Stock: <%= item.stock %>)
+                                    <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-isVatable="<%= item.isVatable %>">
+                                        <%= item.name %> (Stock: <%= item.stock %>)<%= item.isVatable ? ' [VAT]' : '' %>
                                     </option>
                                 <% }) %>
                                 <option value="new">Create New Product</option>
@@ -1140,6 +1311,7 @@
                             if (response.ok) {
                                 const row = document.getElementById(`sale-${saleId}`);
                                 row.querySelector('.payment-status').textContent = 'Paid';
+                                row.querySelector('.payment-status').className = 'payment-status Paid';
                                 form.remove();
                             } else {
                                 alert('Failed to mark invoice as paid.');
