@@ -2379,7 +2379,7 @@ app.post('/admin/permanently-delete-message', isAuthenticated, async (req, res) 
 
 // POST /add-product
 app.post('/add-product', isAuthenticated, uploadProductImages, async (req, res) => {
-  const { name, description, stock, cost, commission } = req.body;
+  const { name, description, stock, cost, commission, isVatable } = req.body;
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!admin) {
@@ -2413,6 +2413,7 @@ app.post('/add-product', isAuthenticated, uploadProductImages, async (req, res) 
       stock: parseInt(stock),
       cost: parseFloat(cost),
       adminId: admin._id,
+      isVatable: isVatable === 'on', // New VAT field for product
       createdAt: new Date()
     };
     
@@ -2555,7 +2556,7 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!admin) {
       req.session.error = 'Admin not found.';
-      req.session.success = null; // Clear success message
+      req.session.success = null;
       return res.redirect('/profile');
     }
 
@@ -2580,14 +2581,26 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       publicPhone,
       publicEmail,
       publicAddress,
+      applyVat, // New field for VAT application
+      vatRate,  // New field for VAT rate
       croppedImageData
     } = req.body;
 
     // Validate email
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       req.session.error = 'Please enter a valid email address';
-      req.session.success = null; // Clear success message
+      req.session.success = null;
       return res.redirect('/profile');
+    }
+
+    // Validate VAT rate if applying VAT
+    if (applyVat === 'on') {
+      const vatRateValue = parseFloat(vatRate);
+      if (isNaN(vatRateValue) || vatRateValue < 0 || vatRateValue > 100) {
+        req.session.error = 'Please enter a valid VAT rate between 0 and 100';
+        req.session.success = null;
+        return res.redirect('/profile');
+      }
     }
 
     // Validate social media URLs if provided
@@ -2603,17 +2616,17 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
 
     if (facebook && !isValidUrl(facebook)) {
       req.session.error = 'Please enter a valid Facebook URL';
-      req.session.success = null; // Clear success message
+      req.session.success = null;
       return res.redirect('/profile');
     }
     if (instagram && !isValidUrl(instagram)) {
       req.session.error = 'Please enter a valid Instagram URL';
-      req.session.success = null; // Clear success message
+      req.session.success = null;
       return res.redirect('/profile');
     }
     if (twitter && !isValidUrl(twitter)) {
       req.session.error = 'Please enter a valid Twitter URL';
-      req.session.success = null; // Clear success message
+      req.session.success = null;
       return res.redirect('/profile');
     }
 
@@ -2633,10 +2646,13 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       publicPhone: publicPhone === 'on',
       publicEmail: publicEmail === 'on',
       publicAddress: publicAddress === 'on',
+      // VAT settings
+      applyVat: applyVat === 'on',
+      vatRate: applyVat === 'on' ? parseFloat(vatRate) : (admin.vatRate || 0),
       updatedAt: new Date()
     };
 
-    // Handle logo update
+    // Handle logo update (existing code remains the same)
     if (req.file) {
       if (admin.logo) {
         const oldLogoPath = path.join(__dirname, 'public', admin.logo);
@@ -2664,7 +2680,7 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
       updateData.logo = `/uploads/${filename}`;
     }
 
-    // Prepare bank account updates
+    // Prepare bank account updates (existing code remains the same)
     const primaryAccount = {
       bankAccountName: primaryBankAccountName || (admin.primaryAccount?.bankAccountName || ''),
       accountNumber: primaryAccountNumber || (admin.primaryAccount?.accountNumber || ''),
@@ -2697,12 +2713,12 @@ app.post('/profile/update', isAuthenticated, uploadLogo, async (req, res) => {
     }
 
     req.session.success = 'Profile updated successfully!';
-    req.session.error = null; // Clear error message
+    req.session.error = null;
     res.redirect('/profile');
   } catch (error) {
     console.error('Error updating profile:', error);
     req.session.error = 'Failed to update profile. Please try again.';
-    req.session.success = null; // Clear success message
+    req.session.success = null;
     res.redirect('/profile');
   }
 });
@@ -3337,6 +3353,9 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
 
     const saleItems = [];
     let totalOrderAmount = 0;
+    let totalVatAmount = 0;
+    let subtotalAmount = 0;
+
     for (let i = 0; i < itemIds.length; i++) {
       const itemId = itemIds[i];
       const qty = parseInt(quantities[i]);
@@ -3345,10 +3364,40 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
       const item = await db.collection('inventory').findOne({ _id: objectId, adminId: admin._id });
       if (!item) return res.status(404).send(`Item with ID ${itemId} not found in inventory.`);
       if (item.stock < qty || qty <= 0) return res.status(400).send(`Invalid quantity or insufficient stock for ${item.name}.`);
-      const totalCost = item.cost * qty;
-      saleItems.push({ itemId: objectId, itemName: item.name, quantity: qty, unitCost: item.cost, totalCost });
-      totalOrderAmount += totalCost;
+      
+      const unitCost = item.cost;
+      const totalCost = unitCost * qty;
+      
+      // Calculate VAT if applicable
+      let vatAmount = 0;
+      let vatRate = 0;
+      let isVatable = false;
+      
+      if (admin.applyVat && item.isVatable) {
+        vatRate = admin.vatRate || 0;
+        vatAmount = (totalCost * vatRate) / 100;
+        isVatable = true;
+        totalVatAmount += vatAmount;
+      }
+      
+      const itemTotalWithVat = totalCost + vatAmount;
+      
+      saleItems.push({ 
+        itemId: objectId, 
+        itemName: item.name, 
+        quantity: qty, 
+        unitCost: unitCost,
+        totalCost: totalCost,
+        isVatable: isVatable,
+        vatRate: vatRate,
+        vatAmount: vatAmount,
+        itemTotalWithVat: itemTotalWithVat
+      });
+      
+      subtotalAmount += totalCost;
+      totalOrderAmount += itemTotalWithVat;
     }
+
     res.render('confirm-transaction', {
       username: req.session.admin,
       admin,
@@ -3356,10 +3405,15 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
       phoneNumber: phoneNumber || 'N/A',
       email: email || 'N/A',
       saleItems,
+      subtotalAmount,
+      totalVatAmount,
       totalOrderAmount,
       paymentMethod,
       currency: admin.currency || '$',
-      formatCurrency
+      formatCurrency,
+      // Helper functions for the template
+      calculateVat: (price, vatRate) => (price * vatRate) / 100,
+      getPriceWithVat: (price, vatRate) => price + ((price * vatRate) / 100)
     });
   } catch (error) {
     console.error('Error processing transaction:', error);
@@ -5012,7 +5066,8 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
     paymentMethod, 
     bankName, 
     bankAccountName, 
-    accountNumber 
+    accountNumber,
+    additionalComments // NEW: Added additional comments field
   } = req.body;
 
   // Handle case where customerId might be an array
@@ -5053,7 +5108,9 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
     // Process each item with proper validation
     const saleItems = [];
     let totalOrderAmount = 0;
-    
+    let totalVatAmount = 0;
+    let subtotalAmount = 0;
+
     for (let i = 0; i < itemIds.length; i++) {
       const itemId = itemIds[i];
       const qty = parseInt(quantities[i]);
@@ -5068,7 +5125,7 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
 
       let item;
       
-      // MODIFIED: Handle both "new" and "new_12345" format for new products
+      // Handle both "new" and "new_12345" format for new products
       if ((itemId === 'new' || itemId.startsWith('new_')) && newProductNames[i] && newProductCosts[i] && newProductStocks[i]) {
         // Handle new product creation
         const cost = parseFloat(newProductCosts[i]) || 0;
@@ -5081,11 +5138,14 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
           return res.redirect('/invoices');
         }
         
+        // Set isVatable based on admin's VAT settings
+        // For new products in invoices, we'll assume they are vatable if admin applies VAT
         item = {
           adminId: admin._id,
           name: newProductNames[i],
           cost: cost,
           stock: stock,
+          isVatable: admin.applyVat, // Default to admin's VAT setting
           createdAt: new Date()
         };
         
@@ -5148,16 +5208,39 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
         return res.redirect('/invoices');
       }
 
-      // Add to sale items
-      const totalCost = item.cost * qty;
+      // Calculate VAT for the item
+      const unitCost = item.cost;
+      const totalCost = unitCost * qty;
+      
+      let vatAmount = 0;
+      let vatRate = 0;
+      let isVatable = false;
+      let itemTotalWithVat = totalCost;
+      
+      // Apply VAT if admin has VAT enabled and item is vatable
+      if (admin.applyVat && item.isVatable) {
+        vatRate = admin.vatRate || 0;
+        vatAmount = (totalCost * vatRate) / 100;
+        isVatable = true;
+        itemTotalWithVat = totalCost + vatAmount;
+        totalVatAmount += vatAmount;
+      }
+      
+      subtotalAmount += totalCost;
+      totalOrderAmount += itemTotalWithVat;
+
+      // Add to sale items with VAT information
       saleItems.push({ 
         itemId: item._id, 
         itemName: item.name, 
         quantity: qty, 
-        unitCost: item.cost, 
-        totalCost 
+        unitCost: unitCost, 
+        totalCost: totalCost,
+        isVatable: isVatable,
+        vatRate: vatRate,
+        vatAmount: vatAmount,
+        itemTotalWithVat: itemTotalWithVat
       });
-      totalOrderAmount += totalCost;
     }
 
     // Handle customer creation/lookup
@@ -5209,7 +5292,19 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       return res.redirect('/invoices');
     }
 
-    // Create sale record
+    // NEW: Process additional comments
+    let processedComments = '';
+    if (additionalComments) {
+      // Trim and sanitize comments
+      processedComments = additionalComments.trim();
+      
+      // Limit length to prevent abuse (optional)
+      if (processedComments.length > 1000) {
+        processedComments = processedComments.substring(0, 1000) + '...';
+      }
+    }
+
+    // Create sale record with VAT information and additional comments
     const sale = {
       adminId: admin._id,
       customerId: customer._id,
@@ -5217,10 +5312,17 @@ app.post('/invoices/create', isAuthenticated, async (req, res) => {
       phoneNumber: customer.phone,
       email: customer.email,
       items: saleItems,
-      totalAmount: totalOrderAmount || 0,
+      subtotalAmount: subtotalAmount, // Subtotal before VAT
+      totalVatAmount: totalVatAmount, // Total VAT amount
+      totalAmount: totalOrderAmount, // Total with VAT
       paymentMethod: paymentMethod || 'N/A',
       paymentStatus: 'Pending',
       date: new Date(),
+      // Store VAT settings for reference
+      vatApplied: admin.applyVat,
+      vatRate: admin.vatRate || 0,
+      // NEW: Include additional comments
+      additionalComments: processedComments,
       formattedTotal: totalOrderAmount.toLocaleString('en-US', { 
         minimumFractionDigits: 2, 
         maximumFractionDigits: 2 
@@ -5360,100 +5462,277 @@ app.get('/public-invoice/:saleId', async (req, res) => {
     // Get admin info for the sale
     const admin = await db.collection('admins').findOne({ _id: sale.adminId });
     
-    const doc = new PDFDocument({ margin: 50 });
-    const filename = `invoice-${saleId}.pdf`;
-    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
-    res.setHeader('Content-type', 'application/pdf');
-    doc.pipe(res);
-
-    // Your existing PDF generation code here...
-    // (Same as your current /receipt/:saleId route but without auth checks)
-
+    const doc = new PDFDocument({ 
+      margin: 50,
+      size: 'A4',
+      info: {
+        Title: `Invoice - ${saleId}`,
+        Author: admin?.businessName || 'Shed',
+        Subject: 'Commercial Invoice'
+      }
+    });
     
-    res.setHeader('Content-disposition', `attachment; filename="${filename}"`);
+    const filename = `invoice-${saleId}.pdf`;
+    res.setHeader('Content-disposition', `inline; filename="${filename}"`);
     res.setHeader('Content-type', 'application/pdf');
     doc.pipe(res);
 
-    doc.fontSize(10).text('Shed: Inventory, Invoices and More', 50, 30, { align: 'center' });
-    doc.moveTo(50, 45).lineTo(550, 45).stroke();
-    doc.moveDown(2);
+    // Color scheme
+    const primaryColor = '#2c5530'; // Dark green
+    const secondaryColor = '#4a7c59'; // Medium green
+    const accentColor = '#8fb996'; // Light green
+    const textColor = '#333333';
+    const borderColor = '#cccccc';
+    const highlightColor = '#f8f9fa';
 
-    if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
-      doc.image(path.join(__dirname, 'public', admin.logo), 50, 60, { width: 100 });
-      doc.moveDown(5);
+    // Helper function to draw colored rectangle
+    const drawColoredBox = (x, y, width, height, color, text = '', textColor = '#ffffff') => {
+      doc.rect(x, y, width, height).fill(color);
+      if (text) {
+        doc.fillColor(textColor)
+           .fontSize(10)
+           .text(text, x + 5, y + (height - 10) / 2, { width: width - 10, align: 'center' });
+      }
+    };
+
+    // Header Section
+    doc.fillColor(primaryColor)
+       .fontSize(16)
+       .font('Helvetica-Bold')
+       .text('SHED', 50, 50, { align: 'left' });
+    
+    doc.fillColor(textColor)
+       .fontSize(8)
+       .font('Helvetica')
+       .text('Inventory, Invoices and More', 50, 68);
+
+    // Business Logo
+    let currentY = 50;
+    if (admin?.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
+      try {
+        doc.image(path.join(__dirname, 'public', admin.logo), 450, 50, { width: 80, height: 80, fit: [80, 80] });
+      } catch (error) {
+        console.error('Error loading logo:', error);
+      }
     }
 
-    doc.fontSize(20).text('Invoice', { align: 'right' });
-    doc.moveDown();
-    doc.fontSize(12).text(`Business: ${admin.businessName}`, { align: 'left' });
-    doc.text(`Email: ${admin.email}`, { align: 'left' });
-    doc.text(`Invoice Date: ${new Date(sale.date).toLocaleDateString()}`, { align: 'left' });
-    doc.moveDown();
+    // Invoice Title
+    doc.fillColor(primaryColor)
+       .fontSize(24)
+       .font('Helvetica-Bold')
+       .text('INVOICE', 400, 50, { align: 'right' });
 
-    doc.fontSize(12).text('Customer Details:', { underline: true });
-    doc.text(`Name: ${sale.customerName}`);
-    doc.text(`Phone: ${sale.phoneNumber || 'N/A'}`);
-    doc.text(`Email: ${sale.email || 'N/A'}`);
-    doc.moveDown();
+    // Header separator line
+    doc.moveTo(50, 90).lineTo(550, 90).strokeColor(primaryColor).lineWidth(2).stroke();
 
-    doc.fontSize(12).text('Sale Details:', { underline: true });
-    doc.moveDown(0.5);
+    currentY = 110;
 
-    const tableTop = doc.y;
-    const tableLeft = 50;
-    const colWidths = [200, 70, 100, 100];
-    const rowHeight = 20;
+    // Business Information Box
+    drawColoredBox(50, currentY, 230, 60, accentColor);
+    doc.fillColor(textColor)
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('FROM:', 60, currentY + 10);
+    
+    doc.font('Helvetica')
+       .text(admin?.businessName || 'Business Name', 60, currentY + 25)
+       .text(admin?.email || 'N/A', 60, currentY + 38)
+       .text(admin?.phone || 'N/A', 60, currentY + 51);
 
-    doc.fontSize(10).font('Helvetica-Bold');
-    doc.text('Item', tableLeft, tableTop, { width: colWidths[0], align: 'left' });
-    doc.text('Quantity', tableLeft + colWidths[0], tableTop, { width: colWidths[1], align: 'right' });
-    doc.text('Unit Cost', tableLeft + colWidths[0] + colWidths[1], tableTop, { width: colWidths[2], align: 'right' });
-    doc.text('Total Cost', tableLeft + colWidths[0] + colWidths[1] + colWidths[2], tableTop, { width: colWidths[3], align: 'right' });
+    // Invoice Details Box
+    drawColoredBox(300, currentY, 250, 60, accentColor);
+    doc.fillColor(textColor)
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('INVOICE DETAILS:', 310, currentY + 10);
+    
+    doc.font('Helvetica')
+       .text(`Invoice #: ${saleId.slice(-8)}`, 310, currentY + 25)
+       .text(`Date: ${new Date(sale.date).toLocaleDateString()}`, 310, currentY + 38)
+       .text(`Due: ${new Date(sale.date).toLocaleDateString()}`, 310, currentY + 51);
 
-    doc.moveTo(tableLeft, tableTop + 15).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), tableTop + 15).stroke();
-    doc.font('Helvetica');
+    currentY += 80;
 
-    let y = tableTop + rowHeight;
+    // Customer Information Box
+    drawColoredBox(50, currentY, 500, 50, highlightColor);
+    doc.fillColor(textColor)
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('BILL TO:', 60, currentY + 10);
+    
+    doc.font('Helvetica')
+       .text(sale.customerName, 60, currentY + 25)
+       .text(sale.phoneNumber || 'N/A', 60, currentY + 38)
+       .text(sale.email || 'N/A', 200, currentY + 38);
+
+    currentY += 70;
+
+    // Items Table Header
+    drawColoredBox(50, currentY, 500, 25, primaryColor, 'ITEMS DETAILS');
+    currentY += 30;
+
+    // Table Headers
+    const colWidths = [220, 70, 80, 70, 60];
+    const headerY = currentY;
+    
+    doc.fillColor(primaryColor)
+       .fontSize(9)
+       .font('Helvetica-Bold');
+    
+    doc.text('Description', 50, headerY, { width: colWidths[0] });
+    doc.text('Qty', 270, headerY, { width: colWidths[1], align: 'center' });
+    doc.text('Unit Price', 340, headerY, { width: colWidths[2], align: 'right' });
+    doc.text('VAT', 420, headerY, { width: colWidths[3], align: 'right' });
+    doc.text('Amount', 490, headerY, { width: colWidths[4], align: 'right' });
+
+    // Header underline
+    doc.moveTo(50, headerY + 12).lineTo(550, headerY + 12).strokeColor(borderColor).lineWidth(1).stroke();
+    
+    currentY += 20;
+
+    // Items List
+    doc.fillColor(textColor).font('Helvetica').fontSize(9);
+    let itemsY = currentY;
 
     if (sale.items && Array.isArray(sale.items)) {
-      sale.items.forEach(item => {
-        doc.text(item.itemName || 'N/A', tableLeft, y, { width: colWidths[0], align: 'left' });
-        doc.text(String(item.quantity || 0), tableLeft + colWidths[0], y, { width: colWidths[1], align: 'right' });
-        doc.text(`${admin.currency} ${(formatCurrency(item.unitCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1], y, { width: colWidths[2], align: 'right' });
-        doc.text(`${admin.currency} ${(formatCurrency(item.totalCost) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y, { width: colWidths[3], align: 'right' });
-        y += rowHeight;
+      sale.items.forEach((item, index) => {
+        // Alternate row background
+        if (index % 2 === 0) {
+          doc.rect(50, itemsY - 5, 500, 20).fill(highlightColor).opacity(0.3);
+        }
+
+        const itemName = item.itemName || 'N/A';
+        const quantity = item.quantity || 0;
+        const unitCost = parseFloat(item.unitCost) || 0;
+        const totalCost = parseFloat(item.totalCost) || 0;
+        const vatAmount = parseFloat(item.vatAmount) || 0;
+        const isVatable = item.isVatable || false;
+        const vatRate = item.vatRate || 0;
+
+        // Item details
+        doc.fillColor(textColor)
+           .text(itemName, 55, itemsY, { width: colWidths[0] - 10, align: 'left' });
+        
+        doc.text(String(quantity), 270, itemsY, { width: colWidths[1], align: 'center' });
+        doc.text(`${admin?.currency || '$'} ${formatCurrency(unitCost)}`, 340, itemsY, { width: colWidths[2], align: 'right' });
+        
+        // VAT column
+        if (isVatable && vatAmount > 0) {
+          doc.fillColor(secondaryColor)
+             .text(`${vatRate}%`, 420, itemsY, { width: colWidths[3], align: 'right' });
+        } else {
+          doc.fillColor('#666666')
+             .text('N/A', 420, itemsY, { width: colWidths[3], align: 'right' });
+        }
+        
+        doc.fillColor(textColor)
+           .text(`${admin?.currency || '$'} ${formatCurrency(totalCost)}`, 490, itemsY, { width: colWidths[4], align: 'right' });
+
+        itemsY += 20;
       });
     } else {
-      doc.text('No items found', tableLeft, y, { width: colWidths[0], align: 'left' });
-      y += rowHeight;
+      doc.text('No items found', 55, itemsY, { width: colWidths[0] });
+      itemsY += 20;
     }
 
-    doc.moveTo(tableLeft, y + 5).lineTo(tableLeft + colWidths.reduce((a, b) => a + b), y + 5).stroke();
-    doc.font('Helvetica-Bold');
-    doc.text('Total Amount:', tableLeft + colWidths[0] + colWidths[1] - 50, y + 10, { width: colWidths[2], align: 'right' });
-    doc.text(`${admin.currency} ${(parseFloat(sale.totalAmount) || 0).toFixed(2)}`, tableLeft + colWidths[0] + colWidths[1] + colWidths[2], y + 10, { width: colWidths[3], align: 'right' });
-    doc.font('Helvetica');
-
-    doc.moveDown(2);
-    doc.fontSize(12).text('Payment Information:', 50, doc.y, { underline: true });
-    doc.text(`Method: ${sale.paymentMethod || 'N/A'}`, 50, doc.y);
-    if (sale.bankDetails) {
-      doc.text(`Bank Name: ${sale.bankDetails.bankName || 'N/A'}`, 50, doc.y);
-      doc.text(`Bank Account Name: ${sale.bankDetails.bankAccountName || 'N/A'}`, 50, doc.y);
-      doc.text(`Account Number: ${sale.bankDetails.accountNumber || 'N/A'}`, 50, doc.y);
-    }
-    doc.text(`Status: ${sale.paymentStatus || 'Pending'}`, 50, doc.y);
-
-    doc.moveDown(2);
-    doc.fontSize(10).text(`Generated on: ${new Date().toLocaleString()}`, { align: 'center' });
+    // Table bottom line
+    doc.moveTo(50, itemsY + 5).lineTo(550, itemsY + 5).strokeColor(borderColor).lineWidth(1).stroke();
     
+    currentY = itemsY + 20;
+
+    // Totals Section
+    const totalsLeft = 350;
+    const totalsWidth = 200;
+
+    // Calculate amounts with VAT support
+    const subtotal = sale.subtotalAmount || sale.totalAmount || 0;
+    const vatTotal = sale.totalVatAmount || 0;
+    const finalTotal = sale.totalAmount || 0;
+
+    // Subtotal
+    doc.fillColor(textColor)
+       .fontSize(9)
+       .font('Helvetica')
+       .text('Subtotal:', totalsLeft, currentY, { width: totalsWidth - 100, align: 'right' });
+    
+    doc.text(`${admin?.currency || '$'} ${formatCurrency(subtotal)}`, totalsLeft + 120, currentY, { width: 80, align: 'right' });
+    currentY += 15;
+
+    // VAT Line
+    if (vatTotal > 0) {
+      const vatRate = sale.vatRate || admin?.vatRate || 0;
+      doc.fillColor(secondaryColor)
+         .font('Helvetica-Bold')
+         .text(`VAT (${vatRate}%):`, totalsLeft, currentY, { width: totalsWidth - 100, align: 'right' });
+      
+      doc.text(`${admin?.currency || '$'} ${formatCurrency(vatTotal)}`, totalsLeft + 120, currentY, { width: 80, align: 'right' });
+      currentY += 15;
+    }
+
+    // Total
+    doc.fillColor(primaryColor)
+       .fontSize(11)
+       .font('Helvetica-Bold')
+       .text('TOTAL:', totalsLeft, currentY, { width: totalsWidth - 100, align: 'right' });
+    
+    doc.text(`${admin?.currency || '$'} ${formatCurrency(finalTotal)}`, totalsLeft + 120, currentY, { width: 80, align: 'right' });
+    
+    // Total underline
+    doc.moveTo(totalsLeft + 80, currentY + 12).lineTo(totalsLeft + 200, currentY + 12).strokeColor(primaryColor).lineWidth(1).stroke();
+    
+    currentY += 30;
+
+    // Payment Information
+    drawColoredBox(50, currentY, 500, 60, highlightColor);
+    doc.fillColor(textColor)
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('PAYMENT INFORMATION:', 60, currentY + 10);
+    
+    doc.font('Helvetica')
+       .text(`Method: ${sale.paymentMethod || 'N/A'}`, 60, currentY + 25)
+       .text(`Status: ${sale.paymentStatus || 'Pending'}`, 60, currentY + 38)
+       .text(`Date: ${new Date(sale.date).toLocaleDateString()}`, 60, currentY + 51);
+
+    // Bank details if available
+    if (sale.bankDetails) {
+      doc.text(`Bank: ${sale.bankDetails.bankName || 'N/A'}`, 200, currentY + 25)
+         .text(`Account: ${sale.bankDetails.bankAccountName || 'N/A'}`, 200, currentY + 38)
+         .text(`Number: ${sale.bankDetails.accountNumber || 'N/A'}`, 200, currentY + 51);
+    }
+
+    currentY += 80;
+
+    // Terms and Conditions
+    doc.fillColor(primaryColor)
+       .fontSize(10)
+       .font('Helvetica-Bold')
+       .text('TERMS & CONDITIONS', 50, currentY);
+    
+    doc.fillColor(textColor)
+       .fontSize(8)
+       .font('Helvetica')
+       .text('• Payment is due within 30 days of invoice date', 50, currentY + 15)
+       .text('• Late payments are subject to fees of 1.5% per month', 50, currentY + 28)
+       .text('• All sales are final unless otherwise specified', 50, currentY + 41);
+
+    // Footer
+    const footerY = 750;
+    doc.moveTo(50, footerY).lineTo(550, footerY).strokeColor(borderColor).lineWidth(0.5).stroke();
+    
+    doc.fillColor('#666666')
+       .fontSize(8)
+       .font('Helvetica')
+       .text('Thank you for your business!', 50, footerY + 10, { align: 'center' })
+       .text(`Generated on: ${new Date().toLocaleString()}`, 50, footerY + 22, { align: 'center' })
+       .text('For questions, please contact us at the email above', 50, footerY + 34, { align: 'center' });
+
     doc.end();
   } catch (error) {
     console.error('Error generating public invoice:', error);
     res.status(500).send('Error generating invoice');
   }
 });
-
 
 app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
   try {
@@ -5725,6 +6004,14 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     }
   }
 });
+
+
+
+
+
+
+
+
 
 app.post('/invoices/mark-paid/:saleId', isAuthenticated, async (req, res) => {
   try {

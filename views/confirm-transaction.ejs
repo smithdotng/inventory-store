@@ -34,7 +34,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    <link rel="manifest" content="/site.webmanifest">
 
     <!-- Inline CSS -->
     <style>
@@ -308,6 +308,40 @@
             font-size: 13px;
             color: #333;
         }
+        /* VAT badge styling */
+        .vat-badge {
+            display: inline-block;
+            background-color: #28a745;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            margin-left: 5px;
+            font-weight: bold;
+        }
+        .vat-badge.inactive {
+            background-color: #6c757d;
+        }
+        /* Amount breakdown */
+        .amount-breakdown {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+        }
+        .amount-breakdown p {
+            margin: 5px 0;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .amount-breakdown .total-line {
+            border-top: 1px solid #ced4da;
+            padding-top: 8px;
+            margin-top: 8px;
+            font-weight: bold;
+            font-size: 14px;
+        }
         /* Form actions */
         .mil-form-actions {
             display: flex;
@@ -434,6 +468,9 @@
                                         <h4 style="color: #333; font-size: 16px;">Confirm Transaction for <%= admin.businessName || 'Your Business' %></h4>
                                         <p style="color: #333; font-size: 13px;">
                                             Email: <%= admin.email || 'N/A' %> | Currency: <%= currency || 'N/A' %>
+                                            <% if (admin.applyVat) { %>
+                                                | VAT Rate: <%= admin.vatRate || 0 %>%
+                                            <% } %>
                                         </p>
                                     </div>
                                 </div>
@@ -458,22 +495,48 @@
                                             <strong><i class="fa-solid fa-credit-card mr-2"></i>Payment Method:</strong>
                                             <%= paymentMethod %>
                                         </p>
-                                        <p>
-                                            <strong><i class="fa-solid fa-money-bill-wave mr-2"></i>Total Amount:</strong>
-                                            <%= currency %><%= totalOrderAmount.toFixed(2) %>
-                                        </p>
+                                        
                                         <h5>Items:</h5>
                                         <ul>
                                             <% saleItems.forEach(item => { %>
                                                 <li>
-                                                    <strong><%= item.itemName %></strong> -
-                                                    Quantity: <%= item.quantity %> -
-                                                    Unit Cost: <%= currency %><%= item.unitCost.toFixed(2) %> -
+                                                    <strong><%= item.itemName %></strong> 
+                                                    <% if (item.isVatable) { %>
+                                                        <span class="vat-badge">VAT <%= item.vatRate %>%</span>
+                                                    <% } else { %>
+                                                        <span class="vat-badge inactive">No VAT</span>
+                                                    <% } %>
+                                                    <br>
+                                                    Quantity: <%= item.quantity %> |
+                                                    Unit Cost: <%= currency %><%= item.unitCost.toFixed(2) %> |
                                                     Total Cost: <%= currency %><%= item.totalCost.toFixed(2) %>
+                                                    <% if (item.isVatable && item.vatAmount > 0) { %>
+                                                        <br>VAT Amount: <%= currency %><%= item.vatAmount.toFixed(2) %> |
+                                                        Item Total: <%= currency %><%= item.itemTotalWithVat.toFixed(2) %>
+                                                    <% } %>
                                                 </li>
                                             <% }) %>
                                         </ul>
+
+                                        <!-- Amount Breakdown -->
+                                        <div class="amount-breakdown">
+                                            <p>
+                                                <span>Subtotal:</span>
+                                                <span><%= currency %><%= subtotalAmount.toFixed(2) %></span>
+                                            </p>
+                                            <% if (totalVatAmount > 0) { %>
+                                                <p>
+                                                    <span>VAT Total:</span>
+                                                    <span><%= currency %><%= totalVatAmount.toFixed(2) %></span>
+                                                </p>
+                                            <% } %>
+                                            <p class="total-line">
+                                                <span>Total Amount:</span>
+                                                <span><%= currency %><%= totalOrderAmount.toFixed(2) %></span>
+                                            </p>
+                                        </div>
                                     </div>
+                                    
                                     <!-- Confirmation Form -->
                                     <form action="/confirm-sale" method="POST" class="mil-form-actions">
                                         <input type="hidden" name="customerName" value="<%= customerName %>">
@@ -481,12 +544,18 @@
                                         <input type="hidden" name="email" value="<%= email %>">
                                         <input type="hidden" name="paymentMethod" value="<%= paymentMethod %>">
                                         <input type="hidden" name="totalOrderAmount" value="<%= totalOrderAmount %>">
+                                        <input type="hidden" name="subtotalAmount" value="<%= subtotalAmount %>">
+                                        <input type="hidden" name="totalVatAmount" value="<%= totalVatAmount %>">
                                         <% saleItems.forEach((item, index) => { %>
                                             <input type="hidden" name="saleItems[<%= index %>][itemId]" value="<%= item.itemId %>">
                                             <input type="hidden" name="saleItems[<%= index %>][itemName]" value="<%= item.itemName %>">
                                             <input type="hidden" name="saleItems[<%= index %>][quantity]" value="<%= item.quantity %>">
                                             <input type="hidden" name="saleItems[<%= index %>][unitCost]" value="<%= item.unitCost %>">
                                             <input type="hidden" name="saleItems[<%= index %>][totalCost]" value="<%= item.totalCost %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][isVatable]" value="<%= item.isVatable %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][vatRate]" value="<%= item.vatRate %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][vatAmount]" value="<%= item.vatAmount %>">
+                                            <input type="hidden" name="saleItems[<%= index %>][itemTotalWithVat]" value="<%= item.itemTotalWithVat %>">
                                         <% }) %>
                                         <button type="submit" class="mil-button update-btn">
                                             Confirm Sale <i class="fa-solid fa-check-circle"></i>

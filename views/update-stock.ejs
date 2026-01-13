@@ -39,6 +39,44 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
+    <style>
+        /* VAT Badge Styles */
+        .vat-badge {
+            background: #17a2b8;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75em;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .vat-badge.disabled {
+            background: #6c757d;
+            color: #f8f9fa;
+        }
+
+        .vat-badge i {
+            font-size: 0.7em;
+        }
+
+        .form-text {
+            font-size: 0.75em;
+            color: #6c757d !important;
+            margin-top: 4px;
+            display: block;
+        }
+
+        .form-text.text-primary {
+            color: #007bff !important;
+        }
+
+        .form-text.text-warning {
+            color: #ffc107 !important;
+        }
+    </style>
+
     <title>Shed | Update Stock</title>
 </head>
 
@@ -76,27 +114,26 @@
         <div class="mil-content">
             <div id="swupMain" class="mil-main-transition">
                 <!-- banner -->
-                <!-- banner -->
-<section class="mil-banner mil-dark-bg" style="height: 400px;">
-    <div class="mi-invert-fix">
-        <div class="mil-animation-frame">
-            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
-            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
-            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
-        </div>
-        <div class="mil-gradient"></div>
-        <div class="container">
-            <div class="mil-banner-content mil-up">
-                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Update </span>Stock</h1>
-                <div class="row">
-                    <div class="col-md-7 col-lg-5">
-                        <p class="mil-light-soft mil-mb-60">Manage your inventory for <%= admin.businessName || 'Your Business' %>.</p>
+                <section class="mil-banner mil-dark-bg" style="height: 400px;">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Update </span>Stock</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">Manage your inventory for <%= admin.businessName || 'Your Business' %>.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
+                </section>
                 <!-- banner end -->
 
                 <!-- main content -->
@@ -115,6 +152,15 @@
                                         <p>
                                             Store URL: <a href="<%= storeUrl %>" target="_blank"><%= storeUrl %></a>
                                         </p>
+                                        <% if (admin.applyVat) { %>
+                                            <p class="text-primary">
+                                                <i class="fa-solid fa-info-circle"></i> VAT is enabled at <%= admin.vatRate || 0 %>% rate
+                                            </p>
+                                        <% } else { %>
+                                            <p class="text-warning">
+                                                <i class="fa-solid fa-info-circle"></i> VAT is not currently enabled
+                                            </p>
+                                        <% } %>
                                     </div>
                                 </div>
 
@@ -194,6 +240,24 @@
                                             <label>Commission % <i class="fa-solid fa-percentage"></i></label>
                                             <input type="number" name="commission" class="mil-form-control" placeholder="Commission %" min="0" max="100" step="0.01">
                                         </div>
+                                        
+                                        <!-- VAT Field -->
+                                        <div class="mil-form-group">
+                                            <div class="mil-form-group checkbox-group">
+                                                <input type="checkbox" name="isVatable" id="isVatable" checked>
+                                                <label for="isVatable">This product is vatable</label>
+                                            </div>
+                                            <small class="form-text">
+                                                <% if (admin && admin.applyVat) { %>
+                                                    <i class="fa-solid fa-info-circle text-primary me-1"></i>
+                                                    VAT will be applied at <%= admin.vatRate %>% rate for vatable products
+                                                <% } else { %>
+                                                    <i class="fa-solid fa-info-circle text-warning me-1"></i>
+                                                    VAT is not currently enabled in your profile settings
+                                                <% } %>
+                                            </small>
+                                        </div>
+
                                         <div class="mil-form-row mil-center">
                                             <button type="submit" class="mil-button add-product-btn">
                                                 Add Product <i class="fa-solid fa-plus"></i>
@@ -219,7 +283,7 @@
                                 <div class="mil-table-section mil-up">
                                     <% if (inventory && inventory.length > 0) { %>
                                         <h2 class="mil-mb-30">Inventory</h2>
-                                        <table style="min-width: 1000px;">
+                                        <table style="min-width: 1100px;">
                                             <thead>
                                                 <tr>
                                                     <th>Product</th>
@@ -228,6 +292,7 @@
                                                     <th>Stock</th>
                                                     <th>Cost</th>
                                                     <th>Commission</th>
+                                                    <th>VAT</th>
                                                     <th>Action</th>
                                                 </tr>
                                             </thead>
@@ -257,6 +322,19 @@
                                                         <td>
                                                             <span class="commission-display"><%= item.commission || '0' %>%</span>
                                                             <input type="number" class="mil-form-control commission-input" value="<%= item.commission || '0' %>" min="0" max="100" step="0.01" disabled style="display: none;">
+                                                        </td>
+                                                        <td>
+                                                            <% if (admin.applyVat && item.isVatable) { %>
+                                                                <span class="vat-badge">
+                                                                    <i class="fa-solid fa-percentage"></i> <%= admin.vatRate %>%
+                                                                </span>
+                                                            <% } else if (item.isVatable) { %>
+                                                                <span class="vat-badge disabled">
+                                                                    <i class="fa-solid fa-percentage"></i> VAT Ready
+                                                                </span>
+                                                            <% } else { %>
+                                                                <span class="text-muted">No VAT</span>
+                                                            <% } %>
                                                         </td>
                                                         <td>
                                                             <div class="mil-form-row">
@@ -401,8 +479,6 @@
     <script src="/js/plugins/fancybox.min.js"></script>
     <!-- gsap js -->
     <script src="/js/plugins/gsap.min.js"></script>
-    <!-- Temporarily disable smooth-scroll to test -->
-    <!-- <script src="/js/plugins/smooth-scroll.js"></script> -->
     <!-- scroll trigger js -->
     <script src="/js/plugins/ScrollTrigger.min.js"></script>
     <!-- scroll to js -->
@@ -423,85 +499,51 @@
     </script>
 
     <!-- Sidebar Toggle -->
-    
-        
-<!-- Sidebar Toggle -->
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const menuItems = document.querySelectorAll('.mil-sidebar a'); // Select all menu items
-
-        // Initial sidebar state from localStorage
-        const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
-        if (isSidebarHidden) {
-            sidebar.classList.add('hidden');
-            mainContent.classList.add('full-width');
-            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-        } else {
-            sidebar.classList.remove('hidden');
-            mainContent.classList.remove('full-width');
-            toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-        }
-
-        // Toggle sidebar on button click
-        toggleBtn.addEventListener('click', () => {
-            sidebar.classList.toggle('hidden');
-            mainContent.classList.toggle('full-width');
-            toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
-            localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
-        });
-
-        // Close sidebar when a menu item is clicked
-        menuItems.forEach(item => {
-            item.addEventListener('click', () => {
-                // Only close the sidebar if it's currently open
-                if (!sidebar.classList.contains('hidden')) {
-                    sidebar.classList.add('hidden');
-                    mainContent.classList.add('full-width');
-                    toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                    localStorage.setItem('sidebarHidden', 'true');
-                }
-            });
-        });
-
-        // Adjust sidebar state on window resize
-        function setSidebarState() {
-            if (sidebar.classList.contains('hidden')) {
-                mainContent.classList.add('full-width');
-            } else {
-                mainContent.classList.remove('full-width');
-            }
-        }
-        setSidebarState();
-        window.addEventListener('resize', setSidebarState);
-    });
-</script>
-    
-
-    <!-- Debug Horizontal Scrolling -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const mainContent = document.querySelector('.mil-main-content');
-            const container = document.querySelector('.mil-about .container');
-            const row = document.querySelector('.mil-about .row');
-            const col = document.querySelector('.col-lg-8');
-            const table = document.querySelector('.mil-table-section table');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.getElementById('toggleBtn');
+            const menuItems = document.querySelectorAll('.mil-sidebar a');
 
-            console.log('Main content width:', mainContent.scrollWidth, 'Viewport width:', window.innerWidth);
-            console.log('Container width:', container.scrollWidth);
-            console.log('Row width:', row.scrollWidth);
-            console.log('Col width:', col.scrollWidth);
-            console.log('Table width:', table.scrollWidth);
+            const isSidebarHidden = localStorage.getItem('sidebarHidden') === 'true';
+            if (isSidebarHidden) {
+                sidebar.classList.add('hidden');
+                mainContent.classList.add('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+            } else {
+                sidebar.classList.remove('hidden');
+                mainContent.classList.remove('full-width');
+                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
+            }
 
-            mainContent.addEventListener('scroll', () => {
-                console.log('Main content scrollLeft:', mainContent.scrollLeft);
-                console.log('Max scrollLeft:', mainContent.scrollWidth - mainContent.clientWidth);
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('hidden');
+                mainContent.classList.toggle('full-width');
+                toggleBtn.innerHTML = sidebar.classList.contains('hidden') ? '<i class="fas fa-bars"></i>' : '<i class="fas fa-times"></i>';
+                localStorage.setItem('sidebarHidden', sidebar.classList.contains('hidden'));
             });
 
-            // Force scroll to left on load
-            mainContent.scrollLeft = 0;
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (!sidebar.classList.contains('hidden')) {
+                        sidebar.classList.add('hidden');
+                        mainContent.classList.add('full-width');
+                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                        localStorage.setItem('sidebarHidden', 'true');
+                    }
+                });
+            });
+
+            function setSidebarState() {
+                if (sidebar.classList.contains('hidden')) {
+                    mainContent.classList.add('full-width');
+                } else {
+                    mainContent.classList.remove('full-width');
+                }
+            }
+            setSidebarState();
+            window.addEventListener('resize', setSidebarState);
         });
     </script>
 
@@ -828,5 +870,4 @@
         }
     </script>
 </body>
-
 </html>
