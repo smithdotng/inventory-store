@@ -5780,17 +5780,26 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
 
     let y = 50;
 
-    // ─── HEADER ───────────────────────────────────────────────
-    if (admin.logo && fs.existsSync(path.join(__dirname, 'public', admin.logo))) {
-      doc.image(path.join(__dirname, 'public', admin.logo), 50, y, { width: 65 });
-      y += 80;
+    // ─── HEADER - Logo preferred, name only as fallback ────────────────
+    const logoFullPath = admin.logo
+      ? path.join(__dirname, 'public', admin.logo)
+      : null;
+
+    const hasValidLogo = logoFullPath && fs.existsSync(logoFullPath);
+
+    if (hasValidLogo) {
+      doc.image(logoFullPath, 50, y, { 
+        width: 90,
+        fit: [90, 90]
+      });
+      y += 100;
     } else {
       doc
-        .fontSize(22)
+        .fontSize(24)
         .font('Helvetica-Bold')
         .fillColor(palette.primary)
-        .text(admin.businessName?.toUpperCase() || 'BUSINESS', 50, y);
-      y += 40;
+        .text((admin.businessName || 'BUSINESS').toUpperCase(), 50, y);
+      y += 50;
     }
 
     doc
@@ -5827,6 +5836,7 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
       .font('Helvetica-Bold')
       .fillColor(palette.primary)
       .text(admin.businessName || '', 50, y + 15);
+
     doc
       .fontSize(9)
       .font('Helvetica')
@@ -5840,11 +5850,13 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
       .font('Helvetica-Bold')
       .fillColor(palette.accent)
       .text('BILL TO', 350, y, { align: 'right' });
+
     doc
       .fontSize(11)
       .font('Helvetica-Bold')
       .fillColor(palette.primary)
       .text(sale.customerName || '', 350, y + 15, { align: 'right' });
+
     doc
       .fontSize(9)
       .font('Helvetica')
@@ -5857,7 +5869,6 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     y += 85;
     const colX = [50, 80, 280, 350, 450];
 
-    // Header row
     doc.rect(50, y, 500, 25).fill(palette.primary);
     doc.fillColor('#FFFFFF').fontSize(9).font('Helvetica-Bold');
     doc.text('#', colX[0] + 5, y + 8);
@@ -5873,7 +5884,6 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
       const itemName = item.itemName || 'Item Description';
       const itemHeight = Math.max(30, doc.heightOfString(itemName, { width: 180 }) + 15);
 
-      // Page break if needed
       if (y + itemHeight > 730) {
         doc.addPage();
         y = 50;
@@ -5891,7 +5901,7 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
       y += itemHeight;
     });
 
-    // ─── TOTALS & PAYMENT INFO ────────────────────────────────
+    // ─── TOTALS & PAYMENT/NOTES ────────────────────────────────
     if (y > 600) {
       doc.addPage();
       y = 50;
@@ -5923,13 +5933,13 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
     y += 30;
     const infoBoxY = y;
 
-    // Payment Info box
     doc.rect(50, infoBoxY, 240, 75).fill(palette.bgLight).stroke(palette.border);
     doc
       .fontSize(8)
       .font('Helvetica-Bold')
       .fillColor(palette.accent)
       .text('PAYMENT INFO', 60, infoBoxY + 10);
+
     doc
       .fontSize(8)
       .font('Helvetica')
@@ -5938,7 +5948,6 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
       .text(`A/C Name: ${sale.bankDetails?.bankAccountName || admin.businessName || 'N/A'}`, 60, infoBoxY + 34)
       .text(`A/C No: ${sale.bankDetails?.accountNumber || admin.accountNumber || 'N/A'}`, 60, infoBoxY + 46);
 
-    // Notes box (if any)
     if (sale.additionalComments) {
       doc.rect(310, infoBoxY, 240, 75).fill(palette.bgLight).stroke(palette.border);
       doc
@@ -5953,26 +5962,37 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
         .text(sale.additionalComments, 320, infoBoxY + 22, { width: 220 });
     }
 
-    // ─── FOOTER (Safe position - always on last page) ───────────
+    // ─── FOOTER - Safe version without link annotation ───────────────
     const drawFooter = () => {
-      const pageHeight = doc.page.height; // ≈841.89 (A4)
+      const pageHeight = doc.page.height;
       const bottomMargin = 50;
-      const fY = pageHeight - bottomMargin - 35; // ≈766-767
+      const fY = pageHeight - bottomMargin - 38; // ~753–754
 
-      const pW = doc.page.width; // 595.28
+      const pW = doc.page.width;
       const m = 50;
       const fSize = 7;
       const fText =
         'Shed.ng Inventory & Invoicing  •  Create professional invoices at shed.ng/invoices  •  Computer generated document.';
 
       const lPath = path.join(__dirname, 'public', 'images', 'logo.png');
-      const hasLogo = fs.existsSync(lPath);
+      const hasFooterLogo = fs.existsSync(lPath);
       const logoWidth = 15;
       const spacing = 6;
 
-      const textWidth = doc.widthOfString(fText, { size: fSize });
-      const totalWidth = (hasLogo ? logoWidth + spacing : 0) + textWidth;
+      let textWidth = 0;
+      try {
+        textWidth = doc.widthOfString(fText, { size: fSize }) || 0;
+      } catch (e) {
+        textWidth = fText.length * 4.2; // rough fallback
+      }
+
+      const totalWidth = (hasFooterLogo ? logoWidth + spacing : 0) + textWidth;
       let centerX = (pW - totalWidth) / 2;
+
+      // Final safety net
+      if (isNaN(centerX) || centerX < 20 || centerX > pW) {
+        centerX = 80; // fallback position
+      }
 
       doc
         .moveTo(m, fY)
@@ -5981,19 +6001,20 @@ app.get('/invoices/download/:saleId', isAuthenticated, async (req, res) => {
         .lineWidth(0.5)
         .stroke();
 
-      if (hasLogo) {
-        doc.image(lPath, centerX, fY + 5, { width: logoWidth });
-        centerX += logoWidth + spacing;
+      let currentX = centerX;
+
+      if (hasFooterLogo) {
+        doc.image(lPath, currentX, fY + 6, { width: logoWidth });
+        currentX += logoWidth + spacing;
       }
 
       doc
         .fontSize(fSize)
         .font('Helvetica')
         .fillColor(palette.muted)
-        .text(fText, centerX, fY + 8, { link: 'https://shed.ng/invoices' });
+        .text(fText, currentX, fY + 9, { lineBreak: false });
     };
 
-    // Draw footer on the current (last) page
     drawFooter();
 
     doc.end();
