@@ -75,6 +75,19 @@ async function calculateOutletCommission(outletId) {
   }
 }
 
+// In your route file (e.g., app.js or routes/invoices.js)
+function getPaymentMethodIcon(method) {
+    if (!method) return 'money-bill-wave';
+    
+    switch(method.toLowerCase()) {
+        case 'cash': return 'money-bill-wave';
+        case 'credit card': return 'credit-card';
+        case 'bank transfer': return 'university';
+        case 'mobile payment': return 'mobile-alt';
+        default: return 'money-bill-wave';
+    }
+}
+
 // Get outlets with commission data
 async function getOutletsWithCommission(adminId) {
   const outlets = await db.collection('outlets')
@@ -5047,7 +5060,8 @@ app.get('/invoices', isAuthenticated, async (req, res) => {
       inventory,
       formatCurrency,
       error,
-      formData
+      formData,
+      getPaymentMethodIcon: getPaymentMethodIcon
     });
   } catch (error) {
     console.error('Error fetching invoices:', error);
