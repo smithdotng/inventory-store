@@ -1,0 +1,78 @@
+/*=============================
+    Product Style 
+=================================*/
+
+.product{
+    border: 1px solid #f2f2f2;
+    .thumbnail{
+        a{
+            img{
+                width: 100%;
+            }
+        }
+    }
+    .content{
+        padding: 25px 20px;
+        h2{
+            font-size: 16px;
+            margin-bottom: 5px;
+            a{
+                color: #373737;
+                transition: 0.3s;
+                &:hover{
+                    color: $theme-color;
+                }
+            }
+        }
+        span{
+            &.prize{
+                color: $theme-color;
+                font-size: 16px;
+            }
+        }
+    }
+    .inner{
+        overflow: hidden;
+        width: 100%;
+        position: relative;
+        .product-hover-action {
+            -webkit-transform: translateY(20px);
+            -ms-transform: translateY(20px);
+            transform: translateY(20px);
+            background: #f8e7e8;
+            position: absolute;
+            padding: 10px 35px;
+            bottom: 0;
+            left: 0;
+            opacity: 0;
+            visibility: hidden;
+            -webkit-transition: all .5s;
+            -o-transition: all .5s;
+            transition: all .5s;
+            width: 100%;
+            .hover-inner{
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                a{
+                    i{
+                        color: #ff5151;
+                        font-size: 22px;
+                    }
+                }
+            }
+        }
+    }
+    &:hover{
+        .inner{
+            .product-hover-action{
+                opacity: 1;
+                visibility: visible;
+                -webkit-transform: translateY(0);
+                -ms-transform: translateY(0);
+                transform: translateY(0);
+            }
+        }
+    }
+}
+

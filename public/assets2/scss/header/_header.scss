@@ -1,0 +1,143 @@
+/*========================
+    Header Default 
+==========================*/
+.header-area {
+    @extend %posrelative;
+    z-index: 8;
+
+    &.header--transparent {
+        @extend %posabsolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        width: auto;
+    }
+    .header-wrap {
+        @include flexbox;
+        @include flex-wrap(wrap);
+        @include align-items(center);
+        width: 100%;
+
+        @media #{$lg-layout} {
+            justify-content: space-between;
+        }
+        @media #{$md-layout} {
+            justify-content: space-between;
+        }
+        @media #{$sm-layout} {
+            justify-content: space-between;
+        }
+
+        .header-wrapper {
+            @include align-items(center);
+
+            .logo {
+                img {
+                    display: inline-block;
+                }
+            }
+
+        }
+    }
+}
+
+
+
+/*=====================
+    Header Cart 
+========================*/
+
+.header-icon {
+    position: relative;
+    a {
+        display: inline-block;
+        line-height: 30px;
+        transition: all .2s ease;
+        vertical-align: middle;
+        .cart-count {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #11141f;
+            border-radius: 100%;
+            font-size: 12px;
+            display: inline-block;
+            text-align: center;
+            line-height: 24px;
+        }
+        i {
+            display: inline-block;
+            font-size: 30px;
+            vertical-align: middle;
+        }
+    }
+}
+
+.black-logo-version.headroom--sticky.headroom--not-top {
+    background: rgba(255, 255, 255, 0.9);
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.headroom--sticky.headroom--not-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 99;
+    width: 100%;
+    box-shadow: 0 8px 20px 0 rgba(0, 0, 0, 0.1);
+    -webkit-animation: headerSlideDown .95s ease forwards;
+    animation: headerSlideDown .95s ease forwards;
+    padding: 0;
+}
+
+
+@media #{$lg-layout} {
+    .headroom--sticky.headroom--not-top {
+        padding: 26px 0;
+    }
+}
+
+@media #{$md-layout} {
+    .headroom--sticky.headroom--not-top {
+        padding: 26px 0;
+    }
+}
+
+@media #{$sm-layout} {
+    .headroom--sticky.headroom--not-top {
+        padding: 26px 0;
+    }
+}
+
+.headroom--sticky.headroom--not-top {
+    background: rgba(0, 0, 0, 0.9);
+    background-color: rgba(0, 0, 0, 0.9);
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: scroll;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -ms-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+/* ------------------------
+    Custom Animation 01 
+----------------------------*/
+
+@-webkit-keyframes headerSlideDown {
+    0% {
+        margin-top: -100px
+    }
+    to {
+        margin-top: 0
+    }
+}
+@keyframes headerSlideDown {
+    0% {
+        margin-top: -100px
+    }
+    to {
+        margin-top: 0
+    }
+}

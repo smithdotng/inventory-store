@@ -32,11 +32,12 @@
     <link rel="manifest" href="/site.webmanifest">
 
     <style>
+        /* Improved Header Styles */
         .mil-frame-top {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 5px 15px;
+            padding: 5px 20px;
             background: #fff;
             height: 70px;
             position: fixed;
@@ -45,52 +46,272 @@
             right: 0;
             z-index: 1001;
             flex-wrap: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+        
+        .mil-logo {
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+        
         .mil-logo img {
             width: 100px;
             height: auto;
+            transition: transform 0.3s ease;
         }
-        .mil-subscribe-form {
+        
+        .mil-logo img:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Search Field - Smaller and Centered */
+        .mil-header-search {
             flex-grow: 1;
             display: flex;
             justify-content: center;
-            margin: 0 20px;
+            max-width: 400px;
+            margin: 0 auto;
         }
+        
+        .mil-search-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .mil-search-input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 280px;
+            font-size: 14px;
+            text-transform: none !important;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .mil-search-input:focus {
+            border-color: darkcyan;
+            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
+        }
+        
+        .mil-search-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: -35px;
+            transition: color 0.3s ease;
+        }
+        
+        .mil-search-button:hover {
+            color: darkcyan;
+        }
+        
+        /* Cart Button with Icon Only */
+        .mil-cart-container {
+            flex-shrink: 0;
+            position: relative;
+            margin-left: 20px;
+        }
+        
         .mil-cart-button {
-            margin-left: auto;
             background: rgb(235, 166, 17);
             color: #333;
             border: none;
-            padding: 8px 15px;
+            padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
             display: flex;
             align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            height: 36px;
+        }
+        
+        .mil-cart-button:hover {
+            background: rgb(245, 176, 27);
+            transform: translateY(-1px);
+        }
+        
+        .mil-cart-button i {
+            font-size: 16px;
+        }
+        
+        .mil-cart-count {
+            background: #333;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        .mil-cart-label {
+            display: none;
+        }
+        
+        /* Cart Dropdown */
+        .mil-cart-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            min-width: 180px;
+            z-index: 1002;
+            display: none;
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        
+        .mil-cart-dropdown.show {
+            display: block;
+            animation: fadeInDown 0.2s ease-out;
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .mil-cart-dropdown-header {
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .mil-cart-dropdown-items {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .mil-cart-dropdown-item {
+            padding: 10px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .mil-cart-dropdown-item:last-child {
+            border-bottom: none;
+        }
+        
+        .mil-cart-dropdown-item-name {
+            flex: 1;
+            font-size: 13px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-right: 10px;
+        }
+        
+        .mil-cart-dropdown-item-qty {
+            font-size: 12px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        
+        .mil-cart-dropdown-footer {
+            padding: 12px 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .mil-cart-dropdown-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .mil-cart-dropdown-buttons {
+            display: flex;
+            flex-direction: column;
             gap: 5px;
         }
-        .mil-search-input {
-            padding: 8px 15px;
-            border: 1px solid #ddd;
+        
+        .mil-cart-dropdown-btn {
+            padding: 8px 12px;
+            border: none;
             border-radius: 4px;
-            width: 200px;
-            text-transform: none !important;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
         }
+        
+        .mil-cart-dropdown-btn-primary {
+            background: darkcyan;
+            color: white;
+        }
+        
+        .mil-cart-dropdown-btn-primary:hover {
+            background: #006969;
+        }
+        
+        .mil-cart-dropdown-btn-danger {
+            background: #f8f9fa;
+            color: #dc3545;
+            border: 1px solid #ddd;
+        }
+        
+        .mil-cart-dropdown-btn-danger:hover {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .mil-cart-empty-message {
+            padding: 20px 15px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+        
         .mil-quantity-input, .mil-form-control {
             text-transform: none !important;
         }
+        
         .mil-store-banner {
             height: 300px;
         }
+        
         .mil-store-content {
             padding-top: 80px;
             padding-bottom: 30px;
         }
+        
         .mil-inventory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 20px;
             margin-top: 30px;
         }
+        
         .mil-inventory-item {
             background: #fff;
             border-radius: 8px;
@@ -98,9 +319,11 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
             transition: transform 0.3s ease;
         }
+        
         .mil-inventory-item:hover {
             transform: translateY(-5px);
         }
+        
         .mil-product-image-container {
             height: 200px;
             background: #f8f9fa;
@@ -109,11 +332,13 @@
             justify-content: center;
             position: relative;
         }
+        
         .mil-product-image {
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }
+        
         .mil-product-image-link {
             display: flex;
             align-items: center;
@@ -122,36 +347,44 @@
             height: 100%;
             text-decoration: none;
         }
+        
         .mil-no-image {
             color: #666;
             font-size: 14px;
         }
+        
         .mil-product-details {
             padding: 15px;
         }
+        
         .mil-product-title {
             font-size: 16px;
             margin-bottom: 10px;
             color: #333;
         }
+        
         .mil-product-title a {
             color: #333;
             text-decoration: none;
             transition: color 0.3s ease;
         }
+        
         .mil-product-title a:hover {
             color: darkcyan;
         }
+        
         .mil-product-price {
             font-weight: 600;
             color: darkcyan;
             margin-bottom: 10px;
         }
+        
         .mil-product-stock {
             font-size: 14px;
             color: #666;
             margin-bottom: 15px;
         }
+        
         .mil-quantity-input {
             width: 100%;
             padding: 8px;
@@ -159,6 +392,7 @@
             border-radius: 4px;
             margin-bottom: 10px;
         }
+        
         .mil-add-to-cart {
             background: darkcyan;
             color: white;
@@ -169,23 +403,51 @@
             cursor: pointer;
             transition: background 0.3s ease;
         }
+        
         .mil-add-to-cart:hover {
             background: #006969;
         }
+        
         .mil-add-to-cart.mil-added {
             background: #dc3545;
             color: white;
         }
+        
         .mil-add-to-cart.mil-added:hover {
             background: #c82333;
         }
-        .mil-cart-count {
-            background: #333;
-            color: white;
-            border-radius: 4px;
-            padding: 2px 6px;
-            font-size: 12px;
+        
+        .mil-cart-summary .mil-total {
+            font-weight: 600;
+            margin-top: 10px;
+            text-align: right;
         }
+        
+        .mil-delete-item {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        
+        .mil-delete-item:hover {
+            background: #c82333;
+        }
+        
+        .mil-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+        
         .mil-checkout-form {
             display: none;
             position: fixed;
@@ -201,52 +463,31 @@
             max-height: 80vh;
             overflow-y: auto;
         }
+        
         .mil-cart-summary {
             margin-bottom: 20px;
         }
+        
         .mil-cart-summary h3 {
             font-size: 18px;
             margin-bottom: 10px;
         }
+        
         .mil-cart-summary table {
             width: 100%;
             border-collapse: collapse;
         }
+        
         .mil-cart-summary th, .mil-cart-summary td {
             padding: 5px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+        
         .mil-cart-summary th {
             background: #f8f9fa;
         }
-        .mil-cart-summary .mil-total {
-            font-weight: 600;
-            margin-top: 10px;
-            text-align: right;
-        }
-        .mil-delete-item {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
-        .mil-delete-item:hover {
-            background: #c82333;
-        }
-        .mil-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-        }
+        
         .mil-confirmation-container {
             max-width: 800px;
             margin: 0 auto;
@@ -255,29 +496,35 @@
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
+        
         .mil-confirmation-icon {
             font-size: 60px;
             color: darkcyan;
             margin-bottom: 20px;
         }
+        
         .mil-order-table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
         }
+        
         .mil-order-table th {
             background: #333;
             color: white;
             padding: 10px;
             text-align: left;
         }
+        
         .mil-order-table td {
             padding: 10px;
             border-bottom: 1px solid #ddd;
         }
+        
         .mil-order-table tr:nth-child(even) {
             background: #f9f9f9;
         }
+        
         .mil-light-soft {
             display: block !important;
             visibility: visible !important;
@@ -285,9 +532,11 @@
             color: #fff !important;
             font-size: 16px !important;
         }
+        
         .mil-soft-bg .mil-light-soft {
             color: #333 !important;
         }
+        
         .mil-arrow-down {
             background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 16.5l-6-6 1.41-1.41L12 13.67l4.59-4.58L18 10.5l-6 6z"/></svg>');
             background-size: contain;
@@ -297,6 +546,7 @@
             height: 24px;
             display: inline-block;
         }
+        
         .mil-button.mil-arrow-place.mil-icon-button.mil-arrow-down {
             padding: 0;
             width: 40px;
@@ -305,6 +555,7 @@
             align-items: center;
             justify-content: center;
         }
+        
         .mil-subscribe-form {
             position: relative;
             display: flex;
@@ -312,6 +563,7 @@
             padding: 5px;
             border-radius: 5px;
         }
+        
         .mil-subscribe-form input {
             flex: 1;
             border: none;
@@ -320,15 +572,18 @@
             font-size: 14px;
             outline: none;
         }
+        
         .mil-subscribe-form button {
             background: transparent;
             border: none;
             cursor: pointer;
         }
+        
         .mil-subscribe-container {
             position: relative;
             max-width: 300px;
         }
+        
         footer .mil-subscribe-form {
             display: flex;
             align-items: center;
@@ -336,6 +591,7 @@
             background: none;
             padding: 0;
         }
+        
         footer .mil-subscribe-form input[type="email"] {
             flex: 1;
             padding: 8px 40px 8px 15px;
@@ -346,6 +602,7 @@
             font-size: 14px;
             outline: none;
         }
+        
         footer .mil-subscribe-form button[type="submit"] {
             position: absolute;
             right: 5px;
@@ -363,44 +620,53 @@
             justify-content: center;
             transition: background 0.3s ease;
         }
+        
         footer .mil-subscribe-form button[type="submit"]:hover {
             background: #006969;
         }
+        
         footer .mil-subscribe-form button[type="submit"] .mil-arrow {
             fill: white;
             width: 16px;
             height: 16px;
         }
+        
         .mil-subscribe-error {
             color: #dc3545;
             font-size: 12px;
             margin-bottom: 10px;
             display: none;
         }
+        
         .mil-subscribe-success {
             color: darkcyan;
             font-size: 14px;
             display: none;
             margin-top: 10px;
         }
+        
         .mil-dark-bg .mil-subscribe-form input[type="email"] {
             background: #fff;
             color: #333;
         }
+        
         .mil-dark-bg .mil-subscribe-form button[type="submit"] {
             background: darkcyan;
         }
+        
         footer.mil-dark-bg {
             display: block !important;
             visibility: visible !important;
             opacity: 1 !important;
         }
+        
         .mil-social-links {
             display: flex;
             gap: 20px;
             align-items: center;
             margin-top: 20px;
         }
+        
         .mil-social-link {
             display: flex;
             align-items: center;
@@ -410,27 +676,34 @@
             font-size: 16px;
             transition: color 0.3s ease;
         }
+        
         .mil-social-link:hover {
             color: #ddd;
         }
+        
         .mil-social-link i {
             font-size: 24px;
         }
+        
         .mil-social-link span {
             font-size: 14px;
         }
+        
         .mil-contact-info p {
             margin: 0;
             font-size: 16px;
             line-height: 1.5;
         }
+        
         .mil-contact-info a {
             text-decoration: none;
             transition: color 0.3s ease;
         }
+        
         .mil-contact-info a:hover {
             color: #ddd;
         }
+        
         /* WhatsApp Widget Styles */
         .mil-whatsapp-widget {
             position: fixed;
@@ -438,6 +711,7 @@
             right: 20px;
             z-index: 1000;
         }
+        
         .mil-whatsapp-button {
             background-color: #25D366;
             color: white;
@@ -451,79 +725,173 @@
             transition: transform 0.3s ease, background-color 0.3s ease;
             text-decoration: none;
         }
+        
         .mil-whatsapp-button:hover {
             background-color: #20b354;
             transform: scale(1.1);
         }
+        
         .mil-whatsapp-button i {
             font-size: 30px;
         }
+        
+        /* Header Layout for different screen sizes */
         @media (max-width: 768px) {
+            .mil-frame-top {
+                padding: 5px 15px;
+            }
+            
+            .mil-header-search {
+                max-width: 300px;
+            }
+            
+            .mil-search-input {
+                max-width: 220px;
+                padding: 8px 12px;
+            }
+            
+            .mil-cart-container {
+                margin-left: 15px;
+            }
+            
+            .mil-cart-button {
+                padding: 8px;
+                min-width: 40px;
+            }
+            
+            .mil-logo img {
+                width: 80px;
+            }
+            
+            .mil-cart-dropdown {
+                position: fixed;
+                top: 70px;
+                left: 10px;
+                right: 10px;
+                width: auto;
+            }
+            
             .mil-inventory-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
-            .mil-search-input {
-                width: 150px;
-            }
+            
             .mil-checkout-form {
                 max-width: 95%;
                 padding: 15px;
             }
+            
             .mil-social-links {
                 flex-wrap: wrap;
                 gap: 15px;
             }
+            
             .mil-whatsapp-button {
                 width: 50px;
                 height: 50px;
             }
+            
             .mil-whatsapp-button i {
                 font-size: 24px;
             }
         }
+        
         @media (max-width: 576px) {
             .mil-frame-top {
-                flex-direction: column;
-                height: auto;
-                padding: 10px 15px;
+                padding: 8px 12px;
+                height: 60px;
             }
+            
             .mil-logo {
-                flex: 1;
-                text-align: left;
+                margin-right: 10px;
             }
+            
+            .mil-logo img {
+                width: 70px;
+            }
+            
+            .mil-header-search {
+                max-width: 200px;
+            }
+            
+            .mil-search-input {
+                max-width: 160px;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            .mil-cart-container {
+                margin-left: 10px;
+            }
+            
             .mil-cart-button {
-                flex: 1;
-                text-align: right;
-                margin-left: 0;
+                padding: 6px;
+                min-width: 36px;
+                height: 32px;
             }
+            
+            .mil-cart-count {
+                font-size: 10px;
+                padding: 1px 4px;
+                min-width: 16px;
+            }
+            
+            .mil-store-content {
+                padding-top: 70px;
+            }
+            
+            .mil-cart-dropdown {
+                top: 60px;
+            }
+            
             .mil-subscribe-form {
                 width: 100%;
                 margin: 10px 0;
                 justify-content: center;
             }
+            
             .mil-search-input {
                 width: 100%;
             }
+            
             .mil-subscribe-container {
                 max-width: 100%;
             }
+            
             footer .mil-subscribe-form input[type="email"] {
                 width: 100%;
             }
+            
             .mil-social-links {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 10px;
             }
+            
             .mil-contact-info p {
                 font-size: 14px;
             }
+            
             .mil-whatsapp-button {
                 width: 45px;
                 height: 45px;
             }
+            
             .mil-whatsapp-button i {
                 font-size: 22px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .mil-header-search {
+                max-width: 160px;
+            }
+            
+            .mil-search-input {
+                max-width: 140px;
+            }
+            
+            .mil-logo img {
+                width: 60px;
             }
         }
     </style>
@@ -544,15 +912,51 @@
             <div class="mil-progress"></div>
         </div>
 
+        <!-- Improved Header Section -->
         <div class="mil-frame-top">
             <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= outlet ? outlet.name : admin.businessName %> Logo"></a>
-            <div class="mil-subscribe-form">
-                <input type="text" id="inventorySearchInput" placeholder="Search inventory..." class="mil-search-input">
-                <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+            
+            <div class="mil-header-search">
+                <div class="mil-search-form">
+                    <input type="text" id="inventorySearchInput" placeholder="Search products..." class="mil-search-input">
+                    <button type="submit" class="mil-search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
             </div>
-            <a href="#" class="mil-cart-button" onclick="showCheckoutForm()">
-                <i class="fa-solid fa-shopping-cart mr-2"></i><span id="cartLabel">Cart</span> (<span id="cartCount">0</span>)
-            </a>
+            
+            <div class="mil-cart-container">
+                <button class="mil-cart-button" onclick="toggleCartDropdown()" title="View Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="mil-cart-count" id="cartCount">0</span>
+                </button>
+                
+                <div class="mil-cart-dropdown" id="cartDropdown">
+                    <div class="mil-cart-dropdown-header">
+                        Your Cart
+                    </div>
+                    <div class="mil-cart-dropdown-items" id="cartDropdownItems">
+                        <!-- Cart items will be inserted here dynamically -->
+                        <div class="mil-cart-empty-message">
+                            Your cart is empty
+                        </div>
+                    </div>
+                    <div class="mil-cart-dropdown-footer" id="cartDropdownFooter" style="display: none;">
+                        <div class="mil-cart-dropdown-total">
+                            <span>Total:</span>
+                            <span id="cartDropdownTotal">$0.00</span>
+                        </div>
+                        <div class="mil-cart-dropdown-buttons">
+                            <button class="mil-cart-dropdown-btn mil-cart-dropdown-btn-primary" onclick="showCheckoutForm()">
+                                <i class="fas fa-check-circle"></i> Checkout
+                            </button>
+                            <button class="mil-cart-dropdown-btn mil-cart-dropdown-btn-danger" onclick="clearCart()">
+                                <i class="fas fa-trash"></i> Clear Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="mil-content mil-store-content">
@@ -938,6 +1342,7 @@
     <script>
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const currency = '<%= currency %>';
+        let cartDropdownOpen = false;
 
         function saveCart() {
             localStorage.setItem('cart', JSON.stringify(cart));
@@ -1005,6 +1410,7 @@
                 saveCart();
                 updateCartCount();
                 updateCartSummary();
+                updateCartDropdown();
             } catch (error) {
                 console.error('Error in addToCart:', error.message, error.stack);
                 alert('Error adding item to cart: ' + error.message);
@@ -1016,21 +1422,38 @@
             saveCart();
             updateCartCount();
             updateCartSummary();
+            updateCartDropdown();
             initializeButtonStates();
             if (cart.length === 0) {
                 hideCheckoutForm();
-                alert('Your cart is now empty.');
+            }
+        }
+
+        function clearCart() {
+            if (cart.length === 0) {
+                alert('Your cart is already empty.');
+                return;
+            }
+            
+            if (confirm('Are you sure you want to clear your cart? This action cannot be undone.')) {
+                cart = [];
+                saveCart();
+                updateCartCount();
+                updateCartSummary();
+                updateCartDropdown();
+                initializeButtonStates();
+                closeCartDropdown();
+                alert('Your cart has been cleared.');
             }
         }
 
         function updateCartCount() {
-            const cartLabel = document.getElementById('cartLabel');
             const cartCount = document.getElementById('cartCount');
             const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
             const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
-
-            cartCount.textContent = `${currency}${formatCurrency(totalValue)} (${itemCount} item${itemCount !== 1 ? 's' : ''})`;
-            cartLabel.textContent = itemCount > 0 ? 'Checkout' : 'Cart';
+            
+            cartCount.textContent = `${itemCount}`;
+            cartCount.title = `Total: ${currency}${formatCurrency(totalValue)}`;
         }
 
         function updateCartSummary() {
@@ -1052,6 +1475,31 @@
             cartTotal.textContent = `Total: ${currency}${formatCurrency(totalValue)}`;
         }
 
+        function updateCartDropdown() {
+            const cartDropdownItems = document.getElementById('cartDropdownItems');
+            const cartDropdownFooter = document.getElementById('cartDropdownFooter');
+            const cartDropdownTotal = document.getElementById('cartDropdownTotal');
+            
+            if (cart.length === 0) {
+                cartDropdownItems.innerHTML = '<div class="mil-cart-empty-message">Your cart is empty</div>';
+                cartDropdownFooter.style.display = 'none';
+                cartDropdownTotal.textContent = `${currency}0.00`;
+            } else {
+                // Update items list
+                cartDropdownItems.innerHTML = cart.map(item => `
+                    <div class="mil-cart-dropdown-item">
+                        <div class="mil-cart-dropdown-item-name" title="${item.name}">${item.name}</div>
+                        <div class="mil-cart-dropdown-item-qty">${item.quantity}</div>
+                    </div>
+                `).join('');
+                
+                // Update total
+                const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
+                cartDropdownTotal.textContent = `${currency}${formatCurrency(totalValue)}`;
+                cartDropdownFooter.style.display = 'block';
+            }
+        }
+
         function initializeButtonStates() {
             document.querySelectorAll('.mil-inventory-item').forEach(item => {
                 const itemId = item.dataset.itemId;
@@ -1066,6 +1514,42 @@
                     button.style.backgroundColor = '';
                 }
             });
+        }
+
+        function toggleCartDropdown() {
+            const dropdown = document.getElementById('cartDropdown');
+            if (cartDropdownOpen) {
+                closeCartDropdown();
+            } else {
+                openCartDropdown();
+            }
+        }
+
+        function openCartDropdown() {
+            const dropdown = document.getElementById('cartDropdown');
+            dropdown.classList.add('show');
+            cartDropdownOpen = true;
+            
+            // Close dropdown when clicking outside
+            setTimeout(() => {
+                document.addEventListener('click', closeCartDropdownOnClickOutside);
+            }, 10);
+        }
+
+        function closeCartDropdown() {
+            const dropdown = document.getElementById('cartDropdown');
+            dropdown.classList.remove('show');
+            cartDropdownOpen = false;
+            document.removeEventListener('click', closeCartDropdownOnClickOutside);
+        }
+
+        function closeCartDropdownOnClickOutside(event) {
+            const cartContainer = document.querySelector('.mil-cart-container');
+            const dropdown = document.getElementById('cartDropdown');
+            
+            if (!cartContainer.contains(event.target) && !dropdown.contains(event.target)) {
+                closeCartDropdown();
+            }
         }
 
         function scrollToStore() {
@@ -1098,6 +1582,7 @@
                 return;
             }
             updateCartSummary();
+            closeCartDropdown();
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('checkoutForm').style.display = 'block';
         }
@@ -1202,6 +1687,7 @@
                     updateCartCount();
                     initializeButtonStates();
                     updateCartSummary();
+                    updateCartDropdown();
                     window.location.href = result.invoiceUrl;
                 } else {
                     throw new Error(result.error || 'Invalid server response');
@@ -1219,6 +1705,21 @@
             updateCartCount();
             initializeButtonStates();
             updateCartSummary();
+            updateCartDropdown();
+            
+            // Add search functionality to the search button
+            const searchButton = document.querySelector('.mil-search-button');
+            const searchInput = document.getElementById('inventorySearchInput');
+            
+            if (searchButton && searchInput) {
+                searchButton.addEventListener('click', searchInventory);
+                searchInput.addEventListener('keyup', function(event) {
+                    if (event.key === 'Enter') {
+                        searchInventory();
+                    }
+                });
+                searchInput.addEventListener('input', searchInventory);
+            }
         });
 
         if (window.location.search.includes('checkout_success=true')) {
@@ -1229,11 +1730,11 @@
                 updateCartCount();
                 initializeButtonStates();
                 updateCartSummary();
+                updateCartDropdown();
                 history.replaceState(null, '', window.location.pathname);
             }, 500);
         }
 
-        document.getElementById('inventorySearchInput')?.addEventListener('input', searchInventory);
         document.getElementById('orderSearchInput')?.addEventListener('input', searchOrderTable);
 
         document.addEventListener('DOMContentLoaded', () => {

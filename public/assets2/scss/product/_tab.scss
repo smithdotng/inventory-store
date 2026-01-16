@@ -1,0 +1,62 @@
+/*====================
+    Tab Area 
+======================*/
+
+.onsale-tab {
+    justify-content: center;
+    border-bottom: 1px solid #ffb9b9;
+    li {
+        a {
+            color: #c4c4c4;
+            font-size: 24px;
+            font-weight: 500;
+            border-color: transparent !important;
+            position: relative;
+            padding-bottom: 13px;
+            @media #{$sm-layout} {
+                font-size: 16px;
+                padding: 13px 10px;
+            }
+            &::before{
+                position: absolute;
+                content: "";
+                border-top: 10px solid transparent;
+                bottom: 0;
+                border-bottom: 10px solid $theme-color;
+                border-right: 10px solid transparent;
+                border-left: 10px solid transparent;
+                left: 50%;
+                transform: translateX(-50%);
+                transition: 0.5s;
+                opacity: 0;
+            }
+            &.active {
+                color: $theme-color !important;
+                border-color: transparent !important;
+                background-color: transparent !important;
+                &::before{
+                    opacity: 1;
+                }
+            }
+        }
+    }
+}
+
+.section-border-bottom {
+    border-bottom: 1px solid #ffb9b9;
+}
+
+.onsale-tab{
+    &.tab-style--2{
+        border-bottom: 1px solid transparent;
+        li{
+            a{
+                &::before{
+                    bottom: -2px;
+                    border-bottom: 10px solid #ff9797;
+                }
+            }
+        }
+    }
+}
+

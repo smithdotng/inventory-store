@@ -1,0 +1,139 @@
+/*===========================
+    Start Footer Area 
+=============================*/
+
+.col-custom--5 {
+    -ms-flex: 0 0 20%;
+    flex: 0 0 20%;
+    max-width: 20%;
+    padding: 0 15px;
+
+    @media #{$md-layout} {
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    @media #{$sm-layout} {
+        -ms-flex: 0 0 50%;
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+
+    @media #{$large-mobile} {
+        -ms-flex: 0 0 100%;
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+.footer-widget {
+    .title {
+        margin-bottom: 0;
+    }
+    .inner {
+        margin-top: 25px;
+        p {
+            line-height: 25px;
+            font-size: 14px;
+            padding-right: 58px;
+
+            @media #{$laptop-device} {
+                padding-right: 0;
+            }
+
+            @media #{$lg-layout} {
+                padding-right: 0;
+            }
+
+            @media #{$md-layout} {
+                padding-right: 0;
+            }
+
+            @media #{$sm-layout} {
+                padding-right: 0;
+            }
+        }
+
+        .ft-link {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            li {
+                a {
+                    color: #373737;
+                    font-size: 14px;
+                    transition: 0.5s;
+                    &:hover {
+                        color: $theme-color;
+                    }
+                }
+                &+li {
+                    margin-top: 18px;
+                }
+            }
+        }
+    }
+}
+
+/*=======================
+    Footer Middle 
+==========================*/
+
+.footer-middle{
+    border-top: 1px solid #e5e5e5;
+    border-bottom: 1px solid #e5e5e5;
+    .tags-list{
+        display: flex;
+        @media #{$sm-layout} {
+            display: block;
+        }
+        span {
+            flex-basis: 13%;
+            display: inline-block;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 16px;
+            @media #{$md-layout} {
+                flex-basis: 22%;
+            }
+            @media #{$sm-layout} {
+                flex-basis: 22%;
+            }
+        }
+        .tags {
+            text-align: left;
+            a {
+                display: inline-block;
+                color: #373737;
+                font-weight: 300;
+                font-style: italic;
+                font-size: 14px;
+                position: relative;
+                transition: 0.3s;
+                padding: 0 7px;
+                &:hover {
+                    color: $theme-color;
+                }
+                & + a {
+                    &::before{
+                        position: absolute;
+                        content: "|";
+                        left: 0;
+                    }
+                }
+            }
+        }
+    }
+}
+
+/*=======================
+    Copyright Area
+==========================*/
+
+.copyright-inner{
+    p {
+        color: #6d6d6d;
+        font-weight: 400;
+    }
+}
