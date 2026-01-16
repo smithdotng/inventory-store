@@ -437,55 +437,177 @@
             background: #c82333;
         }
         
+        /* ==================== CHECKOUT MODAL STYLES (UPDATED TO MATCH PRODUCT PAGE) ==================== */
         .mil-overlay {
-            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 1000;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mil-overlay.active {
+            display: block;
+            opacity: 1;
         }
         
         .mil-checkout-form {
-            display: none;
             position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: #fff;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             z-index: 1001;
-            max-width: 500px;
+            max-width: 450px;
             width: 90%;
             max-height: 80vh;
             overflow-y: auto;
+            display: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .mil-checkout-form.active {
+            display: block;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .mil-checkout-form h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+            font-weight: 600;
         }
         
         .mil-cart-summary {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .mil-cart-summary h3 {
-            font-size: 18px;
+            font-size: 1.1rem;
+            color: #444;
             margin-bottom: 10px;
         }
         
         .mil-cart-summary table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 0.85rem;
         }
         
         .mil-cart-summary th, .mil-cart-summary td {
-            padding: 5px;
+            padding: 6px 8px;
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
         
         .mil-cart-summary th {
             background: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .mil-total {
+            font-weight: 600;
+            margin-top: 8px;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+        
+        .mil-form-group {
+            margin-bottom: 12px;
+        }
+        
+        .mil-form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .mil-form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .mil-form-control:focus {
+            border-color: darkcyan;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
+        }
+        
+        .mil-flex {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .mil-flex-1 {
+            flex: 1;
+        }
+        
+        .mil-delete-item {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 2px;
+            font-size: 0.8rem;
+        }
+        
+        .mil-delete-item:hover {
+            transform: scale(1.1);
+        }
+        
+        .mil-checkout-form .mil-button {
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .mil-checkout-form .mil-button-primary {
+            background: darkcyan;
+            color: white;
+        }
+        
+        .mil-checkout-form .mil-button-primary:hover {
+            background: #006969;
+            transform: translateY(-1px);
+        }
+        
+        .mil-checkout-form .mil-button-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .mil-checkout-form .mil-button-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
         }
         
         .mil-confirmation-container {
@@ -1172,7 +1294,8 @@
             </div>
         </div>
 
-        <div class="mil-overlay" id="overlay" onclick="hideCheckoutForm()"></div>
+        <!-- Checkout Form (UPDATED TO MATCH PRODUCT PAGE) -->
+        <div class="mil-overlay" id="overlay"></div>
         <div class="mil-checkout-form" id="checkoutForm">
             <h2 class="mil-mb-20">Checkout</h2>
             <div class="mil-cart-summary" id="cartSummary">
@@ -1193,24 +1316,24 @@
             </div>
             <form id="checkoutFormSubmit" action="<%= outlet ? `/outlet/${outlet.username}/checkout` : `/store/${admin.username}/checkout` %>" method="POST">
                 <div class="mil-form-group mil-mb-15">
-                    <label for="customerName"><i class="fas fa-user mil-mr-5"></i> Name</label>
+                    <label for="customerName"><i class="fas fa-user"></i> Name</label>
                     <input type="text" id="customerName" name="customerName" class="mil-form-control" required>
                 </div>
                 <div class="mil-form-group mil-mb-15">
-                    <label for="phoneNumber"><i class="fas fa-phone mil-mr-5"></i> Phone Number</label>
+                    <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number</label>
                     <input type="tel" id="phoneNumber" name="phoneNumber" class="mil-form-control" required>
                 </div>
                 <div class="mil-form-group mil-mb-20">
-                    <label for="email"><i class="fas fa-envelope mil-mr-5"></i> Email</label>
+                    <label for="email"><i class="fas fa-envelope"></i> Email</label>
                     <input type="email" id="email" name="email" class="mil-form-control" required>
                 </div>
                 <input type="hidden" id="cartItems" name="cartItems">
                 <div class="mil-flex mil-gap-15">
-                    <button type="submit" class="mil-button mil-flex-1">
-                        <i class="fas fa-check mil-mr-5"></i> Submit Order
+                    <button type="submit" class="mil-button mil-button-primary">
+                        <i class="fas fa-check"></i> Submit Order
                     </button>
-                    <button type="button" class="mil-button mil-border mil-flex-1" onclick="hideCheckoutForm()">
-                        <i class="fas fa-times mil-mr-5"></i> Cancel
+                    <button type="button" class="mil-button mil-button-secondary" onclick="hideCheckoutForm()">
+                        <i class="fas fa-times"></i> Cancel
                     </button>
                 </div>
             </form>
@@ -1565,6 +1688,7 @@
             }
         }
 
+        // UPDATED showCheckoutForm function to match product page
         function showCheckoutForm() {
             if (cart.length === 0) {
                 alert('Please add items to your cart before checking out.');
@@ -1583,13 +1707,36 @@
             }
             updateCartSummary();
             closeCartDropdown();
-            document.getElementById('overlay').style.display = 'block';
-            document.getElementById('checkoutForm').style.display = 'block';
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('checkoutForm').classList.add('active');
+            
+            // Add smooth animation
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo('#checkoutForm', 
+                    { opacity: 0, scale: 0.9, y: -20 },
+                    { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.2)' }
+                );
+            }
         }
-
+        
+        // UPDATED hideCheckoutForm function to match product page
         function hideCheckoutForm() {
-            document.getElementById('overlay').style.display = 'none';
-            document.getElementById('checkoutForm').style.display = 'none';
+            if (typeof gsap !== 'undefined') {
+                gsap.to('#checkoutForm', {
+                    opacity: 0,
+                    scale: 0.9,
+                    y: -20,
+                    duration: 0.2,
+                    ease: 'power2.in',
+                    onComplete: function() {
+                        document.getElementById('overlay').classList.remove('active');
+                        document.getElementById('checkoutForm').classList.remove('active');
+                    }
+                });
+            } else {
+                document.getElementById('overlay').classList.remove('active');
+                document.getElementById('checkoutForm').classList.remove('active');
+            }
         }
 
         function searchInventory() {
@@ -1720,6 +1867,10 @@
                 });
                 searchInput.addEventListener('input', searchInventory);
             }
+            
+            // Ensure modal is hidden on load
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('checkoutForm').classList.remove('active');
         });
 
         if (window.location.search.includes('checkout_success=true')) {
