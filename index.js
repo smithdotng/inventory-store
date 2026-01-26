@@ -5028,6 +5028,33 @@ app.get('/outlet-customers/:outletId', isOutletAuthenticated, async (req, res) =
   }
 });
 
+// Add this new route
+app.get('/api/inventory', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    const items = await db.collection('inventory')
+      .find({ adminId: admin._id })
+      .project({
+        _id: 1,
+        name: 1,
+        cost: 1,
+        stock: 1,
+        isVatable: 1   // include if you're using this field
+      })
+      .sort({ name: 1 })
+      .toArray();
+
+    res.json({ items });
+  } catch (err) {
+    console.error('Error in /api/inventory:', err);
+    res.status(500).json({ error: 'Server error while loading inventory' });
+  }
+});
+
 app.get('/invoices', isAuthenticated, async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
