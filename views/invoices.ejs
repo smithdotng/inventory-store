@@ -316,7 +316,7 @@
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label>Customer <span style="color:var(--danger)">*</span></label>
-                                <select name="customerId" id="customerSelect" class="form-control selectpicker" required>
+                                <select name="customerId" id="customerSelect" class="form-control selectpicker">
                                     <option value="">Select Customer</option>
                                     <% customers.forEach(c => { %>
                                         <option value="<%= c._id %>"><%= c.name %> (<%= c.phone || 'N/A' %>)</option>
@@ -328,11 +328,11 @@
                             <div id="newCustomerFields" style="display:none;">
                                 <div class="form-group">
                                     <label>New Customer Name <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="newCustomerName" class="form-control" placeholder="Full name" required>
+                                    <input type="text" name="newCustomerName" class="form-control" placeholder="Full name">
                                 </div>
                                 <div class="form-group">
                                     <label>Phone Number <span style="color:var(--danger)">*</span></label>
-                                    <input type="tel" name="newCustomerPhone" class="form-control" placeholder="0803 xxx xxxx" required>
+                                    <input type="tel" name="newCustomerPhone" class="form-control" placeholder="e.g. 0803 123 4567">
                                 </div>
                                 <div class="form-group">
                                     <label>Email (optional)</label>
@@ -342,7 +342,7 @@
 
                             <div class="form-group">
                                 <label>Payment Method <span style="color:var(--danger)">*</span></label>
-                                <select name="paymentMethod" id="paymentMethod" class="form-control selectpicker" required>
+                                <select name="paymentMethod" id="paymentMethod" class="form-control selectpicker">
                                     <option value="">Choose method</option>
                                     <option value="Cash">Cash</option>
                                     <option value="Bank Transfer">Bank Transfer</option>
@@ -355,15 +355,15 @@
                                 <h5 class="mb-3">Bank Details</h5>
                                 <div class="form-group">
                                     <label>Bank Name <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="bankName" class="form-control" required>
+                                    <input type="text" name="bankName" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label>Account Name <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="bankAccountName" class="form-control" required>
+                                    <input type="text" name="bankAccountName" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label>Account Number <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="accountNumber" class="form-control" required>
+                                    <input type="text" name="accountNumber" class="form-control">
                                 </div>
                             </div>
                         </div>
@@ -373,7 +373,7 @@
                             <div class="form-group">
                                 <label>Items <span style="color:var(--danger)">*</span></label>
                                 <div id="itemsContainer">
-                                    <!-- First row added by JS on load -->
+                                    <!-- Rows added by JS -->
                                 </div>
                                 <button type="button" id="addItemBtn" class="thm-btn dynamic-radius mt-3" style="background:#27ae60;">
                                     <i class="fa fa-plus"></i> Add Item
@@ -508,76 +508,72 @@
 // Global item counter
 let itemCount = 0;
 
-// ────────────────────────────────────────────────
-// THE FUNCTION THAT CONTAINS THE FETCH LINE
-// ────────────────────────────────────────────────
+// Load products dynamically
 async function loadProductsIntoSelect(selectElement) {
-  console.log('[DEBUG] Starting fetch to /api/inventory for select:', selectElement);
+  console.log('[DEBUG] Starting fetch to /api/inventory');
 
   try {
     selectElement.innerHTML = '<option value="" class="product-select-loading">Loading products...</option>';
 
-    // ────────────────────────────────────────────────
-    // THIS IS THE FETCH LINE
-    // ────────────────────────────────────────────────
     const response = await fetch('/api/inventory', {
-      credentials: 'include',          // sends session cookies
-      cache: 'no-store',               // prevent caching issues during debug
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
+      credentials: 'include',
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
     });
 
-    console.log('[DEBUG] Response status:', response.status, response.statusText);
+    console.log('[DEBUG] Fetch status:', response.status);
 
-    if (!response.ok) {
-      const text = await response.text();
-      console.error('[DEBUG] Not OK response:', response.status, text);
-      throw new Error(`HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
     const data = await response.json();
-    console.log('[DEBUG] Received data:', data);
+    console.log('[DEBUG] Data received:', data);
 
     let html = '<option value="">Select product...</option>';
 
     if (data.items && Array.isArray(data.items)) {
-      data.items.forEach(product => {
-        const stockWarning = product.stock <= 5 
-          ? `<span class="low-stock-warning">(Low stock: ${product.stock})</span>` 
-          : `(Stock: ${product.stock})`;
-
-        html += `
-          <option value="${product._id}" 
-                  data-stock="${product.stock}"
-                  data-price="${product.cost || 0}"
-                  data-vat="${product.isVatable || false}">
-            ${product.name} ${stockWarning}${product.isVatable ? ' [VAT]' : ''}
-          </option>
-        `;
+      data.items.forEach(p => {
+        const warning = p.stock <= 5 ? `<span class="low-stock-warning">(Low: ${p.stock})</span>` : `(Stock: ${p.stock})`;
+        html += `<option value="${p._id}" data-stock="${p.stock}" data-price="${p.cost||0}" data-vat="${p.isVatable||false}">
+          ${p.name} ${warning}${p.isVatable ? ' [VAT]' : ''}
+        </option>`;
       });
-    } else {
-      console.warn('[DEBUG] No items array in response:', data);
     }
 
     html += '<option value="new">+ Create New Product</option>';
     selectElement.innerHTML = html;
 
-    // Refresh bootstrap-select if used
     if (typeof $('.selectpicker').selectpicker === 'function') {
       $(selectElement).selectpicker('refresh');
     }
-
   } catch (err) {
-    console.error('[DEBUG] Fetch failed:', err);
-    selectElement.innerHTML = '<option value="">Error loading products – check console</option>';
+    console.error('[DEBUG] Fetch error:', err);
+    selectElement.innerHTML = '<option>Error loading – check console</option>';
   }
 }
 
-// ────────────────────────────────────────────────
-// CREATE NEW ITEM ROW
-// ────────────────────────────────────────────────
+// Validate item row
+function validateItemRow(row) {
+  const select = row.querySelector('select[name="items[itemId][]"]');
+  const qtyInput = row.querySelector('input[name="items[quantity][]"]');
+  if (!select || !qtyInput) return true;
+
+  const qty = parseInt(qtyInput.value) || 0;
+  const opt = select.options[select.selectedIndex];
+
+  if (opt && opt.value !== 'new' && opt.value) {
+    const stock = parseInt(opt.dataset.stock) || 0;
+    if (qty > stock) {
+      qtyInput.setCustomValidity(`Only ${stock} available`);
+      qtyInput.reportValidity();
+      return false;
+    }
+  }
+
+  qtyInput.setCustomValidity('');
+  return true;
+}
+
+// Add new item row
 function addItemRow() {
   itemCount++;
 
@@ -588,7 +584,7 @@ function addItemRow() {
       <div class="col-md-6">
         <div class="form-group">
           <label>Product <span style="color:var(--danger)">*</span></label>
-          <select name="items[itemId][]" class="form-control selectpicker" required>
+          <select name="items[itemId][]" class="form-control selectpicker">
             <option value="">Loading products...</option>
           </select>
         </div>
@@ -596,7 +592,7 @@ function addItemRow() {
       <div class="col-md-4">
         <div class="form-group">
           <label>Quantity <span style="color:var(--danger)">*</span></label>
-          <input type="number" name="items[quantity][]" class="form-control" min="1" value="1" required>
+          <input type="number" name="items[quantity][]" class="form-control" min="1" value="1">
         </div>
       </div>
       <div class="col-md-2 d-flex align-items-end">
@@ -609,55 +605,30 @@ function addItemRow() {
 
   document.getElementById('itemsContainer').appendChild(wrapper);
 
-  // Load products into this select
   const select = wrapper.querySelector('select');
-  loadProductsIntoSelect(select);   // ← FETCH IS TRIGGERED HERE
+  loadProductsIntoSelect(select);
 
-  // Validate on change/input
   select.addEventListener('change', () => validateItemRow(wrapper));
   wrapper.querySelector('input[type="number"]').addEventListener('input', () => validateItemRow(wrapper));
 
-  // Remove button
   wrapper.querySelector('.remove-item-btn').addEventListener('click', () => {
-    if (document.querySelectorAll('.item-row-wrapper').length > 1) {
-      wrapper.remove();
-    }
+    if (document.querySelectorAll('.item-row-wrapper').length > 1) wrapper.remove();
   });
 
   $('.selectpicker').selectpicker('refresh');
 }
 
-// Validate quantity against stock
-function validateItemRow(row) {
-  const select = row.querySelector('select[name="items[itemId][]"]');
-  const qtyInput = row.querySelector('input[name="items[quantity][]"]');
-  if (!select || !qtyInput) return true;
-
-  const qty = parseInt(qtyInput.value) || 0;
-  const selectedOption = select.options[select.selectedIndex];
-
-  if (selectedOption && selectedOption.value !== 'new' && selectedOption.value !== '') {
-    const stock = parseInt(selectedOption.dataset.stock) || 0;
-    if (qty > stock) {
-      qtyInput.setCustomValidity(`Only ${stock} in stock`);
-      qtyInput.reportValidity();
-      return false;
-    }
-  }
-
-  qtyInput.setCustomValidity('');
-  return true;
-}
-
-// Initialize first row when form opens
+// Initialize items
 function initializeItemsContainer() {
   document.getElementById('itemsContainer').innerHTML = '';
-  addItemRow(); // Add first row + fetch
+  addItemRow();
 }
 
-// Form open / close
+// ────────────────────────────────────────────────
+// MAIN FORM LOGIC + IMPROVED SUBMIT HANDLER
+// ────────────────────────────────────────────────
 $(document).ready(function(){
-  // Mobile menu toggle
+  // Mobile menu
   $('.mobile-nav__toggler').click(function(e){
     e.preventDefault();
     $('#sidebarNav').toggleClass('active');
@@ -669,25 +640,25 @@ $(document).ready(function(){
     $('.mobile-nav__overlay').removeClass('active');
   });
 
-  // Show/hide create invoice form
+  // Open/close form
   const form = $('#createInvoiceForm');
   $('#createInvoiceBtn, #createFirstInvoiceBtn').click(function(){
     form.addClass('active');
-    initializeItemsContainer(); // Load first row + products
+    initializeItemsContainer();
     $('html,body').animate({scrollTop: form.offset().top - 120}, 600);
   });
 
   $('#cancelInvoiceBtn').click(function(){
     form.removeClass('active');
-    $('#itemsContainer').empty(); // Clean up
+    $('#itemsContainer').empty();
   });
 
-  // Customer type toggle
+  // Toggle new customer fields
   $('#customerSelect').change(function(){
     $('#newCustomerFields').toggle(this.value === 'new');
   });
 
-  // Payment method → bank details toggle
+  // Toggle bank details
   $('#paymentMethod').change(function(){
     $('#bankDetails').toggle(this.value === 'Bank Transfer');
   });
@@ -695,17 +666,79 @@ $(document).ready(function(){
   // Add item
   $('#addItemBtn').click(addItemRow);
 
-  // Form validation before submit
+  // ────────────────────────────────────────────────
+  // SUBMIT HANDLER – SHOWS CLEAR ERRORS
+  // ────────────────────────────────────────────────
   $('#invoiceForm').on('submit', function(e) {
+    console.log('[DEBUG] Generate Invoice clicked');
+
     let valid = true;
-    $('.item-row-wrapper').each(function() {
-      if (!validateItemRow(this)) valid = false;
+    let errors = [];
+
+    // Customer
+    const cust = $('#customerSelect').val();
+    if (!cust) {
+      errors.push('Please select or create a customer.');
+      valid = false;
+    }
+
+    if (cust === 'new') {
+      const name = $('input[name="newCustomerName"]').val()?.trim();
+      const phone = $('input[name="newCustomerPhone"]').val()?.trim();
+
+      if (!name) {
+        errors.push('New customer name is required.');
+        valid = false;
+      }
+      if (!phone) {
+        errors.push('New customer phone number is required.');
+        valid = false;
+      } else if (!/^\d{10,11}$/.test(phone.replace(/\s/g, ''))) {
+        errors.push('Phone should be 10–11 digits (e.g. 08031234567).');
+        valid = false;
+      }
+    }
+
+    // Payment method
+    const pay = $('#paymentMethod').val();
+    if (!pay) {
+      errors.push('Please select a payment method.');
+      valid = false;
+    }
+
+    // Bank transfer fields
+    if (pay === 'Bank Transfer') {
+      ['bankName', 'bankAccountName', 'accountNumber'].forEach(f => {
+        if (!$(`input[name="${f}"]`).val()?.trim()) {
+          errors.push(`${f.replace(/([A-Z])/g, ' $1')} is required for bank transfer.`);
+          valid = false;
+        }
+      });
+    }
+
+    // Items
+    const rows = $('.item-row-wrapper');
+    if (rows.length === 0) {
+      errors.push('Please add at least one item.');
+      valid = false;
+    }
+
+    rows.each((i, row) => {
+      if (!validateItemRow(row)) {
+        errors.push(`Item #${i+1}: quantity exceeds stock or is invalid.`);
+        valid = false;
+      }
     });
 
     if (!valid) {
       e.preventDefault();
-      alert('Please correct quantity/stock errors.');
+      alert('Cannot generate invoice!\n\n' + errors.join('\n'));
+      console.log('[DEBUG] Validation failed:', errors);
+      return false;
     }
+
+    console.log('[DEBUG] Form is valid → submitting');
+    // Form submits to /invoices/create
   });
 });
 </script>
