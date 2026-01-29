@@ -160,6 +160,15 @@
 
         .thm-btn.cancel:hover { background: #7f8c8d; }
 
+        .char-count {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .char-count.over { color: var(--danger); }
+
         @media (max-width: 991px) {
             .products-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
         }
@@ -169,7 +178,7 @@
 
 <div class="page-wrapper">
 
-    <!-- header (restored original style) -->
+    <!-- header -->
     <div class="main-header__two">
         <div class="header-upper">
             <div class="container">
@@ -383,25 +392,41 @@
                                     </button>
                                 </div>
 
-                                <!-- Quick Edit -->
+                                <!-- Quick Edit Form – NOW INCLUDES DESCRIPTION -->
                                 <form class="edit-form" id="edit-form-<%= item._id %>" action="/update-stock" method="POST">
                                     <input type="hidden" name="_id" value="<%= item._id %>">
                                     <div class="row">
-                                        <div class="col-6">
+                                        <div class="col-md-6">
                                             <div class="form-group">
                                                 <label>Stock</label>
                                                 <input type="number" name="stock" value="<%= item.stock %>" min="0" class="form-control">
                                             </div>
                                         </div>
-                                        <div class="col-6">
+                                        <div class="col-md-6">
                                             <div class="form-group">
-                                                <label>Cost</label>
+                                                <label>Cost (<%= admin.currency %>)</label>
                                                 <input type="number" name="cost" value="<%= item.cost %>" min="0" step="0.01" class="form-control">
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- New: Description edit field -->
+                                    <div class="form-group">
+                                        <label>Description (max 400 characters)</label>
+                                        <textarea 
+                                            name="description" 
+                                            class="form-control" 
+                                            rows="3" 
+                                            maxlength="400"
+                                            placeholder="Enter product description..."
+                                        ><%= item.description || '' %></textarea>
+                                        <div class="char-count">
+                                            <span class="current">0</span>/400
+                                        </div>
+                                    </div>
+
                                     <div class="text-center mt-3">
-                                        <button type="submit" class="thm-btn dynamic-radius btn-sm">Save</button>
+                                        <button type="submit" class="thm-btn dynamic-radius btn-sm">Save Changes</button>
                                         <button type="button" class="thm-btn dynamic-radius btn-sm cancel" onclick="toggleEditMode('<%= item._id %>')">Cancel</button>
                                     </div>
                                 </form>
@@ -506,6 +531,15 @@ $(document).ready(function(){
         $('#edit-form-' + id).toggleClass('active');
     };
 
+    // Live character count for description in edit forms
+    $('.edit-form textarea[name="description"]').on('input', function(){
+        const len = this.value.length;
+        const counter = $(this).siblings('.char-count').find('.current');
+        counter.text(len);
+        if (len > 400) counter.closest('.char-count').addClass('over');
+        else counter.closest('.char-count').removeClass('over');
+    });
+
     // Simple delete confirmation
     window.showDeleteModal = function(id, name) {
         if(confirm("Delete product '" + name + "'?\nThis cannot be undone.")) {
@@ -513,36 +547,32 @@ $(document).ready(function(){
         }
     };
 
-    // FIXED: Share Store Link – copies to clipboard with nice feedback
+    // Share Store Link
     $('#shareStoreBtn').click(function(){
-        const storeUrl = "<%= storeUrl %>";  // This comes from your backend route
+        const storeUrl = "<%= storeUrl %>";
         if (navigator.clipboard && navigator.clipboard.writeText) {
             navigator.clipboard.writeText(storeUrl)
-                .then(() => {
-                    alert("Store link copied to clipboard!\n\nPaste it anywhere to share:\n" + storeUrl);
-                })
-                .catch(() => {
-                    fallbackCopy();
-                });
+                .then(() => alert("Store link copied!\n\n" + storeUrl))
+                .catch(() => fallbackCopy());
         } else {
             fallbackCopy();
         }
 
         function fallbackCopy() {
-            const textArea = document.createElement("textarea");
-            textArea.value = storeUrl;
-            textArea.style.position = "fixed";
-            textArea.style.opacity = "0";
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
+            const ta = document.createElement("textarea");
+            ta.value = storeUrl;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
             try {
                 document.execCommand('copy');
-                alert("Store link copied!\n\n" + storeUrl);
+                alert("Link copied!\n\n" + storeUrl);
             } catch (err) {
-                prompt("Copy this link manually (Ctrl+C):", storeUrl);
+                prompt("Copy manually (Ctrl+C):", storeUrl);
             }
-            document.body.removeChild(textArea);
+            document.body.removeChild(ta);
         }
     });
 });

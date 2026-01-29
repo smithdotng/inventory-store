@@ -168,11 +168,12 @@
             left: 0;
             right: 0;
             background: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            max-height: 300px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+            max-height: 400px;
             overflow-y: auto;
             z-index: 1000;
             display: none;
+            border-radius: 0 0 5px 5px;
         }
         .mil-search-results.active {
             display: block;
@@ -180,10 +181,11 @@
         .mil-search-result-item {
             display: flex;
             align-items: center;
-            padding: 10px;
+            padding: 10px 15px;
             border-bottom: 1px solid #eee;
             text-decoration: none;
             color: #333;
+            transition: background-color 0.2s ease;
         }
         .mil-search-result-item:hover {
             background: #f5f5f5;
@@ -202,16 +204,62 @@
             margin: 0;
             font-size: 14px;
             color: #333;
+            font-weight: 600;
         }
         .mil-search-result-item p {
-            margin: 0;
+            margin: 2px 0 0 0;
             font-size: 12px;
             color: #666;
         }
         .mil-search-no-results {
-            padding: 10px;
+            padding: 20px;
             text-align: center;
             color: #666;
+            font-size: 14px;
+        }
+        /* Search tabs */
+        .mil-search-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            background: #f9f9f9;
+        }
+        .mil-search-tab {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        .mil-search-tab:hover {
+            background: #f0f0f0;
+        }
+        .mil-search-tab.active {
+            background: #fff;
+            color: #008B8B;
+            font-weight: 600;
+            border-bottom: 2px solid #008B8B;
+        }
+        .mil-search-section {
+            display: none;
+        }
+        .mil-search-section.active {
+            display: block;
+        }
+        .mil-search-section-header {
+            padding: 8px 15px;
+            background: #f5f5f5;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+        .mil-search-arrow {
+            color: #999;
             font-size: 14px;
         }
         /* Mobile Menu */
@@ -224,6 +272,7 @@
                 left: 0;
                 background: #fff;
                 z-index: 999;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             }
             .mil-main-menu.active {
                 display: block;
@@ -251,6 +300,11 @@
             }
             .mil-search-results {
                 width: 100%;
+                position: fixed;
+                left: 0;
+                right: 0;
+                top: 70px;
+                max-height: calc(100vh - 70px);
             }
         }
         /* Content padding to avoid overlap with fixed header */
@@ -380,7 +434,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+</div>
         <!-- preloader end -->
 
         <!-- scrollbar progress -->
@@ -393,10 +447,12 @@
         <div class="mil-frame-top">
             <a href="home-1.html" class="mil-logo"><img src="images/logo.png" alt="Logo"></a>
             <nav class="mil-main-menu" id="swupMenu">
-                <form class="mil-subscribe-form mil-up" style="background-color: beige;">
-                    <input type="text" placeholder="Search for a Shed" size="50">
+                <form class="mil-subscribe-form mil-up" style="background-color: beige;" id="searchForm" action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search for a Shed or Product" size="50">
                     <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
-                    <div class="mil-search-results"></div>
+                    <div class="mil-search-results">
+                        <!-- Tabs will be inserted here by JavaScript -->
+                    </div>
                 </form>
             </nav>
             <div class="mil-menu-btn">
@@ -924,11 +980,26 @@
     <!-- Search Functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const searchForm = document.querySelector('.mil-subscribe-form');
-            const searchInput = searchForm.querySelector('input');
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = searchForm.querySelector('input[name="q"]');
             const searchResults = searchForm.querySelector('.mil-search-results');
 
-            // Debounce function to limit API calls
+            // Create search tabs
+            const createSearchTabs = () => {
+                const tabsHtml = `
+                    <div class="mil-search-tabs">
+                        <button class="mil-search-tab active" data-type="all">All</button>
+                        <button class="mil-search-tab" data-type="stores">Stores</button>
+                        <button class="mil-search-tab" data-type="products">Products</button>
+                    </div>
+                `;
+                searchResults.insertAdjacentHTML('afterbegin', tabsHtml);
+            };
+
+            // Initialize tabs
+            createSearchTabs();
+
+            // Debounce function
             const debounce = (func, wait) => {
                 let timeout;
                 return (...args) => {
@@ -937,45 +1008,209 @@
                 };
             };
 
-            // Fetch stores from API
-            const fetchStores = async (query) => {
+            // Fetch data based on active tab
+            const fetchSearchResults = async (query, type) => {
                 try {
-                    const response = await fetch(`/api/stores/search?q=${encodeURIComponent(query)}`);
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    const stores = await response.json();
-                    displayResults(stores);
+                    const endpoint = `/api/search/suggestions?q=${encodeURIComponent(query)}&type=${type}`;
+                    const response = await fetch(endpoint);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return await response.json();
                 } catch (error) {
-                    console.error('Error fetching stores:', error);
-                    searchResults.innerHTML = '<div class="mil-search-no-results">Error searching stores</div>';
+                    console.error(`Error fetching suggestions:`, error);
+                    throw error;
+                }
+            };
+
+            // Display suggestion results
+            const displaySuggestions = (data, type) => {
+                const sectionId = `mil-search-${type}`;
+                let section = document.getElementById(sectionId);
+                
+                if (!section) {
+                    section = document.createElement('div');
+                    section.id = sectionId;
+                    section.className = `mil-search-section ${type === 'all' ? 'active' : ''}`;
+                    
+                    const header = document.createElement('div');
+                    header.className = 'mil-search-section-header';
+                    header.textContent = type === 'all' ? 'All Results' : 
+                                       type === 'stores' ? 'Stores' : 'Products';
+                    
+                    section.appendChild(header);
+                    searchResults.appendChild(section);
+                }
+                
+                section.innerHTML = ''; // Clear previous content
+                
+                // Re-add header
+                const header = document.createElement('div');
+                header.className = 'mil-search-section-header';
+                header.textContent = type === 'all' ? 'All Results' : 
+                                   type === 'stores' ? 'Stores' : 'Products';
+                section.appendChild(header);
+                
+                if (data.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'mil-search-no-results';
+                    noResults.textContent = `No ${type} found`;
+                    section.appendChild(noResults);
+                    return;
+                }
+                
+                data.forEach(item => {
+                    const resultItem = document.createElement('a');
+                    resultItem.className = 'mil-search-result-item mil-up';
+                    
+                    if (type === 'stores' || (type === 'all' && item.type === 'store')) {
+                        resultItem.href = `/store/${item.username}`;
+                        resultItem.innerHTML = `
+                            ${item.logo ? `<img src="${item.logo}" alt="${item.businessName || 'Store'} logo">` : '<img src="/img/placeholder-store.png" alt="Store placeholder">'}
+                            <div>
+                                <h6>${item.businessName || 'Unnamed Store'}</h6>
+                                <p>@${item.username || 'unknown'}</p>
+                            </div>
+                            <div class="mil-search-arrow">→</div>
+                        `;
+                    } else if (type === 'products' || (type === 'all' && item.type === 'product')) {
+                        resultItem.href = `/store/${item.storeUsername}?product=${item._id}`;
+                        resultItem.innerHTML = `
+                            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">` : '<img src="/img/placeholder-product.png" alt="Product placeholder" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; background: #f0f0f0;">'}
+                            <div style="flex: 1;">
+                                <h6>${item.name || 'Unnamed Product'}</h6>
+                                <p style="font-size: 12px; color: #666; margin: 2px 0;">₦${item.cost ? parseFloat(item.cost).toLocaleString('en-US') : 'Price not set'}</p>
+                                ${item.storeName ? `<p style="font-size: 11px; color: #888;">From: ${item.storeName}</p>` : ''}
+                            </div>
+                            <div class="mil-search-arrow">→</div>
+                        `;
+                    } else if (type === 'all') {
+                        // For "all" type, show mixed results
+                        resultItem.href = item.type === 'store' ? `/store/${item.username}` : `/store/${item.storeUsername}?product=${item._id}`;
+                        resultItem.innerHTML = `
+                            ${item.logo || item.image ? `<img src="${item.logo || item.image}" alt="${item.businessName || item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: ${item.type === 'store' ? '50%' : '4px'};">` : 
+                            `<img src="${item.type === 'store' ? '/img/placeholder-store.png' : '/img/placeholder-product.png'}" alt="${item.type === 'store' ? 'Store' : 'Product'} placeholder" style="width: 40px; height: 40px; object-fit: cover; border-radius: ${item.type === 'store' ? '50%' : '4px'}; background: #f0f0f0;">`}
+                            <div style="flex: 1;">
+                                <h6>${item.businessName || item.name || 'Unnamed'}</h6>
+                                <p style="font-size: 12px; color: #666; margin: 2px 0;">
+                                    ${item.type === 'store' ? `@${item.username}` : `₦${item.cost ? parseFloat(item.cost).toLocaleString('en-US') : 'Price not set'}`}
+                                </p>
+                                ${item.type === 'product' && item.storeName ? `<p style="font-size: 11px; color: #888;">From: ${item.storeName}</p>` : ''}
+                            </div>
+                            <div class="mil-search-arrow">→</div>
+                        `;
+                    }
+                    
+                    section.appendChild(resultItem);
+                });
+                
+                // Add "View all results" link
+                const viewAllLink = document.createElement('a');
+                viewAllLink.href = `/search?q=${encodeURIComponent(query)}&type=${type}`;
+                viewAllLink.className = 'mil-search-result-item mil-up';
+                viewAllLink.style.justifyContent = 'center';
+                viewAllLink.style.fontWeight = '600';
+                viewAllLink.style.color = '#008B8B';
+                viewAllLink.innerHTML = `View all ${type} results →`;
+                section.appendChild(viewAllLink);
+            };
+
+            // Handle tab switching
+            searchResults.addEventListener('click', (e) => {
+                if (e.target.classList.contains('mil-search-tab')) {
+                    // Update active tab
+                    document.querySelectorAll('.mil-search-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    
+                    // Show active section
+                    const type = e.target.dataset.type;
+                    document.querySelectorAll('.mil-search-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    const activeSection = document.getElementById(`mil-search-${type}`);
+                    if (activeSection) {
+                        activeSection.classList.add('active');
+                    }
+                    
+                    // If there's a search query, fetch suggestions for the new tab
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        fetchAndShowSuggestions(query, type);
+                    }
+                }
+            });
+
+            // Main suggestion function
+            const fetchAndShowSuggestions = async (query, type = 'all') => {
+                if (!query || query.length < 2) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+                
+                try {
+                    const data = await fetchSearchResults(query, type);
+                    displaySuggestions(data, type);
+                    searchResults.classList.add('active');
+                } catch (error) {
+                    const sectionId = `mil-search-${type}`;
+                    let section = document.getElementById(sectionId);
+                    
+                    if (!section) {
+                        section = document.createElement('div');
+                        section.id = sectionId;
+                        section.className = `mil-search-section ${type === 'all' ? 'active' : ''}`;
+                        
+                        const header = document.createElement('div');
+                        header.className = 'mil-search-section-header';
+                        header.textContent = type === 'all' ? 'All Results' : 
+                                           type === 'stores' ? 'Stores' : 'Products';
+                        section.appendChild(header);
+                        
+                        searchResults.appendChild(section);
+                    }
+                    
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'mil-search-no-results';
+                    errorMsg.textContent = 'Error loading suggestions';
+                    section.appendChild(errorMsg);
+                    
                     searchResults.classList.add('active');
                 }
             };
 
-            // Display search results
-            const displayResults = (stores) => {
-                searchResults.innerHTML = '';
-                if (stores.length === 0) {
-                    searchResults.innerHTML = '<div class="mil-search-no-results">No stores found</div>';
-                    searchResults.classList.add('active');
+            // Debounced search for suggestions
+            const debouncedSuggestions = debounce((query) => {
+                const activeTab = document.querySelector('.mil-search-tab.active');
+                const type = activeTab ? activeTab.dataset.type : 'all';
+                fetchAndShowSuggestions(query, type);
+            }, 200);
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                debouncedSuggestions(query);
+            });
+
+            // Handle form submission - redirect to search page
+            searchForm.addEventListener('submit', (e) => {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    e.preventDefault();
                     return;
                 }
-                stores.forEach(store => {
-                    const resultItem = document.createElement('a');
-                    resultItem.href = `/store/${store.username}`; // Adjust URL as needed
-                    resultItem.className = 'mil-search-result-item mil-up';
-                    resultItem.innerHTML = `
-                        ${store.logo ? `<img src="${store.logo}" alt="${store.businessName || 'Store'} logo">` : '<img src="img/placeholder.png" alt="Placeholder">'}
-                        <div>
-                            <h6>${store.businessName || 'Unnamed Store'}</h6>
-                            <p>@${store.username || 'unknown'}</p>
-                        </div>
-                    `;
-                    searchResults.appendChild(resultItem);
-                });
-                searchResults.classList.add('active');
-            };
+                
+                // Get active tab to determine type
+                const activeTab = document.querySelector('.mil-search-tab.active');
+                const type = activeTab ? activeTab.dataset.type : 'all';
+                
+                // Add type parameter to form
+                const typeInput = document.createElement('input');
+                typeInput.type = 'hidden';
+                typeInput.name = 'type';
+                typeInput.value = type;
+                searchForm.appendChild(typeInput);
+                
+                // Form will submit normally to /search?q=query&type=type
+            });
 
             // Hide results when clicking outside
             document.addEventListener('click', (e) => {
@@ -984,33 +1219,53 @@
                 }
             });
 
-            // Handle input events (debounced)
-            const debouncedSearch = debounce((value) => {
-                if (value.trim() === '') {
-                    searchResults.classList.remove('active');
-                    searchResults.innerHTML = '';
-                    return;
-                }
-                fetchStores(value);
-            }, 300);
-
-            searchInput.addEventListener('input', (e) => {
-                debouncedSearch(e.target.value);
-            });
-
-            // Handle form submission
-            searchForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const query = searchInput.value.trim();
-                if (query) {
-                    fetchStores(query);
-                }
-            });
-
-            // Show results when input is focused
+            // Show suggestions when input is focused (if there's a query)
             searchInput.addEventListener('focus', () => {
-                if (searchInput.value.trim() && searchResults.innerHTML) {
-                    searchResults.classList.add('active');
+                const query = searchInput.value.trim();
+                if (query && query.length >= 2) {
+                    const activeTab = document.querySelector('.mil-search-tab.active');
+                    const type = activeTab ? activeTab.dataset.type : 'all';
+                    
+                    // Check if we already have suggestions for this type
+                    const section = document.getElementById(`mil-search-${type}`);
+                    if (section && section.children.length > 0) {
+                        searchResults.classList.add('active');
+                    } else if (query.length >= 2) {
+                        // Fetch fresh suggestions
+                        fetchAndShowSuggestions(query, type);
+                    }
+                }
+            });
+
+            // Keyboard navigation for suggestions
+            searchInput.addEventListener('keydown', (e) => {
+                if (!searchResults.classList.contains('active')) return;
+                
+                const items = searchResults.querySelectorAll('.mil-search-result-item');
+                if (items.length === 0) return;
+                
+                let currentIndex = -1;
+                items.forEach((item, index) => {
+                    if (item === document.activeElement) {
+                        currentIndex = index;
+                    }
+                });
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                        items[nextIndex].focus();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                        items[prevIndex].focus();
+                        break;
+                    case 'Escape':
+                        searchResults.classList.remove('active');
+                        searchInput.focus();
+                        break;
                 }
             });
         });

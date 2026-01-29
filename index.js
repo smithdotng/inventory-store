@@ -1889,7 +1889,7 @@ app.get('/update-stock', isAuthenticated, async (req, res) => {
 
 // POST /update-stock
 app.post('/update-stock', isAuthenticated, async (req, res) => {
-  const { _id, stock, cost, commission, search = '' } = req.body;
+  const { _id, stock, cost, commission, description, search = '' } = req.body;
   
   try {
     if (!_id) throw new Error('Item ID is required.');
@@ -1905,6 +1905,11 @@ app.post('/update-stock', isAuthenticated, async (req, res) => {
     const objectId = new ObjectId(_id);
     const updateData = { stock: stockNum, cost: costNum };
     if (commissionNum !== null) updateData.commission = commissionNum;
+
+    // Add description update if provided
+    if (description !== undefined) {
+      updateData.description = description.trim().substring(0, 400); // enforce limit
+    }
 
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     if (!admin) throw new Error('Admin not found.');
@@ -4087,35 +4092,817 @@ app.post('/api/subscribe', subscribeLimiter, express.json(), async (req, res) =>
   }
 });
 
-app.get('/api/stores/search', async (req, res) => {
+
+
+// Search results page route - UPDATED VERSION
+app.get('/search', async (req, res) => {
   try {
-    const query = req.query.q ? req.query.q.trim() : '';
-    if (!query) {
-      return res.json([]);
+    // SAFE: Check if req.query exists first
+    const query = (req.query && req.query.q) ? String(req.query.q).trim() : '';
+    const type = (req.query && req.query.type) ? String(req.query.type) : 'all';
+    const page = parseInt(req.query.page) || 1;
+    const limit = 20;
+    const skip = (page - 1) * limit;
+
+    console.log('🔍 Search request received:', { query, type, page });
+
+    let stores = [];
+    let products = [];
+    let totalStores = 0;
+    let totalProducts = 0;
+    let totalResults = 0;
+
+    if (query && query.length > 0) {
+      // DEBUG: First check what stores exist
+      console.log('📊 DEBUG: Checking database for any stores...');
+      const allStoresCount = await db.collection('admins').countDocuments({});
+      console.log('📊 Total stores in database:', allStoresCount);
+      
+      if (allStoresCount > 0) {
+        const sampleStores = await db.collection('admins')
+          .find({})
+          .limit(5)
+          .project({ businessName: 1, username: 1, active: 1, description: 1 })
+          .toArray();
+        console.log('📝 Sample stores:', JSON.stringify(sampleStores, null, 2));
+      }
+
+      // Search for stores
+      if (type === 'all' || type === 'stores') {
+        try {
+          console.log('🔍 Searching stores with query:', query);
+          
+          // FIRST: Try without active filter to see what matches
+          const storeQueryNoActive = {
+            $or: [
+              { businessName: { $regex: query, $options: 'i' } },
+              { username: { $regex: query, $options: 'i' } },
+              { description: { $regex: query, $options: 'i' } }
+            ]
+          };
+          
+          console.log('📋 Store query (without active filter):', JSON.stringify(storeQueryNoActive, null, 2));
+          
+          // Check count without active filter
+          const totalWithoutActive = await db.collection('admins').countDocuments(storeQueryNoActive);
+          console.log('📊 Stores found without active filter:', totalWithoutActive);
+          
+          // Now try with active filter (but check if stores have active field)
+          const storeQuery = {
+            $or: [
+              { businessName: { $regex: query, $options: 'i' } },
+              { username: { $regex: query, $options: 'i' } },
+              { description: { $regex: query, $options: 'i' } }
+            ]
+            // Removed: active: true
+          };
+          
+          // If you want to include active filter, check if stores actually have this field
+          // First, see if any stores have active field
+          const hasActiveField = await db.collection('admins').countDocuments({ active: { $exists: true } });
+          console.log('📊 Stores with "active" field:', hasActiveField);
+          
+          if (hasActiveField > 0) {
+            // Some stores have active field, add it to query
+            storeQuery.active = true;
+            console.log('✅ Adding active: true to query');
+          } else {
+            console.log('ℹ️ No stores have "active" field, skipping this filter');
+          }
+
+          console.log('📋 Final store query:', JSON.stringify(storeQuery, null, 2));
+          
+          totalStores = await db.collection('admins').countDocuments(storeQuery);
+          console.log('✅ Found', totalStores, 'stores for query:', query);
+          
+          if (totalStores > 0) {
+            stores = await db.collection('admins')
+              .find(storeQuery)
+              .project({
+                _id: 1,
+                businessName: 1,
+                username: 1,
+                logo: 1,
+                description: 1,
+                createdAt: 1,
+                location: 1,
+                phone: 1,
+                email: 1,
+                active: 1 // Include for debugging
+              })
+              .sort({ createdAt: -1 })
+              .skip(type === 'stores' ? skip : 0)
+              .limit(type === 'stores' ? limit : 10)
+              .toArray();
+            
+            console.log('📦 Retrieved stores:', stores.length);
+            stores.forEach((store, i) => {
+              console.log(`  ${i + 1}. ${store.businessName} (@${store.username}) - active: ${store.active}`);
+            });
+          }
+        } catch (dbError) {
+          console.error('❌ Error fetching stores:', dbError.message, dbError.stack);
+        }
+      }
+
+      // Search for products
+      if (type === 'all' || type === 'products') {
+        try {
+          console.log('🔍 Searching products with query:', query);
+          
+          const productQuery = {
+            $or: [
+              { name: { $regex: query, $options: 'i' } },
+              { description: { $regex: query, $options: 'i' } },
+              { category: { $regex: query, $options: 'i' } }
+            ]
+          };
+
+          totalProducts = await db.collection('inventory').countDocuments(productQuery);
+          console.log('📊 Found', totalProducts, 'products for query:', query);
+          
+          if (totalProducts > 0) {
+            products = await db.collection('inventory')
+              .aggregate([
+                {
+                  $match: productQuery
+                },
+                {
+                  $lookup: {
+                    from: 'admins',
+                    localField: 'adminId',
+                    foreignField: '_id',
+                    as: 'store'
+                  }
+                },
+                {
+                  $unwind: {
+                    path: '$store',
+                    preserveNullAndEmptyArrays: true // Changed to true to see if lookup is failing
+                  }
+                },
+                // REMOVE the active filter or make it optional
+                // {
+                //   $match: {
+                //     'store.active': true
+                //   }
+                // },
+                {
+                  $project: {
+                    _id: 1,
+                    name: 1,
+                    description: 1,
+                    cost: 1,
+                    image: 1,
+                    stock: 1,
+                    category: 1,
+                    commission: 1,
+                    createdAt: 1,
+                    storeName: '$store.businessName',
+                    storeUsername: '$store.username',
+                    storeLogo: '$store.logo',
+                    storeLocation: '$store.location',
+                    storeActive: '$store.active' // Include for debugging
+                  }
+                },
+                {
+                  $sort: { createdAt: -1 }
+                },
+                {
+                  $skip: type === 'products' ? skip : 0
+                },
+                {
+                  $limit: type === 'products' ? limit : 12
+                }
+              ])
+              .toArray();
+            
+            console.log('📦 Retrieved products:', products.length);
+            products.forEach((product, i) => {
+              console.log(`  ${i + 1}. ${product.name} - store: ${product.storeName} (active: ${product.storeActive})`);
+            });
+          }
+        } catch (dbError) {
+          console.error('❌ Error fetching products:', dbError.message, dbError.stack);
+        }
+      }
     }
 
-    const stores = await db.collection('admins')
+    // Calculate totals
+    totalResults = totalStores + totalProducts;
+    const totalPages = type === 'all' ? 1 : Math.ceil((type === 'stores' ? totalStores : totalProducts) / limit);
+
+    console.log('📊 Final counts:', {
+      query,
+      totalStores,
+      totalProducts,
+      totalResults,
+      storesFound: stores.length,
+      productsFound: products.length
+    });
+
+    // Helper functions
+    const formatCurrency = (amount) => {
+      if (!amount && amount !== 0) return '₦0.00';
+      return `₦${parseFloat(amount).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })}`;
+    };
+
+    const formatDate = (date) => {
+      if (!date) return '';
+      try {
+        return new Date(date).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+      } catch (e) {
+        return '';
+      }
+    };
+
+    const truncateText = (text, length = 100) => {
+      if (!text) return '';
+      return text.length > length ? text.substring(0, length) + '...' : text;
+    };
+
+    // ALWAYS pass error variable (even if null)
+    const templateData = {
+      query,
+      type,
+      stores,
+      products,
+      totalStores,
+      totalProducts,
+      totalResults,
+      page,
+      totalPages,
+      limit,
+      error: null,
+      formatCurrency,
+      formatDate,
+      truncateText
+    };
+
+    console.log('🎯 Rendering search results with', stores.length, 'stores and', products.length, 'products');
+    res.render('search-results', templateData);
+
+  } catch (error) {
+    console.error('💥 Error in search route:', error);
+    
+    // Render error with safe defaults - ALWAYS include error variable
+    res.status(500).render('search-results', {
+      query: req.query?.q || '',
+      type: req.query?.type || 'all',
+      stores: [],
+      products: [],
+      totalStores: 0,
+      totalProducts: 0,
+      totalResults: 0,
+      page: 1,
+      totalPages: 1,
+      error: 'An error occurred while searching. Please try again.',
+      formatCurrency: (amount) => `₦${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
+      formatDate: (date) => date ? new Date(date).toLocaleDateString() : '',
+      truncateText: (text) => text ? (text.length > 100 ? text.substring(0, 100) + '...' : text) : ''
+    });
+  }
+});
+
+// Add this debug endpoint to check database directly
+app.get('/api/debug/search-test', async (req, res) => {
+  try {
+    const { query } = req.query;
+    
+    if (!query) {
+      return res.json({ error: 'Please provide a query parameter' });
+    }
+    
+    console.log('🧪 Debug search test for query:', query);
+    
+    // Test 1: Direct MongoDB search
+    const directSearch = await db.collection('admins')
       .find({
         $or: [
           { businessName: { $regex: query, $options: 'i' } },
           { username: { $regex: query, $options: 'i' } }
         ]
       })
+      .project({ businessName: 1, username: 1, active: 1 })
+      .limit(10)
+      .toArray();
+    
+    // Test 2: Check field existence
+    const fieldStats = {
+      hasActiveField: await db.collection('admins').countDocuments({ active: { $exists: true } }),
+      activeTrue: await db.collection('admins').countDocuments({ active: true }),
+      activeFalse: await db.collection('admins').countDocuments({ active: false }),
+      activeNull: await db.collection('admins').countDocuments({ active: null }),
+      totalStores: await db.collection('admins').countDocuments({})
+    };
+    
+    res.json({
+      success: true,
+      query,
+      directSearch,
+      fieldStats,
+      directSearchCount: directSearch.length
+    });
+    
+  } catch (error) {
+    console.error('Debug search test error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Quick fix: Add active field to all existing stores if missing
+app.get('/api/fix/activate-stores', isAuthenticated, isSuperAdmin, async (req, res) => {
+  try {
+    const result = await db.collection('admins').updateMany(
+      { active: { $exists: false } },
+      { $set: { active: true } }
+    );
+    
+    res.json({
+      success: true,
+      message: `Updated ${result.modifiedCount} stores with active: true`,
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error('Error activating stores:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Debug version of suggestions API
+app.get('/api/search/suggestions', async (req, res) => {
+  try {
+    const query = (req.query && req.query.q) ? String(req.query.q).trim() : '';
+    const type = (req.query && req.query.type) ? String(req.query.type) : 'all';
+    
+    console.log('🚀 Suggestions API DEBUG - Query:', { query, type });
+    
+    if (!query || query.length < 2) {
+      console.log('❌ Query too short');
+      return res.json([]);
+    }
+
+    let suggestions = [];
+
+    // First, let's debug the database connection
+    console.log('🔍 Database check:', {
+      hasDb: !!db,
+      hasCollection: db ? !!db.collection : false
+    });
+
+    // Search stores
+    if (type === 'all' || type === 'stores') {
+      try {
+        console.log('🔍 Searching stores with query:', query);
+        
+        // Try without active filter first
+        const storeQuery = {
+          $or: [
+            { businessName: { $regex: query, $options: 'i' } },
+            { username: { $regex: query, $options: 'i' } }
+          ]
+        };
+
+        console.log('📋 Store query:', JSON.stringify(storeQuery, null, 2));
+        
+        // Check how many total stores exist
+        const totalStores = await db.collection('admins').countDocuments({});
+        console.log('📊 Total stores in database:', totalStores);
+        
+        // Get sample of stores to see what's in the database
+        const sampleStores = await db.collection('admins')
+          .find({})
+          .limit(5)
+          .project({ businessName: 1, username: 1, active: 1 })
+          .toArray();
+        
+        console.log('📝 Sample stores:', sampleStores);
+        
+        // Now run the actual search
+        const stores = await db.collection('admins')
+          .find(storeQuery)
+          .project({
+            _id: 1,
+            businessName: 1,
+            username: 1,
+            logo: 1
+          })
+          .limit(5)
+          .toArray();
+        
+        console.log('✅ Stores found:', stores.length, 'Details:', stores);
+        
+        stores.forEach(store => {
+          suggestions.push({
+            type: 'store',
+            id: store._id.toString(),
+            name: store.businessName,
+            username: store.username,
+            logo: store.logo,
+            url: `/store/${store.username}`
+          });
+        });
+      } catch (storeError) {
+        console.error('❌ Error fetching store suggestions:', storeError.message, storeError.stack);
+      }
+    }
+
+    // Search products
+    if (type === 'all' || type === 'products') {
+      try {
+        console.log('🔍 Searching products with query:', query);
+        
+        const productQuery = {
+          $or: [
+            { name: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } }
+          ]
+        };
+
+        // First, check total products
+        const totalProducts = await db.collection('inventory').countDocuments({});
+        console.log('📊 Total products in database:', totalProducts);
+        
+        // Get sample products
+        const sampleProducts = await db.collection('inventory')
+          .find({})
+          .limit(3)
+          .project({ name: 1, description: 1 })
+          .toArray();
+        
+        console.log('📝 Sample products:', sampleProducts);
+        
+        const products = await db.collection('inventory')
+          .aggregate([
+            {
+              $match: productQuery
+            },
+            {
+              $lookup: {
+                from: 'admins',
+                localField: 'adminId',
+                foreignField: '_id',
+                as: 'store'
+              }
+            },
+            {
+              $unwind: {
+                path: '$store',
+                preserveNullAndEmptyArrays: true
+              }
+            },
+            {
+              $project: {
+                _id: 1,
+                name: 1,
+                cost: 1,
+                image: 1,
+                storeName: '$store.businessName',
+                storeUsername: '$store.username',
+                storeLogo: '$store.logo'
+              }
+            },
+            {
+              $limit: 5
+            }
+          ])
+          .toArray();
+        
+        console.log('✅ Products found:', products.length, 'Details:', products);
+        
+        products.forEach(product => {
+          suggestions.push({
+            type: 'product',
+            id: product._id.toString(),
+            name: product.name,
+            price: product.cost,
+            image: product.image,
+            storeName: product.storeName,
+            storeUsername: product.storeUsername,
+            storeLogo: product.storeLogo,
+            url: `/store/${product.storeUsername}?product=${product._id.toString()}`
+          });
+        });
+      } catch (productError) {
+        console.error('❌ Error fetching product suggestions:', productError.message, productError.stack);
+      }
+    }
+
+    // Limit total suggestions
+    suggestions = suggestions.slice(0, 8);
+    
+    console.log('🎯 Final suggestions to return:', suggestions.length, suggestions);
+    res.json(suggestions);
+  } catch (error) {
+    console.error('💥 Error in suggestions API:', error.message, error.stack);
+    res.status(500).json([]);
+  }
+});
+
+// Add this test endpoint to check database directly
+app.get('/api/debug/stores', async (req, res) => {
+  try {
+    const stores = await db.collection('admins')
+      .find({})
       .project({
         _id: 1,
         businessName: 1,
         username: 1,
-        logo: 1
+        active: 1,
+        email: 1,
+        createdAt: 1
       })
-      .limit(20) // Limit results to prevent overload
+      .limit(20)
       .toArray();
-
-    res.json(stores);
+    
+    res.json({
+      success: true,
+      count: stores.length,
+      stores: stores.map(s => ({
+        id: s._id.toString(),
+        businessName: s.businessName,
+        username: s.username,
+        active: s.active,
+        email: s.email,
+        createdAt: s.createdAt
+      }))
+    });
   } catch (error) {
-    console.error('Error searching stores:', error);
-    res.status(500).json({ error: 'Error searching stores' });
+    console.error('Debug error:', error);
+    res.status(500).json({ success: false, error: error.message });
   }
 });
+
+app.get('/api/debug/products', async (req, res) => {
+  try {
+    const products = await db.collection('inventory')
+      .find({})
+      .project({
+        _id: 1,
+        name: 1,
+        cost: 1,
+        stock: 1,
+        adminId: 1,
+        createdAt: 1
+      })
+      .limit(20)
+      .toArray();
+    
+    res.json({
+      success: true,
+      count: products.length,
+      products: products.map(p => ({
+        id: p._id.toString(),
+        name: p.name,
+        cost: p.cost,
+        stock: p.stock,
+        adminId: p.adminId ? p.adminId.toString() : null,
+        createdAt: p.createdAt
+      }))
+    });
+  } catch (error) {
+    console.error('Debug error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Product search API - FIXED VERSION
+app.get('/api/products/search', async (req, res) => {
+  try {
+    const query = req.query.q ? req.query.q.trim() : '';
+    const type = req.query.type || 'all';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 15;
+    const skip = (page - 1) * limit;
+    
+    console.log('Product search API called:', { query, type, page, limit });
+
+    if (!query || query.length < 1) {
+      return res.json({
+        success: true,
+        results: [],
+        total: 0,
+        page: 1,
+        pages: 0
+      });
+    }
+
+    // Build search query
+    const searchQuery = {
+      $or: [
+        { name: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } },
+        { category: { $regex: query, $options: 'i' } }
+      ]
+    };
+
+    // Get total count
+    const total = await db.collection('inventory').countDocuments(searchQuery);
+
+    // Search products
+    const products = await db.collection('inventory')
+      .aggregate([
+        {
+          $match: searchQuery
+        },
+        {
+          $lookup: {
+            from: 'admins',
+            localField: 'adminId',
+            foreignField: '_id',
+            as: 'store'
+          }
+        },
+        {
+          $unwind: {
+            path: '$store',
+            preserveNullAndEmptyArrays: false
+          }
+        },
+        {
+          $match: {
+            'store.active': true
+          }
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            description: 1,
+            cost: 1,
+            image: { $ifNull: ['$images', []] },
+            stock: 1,
+            category: 1,
+            commission: 1,
+            createdAt: 1,
+            storeName: '$store.businessName',
+            storeUsername: '$store.username',
+            storeLogo: '$store.logo',
+            storeLocation: '$store.location',
+            storeEmail: '$store.email',
+            storePhone: '$store.phone'
+          }
+        },
+        {
+          $sort: { createdAt: -1 }
+        },
+        {
+          $skip: skip
+        },
+        {
+          $limit: limit
+        }
+      ])
+      .toArray();
+
+    // Transform results
+    const results = products.map(product => ({
+      id: product._id.toString(),
+      name: product.name,
+      description: product.description || '',
+      price: product.cost || 0,
+      image: Array.isArray(product.image) && product.image.length > 0 
+        ? product.image[0] 
+        : '/images/default-product.png',
+      stock: product.stock || 0,
+      category: product.category || '',
+      store: {
+        id: product._id.toString(),
+        name: product.storeName,
+        username: product.storeUsername,
+        logo: product.storeLogo || '/images/logo.png',
+        location: product.storeLocation || '',
+        email: product.storeEmail || '',
+        phone: product.storePhone || ''
+      }
+    }));
+
+    res.json({
+      success: true,
+      results,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      limit
+    });
+
+  } catch (error) {
+    console.error('Error in product search API:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      results: [],
+      total: 0
+    });
+  }
+});
+
+// Store search API - ADD THIS NEW ENDPOINT
+app.get('/api/stores/search', async (req, res) => {
+  try {
+    const query = req.query.q ? req.query.q.trim() : '';
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+    
+    console.log('Store search API called:', { query, page, limit });
+
+    if (!query || query.length < 1) {
+      return res.json({
+        success: true,
+        results: [],
+        total: 0,
+        page: 1,
+        pages: 0
+      });
+    }
+
+    // Build search query for stores
+    const searchQuery = {
+      $or: [
+        { businessName: { $regex: query, $options: 'i' } },
+        { username: { $regex: query, $options: 'i' } },
+        { description: { $regex: query, $options: 'i' } }
+      ],
+      active: true
+    };
+
+    // Get total count
+    const total = await db.collection('admins').countDocuments(searchQuery);
+
+    // Search stores
+    const stores = await db.collection('admins')
+      .find(searchQuery)
+      .project({
+        _id: 1,
+        businessName: 1,
+        username: 1,
+        logo: 1,
+        description: 1,
+        createdAt: 1,
+        location: 1,
+        phone: 1,
+        email: 1,
+        currency: 1,
+        country: 1
+      })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
+    // Get product counts for each store
+    const results = await Promise.all(stores.map(async (store) => {
+      const productCount = await db.collection('inventory').countDocuments({
+        adminId: store._id,
+        stock: { $gt: 0 }
+      });
+
+      return {
+        id: store._id.toString(),
+        name: store.businessName,
+        username: store.username,
+        logo: store.logo || '/images/logo.png',
+        description: store.description || '',
+        location: store.location || '',
+        phone: store.phone || '',
+        email: store.email || '',
+        currency: store.currency || '₦',
+        country: store.country || '',
+        productCount,
+        createdAt: store.createdAt,
+        url: `/store/${store.username}`
+      };
+    }));
+
+    res.json({
+      success: true,
+      results,
+      total,
+      page,
+      pages: Math.ceil(total / limit),
+      limit
+    });
+
+  } catch (error) {
+    console.error('Error in store search API:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+      results: [],
+      total: 0
+    });
+  }
+});
+
+
 
 
 
