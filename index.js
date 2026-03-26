@@ -13,12 +13,12 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { setupBroadcastRoute } = require('./utils/emailBroadcast');
 const moment = require('moment');
+const flash = require('connect-flash');
 
 const app = express();
 const port = 3000;
 
 // Load environment variables
-require('dotenv').config();
 const BASE_URL = process.env.BASE_URL || 'http://localhost:3000'; // Fallback to localhost for dev
 
 // MongoDB connection details from .env
@@ -103,35 +103,59 @@ async function getOutletsWithCommission(adminId) {
   }));
 }
 
-
-async function sendWelcomeEmail(email, username, businessName) {
+// Function to send welcome email to business users
+async function sendWelcomeEmailToUser(email, firstName, businessName) {
   const mailOptions = {
-    from: process.env.EMAIL_USER,
+    from: `"${businessName}" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Welcome to Shed - !',
+    subject: `Welcome to ${businessName} on Shed!`,
     html: `
-      <h1>Welcome, ${username}!</h1>
-      <p>Thank you for registering your business, ${businessName}, on <strong>Shed</strong>.</p>
-      <p>Tired of juggling spreadsheets, writing transactions on notebook you worry you might lose, 
-      losing track of stock, or wasting hours on manual updates?</p>
-      <p>Say hello to Shed, the ultimate small and medium business solution designed to simplify your business operations 
-      and boost your bottom line!</p>
-      <p>We are excited to have you on board and look forward to helping you manage your inventory efficiently.</p>
-      <p>Stanley,</p>
-      <p>Chief Relationship Officer, Shedfactory</p>
-      <a href="https://shedfactory.co">shedfactory.co</a>
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <img src="${BASE_URL}/images/logo.png" alt="Shed Logo" style="width: 150px; margin-bottom: 20px;">
+        <h1 style="color: #333;">Welcome to ${businessName}, ${firstName}!</h1>
+        <p>Your account has been successfully activated on the Shed platform.</p>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">You now have access to:</h3>
+          <ul style="line-height: 1.6;">
+            <li>Point of Sale (POS) system</li>
+            <li>Inventory management</li>
+            <li>Customer management</li>
+            <li>Sales reporting</li>
+            <li>Online store features</li>
+          </ul>
+        </div>
+        
+        <p>To get started, please log in using the email address this message was sent to.</p>
+        
+        <div style="text-align: center; margin-top: 30px;">
+          <a href="${BASE_URL}/admin-login" 
+             style="display: inline-block; padding: 12px 24px; background: #eba611; color: #333; text-decoration: none; border-radius: 5px; font-weight: bold;">
+            Log in to Shed
+          </a>
+        </div>
+        
+        <p>If you have any questions or need assistance, please contact your business administrator.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+          <p style="color: #666; font-size: 12px;">
+            This is an automated message from ${businessName}'s Shed account.
+          </p>
+        </div>
+      </div>
     `
   };
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log('Welcome email sent to:', email);
+    console.log(`Welcome email sent to business user: ${email}`);
   } catch (error) {
-    console.error('Error sending welcome email:', error);
+    console.error('Error sending welcome email to business user:', error);
   }
 }
 
-// Session middleware
+
+// Session middleware - KEEP THIS AS IS
 app.use(session({
   secret: process.env.SESSION_SECRET || 'fallback-secret',
   resave: false,
@@ -144,11 +168,16 @@ app.use(session({
   }
 }));
 
+// Add flash middleware immediately after session
+app.use(flash()); // <-- MOVED TO HERE
+
+// Session debugging middleware - KEEP
 app.use((req, res, next) => {
   console.log("Session Data:", req.session);
   next();
 });
 
+// Error handling middleware - KEEP
 app.use((err, req, res, next) => {
   console.error('Unhandled error:', err);
   res.render('admin-register', {
@@ -227,9 +256,10 @@ const uploadInvoiceFile = multer({
 }).single('file');
 
 
-// Connect to MongoDB
+// Connect to MongoDB - UPDATED VERSION without collMod
 async function connectToMongo() {
-  const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+  const client = new MongoClient(uri); // Remove deprecated options
+  
   try {
     await client.connect();
     console.log('Connected to MongoDB');
@@ -239,39 +269,565 @@ async function connectToMongo() {
     const subscriptionsCollection = db.collection('subscriptions');
     await subscriptionsCollection.createIndex({ email: 1 }, { unique: true });
     
+    // Create indexes for business_users collection
+    const businessUsersCollection = db.collection('business_users');
+    try {
+      await businessUsersCollection.createIndex({ email: 1 }, { unique: true });
+      await businessUsersCollection.createIndex({ username: 1 }, { unique: true });
+      await businessUsersCollection.createIndex({ adminId: 1 });
+      await businessUsersCollection.createIndex({ role: 1 });
+      await businessUsersCollection.createIndex({ status: 1 });
+      await businessUsersCollection.createIndex({ invitationToken: 1 });
+      await businessUsersCollection.createIndex({ 
+        adminId: 1, 
+        status: 1 
+      });
+      console.log('Business users indexes created');
+    } catch (indexError) {
+      console.warn('Some indexes may already exist:', indexError.message);
+    }
+    
+    // REMOVED: Validation schema (collMod) that requires admin privileges
+    // Instead, we'll handle validation in the application layer
+    
+    // Create login_logs collection with indexes
+    const loginLogsCollection = db.collection('login_logs');
+    try {
+      await loginLogsCollection.createIndex({ userId: 1 });
+      await loginLogsCollection.createIndex({ loginTime: -1 });
+      await loginLogsCollection.createIndex({ role: 1 });
+      await loginLogsCollection.createIndex({ 
+        userId: 1, 
+        loginTime: -1 
+      });
+    } catch (error) {
+      console.warn('Login logs indexes:', error.message);
+    }
+
+    // Create admins collection with initial superadmin
     const adminCollection = db.collection('admins');
     if (await adminCollection.countDocuments() === 0) {
       const hashedPassword = await bcrypt.hash('superadmin123', 10);
-      console.log(hashedPassword);
       await adminCollection.insertOne({
         username: 'superadmin',
         password: hashedPassword,
-        role: 'admin',
+        role: 'superadmin',
+        businessName: 'Shed Administration',
+        email: 'admin@shed.ng',
+        firstName: 'Super',
+        lastName: 'Admin',
         logo: '/images/logo.png',
-        createdAt: new Date()
+        currency: '₦',
+        country: 'NG',
+        applyVat: false,
+        vatRate: 0,
+        active: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
       });
       console.log('Initial superadmin account seeded');
     }
 
-    const inventoryCollection = db.collection('inventory');
-    if (await inventoryCollection.countDocuments() === 0) {
-      await inventoryCollection.insertMany([]);
-      console.log('Initial inventory seeded');
+    // Create business_users collection with initial sample data (optional)
+    if (await businessUsersCollection.countDocuments() === 0) {
+      console.log('Business users collection is empty - ready for use');
     }
+
+    // Create inventory collection
+    const inventoryCollection = db.collection('inventory');
+    try {
+      await inventoryCollection.createIndex({ adminId: 1 });
+      await inventoryCollection.createIndex({ name: 1 });
+      await inventoryCollection.createIndex({ 
+        adminId: 1, 
+        name: 1 
+      });
+    } catch (error) {
+      console.warn('Inventory indexes:', error.message);
+    }
+
+    // Create indexes for other collections
+    const collections = [
+      { name: 'outlets', indexes: [
+        { key: { adminId: 1 } },
+        { key: { username: 1 }, options: { unique: true } }
+      ]},
+      { name: 'sales', indexes: [
+        { key: { adminId: 1 } },
+        { key: { outletId: 1 } },
+        { key: { date: -1 } },
+        { key: { adminId: 1, date: -1 } }
+      ]},
+      { name: 'customers', indexes: [
+        { key: { adminId: 1 } },
+        { key: { email: 1 } },
+        { key: { adminId: 1, email: 1 } }
+      ]},
+      { name: 'commissions', indexes: [
+        { key: { adminId: 1 } },
+        { key: { outletId: 1 } },
+        { key: { status: 1 } }
+      ]},
+      { name: 'messages', indexes: [
+        { key: { recipientId: 1 } },
+        { key: { senderId: 1 } },
+        { key: { createdAt: -1 } },
+        { key: { recipientId: 1, read: 1 } }
+      ]},
+      { name: 'affiliates', indexes: [
+        { key: { email: 1 }, options: { unique: true } },
+        { key: { referralCode: 1 }, options: { unique: true } }
+      ]},
+      { name: 'referral_activities', indexes: [
+        { key: { affiliateId: 1 } },
+        { key: { date: -1 } }
+      ]},
+      { name: 'invoice_tokens', indexes: [
+        { key: { saleId: 1 } },
+        { key: { token: 1 } },
+        { key: { expires: 1 } }
+      ]},
+      { name: 'password_resets', indexes: [
+        { key: { token: 1 } },
+        { key: { expires: 1 } }
+      ]},
+      { name: 'broadcast_logs', indexes: [
+        { key: { initiatedBy: 1 } },
+        { key: { startTime: -1 } },
+        { key: { status: 1 } }
+      ]}
+    ];
+
+    // Create indexes for all collections with error handling
+    for (const collectionInfo of collections) {
+      try {
+        const collection = db.collection(collectionInfo.name);
+        for (const index of collectionInfo.indexes) {
+          await collection.createIndex(index.key, index.options || {});
+        }
+      } catch (error) {
+        console.warn(`Index creation for ${collectionInfo.name}:`, error.message);
+      }
+    }
+
+    console.log('All database collections and indexes initialized successfully');
+
   } catch (err) {
-    console.error('MongoDB connection error:', err.message, err.stack);
-    setTimeout(connectToMongo, 5000);
+    console.error('MongoDB connection error:', err.message);
+    // Don't retry if it's a permission error
+    if (err.message.includes('not allowed to do action')) {
+      console.error('Database user lacks necessary permissions. Please ensure the user has:');
+      console.error('1. readWrite access to the database');
+      console.error('2. createCollection permission');
+      console.error('3. createIndex permission');
+      console.error('Connection will continue with limited functionality.');
+    } else {
+      console.error('Retrying connection in 5 seconds...');
+      setTimeout(connectToMongo, 5000);
+    }
   }
 }
+
+async function getCurrentAdmin(req) {
+  if (req.user) {
+    if (req.user.type === 'admin') {
+      return await db.collection('admins').findOne({ 
+        _id: new ObjectId(req.user._id) 
+      });
+    } else if (req.user.type === 'business_user') {
+      return await db.collection('admins').findOne({ 
+        _id: new ObjectId(req.user.adminId) 
+      });
+    }
+  } else if (req.session.admin) {
+    return await db.collection('admins').findOne({ 
+      username: req.session.admin 
+    });
+  }
+  return null;
+}
+
+// Application-level validation for business users
+function validateBusinessUser(userData) {
+  const errors = [];
+  
+  // Required fields
+  const requiredFields = ['adminId', 'firstName', 'lastName', 'email', 'role', 'status'];
+  for (const field of requiredFields) {
+    if (!userData[field]) {
+      errors.push(`${field} is required`);
+    }
+  }
+  
+  // Email validation
+  if (userData.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(userData.email)) {
+    errors.push('Invalid email format');
+  }
+  
+  // Name length validation
+  if (userData.firstName && (userData.firstName.length < 2 || userData.firstName.length > 50)) {
+    errors.push('First name must be between 2 and 50 characters');
+  }
+  
+  if (userData.lastName && (userData.lastName.length < 2 || userData.lastName.length > 50)) {
+    errors.push('Last name must be between 2 and 50 characters');
+  }
+  
+  // Role validation
+  const validRoles = ['cashier', 'stock_clerk', 'admin'];
+  if (userData.role && !validRoles.includes(userData.role)) {
+    errors.push(`Role must be one of: ${validRoles.join(', ')}`);
+  }
+  
+  // Status validation
+  const validStatuses = ['pending', 'active', 'inactive'];
+  if (userData.status && !validStatuses.includes(userData.status)) {
+    errors.push(`Status must be one of: ${validStatuses.join(', ')}`);
+  }
+  
+  // Permissions validation
+  if (userData.permissions && Array.isArray(userData.permissions)) {
+    const validPermissions = ['view_reports', 'manage_customers', 'export_data', 'view_analytics'];
+    for (const perm of userData.permissions) {
+      if (!validPermissions.includes(perm)) {
+        errors.push(`Invalid permission: ${perm}`);
+      }
+    }
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
+
+// Use this function in your routes before inserting/updating
+app.post('/business-users/add', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      role,
+      permissions = []
+    } = req.body;
+    
+    // Create user object
+    const newUser = {
+      adminId: admin._id,
+      businessName: admin.businessName,
+      firstName,
+      lastName,
+      email,
+      // ... other fields
+      role,
+      permissions: Array.isArray(permissions) ? permissions : [permissions],
+      status: 'pending',
+      // ... rest of the data
+    };
+    
+    // Validate using application-level validation
+    const validation = validateBusinessUser(newUser);
+    if (!validation.isValid) {
+      req.flash('error', validation.errors.join(', '));
+      return res.redirect('/business-users');
+    }
+    
+    // Check if email already exists
+    const existingUser = await db.collection('business_users').findOne({ 
+      email,
+      adminId: admin._id 
+    });
+    
+    if (existingUser) {
+      req.flash('error', 'Email already exists in your business');
+      return res.redirect('/business-users');
+    }
+    
+    // Generate temporary password and invitation token
+    const tempPassword = crypto.randomBytes(8).toString('hex');
+    const invitationToken = crypto.randomBytes(32).toString('hex');
+    const invitationExpires = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    const username = email.split('@')[0] + '_' + Date.now().toString().slice(-6);
+    
+    // Add remaining fields
+    newUser.username = username;
+    newUser.password = hashedPassword;
+    newUser.invitationToken = invitationToken;
+    newUser.invitationExpires = new Date(invitationExpires);
+    newUser.tempPassword = tempPassword;
+    newUser.createdAt = new Date();
+    newUser.createdBy = admin._id;
+    
+    // Insert user
+    await db.collection('business_users').insertOne(newUser);
+    
+    // Send invitation email
+    await sendUserInvitationEmail(email, firstName, admin, invitationToken, tempPassword);
+    
+    req.flash('success', `User added successfully. Invitation email sent to ${email}`);
+    res.redirect('/business-users');
+    
+  } catch (error) {
+    console.error('Error adding business user:', error);
+    req.flash('error', 'Failed to add user');
+    res.redirect('/business-users');
+  }
+});
 
 function formatCurrency(amount) {
   return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-// Authentication Middleware
+// Session validation middleware
+app.use(async (req, res, next) => {
+  console.log('=== SESSION VALIDATION MIDDLEWARE ===');
+  console.log('Path:', req.path);
+  console.log('Session data:', {
+    admin: req.session.admin,
+    userId: req.session.userId,
+    adminId: req.session.adminId,
+    role: req.session.role,
+    username: req.session.username
+  });
+  
+  // Skip for non-authenticated routes
+  const publicRoutes = [
+    '/', 
+    '/admin-login', 
+    '/admin-register', 
+    '/forgot-password', 
+    '/reset-password', 
+    '/referrals/login', 
+    '/referrals/signup',
+    '/referrals/forgot-password', 
+    '/referrals/reset-password', // Note: different from /reset-password
+    '/setup-account',
+    '/manifest.json', 
+    '/sw.js', 
+    '/offline.html', 
+    '/site.webmanifest',
+    '/status', 
+    '/health'
+  ];
+  
+  // Routes that start with these prefixes are public
+  const publicRoutePrefixes = [
+    '/store/',      // Public storefronts
+    '/outlet/',     // Public outlet storefronts
+    '/api/',        // Public API endpoints (some may be public)
+    '/public-invoice/', // Public invoice access
+    '/search'       // Public search
+  ];
+  
+  // Check if it's an exact match public route
+  const isExactPublicRoute = publicRoutes.some(route => req.path === route);
+  
+  // Check if it starts with a public route prefix
+  const isPrefixPublicRoute = publicRoutePrefixes.some(prefix => {
+    if (prefix.endsWith('/')) {
+      return req.path.startsWith(prefix);
+    }
+    return req.path === prefix;
+  });
+  
+  const isPublicRoute = isExactPublicRoute || isPrefixPublicRoute;
+  
+  console.log('Route check:', {
+    path: req.path,
+    isExactPublicRoute,
+    isPrefixPublicRoute,
+    isPublicRoute
+  });
+  
+  if (isPublicRoute) {
+    console.log('✅ Skipping validation for public route');
+    return next();
+  }
+  
+  // IMPORTANT: /pos is NOT a public route, so validation continues...
+  console.log('🔒 Route requires authentication, validating session...');
+  
+  // Validate session for authenticated routes
+  if (req.session.admin || req.session.userId) {
+    console.log('🔍 User has session, validating...');
+    
+    try {
+      let user = null;
+      let userType = null;
+      
+      if (req.session.admin) {
+        console.log('Looking for admin with username:', req.session.admin);
+        user = await db.collection('admins').findOne({ 
+          username: req.session.admin 
+        });
+        userType = 'admin';
+      } else if (req.session.userId) {
+        console.log('Looking for business user with ID:', req.session.userId);
+        
+        // Validate ObjectId
+        if (!ObjectId.isValid(req.session.userId)) {
+          console.error('❌ Invalid ObjectId in session.userId:', req.session.userId);
+          req.session.destroy();
+          return res.redirect('/admin-login?error=Invalid session. Please log in again.');
+        }
+        
+        user = await db.collection('business_users').findOne({ 
+          _id: new ObjectId(req.session.userId)
+        });
+        userType = 'business_user';
+        
+        if (user && user.status !== 'active') {
+          console.log(`⚠️ Business user found but status is "${user.status}", not "active"`);
+          user = null; // Treat as not found
+        }
+      }
+      
+      console.log('User found:', user ? '✅ YES' : '❌ NO');
+      console.log('User type:', userType);
+      
+      if (!user) {
+        console.warn('❌ Invalid session - user not found in database');
+        console.warn('Session data:', {
+          sessionAdmin: req.session.admin,
+          sessionUserId: req.session.userId,
+          path: req.path
+        });
+        
+        req.session.destroy();
+        return res.redirect('/admin-login?error=Session expired. Please log in again.');
+      }
+      
+      // Enhanced req.user object with all necessary data
+      req.user = {
+        _id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        type: userType,
+        // Store original user document for backward compatibility
+        _original: user
+      };
+      
+      // Add type-specific fields
+      if (userType === 'admin') {
+        req.user.businessName = user.businessName;
+        req.user.logo = user.logo;
+        req.user.currency = user.currency;
+        req.user.country = user.country;
+        req.user.applyVat = user.applyVat;
+        req.user.vatRate = user.vatRate;
+      } else if (userType === 'business_user') {
+        req.user.adminId = user.adminId;
+        req.user.businessName = user.businessName;
+        req.user.firstName = user.firstName;
+        req.user.lastName = user.lastName;
+        req.user.permissions = user.permissions || [];
+        
+        // Also fetch the admin for business users
+        if (user.adminId) {
+          const admin = await db.collection('admins').findOne({ 
+            _id: new ObjectId(user.adminId) 
+          });
+          if (admin) {
+            req.user.adminDetails = {
+              businessName: admin.businessName,
+              logo: admin.logo,
+              currency: admin.currency,
+              country: admin.country,
+              applyVat: admin.applyVat,
+              vatRate: admin.vatRate
+            };
+          }
+        }
+      }
+      
+      // Ensure session has all necessary fields
+      if (!req.session.role && user.role) {
+        req.session.role = user.role;
+      }
+      
+      if (!req.session.username && user.username) {
+        req.session.username = user.username;
+      }
+      
+      if (userType === 'business_user') {
+        if (!req.session.adminId && user.adminId) {
+          req.session.adminId = user.adminId.toString();
+        }
+        if (!req.session.firstName && user.firstName) {
+          req.session.firstName = user.firstName;
+        }
+      }
+      
+      console.log('✅ Session validated successfully');
+      console.log('req.user object:', {
+        id: req.user._id.toString(),
+        username: req.user.username,
+        role: req.user.role,
+        type: req.user.type,
+        adminId: req.user.adminId ? req.user.adminId.toString() : 'N/A',
+        businessName: req.user.businessName || 'N/A'
+      });
+      
+      next();
+      
+    } catch (error) {
+      console.error('❌ Session validation error:', error);
+      console.error('Error stack:', error.stack);
+      
+      req.session.destroy();
+      return res.redirect('/admin-login?error=Session error. Please log in again.');
+    }
+  } else {
+    // No session, redirect to login
+    console.log('❌ No session found, redirecting to login');
+    res.redirect('/admin-login');
+  }
+});
+
+// Make sure this function is defined
 function isAuthenticated(req, res, next) {
-  if (req.session.admin) return next();
+  console.log('=== isAuthenticated middleware ===');
+  console.log('Path:', req.path);
+  console.log('Session:', {
+    userId: req.session.userId,
+    admin: req.session.admin,
+    role: req.session.role
+  });
+  
+  if (req.session.admin || req.session.userId) {
+    console.log('✅ User is authenticated');
+    return next();
+  }
+  
+  console.log('❌ User not authenticated, redirecting to login');
   res.redirect('/admin-login');
+}
+
+function requireRole(...roles) {
+  return async function(req, res, next) {
+    if (!req.session.admin && !req.session.userId) {
+      return res.redirect('/admin-login');
+    }
+    
+    // Superadmin bypasses all role checks
+    if (req.session.role === 'superadmin' || req.session.role === 'admin') {
+      return next();
+    }
+    
+    if (!req.session.role || !roles.includes(req.session.role)) {
+      return res.status(403).render('403', { 
+        message: 'You do not have permission to access this page',
+        role: req.session.role,
+        requiredRoles: roles
+      });
+    }
+    next();
+  };
 }
 
 function isSuperAdmin(req, res, next) {
@@ -297,11 +853,11 @@ function isAffiliateAuthenticated(req, res, next) {
   res.redirect('/referrals/login');
 }
 
+
 // Referral Routes
 
 
-const flash = require('connect-flash');
-app.use(flash());
+
 
 app.get('/referrals/signup', (req, res) => {
   res.render('referrals-signup', { error: req.flash('error')[0] || null });
@@ -969,34 +1525,138 @@ app.get('/admin-login', (req, res) => {
   res.render('admin-login', { error: null, message: req.query.message || null });
 });
 
+// Add this helper function near the top of your file
+function getDashboardUrl(role) {
+  switch(role) {
+    case 'cashier':
+      return '/pos';
+    case 'stock_clerk':
+      return '/update-stock';
+    case 'admin':
+    case 'superadmin':
+      return '/home';
+    default:
+      return '/home';
+  }
+}
+
 app.post('/admin-login', async (req, res) => {
-  const { usernameOrEmail, password } = req.body; // Changed from username to usernameOrEmail
+  const { usernameOrEmail, password } = req.body;
+  
+  console.log('=== LOGIN ATTEMPT ===');
+  console.log('Username/Email:', usernameOrEmail);
+  console.log('Session before login:', req.session);
+  
   try {
-    // Check if login is by email or username
+    // First check in admins collection
     const admin = await db.collection('admins').findOne({
       $or: [
-        { username: { $regex: `^${usernameOrEmail}$`, $options: 'i' } }, // Case-insensitive username check
+        { username: { $regex: `^${usernameOrEmail}$`, $options: 'i' } },
         { email: usernameOrEmail }
       ]
     });
     
-    if (admin && await bcrypt.compare(password, admin.password)) {
-      req.session.admin = admin.username;
-      req.session.adminId = admin._id.toString();
-
-      await db.collection('login_logs').insertOne({
-        adminId: admin._id,
-        username: admin.username,
-        loginTime: new Date(),
+    console.log('Admin found:', admin ? 'Yes' : 'No');
+    
+    // Then check in business_users collection
+    let businessUser = null;
+    if (!admin) {
+      businessUser = await db.collection('business_users').findOne({
+        $or: [
+          { username: { $regex: `^${usernameOrEmail}$`, $options: 'i' } },
+          { email: { $regex: `^${usernameOrEmail}$`, $options: 'i' } }
+        ],
+        status: 'active'
       });
-      console.log(`Login recorded for ${admin.username}`);
-
-      res.redirect('/update-stock');
+      console.log('Business user found:', businessUser ? 'Yes' : 'No');
+      
+      if (businessUser && businessUser.status !== 'active') {
+        console.log(`Business user status: ${businessUser.status} (not active)`);
+        businessUser = null;
+      }
+    }
+    
+    const user = admin || businessUser;
+    
+    console.log('User object:', {
+      type: admin ? 'admin' : 'business_user',
+      username: user?.username,
+      role: user?.role,
+      status: user?.status
+    });
+    
+    if (user && await bcrypt.compare(password, user.password)) {
+      console.log('✅ Password verified successfully');
+      
+      // Regenerate session to prevent session fixation
+      req.session.regenerate(async (err) => {
+        if (err) {
+          console.error('Error regenerating session:', err);
+          return res.status(500).send('Internal Server Error');
+        }
+        
+        // Set session based on user type
+        if (admin) {
+          req.session.admin = admin.username;
+          req.session.adminId = admin._id.toString();
+          req.session.role = admin.role;
+          req.session.username = admin.username;
+          req.session.userType = 'admin';
+        } else if (businessUser) {
+          req.session.userId = businessUser._id.toString();
+          req.session.adminId = businessUser.adminId.toString();
+          req.session.role = businessUser.role;
+          req.session.username = businessUser.username;
+          req.session.firstName = businessUser.firstName;
+          req.session.userType = 'business_user';
+        }
+        
+        console.log('✅ Session after setup:', req.session);
+        
+        // Update last login time for business users
+        if (businessUser) {
+          await db.collection('business_users').updateOne(
+            { _id: businessUser._id },
+            { $set: { lastLogin: new Date() } }
+          );
+        }
+        
+        // Log login
+        await db.collection('login_logs').insertOne({
+          userId: user._id,
+          username: user.username,
+          role: user.role,
+          adminId: user.adminId || user._id,
+          loginTime: new Date(),
+          ipAddress: req.ip,
+          userAgent: req.get('User-Agent')
+        });
+        
+        // Save session and redirect
+        req.session.save((err) => {
+          if (err) {
+            console.error('Error saving session:', err);
+            return res.status(500).send('Internal Server Error');
+          }
+          
+          // Get redirect URL
+          const redirectUrl = getDashboardUrl(user.role);
+          console.log('✅ Redirecting to:', redirectUrl);
+          
+          res.redirect(redirectUrl);
+        });
+      });
+      
     } else {
-      res.render('admin-login', { error: 'Invalid username/email or password', message: null });
+      console.log('❌ Invalid credentials');
+      res.render('admin-login', { 
+        error: 'Invalid username/email or password', 
+        message: null 
+      });
     }
   } catch (error) {
     console.error('Error during login:', error);
+    console.error('Error stack:', error.stack);
     res.status(500).send('Internal Server Error');
   }
 });
@@ -1832,8 +2492,10 @@ app.post('/delete-outlet/:outletId', isAuthenticated, async (req, res) => {
 // Middleware to trust proxy headers (important for production behind proxies)
 app.set('trust proxy', true);
 
+
+
 // GET /update-stock
-app.get('/update-stock', isAuthenticated, async (req, res) => {
+app.get('/update-stock', isAuthenticated, requireRole('stock_clerk', 'admin', 'superadmin'), async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
     const { search } = req.query;
@@ -3348,15 +4010,466 @@ function isOutletAuthenticated(req, res, next) {
   res.redirect('/outlet-login');
 }
 
-app.get('/pos', isAuthenticated, async (req, res) => {
+// Business Users Management
+app.get('/business-users', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const inventory = await db.collection('inventory').find({ adminId: admin._id }).toArray();
-    const username = req.session.admin;
-    res.render('pos', { inventory, admin, username });
+    
+    // Get all users for this business
+    const users = await db.collection('business_users')
+      .find({ adminId: admin._id })
+      .sort({ createdAt: -1 })
+      .toArray();
+    
+    res.render('business-users', {
+      username: req.session.admin,
+      admin,
+      users,
+      success: req.flash('success') || null,
+      error: req.flash('error') || null
+    });
   } catch (error) {
-    console.error('Error fetching admin sales form:', error);
-    res.status(500).send('Internal Server Error');
+    console.error('Error fetching business users:', error);
+    req.flash('error', 'Failed to load users');
+    res.redirect('/home');
+  }
+});
+
+app.post('/business-users/add', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const { 
+      firstName, 
+      lastName, 
+      email, 
+      role,
+      permissions = []
+    } = req.body;
+    
+    // Validate required fields
+    if (!firstName || !lastName || !email || !role) {
+      req.flash('error', 'All fields are required');
+      return res.redirect('/business-users');
+    }
+    
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      req.flash('error', 'Invalid email format');
+      return res.redirect('/business-users');
+    }
+    
+    // Check if email already exists
+    const existingUser = await db.collection('business_users').findOne({ 
+      email,
+      adminId: admin._id 
+    });
+    
+    if (existingUser) {
+      req.flash('error', 'Email already exists in your business');
+      return res.redirect('/business-users');
+    }
+    
+    // Generate temporary password and invitation token
+    const tempPassword = crypto.randomBytes(8).toString('hex');
+    const invitationToken = crypto.randomBytes(32).toString('hex');
+    const invitationExpires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
+    
+    // Hash temporary password
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+    
+    // Create username from email
+    const username = email.split('@')[0] + '_' + Date.now().toString().slice(-6);
+    
+    // Create user object
+    const newUser = {
+      adminId: admin._id,
+      businessName: admin.businessName,
+      firstName,
+      lastName,
+      email,
+      username,
+      password: hashedPassword,
+      role,
+      permissions: Array.isArray(permissions) ? permissions : [permissions],
+      status: 'pending', // pending, active, inactive
+      invitationToken,
+      invitationExpires,
+      tempPassword: tempPassword, // Store temporarily for email
+      createdAt: new Date(),
+      createdBy: admin._id
+    };
+    
+    // Insert user
+    await db.collection('business_users').insertOne(newUser);
+    
+    // Send invitation email
+    await sendUserInvitationEmail(email, firstName, admin, invitationToken, tempPassword);
+    
+    req.flash('success', `User added successfully. Invitation email sent to ${email}`);
+    res.redirect('/business-users');
+    
+  } catch (error) {
+    console.error('Error adding business user:', error);
+    req.flash('error', 'Failed to add user');
+    res.redirect('/business-users');
+  }
+});
+
+async function sendUserInvitationEmail(email, firstName, admin, token, tempPassword) {
+  const baseUrl = process.env.BASE_URL || 'http://localhost:3000'; // Use BASE_URL
+  const setupLink = `${baseUrl}/setup-account/${token}`;
+  
+  const mailOptions = {
+    from: `"${admin.businessName}" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: `Invitation to join ${admin.businessName} on Shed`,
+    html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <img src="${baseUrl}/images/logo.png" alt="Shed Logo" style="width: 150px; margin-bottom: 20px;">
+        <h2 style="color: #333;">Welcome to ${admin.businessName}!</h2>
+        <p>Hello ${firstName},</p>
+        <p>You have been invited to join <strong>${admin.businessName}</strong> on Shed platform.</p>
+        
+        <div style="background: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <h3 style="margin-top: 0;">Your Login Details</h3>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Temporary Password:</strong> ${tempPassword}</p>
+          <p><strong>Setup Link:</strong> <a href="${setupLink}">Click here to setup your account</a></p>
+        </div>
+        
+        <p>For security reasons, please:</p>
+        <ol>
+          <li>Click the setup link above</li>
+          <li>Change your password immediately</li>
+          <li>Complete your profile setup</li>
+        </ol>
+        
+        <p><strong>Important:</strong> This invitation link will expire in 7 days.</p>
+        
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd;">
+          <p style="color: #666; font-size: 12px;">
+            This is an automated message from ${admin.businessName}. 
+            If you believe you received this email in error, please ignore it.
+          </p>
+        </div>
+      </div>
+    `
+  };
+  
+  try {
+    await transporter.sendMail(mailOptions);
+    console.log(`Invitation email sent to ${email}`);
+  } catch (error) {
+    console.error('Error sending invitation email:', error);
+  }
+}
+
+// Account setup for invited users
+app.get('/setup-account/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    
+    // Find user with valid invitation token
+    const user = await db.collection('business_users').findOne({
+      invitationToken: token,
+      invitationExpires: { $gt: Date.now() },
+      status: 'pending'
+    });
+    
+    if (!user) {
+      return res.render('setup-account', {
+        error: 'Invalid or expired invitation link',
+        token: null,
+        user: null
+      });
+    }
+    
+    res.render('setup-account', {
+      error: null,
+      token,
+      user: {
+        email: user.email,
+        firstName: user.firstName,
+        businessName: user.businessName
+      }
+    });
+  } catch (error) {
+    console.error('Error loading setup page:', error);
+    res.render('setup-account', {
+      error: 'Error loading setup page',
+      token: null,
+      user: null
+    });
+  }
+});
+
+app.post('/setup-account/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { password, confirmPassword } = req.body;
+    
+    // Validate passwords
+    if (!password || !confirmPassword) {
+      return res.render('setup-account', {
+        error: 'Both password fields are required',
+        token,
+        user: null
+      });
+    }
+    
+    if (password !== confirmPassword) {
+      return res.render('setup-account', {
+        error: 'Passwords do not match',
+        token,
+        user: null
+      });
+    }
+    
+    // Password strength validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
+      return res.render('setup-account', {
+        error: 'Password must be at least 8 characters with uppercase, lowercase, number, and special character',
+        token,
+        user: null
+      });
+    }
+    
+    // Find and update user
+    const user = await db.collection('business_users').findOne({
+      invitationToken: token,
+      invitationExpires: { $gt: Date.now() },
+      status: 'pending'
+    });
+    
+    if (!user) {
+      return res.render('setup-account', {
+        error: 'Invalid or expired invitation link',
+        token: null,
+        user: null
+      });
+    }
+    
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Update user
+    await db.collection('business_users').updateOne(
+      { _id: user._id },
+      {
+        $set: {
+          password: hashedPassword,
+          status: 'active',
+          activatedAt: new Date()
+        },
+        $unset: {
+          invitationToken: '',
+          invitationExpires: '',
+          tempPassword: ''
+        }
+      }
+    );
+    
+    // Send welcome email
+    await sendWelcomeEmailToUser(user.email, user.firstName, user.businessName);
+    
+    res.redirect('/admin-login?message=Account setup successful! You can now log in.');
+    
+  } catch (error) {
+    console.error('Error setting up account:', error);
+    res.render('setup-account', {
+      error: 'Error setting up account',
+      token: req.params.token,
+      user: null
+    });
+  }
+});
+
+// Activate/Deactivate users
+app.post('/business-users/activate/:userId', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const userId = req.params.userId;
+    
+    await db.collection('business_users').updateOne(
+      { _id: new ObjectId(userId), adminId: admin._id },
+      { $set: { status: 'active' } }
+    );
+    
+    req.flash('success', 'User activated successfully');
+    res.redirect('/business-users');
+  } catch (error) {
+    console.error('Error activating user:', error);
+    req.flash('error', 'Failed to activate user');
+    res.redirect('/business-users');
+  }
+});
+
+app.post('/business-users/deactivate/:userId', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const userId = req.params.userId;
+    
+    await db.collection('business_users').updateOne(
+      { _id: new ObjectId(userId), adminId: admin._id },
+      { $set: { status: 'inactive' } }
+    );
+    
+    req.flash('success', 'User deactivated successfully');
+    res.redirect('/business-users');
+  } catch (error) {
+    console.error('Error deactivating user:', error);
+    req.flash('error', 'Failed to deactivate user');
+    res.redirect('/business-users');
+  }
+});
+
+// Resend invitation
+app.post('/business-users/resend-invite/:userId', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    const userId = req.params.userId;
+    
+    const user = await db.collection('business_users').findOne({
+      _id: new ObjectId(userId),
+      adminId: admin._id,
+      status: 'pending'
+    });
+    
+    if (!user) {
+      req.flash('error', 'User not found or already active');
+      return res.redirect('/business-users');
+    }
+    
+    // Generate new token
+    const newToken = crypto.randomBytes(32).toString('hex');
+    const newExpiry = Date.now() + 7 * 24 * 60 * 60 * 1000;
+    
+    await db.collection('business_users').updateOne(
+      { _id: user._id },
+      { 
+        $set: {
+          invitationToken: newToken,
+          invitationExpires: newExpiry
+        }
+      }
+    );
+    
+    // Resend email
+    await sendUserInvitationEmail(user.email, user.firstName, admin, newToken, user.tempPassword);
+    
+    req.flash('success', 'Invitation resent successfully');
+    res.redirect('/business-users');
+  } catch (error) {
+    console.error('Error resending invitation:', error);
+    req.flash('error', 'Failed to resend invitation');
+    res.redirect('/business-users');
+  }
+});
+
+// Add this debug route first
+app.get('/pos-debug', async (req, res) => {
+  console.log('=== POS-DEBUG ROUTE ===');
+  console.log('Session:', req.session);
+  console.log('req.user:', req.user);
+  console.log('Middleware chain:');
+  
+  // Test each middleware separately
+  res.send(`
+    <h1>POS Debug</h1>
+    <pre>Session: ${JSON.stringify(req.session, null, 2)}</pre>
+    <pre>req.user: ${JSON.stringify(req.user, null, 2)}</pre>
+    <a href="/pos">Try real POS</a>
+  `);
+});
+
+// Update your login route to redirect to /pos-debug first
+// In your login route, change:
+// const redirectUrl = getDashboardUrl(user.role);
+const redirectUrl = '/pos-debug'; // Test with debug route first
+
+
+
+app.get('/pos', requireRole('cashier', 'stock_clerk', 'admin', 'superadmin'), async (req, res) => {
+  try {
+    console.log('=== POS ROUTE HIT ===');
+    console.log('req.user:', req.user);
+    console.log('Session:', req.session);
+    
+    let admin = null;
+    
+    // Get admin based on user type
+    if (req.user.type === 'business_user') {
+      // Business user - get their admin
+      if (req.user.adminDetails) {
+        // Use cached admin details from middleware
+        admin = {
+          _id: new ObjectId(req.user.adminId),
+          username: req.user.adminDetails.username || 'admin',
+          businessName: req.user.adminDetails.businessName,
+          logo: req.user.adminDetails.logo,
+          currency: req.user.adminDetails.currency,
+          country: req.user.adminDetails.country,
+          applyVat: req.user.adminDetails.applyVat,
+          vatRate: req.user.adminDetails.vatRate
+        };
+        console.log('✅ Using cached admin details from middleware');
+      } else if (req.user.adminId) {
+        // Fallback: fetch admin from database
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user.adminId) 
+        });
+        console.log('✅ Fetched admin from database for business user');
+      }
+    } else if (req.user.type === 'admin') {
+      // Admin user - use their own account
+      admin = await db.collection('admins').findOne({ 
+        _id: new ObjectId(req.user._id) 
+      });
+      console.log('✅ Admin accessing own account');
+    }
+    
+    if (!admin) {
+      console.error('❌ Admin not found for POS');
+      console.error('req.user:', req.user);
+      req.session.destroy();
+      return res.redirect('/admin-login?error=Business account not found. Please contact administrator.');
+    }
+    
+    console.log('✅ Admin loaded for POS:', {
+      id: admin._id.toString(),
+      username: admin.username,
+      businessName: admin.businessName
+    });
+    
+    // Fetch inventory for this specific admin
+    const inventory = await db.collection('inventory').find({ 
+      adminId: admin._id,
+      stock: { $gt: 0 }
+    }).toArray();
+    
+    console.log('📦 Inventory items found for admin', admin.username, ':', inventory.length);
+    
+    const username = req.user.username;
+    
+    res.render('pos', { 
+      inventory, 
+      admin, 
+      username,
+      formatCurrency,
+      currentRole: req.user.role
+    });
+    
+  } catch (error) {
+    console.error('=== POS ROUTE ERROR ===');
+    console.error('Error details:', error.message);
+    console.error('Stack trace:', error.stack);
+    
+    res.status(500).render('error', { 
+      message: 'Error loading POS system. Please try again.',
+      error: process.env.NODE_ENV === 'development' ? error.message : null
+    });
   }
 });
 
@@ -3364,7 +4477,33 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
   const { customerName, phoneNumber, email, items, paymentMethod } = req.body;
   try {
     if (!customerName || !items || !paymentMethod) return res.status(400).send('Customer name, items, and payment method are required.');
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    
+    let admin;
+    
+    // Handle both admin and business user sessions
+    if (req.user) {
+      // Use req.user set by global session validation middleware
+      if (req.user.type === 'admin') {
+        // Admin user - fetch full admin details
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user._id) 
+        });
+      } else if (req.user.type === 'business_user') {
+        // Business user - get admin via adminId from req.user
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user.adminId) 
+        });
+      }
+    } else if (req.session.admin) {
+      // Fallback for backward compatibility
+      admin = await db.collection('admins').findOne({ username: req.session.admin });
+    }
+    
+    if (!admin) {
+      console.error('Admin not found for user:', req.user || req.session);
+      return res.status(404).send('Admin not found. Please log in again.');
+    }
+    
     const itemIds = Array.isArray(items.itemId) ? items.itemId : [items.itemId];
     const quantities = Array.isArray(items.quantity) ? items.quantity : [items.quantity];
     if (itemIds.length !== quantities.length) return res.status(400).send('Mismatch between items and quantities.');
@@ -3417,7 +4556,7 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
     }
 
     res.render('confirm-transaction', {
-      username: req.session.admin,
+      username: req.user?.username || req.session.admin,
       admin,
       customerName,
       phoneNumber: phoneNumber || 'N/A',
@@ -3439,7 +4578,7 @@ app.post('/admin/sales-form', isAuthenticated, async (req, res) => {
   }
 });
 
-app.get('/payment-sales-confirmation/:saleId', isAuthenticated, async (req, res) => {
+app.get('/payment-sales-confirmation/:saleId', isAuthenticated,  requireRole('cashier', 'stock_clerk', 'admin', 'superadmin'), async (req, res) => {
   try {
     const saleId = req.params.saleId;
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
@@ -3462,26 +4601,30 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
     if (!saleItems) missingFields.push('saleItems');
     if (!totalOrderAmount) missingFields.push('totalOrderAmount');
     if (!paymentMethod) missingFields.push('paymentMethod');
+    
     if (missingFields.length > 0) {
       console.log('Missing fields:', missingFields, 'Form data:', req.body);
       return res.status(400).json({ error: `Missing required fields: ${missingFields.join(', ')}` });
     }
 
-    // Validate email if provided
-    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return res.status(400).json({ error: 'Invalid email format' });
-    }
-
-    // Validate phone if provided
-    if (phoneNumber && !/^\+?[\d\s-]{6,}$/.test(phoneNumber)) {
-      return res.status(400).json({ error: 'Invalid phone number format' });
-    }
-
-    // Parse and validate saleItems
+    // Parse saleItems - handle both JSON string and array formats
     let parsedSaleItems;
     try {
-      parsedSaleItems = Array.isArray(saleItems) ? saleItems : JSON.parse(saleItems);
-      if (!Array.isArray(parsedSaleItems)) throw new Error('Invalid sale items format');
+      if (typeof saleItems === 'string') {
+        // Try to parse as JSON
+        parsedSaleItems = JSON.parse(saleItems);
+        // If it's a single object, wrap it in array
+        if (!Array.isArray(parsedSaleItems)) {
+          parsedSaleItems = [parsedSaleItems];
+        }
+      } else if (Array.isArray(saleItems)) {
+        // Already an array (old format)
+        parsedSaleItems = saleItems;
+      } else {
+        throw new Error('Invalid sale items format');
+      }
+      
+      console.log('Parsed sale items:', parsedSaleItems);
     } catch (err) {
       console.error('Sale items parse error:', err, 'saleItems:', saleItems);
       return res.status(400).json({ error: 'Invalid sale items data' });
@@ -3491,8 +4634,10 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'No items in sale' });
     }
 
+    // Validate each item
     for (const item of parsedSaleItems) {
       if (!item.itemId || !item.quantity || !item.unitCost) {
+        console.error('Invalid item format:', item);
         return res.status(400).json({ error: 'Invalid sale item format' });
       }
       if (item.quantity <= 0) {
@@ -3503,7 +4648,22 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
       }
     }
 
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    // Get admin - handle both admin and business user
+    let admin;
+    if (req.user) {
+      if (req.user.type === 'admin') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user._id) 
+        });
+      } else if (req.user.type === 'business_user') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user.adminId) 
+        });
+      }
+    } else if (req.session.admin) {
+      admin = await db.collection('admins').findOne({ username: req.session.admin });
+    }
+    
     if (!admin) {
       return res.status(404).json({ error: 'Admin not found' });
     }
@@ -3553,13 +4713,19 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
             itemName: item.itemName || 'Unknown',
             quantity: item.quantity,
             unitCost: parseFloat(item.unitCost),
-            totalCost: parseFloat(item.unitCost) * item.quantity
+            totalCost: parseFloat(item.unitCost) * item.quantity,
+            isVatable: item.isVatable || false,
+            vatRate: item.vatRate || 0,
+            vatAmount: item.vatAmount || 0,
+            itemTotalWithVat: item.itemTotalWithVat || (parseFloat(item.unitCost) * item.quantity)
           })),
+          subtotalAmount: parseFloat(req.body.subtotalAmount) || 0,
+          totalVatAmount: parseFloat(req.body.totalVatAmount) || 0,
           totalAmount: parseFloat(totalOrderAmount),
           paymentMethod: paymentMethod || 'N/A',
           paymentStatus: 'Confirmed',
           date: new Date(),
-          source: 'pos', // Added for filtering
+          source: 'pos',
           status: 'completed'
         };
         const result = await db.collection('sales').insertOne(sale, { session });
@@ -3579,10 +4745,43 @@ app.post('/confirm-sale', isAuthenticated, async (req, res) => {
 app.get('/sale-success/:saleId', isAuthenticated, async (req, res) => {
   try {
     const saleId = req.params.saleId;
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
-    if (!sale) return res.status(404).send('Sale not found.');
-    res.render('sale-success', { sale, admin, username: req.session.admin, saleId });
+    
+    // Get admin - handle both admin and business user
+    let admin;
+    if (req.user) {
+      if (req.user.type === 'admin') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user._id) 
+        });
+      } else if (req.user.type === 'business_user') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user.adminId) 
+        });
+      }
+    } else if (req.session.admin) {
+      admin = await db.collection('admins').findOne({ username: req.session.admin });
+    }
+    
+    if (!admin) {
+      console.error('Admin not found for user:', req.user || req.session);
+      return res.status(404).send('Admin not found. Please log in again.');
+    }
+
+    const sale = await db.collection('sales').findOne({ 
+      _id: new ObjectId(saleId), 
+      adminId: admin._id 
+    });
+    
+    if (!sale) {
+      return res.status(404).send('Sale not found.');
+    }
+    
+    res.render('sale-success', { 
+      sale, 
+      admin, 
+      username: req.user?.username || req.session.admin, 
+      saleId 
+    });
   } catch (error) {
     console.error('Error loading sale success page:', error);
     res.status(500).send('Internal Server Error');
@@ -3598,13 +4797,32 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
       return res.redirect(`/sale-success/${saleId}`);
     }
 
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    // Get admin - handle both admin and business user
+    let admin;
+    if (req.user) {
+      if (req.user.type === 'admin') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user._id) 
+        });
+      } else if (req.user.type === 'business_user') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user.adminId) 
+        });
+      }
+    } else if (req.session.admin) {
+      admin = await db.collection('admins').findOne({ username: req.session.admin });
+    }
+    
     if (!admin) {
       req.flash('error', 'Admin not found.');
       return res.redirect(`/sale-success/${saleId}`);
     }
 
-    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+    const sale = await db.collection('sales').findOne({ 
+      _id: new ObjectId(saleId), 
+      adminId: admin._id 
+    });
+    
     if (!sale) {
       req.flash('error', 'Sale not found.');
       return res.redirect(`/sale-success/${saleId}`);
@@ -3736,8 +4954,32 @@ app.post('/send-receipt-email/:saleId', isAuthenticated, async (req, res) => {
 app.get('/receipt/:saleId', isAuthenticated, async (req, res) => {
   try {
     const saleId = req.params.saleId;
-    const admin = await db.collection('admins').findOne({ username: req.session.admin });
-    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+    
+    // Get admin - handle both admin and business user
+    let admin;
+    if (req.user) {
+      if (req.user.type === 'admin') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user._id) 
+        });
+      } else if (req.user.type === 'business_user') {
+        admin = await db.collection('admins').findOne({ 
+          _id: new ObjectId(req.user.adminId) 
+        });
+      }
+    } else if (req.session.admin) {
+      admin = await db.collection('admins').findOne({ username: req.session.admin });
+    }
+    
+    if (!admin) {
+      return res.status(403).send('Admin not found');
+    }
+
+    const sale = await db.collection('sales').findOne({ 
+      _id: new ObjectId(saleId), 
+      adminId: admin._id 
+    });
+    
     if (!sale) return res.status(404).send('Sale not found.');
 
     const doc = new PDFDocument({ margin: 50 });
@@ -3838,7 +5080,7 @@ app.get('/receipt/:saleId', isAuthenticated, async (req, res) => {
   }
 });
 
-app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
+app.post('/admin/confirm-sale', isAuthenticated, requireRole('stock_clerk', 'admin', 'superadmin'), async (req, res) => {
   const { customerName, phoneNumber, email, itemId, quantity } = req.body;
   try {
     const admin = await db.collection('admins').findOne({ username: req.session.admin });
@@ -3873,7 +5115,7 @@ app.post('/admin/confirm-sale', isAuthenticated, async (req, res) => {
   }
 });
 
-app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, async (req, res) => {
+app.get('/outlet/:outletId/stock-view', isOutletAuthenticated, requireRole('stock_clerk', 'admin', 'superadmin'), async (req, res) => {
   const outletId = req.params.outletId;
   const outlet = await db.collection('outlets').findOne({ _id: new ObjectId(outletId) });
   if (!outlet || outlet._id.toString() !== req.session.outletId) return res.redirect('/outlet-login');
@@ -7115,7 +8357,9 @@ setupBroadcastRoute(app);
 // Start server
 async function startServer() {
   await connectToMongo();
-  app.listen(port, () => console.log(`Server running at http://localhost:${port}`));
+  app.listen(port, '0.0.0.0', () => {
+  console.log(`Server running on port ${port}`);
+});
 }
 
 
