@@ -6150,6 +6150,191 @@ app.get('/api/stores/search', async (req, res) => {
 
 const countryCodes = require('country-code-lookup'); // Add this dependency for country-to-phone-code mapping
 
+// ---------------------------------------------------------------------------
+// Public JSON API (/api/public/*) — consumed by the Next.js frontend.
+// These are additive and read-only (except checkout, which reuses the existing
+// /store/:username/checkout route). The legacy EJS routes below are untouched.
+// ---------------------------------------------------------------------------
+
+// Derive a clean, serialisable public view of a store (admin) document.
+function buildPublicStore(admin) {
+  // Normalize phone number for WhatsApp (mirrors logic in /store/:adminUsername)
+  let whatsappNumber = '';
+  if (admin.publicPhone && admin.phone) {
+    let phone = String(admin.phone).replace(/\D/g, '');
+    if (!phone.startsWith('+')) {
+      let countryCode = '+234';
+      if (admin.country) {
+        try {
+          const country = countryCodes.byIso(admin.country) || countryCodes.byCountry(admin.country);
+          if (country && country.countryCallingCodes && country.countryCallingCodes.length > 0) {
+            countryCode = '+' + country.countryCallingCodes[0].replace(/\D/g, '');
+          }
+        } catch (e) { /* default +234 */ }
+      }
+      phone = phone.replace(/^0+/, '');
+      whatsappNumber = countryCode + phone;
+    } else {
+      whatsappNumber = '+' + phone;
+    }
+    if (whatsappNumber.length < 10 || whatsappNumber.length > 15) whatsappNumber = '';
+  }
+
+  return {
+    _id: admin._id,
+    username: admin.username,
+    businessName: admin.businessName || admin.username,
+    logo: admin.logo || null,
+    currency: admin.currency || '₦',
+    country: admin.country || null,
+    description: admin.description || '',
+    paymentInstructions: admin.paymentInstructions || '',
+    whatsappNumber,
+    social: {
+      instagram: admin.instagram || admin.social?.instagram || null,
+      twitter: admin.twitter || admin.social?.twitter || null,
+      facebook: admin.facebook || admin.social?.facebook || null,
+      website: admin.website || admin.social?.website || null,
+    },
+  };
+}
+
+function publicProduct(item) {
+  return {
+    _id: item._id,
+    name: item.name,
+    cost: Number(item.cost) || 0,
+    stock: Number(item.stock) || 0,
+    images: Array.isArray(item.images) ? item.images : [],
+    description: item.description || '',
+    category: item.category || null,
+  };
+}
+
+async function findStoreByUsername(username) {
+  return db.collection('admins').findOne({
+    username: { $regex: `^${username}$`, $options: 'i' },
+  });
+}
+
+// GET /api/public/store/:username  → { store, products }
+app.get('/api/public/store/:username', async (req, res) => {
+  try {
+    const admin = await findStoreByUsername(req.params.username);
+    if (!admin) return res.status(404).json({ error: 'Store not found' });
+
+    const inventory = await db.collection('inventory')
+      .find({ adminId: admin._id, stock: { $gt: 0 } })
+      .toArray();
+
+    res.json({
+      store: buildPublicStore(admin),
+      products: inventory.map(publicProduct),
+    });
+  } catch (error) {
+    console.error('Public store API error:', error);
+    res.status(500).json({ error: 'Error loading store' });
+  }
+});
+
+// GET /api/public/store/:username/product/:id  → { store, product }
+app.get('/api/public/store/:username/product/:id', async (req, res) => {
+  try {
+    const { username, id } = req.params;
+    if (!ObjectId.isValid(id)) return res.status(404).json({ error: 'Product not found' });
+
+    const admin = await findStoreByUsername(username);
+    if (!admin) return res.status(404).json({ error: 'Store not found' });
+
+    const product = await db.collection('inventory').findOne({
+      _id: new ObjectId(id),
+      adminId: admin._id,
+    });
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    res.json({ store: buildPublicStore(admin), product: publicProduct(product) });
+  } catch (error) {
+    console.error('Public product API error:', error);
+    res.status(500).json({ error: 'Error loading product' });
+  }
+});
+
+// GET /api/public/store/:username/order/:saleId?token=...  → { store, sale }
+app.get('/api/public/store/:username/order/:saleId', async (req, res) => {
+  try {
+    const { username, saleId } = req.params;
+    const { token } = req.query;
+    if (!ObjectId.isValid(saleId)) return res.status(400).json({ error: 'Invalid sale ID' });
+
+    const tokenEntry = await db.collection('invoice_tokens').findOne({
+      saleId: new ObjectId(saleId),
+      token,
+    });
+    if (!tokenEntry || tokenEntry.expires < Date.now()) {
+      return res.status(403).json({ error: 'This confirmation link is invalid or has expired' });
+    }
+
+    const sale = await db.collection('sales').findOne({
+      _id: new ObjectId(saleId),
+      source: 'storefront',
+    });
+    if (!sale) return res.status(404).json({ error: 'Sale not found' });
+
+    const admin = await findStoreByUsername(username);
+    if (!admin) return res.status(404).json({ error: 'Store not found' });
+
+    res.json({
+      store: buildPublicStore(admin),
+      sale: {
+        _id: sale._id,
+        customerName: sale.customerName || '',
+        phoneNumber: sale.phoneNumber || '',
+        email: sale.email || '',
+        items: sale.items || [],
+        totalAmount: sale.totalAmount || 0,
+        paymentStatus: sale.paymentStatus || 'Pending',
+        createdAt: sale.date || sale.createdAt || null,
+      },
+      pdfUrl: `/api/public/store/${username}/order/${sale._id}/invoice.pdf?token=${token}`,
+    });
+  } catch (error) {
+    console.error('Public order API error:', error);
+    res.status(500).json({ error: 'Error loading order' });
+  }
+});
+
+// GET /api/public/store/:username/order/:saleId/invoice.pdf?token=...
+// Streams the order's PDF invoice. Reuses generatePDFInvoice (hoisted decl).
+app.get('/api/public/store/:username/order/:saleId/invoice.pdf', async (req, res) => {
+  try {
+    const { username, saleId } = req.params;
+    const { token } = req.query;
+    if (!ObjectId.isValid(saleId)) return res.status(400).json({ error: 'Invalid sale ID' });
+
+    const tokenEntry = await db.collection('invoice_tokens').findOne({
+      saleId: new ObjectId(saleId),
+      token,
+    });
+    if (!tokenEntry || tokenEntry.expires < Date.now()) {
+      return res.status(403).json({ error: 'This invoice link is invalid or has expired' });
+    }
+
+    const sale = await db.collection('sales').findOne({
+      _id: new ObjectId(saleId),
+      source: 'storefront',
+    });
+    if (!sale) return res.status(404).json({ error: 'Sale not found' });
+
+    const admin = await findStoreByUsername(username);
+    if (!admin) return res.status(404).json({ error: 'Store not found' });
+
+    return generatePDFInvoice(res, sale, admin);
+  } catch (error) {
+    console.error('Public invoice PDF error:', error);
+    res.status(500).json({ error: 'Error generating invoice' });
+  }
+});
+
 app.get('/store/:adminUsername', async (req, res) => {
   try {
     const adminUsername = req.params.adminUsername;
