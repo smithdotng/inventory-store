@@ -18,6 +18,7 @@ const nextConfig = {
     // routes, so old QR codes, WhatsApp shares and bookmarked links keep working.
     // Query strings (e.g. ?token=, ?q=) are forwarded automatically.
     return [
+      // Public (Phase 1)
       { source: '/landing', destination: '/', permanent: true },
       { source: '/search', destination: '/discover', permanent: true },
       {
@@ -30,17 +31,33 @@ const nextConfig = {
         destination: '/store/:username/order/:saleId',
         permanent: true,
       },
+      // Admin dashboard (Phase 2)
+      { source: '/admin-login', destination: '/login', permanent: true },
+      { source: '/home', destination: '/dashboard', permanent: true },
+      { source: '/store-view', destination: '/dashboard/products', permanent: true },
+      { source: '/update-stock', destination: '/dashboard/products', permanent: false },
+      { source: '/transactions', destination: '/dashboard/transactions', permanent: true },
+      { source: '/invoices', destination: '/dashboard/invoices', permanent: true },
+      { source: '/customers', destination: '/dashboard/customers', permanent: true },
+      { source: '/profile', destination: '/dashboard/profile', permanent: true },
+      { source: '/business-users', destination: '/dashboard/team', permanent: true },
     ];
   },
   async rewrites() {
-    return [
-      // Proxy API + legacy static asset paths to the Express backend so the
-      // browser sees a single origin and existing session cookies keep working.
-      { source: '/api/:path*', destination: `${BACKEND_URL}/api/:path*` },
-      { source: '/uploads/:path*', destination: `${BACKEND_URL}/uploads/:path*` },
-      { source: '/images/:path*', destination: `${BACKEND_URL}/images/:path*` },
-      { source: '/img/:path*', destination: `${BACKEND_URL}/img/:path*` },
-    ];
+    return {
+      // Explicit proxies for API + legacy asset paths (run before Next routing).
+      beforeFiles: [
+        { source: '/api/:path*', destination: `${BACKEND_URL}/api/:path*` },
+        { source: '/uploads/:path*', destination: `${BACKEND_URL}/uploads/:path*` },
+        { source: '/images/:path*', destination: `${BACKEND_URL}/images/:path*` },
+        { source: '/img/:path*', destination: `${BACKEND_URL}/img/:path*` },
+      ],
+      // Fallback: anything Next doesn't have a page/route for is proxied to
+      // Express. This keeps every un-migrated area (POS, outlet portal,
+      // referrals, superadmin + their CSS/JS assets) working through the
+      // single Next origin, sharing the session cookie.
+      fallback: [{ source: '/:path*', destination: `${BACKEND_URL}/:path*` }],
+    };
   },
 };
 

@@ -803,24 +803,34 @@ function isAuthenticated(req, res, next) {
     console.log('✅ User is authenticated');
     return next();
   }
-  
-  console.log('❌ User not authenticated, redirecting to login');
+
+  console.log('❌ User not authenticated');
+  // API clients (the Next.js dashboard) expect JSON, not an HTML redirect.
+  if (req.path.startsWith('/api/')) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
   res.redirect('/admin-login');
 }
 
 function requireRole(...roles) {
   return async function(req, res, next) {
+    const isApi = req.path.startsWith('/api/');
     if (!req.session.admin && !req.session.userId) {
-      return res.redirect('/admin-login');
+      return isApi
+        ? res.status(401).json({ error: 'Not authenticated' })
+        : res.redirect('/admin-login');
     }
-    
+
     // Superadmin bypasses all role checks
     if (req.session.role === 'superadmin' || req.session.role === 'admin') {
       return next();
     }
-    
+
     if (!req.session.role || !roles.includes(req.session.role)) {
-      return res.status(403).render('403', { 
+      if (isApi) {
+        return res.status(403).json({ error: 'You do not have permission for this action' });
+      }
+      return res.status(403).render('403', {
         message: 'You do not have permission to access this page',
         role: req.session.role,
         requiredRoles: roles
@@ -8537,6 +8547,570 @@ app.post('/admin/broadcast-social-update', isAuthenticated, isSuperAdmin, async 
 });
 
 setupBroadcastRoute(app);
+
+// ===========================================================================
+// Phase 2 — Admin dashboard JSON API (/api/auth/* and /api/admin/*)
+// Consumed by the Next.js dashboard. Auth stays on Express sessions (the
+// session cookie rides the same origin through the Next proxy). These are
+// additive; the legacy EJS dashboard routes are left untouched.
+// ===========================================================================
+
+// Resolve the business "admin" document for the current session, for BOTH
+// admin logins (session.admin) and business-user logins (session.adminId).
+async function getSessionAdmin(req) {
+  if (req.session.admin) {
+    return db.collection('admins').findOne({ username: req.session.admin });
+  }
+  if (req.session.adminId) {
+    return db.collection('admins').findOne({ _id: new ObjectId(req.session.adminId) });
+  }
+  return null;
+}
+
+function dashboardRedirect(role) {
+  if (role === 'admin' || role === 'superadmin') return '/dashboard';
+  if (role === 'cashier') return '/pos';
+  if (role === 'stock_clerk') return '/update-stock';
+  return '/dashboard';
+}
+
+// POST /api/auth/login  { usernameOrEmail, password } → sets session, returns JSON
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    const { usernameOrEmail, password } = req.body || {};
+    if (!usernameOrEmail || !password) {
+      return res.status(400).json({ error: 'Username/email and password are required' });
+    }
+
+    const admin = await db.collection('admins').findOne({
+      $or: [
+        { username: { $regex: `^${usernameOrEmail}$`, $options: 'i' } },
+        { email: usernameOrEmail },
+      ],
+    });
+
+    let businessUser = null;
+    if (!admin) {
+      businessUser = await db.collection('business_users').findOne({
+        $or: [
+          { username: { $regex: `^${usernameOrEmail}$`, $options: 'i' } },
+          { email: { $regex: `^${usernameOrEmail}$`, $options: 'i' } },
+        ],
+        status: 'active',
+      });
+    }
+
+    const user = admin || businessUser;
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Invalid username/email or password' });
+    }
+
+    req.session.regenerate(async (err) => {
+      if (err) return res.status(500).json({ error: 'Session error' });
+
+      if (admin) {
+        req.session.admin = admin.username;
+        req.session.adminId = admin._id.toString();
+        req.session.role = admin.role;
+        req.session.username = admin.username;
+        req.session.userType = 'admin';
+      } else {
+        req.session.userId = businessUser._id.toString();
+        req.session.adminId = businessUser.adminId.toString();
+        req.session.role = businessUser.role;
+        req.session.username = businessUser.username;
+        req.session.firstName = businessUser.firstName;
+        req.session.userType = 'business_user';
+        await db.collection('business_users').updateOne(
+          { _id: businessUser._id },
+          { $set: { lastLogin: new Date() } },
+        );
+      }
+
+      req.session.save((saveErr) => {
+        if (saveErr) return res.status(500).json({ error: 'Session error' });
+        res.json({
+          success: true,
+          role: user.role,
+          username: user.username,
+          redirect: dashboardRedirect(user.role),
+        });
+      });
+    });
+  } catch (error) {
+    console.error('API login error:', error);
+    res.status(500).json({ error: 'Login failed' });
+  }
+});
+
+// POST /api/auth/logout → destroys session
+app.post('/api/auth/logout', (req, res) => {
+  req.session.destroy(() => res.json({ success: true }));
+});
+
+// GET /api/auth/me → current user + business context (or 401)
+app.get('/api/auth/me', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    res.json({
+      user: {
+        username: req.session.username || req.session.admin,
+        role: req.session.role || null,
+        userType: req.session.userType || (req.session.admin ? 'admin' : 'business_user'),
+        firstName: req.session.firstName || null,
+      },
+      business: admin
+        ? {
+            adminId: admin._id,
+            username: admin.username,
+            businessName: admin.businessName || admin.username,
+            logo: admin.logo || null,
+            currency: admin.currency || '₦',
+          }
+        : null,
+    });
+  } catch (error) {
+    console.error('API /me error:', error);
+    res.status(500).json({ error: 'Error loading session' });
+  }
+});
+
+// --- Dashboard data ---------------------------------------------------------
+
+// GET /api/admin/overview → KPIs + outlets with pending commission
+app.get('/api/admin/overview', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+
+    const [inventory, sales, outlets, customerCount] = await Promise.all([
+      db.collection('inventory').find({ adminId: admin._id }).toArray(),
+      db.collection('sales').find({ adminId: admin._id }).toArray(),
+      db.collection('outlets').find({ adminId: admin._id }).toArray(),
+      db.collection('customers').countDocuments({ adminId: admin._id }),
+    ]);
+
+    const outletsWithCommission = await Promise.all(
+      outlets.map(async (outlet) => {
+        const pending = await db.collection('commissions').aggregate([
+          { $match: { outletId: outlet._id, status: 'pending' } },
+          { $group: { _id: null, total: { $sum: '$amount' } } },
+        ]).toArray();
+        return {
+          _id: outlet._id,
+          name: outlet.name,
+          username: outlet.username || null,
+          totalCommissionDue: pending[0]?.total || 0,
+        };
+      }),
+    );
+
+    const totalRevenue = sales.reduce((sum, s) => sum + (s.totalAmount || 0), 0);
+    const lowStock = inventory.filter((i) => (i.stock || 0) <= 5).length;
+    const pendingPayments = sales.filter((s) => s.paymentStatus === 'Pending').length;
+
+    res.json({
+      business: { businessName: admin.businessName || admin.username, currency: admin.currency || '₦', logo: admin.logo || null, username: admin.username },
+      kpis: {
+        revenue: totalRevenue,
+        sales: sales.length,
+        products: inventory.length,
+        customers: customerCount,
+        lowStock,
+        pendingPayments,
+        outlets: outlets.length,
+      },
+      outlets: outletsWithCommission,
+    });
+  } catch (error) {
+    console.error('API overview error:', error);
+    res.status(500).json({ error: 'Error loading dashboard' });
+  }
+});
+
+// GET /api/admin/products → full inventory for this business
+app.get('/api/admin/products', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const search = (req.query.search || '').trim();
+    const query = { adminId: admin._id };
+    if (search) query.name = { $regex: search, $options: 'i' };
+    const items = await db.collection('inventory').find(query).sort({ name: 1 }).toArray();
+    res.json({ currency: admin.currency || '₦', products: items });
+  } catch (error) {
+    console.error('API products error:', error);
+    res.status(500).json({ error: 'Error loading products' });
+  }
+});
+
+// POST /api/admin/products → add product (multipart, optional images)
+app.post('/api/admin/products', isAuthenticated, uploadProductImages, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const { name, description, stock, cost, commission, isVatable } = req.body;
+    if (!name || stock === undefined || cost === undefined) {
+      return res.status(400).json({ error: 'Name, stock and cost are required' });
+    }
+    const product = {
+      name,
+      description: (description || '').slice(0, 400),
+      stock: parseInt(stock, 10) || 0,
+      cost: parseFloat(cost) || 0,
+      adminId: admin._id,
+      isVatable: isVatable === 'on' || isVatable === 'true' || isVatable === true,
+      images: req.files && req.files.length ? req.files.map((f) => `/uploads/${f.filename}`) : [],
+      createdAt: new Date(),
+    };
+    if (commission !== undefined && commission !== '') product.commission = parseFloat(commission);
+    const result = await db.collection('inventory').insertOne(product);
+    res.status(201).json({ success: true, id: result.insertedId });
+  } catch (error) {
+    console.error('API add product error:', error);
+    res.status(500).json({ error: 'Error adding product' });
+  }
+});
+
+// PATCH /api/admin/products/:id → update stock/cost/commission/description
+app.patch('/api/admin/products/:id', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+    const { stock, cost, commission, description } = req.body;
+    const update = {};
+    if (stock !== undefined) update.stock = parseInt(stock, 10) || 0;
+    if (cost !== undefined) update.cost = parseFloat(cost) || 0;
+    if (commission !== undefined && commission !== '') update.commission = parseFloat(commission);
+    if (description !== undefined) update.description = String(description).slice(0, 400);
+    const result = await db.collection('inventory').updateOne(
+      { _id: new ObjectId(req.params.id), adminId: admin._id },
+      { $set: update },
+    );
+    if (!result.matchedCount) return res.status(404).json({ error: 'Product not found' });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('API update product error:', error);
+    res.status(500).json({ error: 'Error updating product' });
+  }
+});
+
+// DELETE /api/admin/products/:id
+app.delete('/api/admin/products/:id', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ error: 'Invalid id' });
+    const result = await db.collection('inventory').deleteOne({
+      _id: new ObjectId(req.params.id),
+      adminId: admin._id,
+    });
+    if (!result.deletedCount) return res.status(404).json({ error: 'Product not found' });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('API delete product error:', error);
+    res.status(500).json({ error: 'Error deleting product' });
+  }
+});
+
+// GET /api/admin/transactions?startDate&endDate&search
+app.get('/api/admin/transactions', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const { startDate, endDate, search } = req.query;
+
+    const ownership = { $or: [{ adminId: admin._id }, { 'outlet.adminId': admin._id }] };
+    const match = { ...ownership };
+    if (startDate && endDate) {
+      match.date = { $gte: new Date(startDate), $lte: new Date(`${endDate}T23:59:59.999Z`) };
+    }
+    if (search && search.trim()) {
+      const rx = new RegExp(search.trim(), 'i');
+      match.$and = [
+        { $or: [{ customerName: rx }, { 'items.itemName': rx }, { itemName: rx }] },
+        ownership,
+      ];
+      delete match.$or;
+    }
+
+    const transactions = await db.collection('sales').aggregate([
+      { $match: match },
+      { $lookup: { from: 'outlets', localField: 'outletId', foreignField: '_id', as: 'outlet' } },
+      { $unwind: { path: '$outlet', preserveNullAndEmptyArrays: true } },
+      { $sort: { date: -1 } },
+    ]).toArray();
+
+    res.json({
+      currency: admin.currency || '₦',
+      transactions: transactions.map((s) => ({
+        _id: s._id,
+        customerName: s.customerName || null,
+        items: s.items || [],
+        totalAmount: s.totalAmount || 0,
+        paymentMethod: s.paymentMethod || null,
+        paymentStatus: s.paymentStatus || null,
+        source: s.source || null,
+        date: s.date || s.createdAt || null,
+        outletName: s.outlet ? s.outlet.name : null,
+      })),
+    });
+  } catch (error) {
+    console.error('API transactions error:', error);
+    res.status(500).json({ error: 'Error loading transactions' });
+  }
+});
+
+// POST /api/admin/transactions/:saleId/mark-paid
+app.post('/api/admin/transactions/:saleId/mark-paid', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    if (!ObjectId.isValid(req.params.saleId)) return res.status(400).json({ error: 'Invalid id' });
+    await db.collection('sales').updateOne(
+      { _id: new ObjectId(req.params.saleId), adminId: admin._id },
+      { $set: { paymentStatus: 'Paid' } },
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('API mark-paid error:', error);
+    res.status(500).json({ error: 'Error updating transaction' });
+  }
+});
+
+// GET /api/admin/customers
+app.get('/api/admin/customers', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const customers = await db.collection('customers')
+      .find({ adminId: admin._id })
+      .sort({ createdAt: -1 })
+      .toArray();
+    res.json({ customers });
+  } catch (error) {
+    console.error('API customers error:', error);
+    res.status(500).json({ error: 'Error loading customers' });
+  }
+});
+
+// POST /api/admin/customers
+app.post('/api/admin/customers', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const { name, phone, email } = req.body || {};
+    if (!name) return res.status(400).json({ error: 'Name is required' });
+    const result = await db.collection('customers').insertOne({
+      adminId: admin._id,
+      name,
+      phone: phone || 'N/A',
+      email: email || 'N/A',
+      createdAt: new Date(),
+    });
+    res.status(201).json({ success: true, id: result.insertedId });
+  } catch (error) {
+    console.error('API add customer error:', error);
+    res.status(500).json({ error: 'Error adding customer' });
+  }
+});
+
+// GET /api/admin/invoices → sales for this business + helper lists
+app.get('/api/admin/invoices', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const [sales, customers, inventory] = await Promise.all([
+      db.collection('sales').find({ adminId: admin._id }).sort({ date: -1 }).toArray(),
+      db.collection('customers').find({ adminId: admin._id }).toArray(),
+      db.collection('inventory').find({ adminId: admin._id }).toArray(),
+    ]);
+    res.json({
+      currency: admin.currency || '₦',
+      invoices: sales.map((s) => ({
+        _id: s._id,
+        customerName: s.customerName || null,
+        items: s.items || [],
+        totalAmount: typeof s.totalAmount === 'number' ? s.totalAmount : 0,
+        paymentMethod: s.paymentMethod || null,
+        paymentStatus: s.paymentStatus || null,
+        date: s.date || s.createdAt || null,
+      })),
+      customers,
+      inventory: inventory.map((i) => ({ _id: i._id, name: i.name, cost: i.cost, stock: i.stock })),
+    });
+  } catch (error) {
+    console.error('API invoices error:', error);
+    res.status(500).json({ error: 'Error loading invoices' });
+  }
+});
+
+// POST /api/admin/invoices → record an invoice/sale from existing inventory
+// items + an existing or new customer. Decrements stock and logs a transaction.
+app.post('/api/admin/invoices', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+
+    const { customerId, newCustomer, items, paymentMethod, paymentStatus } = req.body || {};
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'At least one item is required' });
+    }
+
+    // Resolve customer
+    let customerName = 'Walk-in customer';
+    let customerRef = null;
+    if (customerId && ObjectId.isValid(customerId)) {
+      const cust = await db.collection('customers').findOne({ _id: new ObjectId(customerId), adminId: admin._id });
+      if (cust) {
+        customerRef = cust._id;
+        customerName = cust.name;
+      }
+    } else if (newCustomer && newCustomer.name) {
+      const inserted = await db.collection('customers').insertOne({
+        adminId: admin._id,
+        name: newCustomer.name,
+        phone: newCustomer.phone || 'N/A',
+        email: newCustomer.email || 'N/A',
+        createdAt: new Date(),
+      });
+      customerRef = inserted.insertedId;
+      customerName = newCustomer.name;
+    }
+
+    // Build line items from inventory
+    const saleItems = [];
+    let totalAmount = 0;
+    for (const line of items) {
+      if (!line.itemId || !ObjectId.isValid(line.itemId)) continue;
+      const qty = parseInt(line.quantity, 10) || 0;
+      if (qty <= 0) continue;
+      const item = await db.collection('inventory').findOne({ _id: new ObjectId(line.itemId), adminId: admin._id });
+      if (!item) return res.status(400).json({ error: `Item not found` });
+      if ((item.stock || 0) < qty) return res.status(400).json({ error: `Insufficient stock for ${item.name}` });
+      const unitCost = line.unitCost !== undefined && line.unitCost !== '' ? parseFloat(line.unitCost) : Number(item.cost) || 0;
+      const totalCost = unitCost * qty;
+      saleItems.push({ itemId: item._id, itemName: item.name, quantity: qty, unitCost, totalCost });
+      totalAmount += totalCost;
+    }
+    if (saleItems.length === 0) return res.status(400).json({ error: 'No valid items' });
+
+    const sale = {
+      adminId: admin._id,
+      customerId: customerRef,
+      customerName,
+      items: saleItems,
+      totalAmount,
+      paymentMethod: paymentMethod || 'Cash',
+      paymentStatus: paymentStatus || 'Paid',
+      date: new Date(),
+      source: 'invoice',
+      status: 'completed',
+    };
+    const result = await db.collection('sales').insertOne(sale);
+
+    // Decrement stock
+    for (const li of saleItems) {
+      await db.collection('inventory').updateOne({ _id: li.itemId }, { $inc: { stock: -li.quantity } });
+    }
+
+    // Log transaction
+    await db.collection('transactions').insertOne({
+      adminId: admin._id,
+      type: 'sale',
+      amount: totalAmount,
+      date: new Date(),
+      description: `Invoice #${result.insertedId}`,
+      reference: `INV-${result.insertedId}`,
+      balanceImpact: 1,
+    });
+
+    res.status(201).json({ success: true, id: result.insertedId, totalAmount });
+  } catch (error) {
+    console.error('API create invoice error:', error);
+    res.status(500).json({ error: 'Error creating invoice' });
+  }
+});
+
+// GET /api/admin/profile
+app.get('/api/admin/profile', isAuthenticated, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const { password, ...safe } = admin;
+    res.json({ profile: safe });
+  } catch (error) {
+    console.error('API profile error:', error);
+    res.status(500).json({ error: 'Error loading profile' });
+  }
+});
+
+// POST /api/admin/profile → update business profile (multipart, optional logo)
+app.post('/api/admin/profile', isAuthenticated, uploadLogo, async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+
+    const allowed = [
+      'firstName', 'lastName', 'businessName', 'currency', 'phone', 'email',
+      'address', 'country', 'facebook', 'instagram', 'twitter', 'publicPhone',
+      'publicEmail', 'publicAddress', 'paymentInstructions', 'description',
+      'primaryBankAccountName', 'primaryAccountNumber', 'primaryBankName',
+      'secondaryBankAccountName', 'secondaryAccountNumber', 'secondaryBankName',
+    ];
+    const update = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) update[key] = req.body[key];
+    }
+    if (req.body.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(req.body.email)) {
+      return res.status(400).json({ error: 'Please enter a valid email address' });
+    }
+    if (req.file) update.logo = `/uploads/${req.file.filename}`;
+
+    await db.collection('admins').updateOne({ _id: admin._id }, { $set: update });
+    res.json({ success: true, logo: update.logo || admin.logo || null });
+  } catch (error) {
+    console.error('API update profile error:', error);
+    res.status(500).json({ error: 'Error updating profile' });
+  }
+});
+
+// GET /api/admin/team → business users (admin/superadmin only)
+app.get('/api/admin/team', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const users = await db.collection('business_users')
+      .find({ adminId: admin._id })
+      .project({ password: 0, tempPassword: 0 })
+      .sort({ createdAt: -1 })
+      .toArray();
+    res.json({ users });
+  } catch (error) {
+    console.error('API team error:', error);
+    res.status(500).json({ error: 'Error loading team' });
+  }
+});
+
+// POST /api/admin/team/:id/activate | /deactivate
+app.post('/api/admin/team/:id/:action', isAuthenticated, requireRole('admin', 'superadmin'), async (req, res) => {
+  try {
+    const admin = await getSessionAdmin(req);
+    if (!admin) return res.status(404).json({ error: 'Business not found' });
+    const { id, action } = req.params;
+    if (!ObjectId.isValid(id)) return res.status(400).json({ error: 'Invalid id' });
+    if (!['activate', 'deactivate'].includes(action)) return res.status(400).json({ error: 'Invalid action' });
+    await db.collection('business_users').updateOne(
+      { _id: new ObjectId(id), adminId: admin._id },
+      { $set: { status: action === 'activate' ? 'active' : 'inactive' } },
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('API team action error:', error);
+    res.status(500).json({ error: 'Error updating team member' });
+  }
+});
 
 
 // Start server
