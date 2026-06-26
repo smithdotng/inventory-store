@@ -19,6 +19,8 @@ function setupSessionValidation(app) {
       '/',
       '/admin-login',
       '/admin-register',
+      '/verify-email',
+      '/verify-email/resend',
       '/forgot-password',
       '/reset-password',
       '/referrals/login',

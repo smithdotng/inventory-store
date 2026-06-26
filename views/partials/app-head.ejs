@@ -159,6 +159,8 @@
       color: #888;
       font-weight: 500;
     }
+    /* User dropdown */
+    .user-dropdown { position: relative; }
     .topbar-user-chip {
       display: flex;
       align-items: center;
@@ -170,6 +172,12 @@
       font-size: 0.85rem;
       color: #444;
       font-weight: 500;
+      cursor: pointer;
+    }
+    .topbar-user-chip.user-dropdown-btn {
+      border: 1px solid #e5e7ec;
+      background: #f4f6f9;
+      font-family: 'Jost', sans-serif;
     }
     .topbar-user-chip .avatar {
       width: 30px; height: 30px;
@@ -179,6 +187,34 @@
       display: flex; align-items: center; justify-content: center;
       font-weight: 700; font-size: 0.8rem;
     }
+    .user-dropdown-chevron { font-size: 0.6rem; opacity: 0.55; margin-left: 2px; transition: transform 0.2s; }
+    .user-dropdown.open .user-dropdown-chevron { transform: rotate(180deg); }
+    .user-dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0; top: calc(100% + 8px);
+      min-width: 200px;
+      background: #fff;
+      border: 1px solid #e8eaf0;
+      border-radius: 10px;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+      z-index: 500;
+      overflow: hidden;
+    }
+    .user-dropdown.open .user-dropdown-menu { display: block; }
+    .user-dropdown-menu a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 16px;
+      font-size: 0.88rem; color: #333;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+    .user-dropdown-menu a:hover { background: #f4f6f9; }
+    .user-dropdown-menu a i { width: 16px; text-align: center; color: #888; font-size: 0.85rem; }
+    .dropdown-divider { height: 1px; background: #f0f0f0; margin: 4px 0; }
+    .user-dropdown-menu .dropdown-item-danger { color: #c0392b; }
+    .user-dropdown-menu .dropdown-item-danger i { color: #c0392b; }
+    .user-dropdown-menu .dropdown-item-danger:hover { background: #fff5f5; }
     .hamburger-btn {
       display: none;
       background: none;
@@ -375,3 +411,17 @@
       .topbar-business { display: none; }
     }
   </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const dropdown = document.getElementById('userDropdown');
+      const btn = document.getElementById('userDropdownBtn');
+      if (!dropdown || !btn) return;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+      });
+      document.addEventListener('click', function () {
+        dropdown.classList.remove('open');
+      });
+    });
+  </script>

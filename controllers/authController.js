@@ -154,60 +154,141 @@ exports.getRegister = async (req, res) => {
   }
 };
 
-// POST /admin-register
+// POST /admin-register — validate, store pending data, send OTP
 exports.postRegister = async (req, res) => {
   const db = getDb();
   const { businessName, email, currency, username, password, country, firstName, lastName } = req.body;
   const referralCode = req.query.ref;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : '/images/default-logo.png';
 
-  try {
-    if (!firstName || !lastName) {
-      return res.render('register', {
-        error: 'First name and last name are required.',
-        businessName, email, currency, username, country, firstName, lastName, referralCode
-      });
-    }
+  const renderError = (error) => res.render('register', {
+    error, businessName, email, currency, username, country,
+    firstName, lastName, referralCode, message: null, admin: null
+  });
 
-    if (username.includes(' ')) {
-      return res.render('register', {
-        error: 'Username cannot contain spaces.',
-        businessName, email, currency, username, country, firstName, lastName, referralCode
-      });
-    }
+  try {
+    if (!firstName || !lastName) return renderError('First name and last name are required.');
+    if (username.includes(' ')) return renderError('Username cannot contain spaces.');
 
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
-      return res.render('register', {
-        error: 'Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
-        businessName, email, currency, username, country, firstName, lastName, referralCode
-      });
+      return renderError('Password must be at least 8 characters, with uppercase, lowercase, number, and special character.');
     }
 
     const existingAdmin = await db.collection('admins').findOne({ $or: [{ username }, { email }] });
-    if (existingAdmin) {
-      return res.render('register', {
-        error: 'Username or email already exists.',
-        businessName, email, currency, username, country, firstName, lastName, referralCode
-      });
-    }
+    if (existingAdmin) return renderError('Username or email already exists.');
 
+    // Generate 6-digit OTP
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newAdmin = {
-      businessName, email, currency, country, username,
-      password: hashedPassword, firstName, lastName,
-      logo: logoPath,
-      role: 'admin',
-      createdAt: new Date(),
-    };
 
+    // Store pending registration (upsert by email)
+    await db.collection('email_verifications').updateOne(
+      { email },
+      {
+        $set: {
+          otp,
+          pendingAdmin: { businessName, email, currency, country, username, password: hashedPassword, firstName, lastName, logo: logoPath, role: 'admin', createdAt: new Date() },
+          referralCode: referralCode || null,
+          expiresAt: new Date(Date.now() + 15 * 60 * 1000)
+        }
+      },
+      { upsert: true }
+    );
+
+    // Send OTP email — non-blocking so a mail error never blocks the redirect
+    transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Verify your Shed account',
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+          <h2 style="color:#0d0d1a;">Verify your email</h2>
+          <p>Hi ${firstName}, thanks for signing up for Shed!</p>
+          <p>Enter this code to complete your registration:</p>
+          <div style="font-size:2.2rem;font-weight:700;letter-spacing:.3em;color:#008B8B;padding:20px 0;">${otp}</div>
+          <p style="color:#888;font-size:0.85rem;">This code expires in 15 minutes. If you didn't request this, you can ignore this email.</p>
+        </div>
+      `
+    }).catch(err => console.error('OTP email send failed:', err.message));
+
+    // Always redirect — OTP is saved in DB regardless of email delivery
+    return res.redirect(`/verify-email?email=${encodeURIComponent(email)}`);
+  } catch (error) {
+    console.error('Error during registration:', error);
+    renderError('An error occurred during registration. Please try again.');
+  }
+};
+
+// GET /verify-email
+exports.getVerifyEmail = (req, res) => {
+  const email = req.query.email || '';
+  res.render('verify-email', { email, error: null, message: null });
+};
+
+// POST /verify-email/resend
+exports.resendVerifyEmail = async (req, res) => {
+  const db = getDb();
+  const { email } = req.body;
+  try {
+    const record = await db.collection('email_verifications').findOne({ email });
+    if (!record) {
+      return res.render('verify-email', { email, error: 'No pending registration found. Please register again.', message: null });
+    }
+    // Generate fresh OTP and reset expiry
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    await db.collection('email_verifications').updateOne(
+      { email },
+      { $set: { otp, expiresAt: new Date(Date.now() + 15 * 60 * 1000) } }
+    );
+    transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: 'Your new Shed verification code',
+      html: `
+        <div style="font-family:sans-serif;max-width:480px;margin:0 auto;">
+          <h2 style="color:#0d0d1a;">New verification code</h2>
+          <p>Here is your new code:</p>
+          <div style="font-size:2.2rem;font-weight:700;letter-spacing:.3em;color:#008B8B;padding:20px 0;">${otp}</div>
+          <p style="color:#888;font-size:0.85rem;">This code expires in 15 minutes.</p>
+        </div>
+      `
+    }).catch(err => console.error('Resend OTP email failed:', err.message));
+
+    res.render('verify-email', { email, error: null, message: 'A new code has been sent to your email.' });
+  } catch (err) {
+    console.error('Resend error:', err);
+    res.render('verify-email', { email, error: 'Failed to resend code. Please try again.', message: null });
+  }
+};
+
+// POST /verify-email
+exports.postVerifyEmail = async (req, res) => {
+  const db = getDb();
+  const { email, otp } = req.body;
+
+  const renderError = (error) => res.render('verify-email', { email, error, message: null });
+
+  try {
+    const record = await db.collection('email_verifications').findOne({ email });
+
+    if (!record) return renderError('No pending registration found for this email.');
+    if (new Date() > record.expiresAt) {
+      await db.collection('email_verifications').deleteOne({ email });
+      return renderError('Verification code has expired. Please register again.');
+    }
+    if (record.otp !== otp.trim()) return renderError('Incorrect code. Please try again.');
+
+    // Create the account
+    const newAdmin = record.pendingAdmin;
     await db.collection('admins').insertOne(newAdmin);
 
-    // Send welcome email (using sendWelcomeEmailToUser since sendWelcomeEmail is not defined)
-    await sendWelcomeEmailToUser(email, username, businessName);
+    // Send welcome email
+    await sendWelcomeEmailToUser(newAdmin.email, newAdmin.username, newAdmin.businessName);
 
-    if (referralCode) {
-      const referrer = await db.collection('affiliates').findOne({ referralCode });
+    // Handle referral
+    if (record.referralCode) {
+      const referrer = await db.collection('affiliates').findOne({ referralCode: record.referralCode });
       if (referrer) {
         await db.collection('referral_activities').insertOne({
           affiliateId: referrer._id,
@@ -218,13 +299,13 @@ exports.postRegister = async (req, res) => {
       }
     }
 
-    res.redirect('/admin-login');
+    // Clean up
+    await db.collection('email_verifications').deleteOne({ email });
+
+    res.redirect('/admin-login?message=Account created! Please log in.');
   } catch (error) {
-    console.error('Error during registration:', error);
-    res.render('register', {
-      error: 'An error occurred during registration. Please try again.',
-      businessName, email, currency, username, country, firstName, lastName, referralCode
-    });
+    console.error('Error verifying email:', error);
+    renderError('An error occurred. Please try again.');
   }
 };
 

@@ -35,9 +35,18 @@
     </div>
     <div class="topbar-right">
       <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
-      <div class="topbar-user-chip">
-        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
-        <%= admin.firstName || admin.username %>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
       </div>
     </div>
   </header>
