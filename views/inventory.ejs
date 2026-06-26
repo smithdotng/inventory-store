@@ -56,6 +56,58 @@
     .form-two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
     @media(max-width:640px) { .form-two-col{grid-template-columns:1fr;} }
     .action-bar { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+
+    /* Share modal */
+    .share-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .share-modal-overlay.open { display: flex; }
+    .share-modal {
+      background: #fff; border-radius: 16px;
+      padding: 32px 28px; width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      position: relative;
+    }
+    .share-modal h3 { font-size: 1.15rem; font-weight: 700; color: #0d0d1a; margin-bottom: 6px; }
+    .share-modal .share-url {
+      display: flex; align-items: center; gap: 8px;
+      background: #f4f6f9; border: 1px solid #e5e7ec; border-radius: 8px;
+      padding: 9px 12px; margin: 16px 0 22px;
+    }
+    .share-modal .share-url span {
+      flex: 1; font-size: 0.82rem; color: #555;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .share-modal .share-url button {
+      background: none; border: none; cursor: pointer;
+      color: #008B8B; font-size: 0.82rem; font-weight: 600; white-space: nowrap;
+      font-family: inherit; padding: 0;
+    }
+    .share-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .share-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 10px; border: 1px solid #eee;
+      text-decoration: none; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      color: #333; background: #fafafa;
+    }
+    .share-option:hover { border-color: #ccc; background: #f0f0f0; }
+    .share-option .so-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .so-whatsapp .so-icon { background: #25D366; color: #fff; }
+    .so-facebook .so-icon { background: #1877F2; color: #fff; }
+    .so-twitter .so-icon  { background: #000; color: #fff; }
+    .so-copy .so-icon     { background: #008B8B; color: #fff; }
+    .share-qr { text-align: center; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+    .share-qr p { font-size: 0.78rem; color: #aaa; margin-bottom: 10px; }
+    .share-qr canvas, .share-qr img { border-radius: 8px; }
+    .share-close-btn {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; font-size: 1.3rem; color: #bbb;
+      cursor: pointer; line-height: 1;
+    }
+    .share-close-btn:hover { color: #555; }
   </style>
 </head>
 <body>
@@ -232,7 +284,38 @@
   </main>
 </div>
 
+<!-- Share Modal -->
+<div class="share-modal-overlay" id="shareModalOverlay">
+  <div class="share-modal">
+    <button class="share-close-btn" id="shareCloseBtn" aria-label="Close">&times;</button>
+    <h3><i class="fas fa-share-alt" style="color:#008B8B;margin-right:8px;"></i>Share Your Store</h3>
+    <div class="share-url">
+      <span id="shareUrlDisplay"></span>
+      <button id="copyUrlBtn"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+    <div class="share-options">
+      <a class="share-option so-whatsapp" id="shareWhatsApp" target="_blank" rel="noopener">
+        <span class="so-icon"><i class="fab fa-whatsapp"></i></span> WhatsApp
+      </a>
+      <a class="share-option so-facebook" id="shareFacebook" target="_blank" rel="noopener">
+        <span class="so-icon"><i class="fab fa-facebook-f"></i></span> Facebook
+      </a>
+      <a class="share-option so-twitter" id="shareTwitter" target="_blank" rel="noopener">
+        <span class="so-icon"><i class="fab fa-x-twitter"></i></span> X
+      </a>
+      <button class="share-option so-copy" id="shareNative">
+        <span class="so-icon"><i class="fas fa-ellipsis-h"></i></span> More
+      </button>
+    </div>
+    <div class="share-qr">
+      <p>Scan to open store</p>
+      <canvas id="qrCanvas"></canvas>
+    </div>
+  </div>
+</div>
+
 <script src="/js/plugins/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
   // Sidebar toggle
   document.getElementById('hamburgerBtn').addEventListener('click', function() {
@@ -282,25 +365,68 @@
     }
   };
 
-  // Share store link
-  document.getElementById('shareStoreBtn').addEventListener('click', function() {
-    const storeUrl = "<%= storeUrl %>";
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(storeUrl)
-        .then(function() { alert("Store link copied!\n\n" + storeUrl); })
-        .catch(fallback);
-    } else { fallback(); }
-    function fallback() {
-      const ta = document.createElement("textarea");
-      ta.value = storeUrl;
-      ta.style.cssText = "position:fixed;opacity:0;";
-      document.body.appendChild(ta);
-      ta.focus(); ta.select();
-      try { document.execCommand('copy'); alert("Link copied!\n\n" + storeUrl); }
-      catch(e) { prompt("Copy manually (Ctrl+C):", storeUrl); }
-      document.body.removeChild(ta);
+  // Share modal
+  (function () {
+    const STORE_URL = "<%= storeUrl %>";
+    const STORE_NAME = "<%= admin.businessName ? admin.businessName.replace(/"/g, '&quot;') : 'My Store' %>";
+    const overlay  = document.getElementById('shareModalOverlay');
+    const closeBtn = document.getElementById('shareCloseBtn');
+    const urlDisplay = document.getElementById('shareUrlDisplay');
+    let qrGenerated = false;
+
+    function openModal() {
+      urlDisplay.textContent = STORE_URL;
+      overlay.classList.add('open');
+
+      // Set share links
+      const msg = encodeURIComponent('Check out ' + STORE_NAME + ': ' + STORE_URL);
+      document.getElementById('shareWhatsApp').href  = 'https://wa.me/?text=' + msg;
+      document.getElementById('shareFacebook').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(STORE_URL);
+      document.getElementById('shareTwitter').href   = 'https://twitter.com/intent/tweet?text=' + msg;
+
+      // Generate QR once
+      if (!qrGenerated) {
+        const canvas = document.getElementById('qrCanvas');
+        new QRCode(canvas, {
+          text: STORE_URL,
+          width: 140,
+          height: 140,
+          colorDark: '#0d0d1a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        qrGenerated = true;
+      }
     }
-  });
+
+    function closeModal() { overlay.classList.remove('open'); }
+
+    document.getElementById('shareStoreBtn').addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+    // Copy URL
+    document.getElementById('copyUrlBtn').addEventListener('click', function() {
+      navigator.clipboard.writeText(STORE_URL).then(function() {
+        const btn = document.getElementById('copyUrlBtn');
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(function() { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
+      }).catch(function() {
+        prompt('Copy manually (Ctrl+C):', STORE_URL);
+      });
+    });
+
+    // Native share (Android/iOS)
+    document.getElementById('shareNative').addEventListener('click', function() {
+      if (navigator.share) {
+        navigator.share({ title: STORE_NAME, url: STORE_URL });
+      } else {
+        navigator.clipboard.writeText(STORE_URL);
+        alert('Link copied to clipboard!');
+      }
+    });
+  })();
 </script>
 </body>
 </html>

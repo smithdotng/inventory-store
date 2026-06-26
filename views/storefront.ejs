@@ -11,9 +11,21 @@
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="<%= outlet ? outlet.name : admin.businessName %> Storefront" />
-    <meta property="og:description" content="Shop the latest inventory from <%= outlet ? outlet.name : admin.businessName %> with ease." />
-    <meta property="og:image" content="<%= admin.logo || '/android-chrome-512x512.png' %>" />
+    <% const _ogDomain = (typeof process !== 'undefined' && process.env.DOMAIN_URL) ? process.env.DOMAIN_URL : ''; %>
+    <% const _ogName = outlet ? outlet.name : admin.businessName; %>
+    <% const _ogLogo = admin.logo && admin.logo.startsWith('http') ? admin.logo : (_ogDomain + (admin.logo || '/android-chrome-512x512.png')); %>
+    <% const _ogUrl  = outlet ? (_ogDomain + '/outlet/' + outlet.username) : (_ogDomain + '/store/' + admin.username); %>
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="<%= _ogName %> — Online Store" />
+    <meta property="og:description" content="Shop <%= _ogName %>'s full product range online. Browse, add to cart and check out — fast and easy." />
+    <meta property="og:image" content="<%= _ogLogo %>" />
+    <meta property="og:image:width" content="512" />
+    <meta property="og:image:height" content="512" />
+    <meta property="og:url" content="<%= _ogUrl %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= _ogName %> — Online Store" />
+    <meta name="twitter:description" content="Shop <%= _ogName %>'s full product range online." />
+    <meta name="twitter:image" content="<%= _ogLogo %>" />
     <title><%= outlet ? outlet.name : admin.businessName %> Storefront</title>
     <!-- Bootstrap Grid CSS -->
     <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
