@@ -309,7 +309,12 @@
     </div>
     <div class="share-qr">
       <p>Scan to open store</p>
-      <canvas id="qrCanvas"></canvas>
+      <div id="qrContainer" style="display:inline-block;"></div>
+      <div style="margin-top:10px;">
+        <button id="qrDownloadBtn" onclick="downloadQR()" style="background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 16px;font-size:0.8rem;color:#555;cursor:pointer;font-family:inherit;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">
+          <i class="fas fa-download" style="margin-right:5px;"></i>Download QR
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -386,8 +391,9 @@
 
       // Generate QR once
       if (!qrGenerated) {
-        const canvas = document.getElementById('qrCanvas');
-        new QRCode(canvas, {
+        const container = document.getElementById('qrContainer');
+        container.innerHTML = '';
+        new QRCode(container, {
           text: STORE_URL,
           width: 140,
           height: 140,
@@ -397,6 +403,16 @@
         });
         qrGenerated = true;
       }
+    }
+
+    function downloadQR() {
+      const container = document.getElementById('qrContainer');
+      const canvas = container.querySelector('canvas');
+      if (!canvas) return;
+      const link = document.createElement('a');
+      link.download = 'store-qr.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
     }
 
     function closeModal() { overlay.classList.remove('open'); }
