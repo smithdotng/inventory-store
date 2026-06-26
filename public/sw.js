@@ -1,161 +1,66 @@
 importScripts('https://storage.googleapis.com/workbox-cdn/releases/6.5.4/workbox-sw.js');
 
-// Enable Workbox debugging in development
 workbox.setConfig({ debug: false });
 
-// Cache names
-const STATIC_CACHE = 'shed-static-v1';
-const DYNAMIC_CACHE = 'shed-dynamic-v1';
-const API_CACHE = 'shed-api-v1';
+const STATIC_CACHE  = 'shed-static-v2';
+const DYNAMIC_CACHE = 'shed-dynamic-v2';
+const API_CACHE     = 'shed-api-v2';
 
-// Precache static assets (removed /invoices/share)
+// Precache core static assets
 workbox.precaching.precacheAndRoute([
-  { url: '/', revision: '1' },
-  { url: '/admin-login', revision: '1' },
-  { url: '/admin-register', revision: '1' },
-  { url: '/home', revision: '1' },
-  { url: '/admin/sales-form', revision: '1' },
-  { url: '/invoices', revision: '1' },
-  { url: '/update-stock', revision: '1' },
-  { url: '/store-view', revision: '1' },
-  { url: '/transactions', revision: '1' },
-  { url: '/customers', revision: '1' },
-  { url: '/profile', revision: '1' },
-  { url: '/create-outlet', revision: '1' },
-  { url: '/superadmin/dashboard', revision: '1' },
-  { url: '/referrals/login', revision: '1' },
-  { url: '/referrals/signup', revision: '1' },
-  { url: '/referrals/dashboard', revision: '1' },
-  { url: '/outlet-login', revision: '1' },
-  { url: '/invoices/upload', revision: '1' },
-  { url: '/handle-link', revision: '1' },
-  { url: '/style.css', revision: '1' },
-  { url: '/images/logo.png', revision: '1' },
-  { url: '/images/pdf-icon.png', revision: '1' },
-  { url: '/manifest.json', revision: '1' },
-  { url: '/scripts/main.js', revision: '1' },
-  { url: '/offline.html', revision: '1' },
-  { url: '/outlet-customers', revision: '1' },
-  { url: '/outlet-transactions', revision: '1' },
-  { url: '/outlet-sales-form', revision: '1' },
-  { url: '/receipt', revision: '1' },
-  { url: '/landing', revision: '1' },
+  { url: '/admin-login',    revision: '2' },
+  { url: '/admin-register', revision: '2' },
+  { url: '/verify-email',   revision: '2' },
+  { url: '/offline.html',   revision: '2' },
+  { url: '/manifest.json',  revision: '2' },
+  { url: '/android-chrome-192x192.png', revision: '2' },
+  { url: '/android-chrome-512x512.png', revision: '2' },
 ], {
   ignoreURLParametersMatching: [/.*/],
   cleanUpCache: true
 });
 
-// Static assets (CSS, JS, images) - CacheFirst
+// Static assets (CSS, JS, images) — CacheFirst, 30 days
 workbox.routing.registerRoute(
-  /\.(?:png|jpg|jpeg|svg|gif|css|js)$/,
+  /\.(?:png|jpg|jpeg|svg|gif|webp|ico|css|js|woff2?)$/,
   new workbox.strategies.CacheFirst({
     cacheName: STATIC_CACHE,
     plugins: [
-      new workbox.expiration.ExpirationPlugin({
-        maxEntries: 50,
-        maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
-      }),
-      new workbox.cacheableResponse.CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
+      new workbox.expiration.ExpirationPlugin({ maxEntries: 80, maxAgeSeconds: 30 * 24 * 60 * 60 }),
+      new workbox.cacheableResponse.CacheableResponsePlugin({ statuses: [0, 200] })
     ]
   })
 );
 
-// HTML pages - NetworkFirst with offline fallback
+// HTML pages — NetworkFirst with offline fallback
 workbox.routing.registerRoute(
   ({ request }) => request.destination === 'document',
   new workbox.strategies.NetworkFirst({
     cacheName: DYNAMIC_CACHE,
-    networkTimeoutSeconds: 3,
+    networkTimeoutSeconds: 4,
     plugins: [
-      new workbox.expiration.ExpirationPlugin({
-        maxEntries: 30,
-        maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
-      }),
-      new workbox.cacheableResponse.CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
+      new workbox.expiration.ExpirationPlugin({ maxEntries: 40, maxAgeSeconds: 7 * 24 * 60 * 60 }),
+      new workbox.cacheableResponse.CacheableResponsePlugin({ statuses: [0, 200] })
     ]
   })
 );
 
-// API routes - StaleWhileRevalidate
+// Key app routes — StaleWhileRevalidate for snappy loads
 workbox.routing.registerRoute(
-  ({ url }) => url.pathname.startsWith('/invoices/create') ||
-               url.pathname.startsWith('/update-stock') ||
-               url.pathname.startsWith('/admin/sales-form') ||
-                url.pathname.startsWith('/outlet-login') ||
-               url.pathname.startsWith('/confirm-sale'),
+  ({ url }) => ['/inventory', '/invoices', '/pos', '/transactions', '/customers', '/profile'].some(p => url.pathname.startsWith(p)),
   new workbox.strategies.StaleWhileRevalidate({
     cacheName: API_CACHE,
     plugins: [
-      new workbox.expiration.ExpirationPlugin({
-        maxEntries: 20,
-        maxAgeSeconds: 24 * 60 * 60, // 1 day
-      }),
-      new workbox.cacheableResponse.CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
+      new workbox.expiration.ExpirationPlugin({ maxEntries: 30, maxAgeSeconds: 24 * 60 * 60 }),
+      new workbox.cacheableResponse.CacheableResponsePlugin({ statuses: [0, 200] })
     ]
   })
 );
 
-// File handling route - NetworkFirst
-workbox.routing.registerRoute(
-  ({ url }) => url.pathname === '/invoices/upload',
-  new workbox.strategies.NetworkFirst({
-    cacheName: DYNAMIC_CACHE,
-    plugins: [
-      new workbox.cacheableResponse.CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
-    ]
-  })
-);
+// Fallback handler
+workbox.routing.setDefaultHandler(new workbox.strategies.NetworkOnly());
 
-// Share target route - NetworkOnly (POST request)
-workbox.routing.registerRoute(
-  ({ url, request }) => url.pathname === '/invoices/share' && request.method === 'POST',
-  new workbox.strategies.NetworkOnly()
-);
-
-// Protocol handling route - NetworkFirst
-workbox.routing.registerRoute(
-  ({ url }) => url.pathname.startsWith('/handle-link'),
-  new workbox.strategies.NetworkFirst({
-    cacheName: DYNAMIC_CACHE,
-    plugins: [
-      new workbox.cacheableResponse.CacheableResponsePlugin({
-        statuses: [0, 200]
-      })
-    ]
-  })
-);
-
-// Handle authentication redirects
-workbox.routing.registerRoute(
-  ({ request }) => request.destination === 'document',
-  async ({ event, request }) => {
-    try {
-      const response = await fetch(request);
-      if (response.status === 302 && response.headers.get('Location') === '/admin-login') {
-        return caches.match('/admin-login') || fetch('/admin-login');
-      }
-      return response;
-    } catch (error) {
-      return caches.match('/offline.html');
-    }
-  },
-  'GET'
-);
-
-// Default handler - NetworkOnly
-workbox.routing.setDefaultHandler(
-  new workbox.strategies.NetworkOnly()
-);
-
-// Offline fallback
+// Offline fallback for navigation
 workbox.routing.setCatchHandler(({ event }) => {
   if (event.request.destination === 'document') {
     return caches.match('/offline.html');
@@ -163,18 +68,17 @@ workbox.routing.setCatchHandler(({ event }) => {
   return Response.error();
 });
 
-// Clean up old caches on activation
+// Clean up old caches and claim clients immediately
 self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [STATIC_CACHE, DYNAMIC_CACHE, API_CACHE];
+  const keep = [STATIC_CACHE, DYNAMIC_CACHE, API_CACHE];
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
+    caches.keys()
+      .then(names => Promise.all(names.filter(n => !keep.includes(n)).map(n => caches.delete(n))))
+      .then(() => self.clients.claim())
   );
+});
+
+// Allow pages to trigger SW update without waiting for tab close
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
