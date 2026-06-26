@@ -311,7 +311,7 @@
       <p>Scan to open store</p>
       <div id="qrContainer" style="display:inline-block;"></div>
       <div style="margin-top:10px;">
-        <button id="qrDownloadBtn" onclick="downloadQR()" style="background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 16px;font-size:0.8rem;color:#555;cursor:pointer;font-family:inherit;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">
+        <button id="qrDownloadBtn" style="background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 16px;font-size:0.8rem;color:#555;cursor:pointer;font-family:inherit;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">
           <i class="fas fa-download" style="margin-right:5px;"></i>Download QR
         </button>
       </div>
@@ -407,12 +407,24 @@
 
     function downloadQR() {
       const container = document.getElementById('qrContainer');
+      // qrcodejs renders an <img> (visible) and a <canvas> (hidden)
+      // The img src is already a data URL — use it directly
+      const img = container.querySelector('img');
       const canvas = container.querySelector('canvas');
-      if (!canvas) return;
+      let dataUrl;
+      if (img && img.src && img.src.startsWith('data:')) {
+        dataUrl = img.src;
+      } else if (canvas) {
+        dataUrl = canvas.toDataURL('image/png');
+      } else {
+        return;
+      }
       const link = document.createElement('a');
       link.download = 'store-qr.png';
-      link.href = canvas.toDataURL('image/png');
+      link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     }
 
     function closeModal() { overlay.classList.remove('open'); }
@@ -420,6 +432,7 @@
     document.getElementById('shareStoreBtn').addEventListener('click', openModal);
     closeBtn.addEventListener('click', closeModal);
     overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+    document.getElementById('qrDownloadBtn').addEventListener('click', downloadQR);
     document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
 
     // Copy URL
