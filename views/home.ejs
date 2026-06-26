@@ -1,463 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-GJRGT3KCZ7');
-    </script>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shed | Manage Outlets – Business Locations</title>
-    <meta name="description" content="Create, manage and monitor your business outlets and branches">
-
-    <!-- favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-
-    <!-- fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-
-    <!-- vendor css -->
-    <link rel="stylesheet" href="asset1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="asset1/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="asset1/css/swiper.min.css">
-    <link rel="stylesheet" href="asset1/css/animate.min.css">
-    <link rel="stylesheet" href="asset1/css/magnific-popup.css">
-    <link rel="stylesheet" href="asset1/css/bootstrap-select.min.css">
-
-    <!-- template styles -->
-    <link rel="stylesheet" href="asset1/css/main.css">
-    <link rel="stylesheet" href="asset1/css/rtl.css">
-
-    <style>
-        :root {
-            --primary: #e74c3c;
-            --success: #27ae60;
-            --info: #17a2b8;
-            --warning: #f39c12;
-            --danger: #c0392b;
-        }
-
-        .main-header__two { position: relative; z-index: 91; }
-
-        .sidebar-nav {
-            position: fixed;
-            left: -280px;
-            top: 0; bottom: 0;
-            width: 280px;
-            background: #2c3e50;
-            color: white;
-            transition: left .4s ease;
-            z-index: 9999;
-            padding-top: 90px;
-            overflow-y: auto;
-        }
-
-        .sidebar-nav.active { left: 0; }
-
-        .sidebar-nav a {
-            color: white;
-            display: block;
-            padding: 14px 28px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active { background: rgba(255,255,255,0.1); }
-
-        .mobile-nav__toggler {
-            font-size: 28px;
-            color: white;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .outlets-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .outlet-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
-            transition: all 0.35s ease;
-            cursor: pointer;
-        }
-
-        .outlet-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 18px 50px rgba(0,0,0,0.14);
-        }
-
-        .outlet-header {
-            background: #2c5530;
-            color: white;
-            padding: 22px 28px;
-            text-align: center;
-        }
-
-        .outlet-name {
-            font-size: 1.4rem;
-            font-weight: 700;
-            margin: 0;
-        }
-
-        .outlet-content {
-            padding: 28px;
-            text-align: center;
-        }
-
-        .outlet-meta {
-            margin: 20px 0;
-            font-size: 1rem;
-            color: #555;
-        }
-
-        .outlet-meta strong {
-            color: #333;
-        }
-
-        .commission-due {
-            font-size: 1.6rem;
-            font-weight: 700;
-            margin: 20px 0;
-        }
-
-        .commission-due.positive {
-            color: var(--warning);
-        }
-
-        .commission-due.zero {
-            color: var(--success);
-        }
-
-        .outlet-actions {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .status-pill {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            background: #e9ecef;
-            color: #495057;
-        }
-
-        @media (max-width: 991px) {
-            .outlets-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Outlets</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .outlets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .outlet-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+      transition: all 0.3s ease;
+    }
+    .outlet-card:hover { transform: translateY(-6px); box-shadow: 0 12px 36px rgba(0,0,0,0.12); }
+    .outlet-card-header {
+      background: #0d0d1a;
+      color: #fff;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .outlet-card-header .icon {
+      width: 42px; height: 42px; border-radius: 10px;
+      background: rgba(0,139,139,0.2);
+      display: flex; align-items: center; justify-content: center;
+      color: #008B8B; font-size: 1.1rem;
+    }
+    .outlet-card-header h3 { margin: 0; font-size: 1.05rem; font-weight: 700; }
+    .outlet-card-body { padding: 20px 24px; }
+    .outlet-meta { font-size: 0.88rem; color: #666; line-height: 1.9; margin-bottom: 14px; }
+    .outlet-meta strong { color: #333; }
+    .commission-amount {
+      font-size: 1.7rem; font-weight: 700; margin: 10px 0 4px;
+    }
+    .commission-amount.due { color: #e67e22; }
+    .commission-amount.paid { color: #27ae60; }
+    .commission-label { font-size: 0.8rem; color: #999; margin-bottom: 16px; }
+    .outlet-actions { display: flex; flex-wrap: wrap; gap: 8px; padding: 0 24px 20px; }
+    .create-form-box {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+      padding: 32px; margin-bottom: 28px; display: none;
+    }
+    .create-form-box.active { display: block; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width:640px) { .form-row { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
 
+<%- include('partials/app-sidebar', { currentPage: 'home', admin: admin }) %>
 
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Outlets</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
+      </div>
+    </div>
+  </header>
 
-<div class="page-wrapper">
+  <main class="app-content">
 
-    <!-- header -->
-    <div class="main-header__two">
-        <div class="header-upper">
-            <div class="container">
-                <div class="logo-box">
-                    <a href="/home">
-                        <img src="/images/logo.png" width="140" alt="Shed">
-                    </a>
-                    <button type="button" class="mobile-nav__toggler">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                </div>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
 
-                <div class="header-info">
-                    <div class="header-info__box">
-                        <i class="azino-icon-email1"></i>
-                        <div class="header-info__box-content">
-                            <h3>Email</h3>
-                            <p><a href="mailto:<%= admin.email %>"><%= admin.email || 'admin@shed.app' %></a></p>
-                        </div>
-                    </div>
-                    <div class="header-info__box">
-                        <i class="azino-icon-calling"></i>
-                        <div class="header-info__box-content">
-                            <h3>Business</h3>
-                            <p><%= admin.businessName || 'Your Business' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <nav class="main-menu">
-            <div class="container">
-                <ul class="main-menu__list">
-                    <li><a href="/pos">Point of Sale</a></li>
-                    <li><a href="/update-stock">Inventory</a></li>
-                    <li><a href="/invoices">Invoices</a></li>
-                    <li><a href="/transactions">Transactions</a></li>
-                    <li><a href="/customers">Customers</a></li>
-                    <li class="active"><a href="/home">Outlets</a></li>
-                    <li><a href="/profile">Profile</a></li>
-                </ul>
-                <a href="/admin-logout" class="thm-btn dynamic-radius">Logout</a>
-            </div>
-        </nav>
+    <div class="page-header">
+      <div>
+        <h1>Manage Outlets</h1>
+        <p>Create, monitor and manage your business branches</p>
+      </div>
+      <button class="btn-primary-app" id="createOutletBtn">
+        <i class="fas fa-plus"></i> New Outlet
+      </button>
     </div>
 
-    <!-- mobile sidebar -->
-    <div class="sidebar-nav" id="sidebarNav">
-        <button type="button" class="mobile-nav__close mobile-nav__toggler" style="position:absolute;top:20px;right:25px;font-size:30px;color:white;">
-            <i class="fa fa-times"></i>
-        </button>
-
-        <div style="padding: 0 30px 25px;">
-            <h3 style="color:white;margin-bottom:35px;">Menu</h3>
+    <!-- Create Outlet Form -->
+    <div class="create-form-box" id="createOutletForm">
+      <h3 style="margin:0 0 24px; font-size:1.1rem; font-weight:700; color:#0d0d1a;">Create New Outlet</h3>
+      <form action="/create-outlet" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Outlet Name <span style="color:#c0392b">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="Branch Name / Location" required>
+          </div>
+          <div class="form-group">
+            <label>Physical Address</label>
+            <input type="text" name="location" class="form-control" placeholder="Street, City, State">
+          </div>
+          <div class="form-group">
+            <label>Mobile Number <span style="color:#c0392b">*</span></label>
+            <input type="tel" name="mobile" class="form-control" placeholder="0803 xxx xxxx" required>
+          </div>
+          <div class="form-group">
+            <label>Manager Username <span style="color:#c0392b">*</span></label>
+            <input type="text" name="username" class="form-control" placeholder="manager_branch1" required>
+          </div>
+          <div class="form-group">
+            <label>Initial Password <span style="color:#c0392b">*</span></label>
+            <input type="password" name="password" class="form-control" placeholder="Strong password" required>
+          </div>
         </div>
-
-        <a href="/pos"><i class="fas fa-shopping-bag mr-2"></i> Point of Sale</a>
-        <a href="/update-stock"><i class="fas fa-boxes mr-2"></i> Manage Inventory</a>
-        <a href="/invoices"><i class="fas fa-file-invoice mr-2"></i> Generate Invoice</a>
-        <a href="/transactions"><i class="fas fa-chart-bar mr-2"></i> Transactions</a>
-        <a href="/customers"><i class="fas fa-users mr-2"></i> Customers</a>
-        <a href="/home" class="active"><i class="fas fa-store mr-2"></i> Manage Outlets</a>
-        <a href="/profile"><i class="fas fa-user mr-2"></i> Profile</a>
-        <a href="/admin-logout"><i class="fas fa-power-off mr-2"></i> Log Out</a>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="submit" class="btn-primary-app"><i class="fas fa-store"></i> Create Outlet</button>
+          <button type="button" class="btn-secondary-app" id="cancelCreateBtn"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </form>
     </div>
 
-    <!-- banner -->
-    <section class="main-slider main-slider__two">
-        <div class="swiper-container thm-swiper__slider" data-swiper-options='{"slidesPerView": 1, "loop": true, "effect": "fade", "autoplay": {"delay": 6500}}'>
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="image-layer" style="background-image: url(asset1/images/main-slider/slider-1-2.jpg);"></div>
-                    <div class="container">
-                        <div class="row justify-content-start">
-                            <div class="col-xl-8">
-                                <h2>Manage Your <span>Outlets</span></h2>
-                                <p>Create, monitor and manage multiple business locations</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Outlets Grid -->
+    <% if (outlets && outlets.length > 0) { %>
+      <div class="outlets-grid">
+        <% outlets.forEach(outlet => { %>
+          <div class="outlet-card">
+            <div class="outlet-card-header">
+              <div class="icon"><i class="fas fa-store"></i></div>
+              <div>
+                <h3><%= outlet.name %></h3>
+                <div style="font-size:0.8rem; color:rgba(255,255,255,0.5); margin-top:2px;"><%= outlet.username %></div>
+              </div>
             </div>
-        </div>
-    </section>
-
-    <!-- main content -->
-    <section class="service-two pt-120 pb-120">
-        <div class="container">
-
-            <!-- title & actions -->
-            <div class="row align-items-center mb-60">
-                <div class="col-lg-8">
-                    <div class="block-title">
-                        <p><img src="asset1/images/shapes/heart-2-1.png" width="15" alt=""> Business Locations</p>
-                        <h3>Manage Outlets</h3>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-lg-right">
-                    <button id="createOutletBtn" class="thm-btn dynamic-radius">Create New Outlet</button>
-                </div>
-            </div>
-
-            <!-- Create Outlet Form -->
-            <div id="createOutletForm" class="wow fadeInUp" data-wow-duration="1200ms" style="display:none;">
-                <form action="/create-outlet" method="POST">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>Outlet Name <span style="color:var(--danger)">*</span></label>
-                                <input type="text" name="name" class="form-control" placeholder="Branch Name / Location" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Physical Address / Location</label>
-                                <input type="text" name="location" class="form-control" placeholder="Street, City, State">
-                            </div>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>Mobile Number <span style="color:var(--danger)">*</span></label>
-                                <input type="tel" name="mobile" class="form-control" placeholder="0803 xxx xxxx" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Outlet Manager Username <span style="color:var(--danger)">*</span></label>
-                                <input type="text" name="username" class="form-control" placeholder="manager_branch1" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Initial Password <span style="color:var(--danger)">*</span></label>
-                                <input type="password" name="password" class="form-control" placeholder="Strong password" required>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-40">
-                        <button type="submit" class="thm-btn dynamic-radius">Create Outlet</button>
-                        <button type="button" id="cancelCreateBtn" class="thm-btn dynamic-radius cancel ml-3">Cancel</button>
-                    </div>
+            <div class="outlet-card-body">
+              <div class="outlet-meta">
+                <% if (outlet.location) { %><strong>Location:</strong> <%= outlet.location %><br><% } %>
+                <% if (outlet.mobile) { %><strong>Mobile:</strong> <%= outlet.mobile %><br><% } %>
+              </div>
+              <div class="commission-amount <%= outlet.totalCommissionDue > 0 ? 'due' : 'paid' %>">
+                <%= admin.currency %><%= formatCurrency(Number(outlet.totalCommissionDue || 0)) %>
+              </div>
+              <div class="commission-label">Commission Due</div>
+              <% if (outlet.totalCommissionDue > 0) { %>
+                <form action="/pay-commission/<%= outlet._id %>" method="POST" style="margin-bottom:4px;">
+                  <button type="submit" class="btn-primary-app btn-sm" style="background:#e67e22;" onclick="return confirm('Mark commission as paid?')">
+                    <i class="fas fa-check"></i> Pay Commission
+                  </button>
                 </form>
+              <% } else { %>
+                <span class="badge badge-success"><i class="fas fa-check-circle"></i> Commission Paid</span>
+              <% } %>
             </div>
-
-            <!-- Outlets Grid -->
-            <div class="outlets-grid">
-                <% if (outlets && outlets.length > 0) { %>
-                    <% outlets.forEach(outlet => { %>
-                        <div class="outlet-card wow fadeInUp" data-wow-duration="1000ms">
-                            <div class="outlet-header">
-                                <h3 class="outlet-name"><%= outlet.name %></h3>
-                            </div>
-
-                            <div class="outlet-content">
-                                <div class="outlet-meta">
-                                    <strong>Location:</strong> <%= outlet.location || 'Not specified' %><br>
-                                    <strong>Mobile:</strong> <%= outlet.mobile || 'Not provided' %><br>
-                                    <strong>Username:</strong> <%= outlet.username %>
-                                </div>
-
-                                <div class="commission-due <%= outlet.totalCommissionDue > 0 ? 'positive' : 'zero' %>">
-                                    <%= admin.currency %><%= Number(outlet.totalCommissionDue || 0).toFixed(2) %>
-                                    <small style="font-size:0.9rem; display:block; margin-top:6px;">
-                                        Commission Due
-                                    </small>
-                                </div>
-
-                                <% if (outlet.totalCommissionDue > 0) { %>
-                                    <form action="/pay-commission/<%= outlet._id %>" method="POST" style="display:inline;">
-                                        <button type="submit" class="thm-btn dynamic-radius" style="background:var(--warning); margin:10px 0;">
-                                            Pay Commission
-                                        </button>
-                                    </form>
-                                <% } else { %>
-                                    <div class="thm-btn dynamic-radius" style="background:var(--success); opacity:0.9; cursor:default; margin:10px 0;">
-                                        Commission Paid ✓
-                                    </div>
-                                <% } %>
-
-                                <div class="outlet-actions mt-3">
-                                    <a href="/dispense-to-outlet/<%= outlet._id %>" class="thm-btn dynamic-radius sm" style="background:var(--info);">
-                                        Dispense Stock
-                                    </a>
-                                    <a href="/outlet-details/<%= outlet._id %>" class="thm-btn dynamic-radius sm" style="background:var(--warning);">
-                                        View Details
-                                    </a>
-                                    <form action="/delete-outlet" method="POST" style="display:inline;" onsubmit="return confirm('Delete <%= outlet.name %>?');">
-                                        <input type="hidden" name="_id" value="<%= outlet._id %>">
-                                        <button type="submit" class="thm-btn dynamic-radius sm" style="background:var(--danger);">
-                                            Delete
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-store fa-5x text-muted mb-4"></i>
-                        <h4>No outlets created yet</h4>
-                        <p class="text-muted mb-4">Start expanding your business by adding your first outlet</p>
-                        <button id="createFirstOutletBtn" class="thm-btn dynamic-radius">Create First Outlet</button>
-                    </div>
-                <% } %>
+            <div class="outlet-actions">
+              <a href="/dispense-to-outlet/<%= outlet._id %>" class="btn-secondary-app btn-sm">
+                <i class="fas fa-box-open"></i> Dispense
+              </a>
+              <a href="/outlet-details/<%= outlet._id %>" class="btn-secondary-app btn-sm">
+                <i class="fas fa-eye"></i> Details
+              </a>
+              <form action="/delete-outlet/<%= outlet._id %>" method="POST" style="display:inline;" onsubmit="return confirm('Delete this outlet? This cannot be undone.')">
+                <button type="submit" class="btn-danger-app btn-sm">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </form>
             </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-store" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No outlets yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Expand your business by adding your first outlet location.</p>
+        <button class="btn-primary-app" id="createFirstOutletBtn"><i class="fas fa-plus"></i> Create First Outlet</button>
+      </div>
+    <% } %>
 
-        </div>
-    </section>
-
-    <!-- footer -->
-    <section class="site-footer">
-        <div class="main-footer pt-120 pb-80">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <a href="/home">
-                                <img src="/images/logo.png" width="140" alt="">
-                            </a>
-                            <p class="mt-3">Multi-location business management made simple</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Quick Links</h3>
-                            <ul class="list-unstyled">
-                                <li><a href="/pos">Point of Sale</a></li>
-                                <li><a href="/update-stock">Inventory</a></li>
-                                <li><a href="/invoices">Invoices</a></li>
-                                <li><a href="/profile">Settings</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Contact</h3>
-                            <p><strong><%= admin.businessName || 'Your Business' %></strong><br>
-                            <%= admin.email || 'No email set' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>© <%= new Date().getFullYear() %> Shed – All Rights Reserved</p>
-            </div>
-        </div>
-    </section>
-
+  </main>
 </div>
 
-<div class="mobile-nav__overlay mobile-nav__toggler"></div>
-
-<script src="asset1/js/jquery-3.5.1.min.js"></script>
-<script src="asset1/js/bootstrap.bundle.min.js"></script>
-<script src="asset1/js/swiper.min.js"></script>
-<script src="asset1/js/wow.js"></script>
-<script src="asset1/js/bootstrap-select.min.js"></script>
-<script src="asset1/js/theme.js"></script>
-
+<script src="/js/plugins/jquery.min.js"></script>
 <script>
-$(document).ready(function(){
-    // Mobile menu toggle
-    $('.mobile-nav__toggler').click(function(e){
-        e.preventDefault();
-        $('#sidebarNav').toggleClass('active');
-        $('.mobile-nav__overlay').toggleClass('active');
-    });
-
-    $('.mobile-nav__close, .mobile-nav__overlay').click(function(){
-        $('#sidebarNav').removeClass('active');
-        $('.mobile-nav__overlay').removeClass('active');
-    });
-
-    // Add outlet form toggle
-    const form = $('#createOutletForm');
-    $('#createOutletBtn, #createFirstOutletBtn').click(function(){
-        form.slideDown(400);
-        $('html,body').animate({scrollTop: form.offset().top - 120}, 600);
-    });
-
-    $('#cancelCreateBtn').click(function(){
-        form.slideUp(300);
-    });
-});
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+  const form = document.getElementById('createOutletForm');
+  function showForm() {
+    form.classList.add('active');
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.getElementById('createOutletBtn').addEventListener('click', showForm);
+  const firstBtn = document.getElementById('createFirstOutletBtn');
+  if (firstBtn) firstBtn.addEventListener('click', showForm);
+  document.getElementById('cancelCreateBtn').addEventListener('click', function() {
+    form.classList.remove('active');
+  });
 </script>
-
 </body>
 </html>

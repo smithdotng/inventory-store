@@ -1,416 +1,162 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-GJRGT3KCZ7');
-    </script>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shed | Transactions – Sales History</title>
-    <meta name="description" content="View and manage all your business transactions and sales records">
-
-    <!-- favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-
-    <!-- fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-
-    <!-- vendor css -->
-    <link rel="stylesheet" href="asset1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="asset1/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="asset1/css/swiper.min.css">
-    <link rel="stylesheet" href="asset1/css/animate.min.css">
-    <link rel="stylesheet" href="asset1/css/magnific-popup.css">
-    <link rel="stylesheet" href="asset1/css/bootstrap-select.min.css">
-
-    <!-- template styles -->
-    <link rel="stylesheet" href="asset1/css/main.css">
-    <link rel="stylesheet" href="asset1/css/rtl.css">
-
-    <style>
-        :root {
-            --primary: #e74c3c;
-            --success: #27ae60;
-            --info: #17a2b8;
-            --warning: #f39c12;
-            --danger: #c0392b;
-        }
-
-        .main-header__two { position: relative; z-index: 91; }
-
-        .sidebar-nav {
-            position: fixed;
-            left: -280px;
-            top: 0; bottom: 0;
-            width: 280px;
-            background: #2c3e50;
-            color: white;
-            transition: left .4s ease;
-            z-index: 9999;
-            padding-top: 90px;
-            overflow-y: auto;
-        }
-
-        .sidebar-nav.active { left: 0; }
-
-        .sidebar-nav a {
-            color: white;
-            display: block;
-            padding: 14px 28px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active { background: rgba(255,255,255,0.1); }
-
-        .mobile-nav__toggler {
-            font-size: 28px;
-            color: white;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .transactions-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .transaction-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
-            transition: all 0.35s ease;
-            cursor: pointer;
-        }
-
-        .transaction-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 18px 50px rgba(0,0,0,0.14);
-        }
-
-        .transaction-header {
-            background: #2c5530;
-            color: white;
-            padding: 22px 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .transaction-id {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-        .transaction-date {
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .transaction-content {
-            padding: 28px;
-        }
-
-        .transaction-amount {
-            font-size: 1.55rem;
-            font-weight: 700;
-            color: #2c5530;
-            text-align: right;
-            margin: 20px 0;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 8px 18px;
-            border-radius: 30px;
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .status-badge.Paid    { background: var(--success); color: white; }
-        .status-badge.Pending { background: var(--warning); color: #212529; }
-
-        .source-tag {
-            font-size: 0.9rem;
-            color: #666;
-            margin-top: 8px;
-            display: block;
-        }
-
-        .thm-btn.sm {
-            padding: 9px 20px;
-            font-size: 0.92rem;
-        }
-
-        @media (max-width: 991px) {
-            .transactions-grid {
-                grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Transactions</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .transactions-table-wrap {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .txn-amount { font-size:1rem; font-weight:700; color:#008B8B; }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+  </style>
 </head>
 <body>
 
-<div class="page-wrapper">
+<%- include('partials/app-sidebar', { currentPage: 'transactions', admin: admin }) %>
 
-    <!-- header -->
-    <div class="main-header__two">
-        <div class="header-upper">
-            <div class="container">
-                <div class="logo-box">
-                    <a href="/home">
-                        <img src="/images/logo.png" width="140" alt="Shed">
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Transactions</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>All Transactions</h1>
+        <p>Track every sale, payment and business movement</p>
+      </div>
+    </div>
+
+    <% if (transactions && transactions.length > 0) { %>
+
+      <!-- Stats summary -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+          <div class="stat-label">Total Transactions</div>
+          <div class="stat-value"><%= transactions.length %></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-label">Paid</div>
+          <div class="stat-value"><%= transactions.filter(t => t.paymentStatus === 'Paid').length %></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" style="font-size:1.3rem;">
+            <%= admin.currency %><%= formatCurrency(transactions.reduce((s,t)=>s+Number(t.totalAmount||(t.cost*t.quantity)||0),0)) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="transactions-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach((t, i) => { %>
+              <tr>
+                <td style="color:#999; font-size:0.8rem;">TXN-<%= String(i+1).padStart(5,'0') %></td>
+                <td style="font-weight:600; color:#0d0d1a;"><%= t.customerName || 'Walk-in' %></td>
+                <td style="color:#666; font-size:0.88rem;">
+                  <% if (t.items && t.items.length) { %>
+                    <%= t.items.length %> item<%= t.items.length > 1 ? 's' : '' %>
+                  <% } else { %>
+                    <%= t.itemName || '—' %>
+                  <% } %>
+                </td>
+                <td class="txn-amount"><%= admin.currency %><%= formatCurrency(Number(t.totalAmount||(t.cost*t.quantity)||0)) %></td>
+                <td style="font-size:0.88rem;"><%= t.paymentMethod || '—' %></td>
+                <td>
+                  <% const st = t.paymentStatus || 'Pending'; %>
+                  <span class="badge <%= st === 'Paid' ? 'badge-success' : 'badge-warning' %>"><%= st %></span>
+                </td>
+                <td style="font-size:0.85rem; color:#888;">
+                  <%= t.date ? new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : '—' %>
+                </td>
+                <td>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <% if (st !== 'Paid') { %>
+                      <form action="/transactions/mark-paid/<%= t._id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-primary-app btn-sm" style="background:#27ae60;">
+                          Mark Paid
+                        </button>
+                      </form>
+                    <% } %>
+                    <a href="/receipt/<%= t._id %>" class="btn-secondary-app btn-sm">
+                      <i class="fas fa-receipt"></i> Receipt
                     </a>
-                    <button type="button" class="mobile-nav__toggler">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                </div>
+                    <% if (t.outletName) { %>
+                      <span class="badge badge-info" style="align-self:center;"><i class="fas fa-store"></i> <%= t.outletName %></span>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
 
-                <div class="header-info">
-                    <div class="header-info__box">
-                        <i class="azino-icon-email1"></i>
-                        <div class="header-info__box-content">
-                            <h3>Email</h3>
-                            <p><a href="mailto:<%= admin.email %>"><%= admin.email || 'admin@shed.app' %></a></p>
-                        </div>
-                    </div>
-                    <div class="header-info__box">
-                        <i class="azino-icon-calling"></i>
-                        <div class="header-info__box-content">
-                            <h3>Business</h3>
-                            <p><%= admin.businessName || 'Your Business' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-history" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No transactions yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Every sale will appear here automatically.</p>
+        <a href="/pos" class="btn-primary-app"><i class="fas fa-shopping-cart"></i> Go to POS</a>
+      </div>
+    <% } %>
 
-        <nav class="main-menu">
-            <div class="container">
-                <ul class="main-menu__list">
-                    <li><a href="/pos">Point of Sale</a></li>
-                    <li><a href="/update-stock">Inventory</a></li>
-                    <li><a href="/invoices">Invoices</a></li>
-                    <li class="active"><a href="/transactions">Transactions</a></li>
-                    <li><a href="/customers">Customers</a></li>
-                    <li><a href="/home">Outlets</a></li>
-                    <li><a href="/profile">Profile</a></li>
-                </ul>
-                <a href="/admin-logout" class="thm-btn dynamic-radius">Logout</a>
-            </div>
-        </nav>
-    </div>
-
-    <!-- mobile sidebar -->
-    <div class="sidebar-nav" id="sidebarNav">
-        <button type="button" class="mobile-nav__close mobile-nav__toggler" style="position:absolute;top:20px;right:25px;font-size:30px;color:white;">
-            <i class="fa fa-times"></i>
-        </button>
-
-        <div style="padding: 0 30px 25px;">
-            <h3 style="color:white;margin-bottom:35px;">Menu</h3>
-        </div>
-
-        <a href="/pos"><i class="fas fa-shopping-bag mr-2"></i> Point of Sale</a>
-        <a href="/update-stock"><i class="fas fa-boxes mr-2"></i> Manage Inventory</a>
-        <a href="/invoices"><i class="fas fa-file-invoice mr-2"></i> Generate Invoice</a>
-        <a href="/transactions" class="active"><i class="fas fa-chart-bar mr-2"></i> Transactions</a>
-        <a href="/customers"><i class="fas fa-users mr-2"></i> Customers</a>
-        <a href="/home"><i class="fas fa-store mr-2"></i> Manage Outlets</a>
-        <a href="/profile"><i class="fas fa-user mr-2"></i> Profile</a>
-        <a href="/admin-logout"><i class="fas fa-power-off mr-2"></i> Log Out</a>
-    </div>
-
-    <!-- banner -->
-    <section class="main-slider main-slider__two">
-        <div class="swiper-container thm-swiper__slider" data-swiper-options='{"slidesPerView": 1, "loop": true, "effect": "fade", "autoplay": {"delay": 6500}}'>
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="image-layer" style="background-image: url(asset1/images/main-slider/slider-1-3.jpg);"></div>
-                    <div class="container">
-                        <div class="row justify-content-start">
-                            <div class="col-xl-8">
-                                <h2>Transaction <span>History</span></h2>
-                                <p>Track every sale, payment and business movement</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- main content -->
-    <section class="service-two pt-120 pb-120">
-        <div class="container">
-
-            <!-- title & actions -->
-            <div class="row align-items-center mb-60">
-                <div class="col-lg-8">
-                    <div class="block-title">
-                        <p><img src="asset1/images/shapes/heart-2-1.png" width="15" alt=""> Financial Records</p>
-                        <h3>All Transactions</h3>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-lg-right">
-                    <div class="d-flex gap-3 justify-content-lg-end flex-wrap">
-                        <button class="thm-btn dynamic-radius">Export CSV</button>
-                        <button class="thm-btn dynamic-radius" style="background:var(--info);">Filter Date</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Transactions Grid -->
-            <div class="transactions-grid">
-                <% if (transactions && transactions.length > 0) { %>
-                    <% transactions.forEach((t, i) => { %>
-                        <div class="transaction-card wow fadeInUp" data-wow-duration="1000ms">
-                            <div class="transaction-header">
-                                <div class="transaction-id">TXN-<%= String(i+1).padStart(5,'0') %></div>
-                                <div class="transaction-date">
-                                    <%= new Date(t.date).toLocaleDateString() %>
-                                </div>
-                            </div>
-
-                            <div class="transaction-content">
-                                <h5>
-                                    <%= t.customerName || 'Walk-in Customer' %>
-                                </h5>
-
-                                <p style="color:#666; font-size:0.95rem; margin:8px 0;">
-                                    <% if (t.items && t.items.length) { %>
-                                        <%= t.items.length %> item<% if(t.items.length>1){ %>s<% } %>
-                                    <% } else { %>
-                                        <%= t.itemName || 'Single Item' %>
-                                    <% } %>
-                                </p>
-
-                                <div class="transaction-amount">
-                                    <%= admin.currency %><%= Number(t.totalAmount || (t.cost * t.quantity)).toFixed(2) %>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mt-4">
-                                    <span class="status-badge <%= t.paymentStatus || 'Pending' %>">
-                                        <%= t.paymentStatus || 'Pending' %>
-                                    </span>
-
-                                    <div>
-                                        <% if (t.paymentStatus !== 'Paid') { %>
-                                            <form action="/transactions/mark-paid/<%= t._id %>" method="POST" style="display:inline;">
-                                                <button type="submit" class="thm-btn dynamic-radius sm" style="background:var(--success);">
-                                                    Mark Paid
-                                                </button>
-                                            </form>
-                                        <% } %>
-                                        <a href="/receipt/<%= t._id %>" class="thm-btn dynamic-radius sm" style="margin-left:8px;">
-                                            Receipt
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <% if (t.outletName) { %>
-                                    <span class="source-tag">
-                                        <i class="fas fa-store mr-1"></i> <%= t.outletName %>
-                                    </span>
-                                <% } %>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-history fa-5x text-muted mb-4"></i>
-                        <h4>No transactions recorded yet</h4>
-                        <p class="text-muted mb-4">Every sale will appear here automatically</p>
-                        <a href="/pos" class="thm-btn dynamic-radius">Go to POS →</a>
-                    </div>
-                <% } %>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- footer -->
-    <section class="site-footer">
-        <div class="main-footer pt-120 pb-80">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <a href="/home">
-                                <img src="/images/logo.png" width="140" alt="">
-                            </a>
-                            <p class="mt-3">Complete visibility of all your business sales & payments</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Quick Links</h3>
-                            <ul class="list-unstyled">
-                                <li><a href="/pos">Point of Sale</a></li>
-                                <li><a href="/update-stock">Inventory</a></li>
-                                <li><a href="/invoices">Invoices</a></li>
-                                <li><a href="/profile">Settings</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Contact</h3>
-                            <p><strong><%= admin.businessName || 'Your Business' %></strong><br>
-                            <%= admin.email || 'No email set' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>© <%= new Date().getFullYear() %> Shed – All Rights Reserved</p>
-            </div>
-        </div>
-    </section>
-
+  </main>
 </div>
 
-<div class="mobile-nav__overlay mobile-nav__toggler"></div>
-
-<script src="asset1/js/jquery-3.5.1.min.js"></script>
-<script src="asset1/js/bootstrap.bundle.min.js"></script>
-<script src="asset1/js/swiper.min.js"></script>
-<script src="asset1/js/wow.js"></script>
-<script src="asset1/js/bootstrap-select.min.js"></script>
-<script src="asset1/js/theme.js"></script>
-
+<script src="/js/plugins/jquery.min.js"></script>
 <script>
-$(document).ready(function(){
-    // Mobile menu toggle
-    $('.mobile-nav__toggler').click(function(e){
-        e.preventDefault();
-        $('#sidebarNav').toggleClass('active');
-        $('.mobile-nav__overlay').toggleClass('active');
-    });
-
-    $('.mobile-nav__close, .mobile-nav__overlay').click(function(){
-        $('#sidebarNav').removeClass('active');
-        $('.mobile-nav__overlay').removeClass('active');
-    });
-});
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
 </script>
-
 </body>
 </html>

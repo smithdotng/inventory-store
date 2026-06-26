@@ -1,628 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-GJRGT3KCZ7');
-    </script>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Dispense to Outlet | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-    <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Dispense to Outlet</title>
-
-    <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
-    
-    <!-- Now UI Dashboard CSS -->
-    <link href="/assets/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="/assets/css/bootstrap.min.css.map" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.min.css" rel="stylesheet" />
-    <link href="/assets/css/now-ui-dashboard.css.map" rel="stylesheet" />
-    
-    <!-- Favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-
-    <style>
-        body {
-            background-image: url('/images/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
-            position: relative;
-            min-height: 100vh;
-            font-size: 14px;
-            margin: 0;
-        }
-        
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            z-index: -1;
-        }
-        
-        /* Sidebar */
-        .new-sidebar {
-            width: 250px;
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            background: darkcyan;
-            color: white;
-            padding: 60px 20px 20px 20px;
-            transition: width 0.3s ease, left 0.3s ease;
-            z-index: 3000;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .new-sidebar.collapsed {
-            width: 80px;
-        }
-        
-        .new-sidebar.collapsed .logo img {
-            max-width: 50px;
-        }
-        
-        .new-sidebar.collapsed .greeting,
-        .new-sidebar.collapsed .nav-link span {
-            display: none;
-        }
-        
-        .new-sidebar.collapsed .nav-link {
-            justify-content: center;
-            padding: 12px 5px;
-        }
-        
-        .new-sidebar.collapsed .nav-link i {
-            margin-right: 0;
-            font-size: 1.2rem;
-        }
-        
-        .new-sidebar .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .new-sidebar .logo img {
-            max-width: 80%;
-            height: auto;
-            transition: max-width 0.3s ease;
-        }
-        
-        .new-sidebar .greeting {
-            font-size: 1.2rem;
-            text-align: center;
-            margin-bottom: 20px;
-            color: white;
-        }
-        
-        .new-sidebar .nav-link {
-            display: flex;
-            align-items: center;
-            color: rgba(255, 255, 255, 0.8);
-            padding: 12px 15px;
-            margin-bottom: 5px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .new-sidebar .nav-link i {
-            margin-right: 10px;
-            font-size: 1rem;
-        }
-        
-        .new-sidebar .nav-link:hover {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-        }
-        
-        .new-sidebar .nav-link.active {
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            font-weight: bold;
-        }
-        
-        /* Toggle Button */
-        .new-toggle-btn {
-            position: fixed;
-            top: 10px;
-            left: 10px;
-            z-index: 3100;
-            background: rgb(235, 166, 17);
-            color: darkcyan;
-            border: none;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            transition: left 0.3s ease;
-        }
-        
-        .new-sidebar.collapsed + .main-container .new-toggle-btn {
-            left: 20px;
-        }
-        
-        /* Main Container */
-        .main-container {
-            min-height: 100vh;
-            padding: 20px;
-            max-width: 1000px;
-            margin-left: 250px;
-            margin-right: 20px;
-            transition: margin-left 0.3s ease;
-            position: relative;
-            z-index: 1000;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-        
-        .new-sidebar.collapsed + .main-container {
-            margin-left: 80px;
-        }
-        
-        /* Backdrop for mobile */
-        .new-sidebar.open + .main-container::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 2000;
-            display: none;
-        }
-        
-        .registration-container {
-            width: 100%;
-            padding: 20px;
-        }
-        
-        .registration-card {
-            width: 100%;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            position: relative;
-            overflow: hidden;
-            background-color: white;
-            border: 1px solid #e0e0e0;
-        }
-        
-        .logo-container {
-            text-align: center;
-            margin-bottom: 15px;
-            padding-top: 15px;
-        }
-        
-        .logo-container img {
-            height: 50px;
-            margin-bottom: 10px;
-            max-width: 100%;
-        }
-        
-        .card-body {
-            padding: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-group label {
-            color: #333;
-            margin-bottom: 6px;
-            display: block;
-            font-weight: 500;
-            font-size: 13px;
-            padding-top: 10px;
-        }
-        
-        .form-control {
-            background-color: white;
-            border: 1px solid #ced4da;
-            color: #333;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            font-size: 13px;
-            padding: 0.375rem 0.75rem;
-            height: 38px;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        .btn-create-account {
-            background-color: rgb(235, 166, 17);
-            color: #fff;
-            transition: all 0.3s ease;
-            border: none;
-            font-weight: 500;
-            font-size: 14px;
-            padding: 10px 20px;
-            height: 38px;
-            line-height: 1;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 4px;
-        }
-        
-        .btn-create-account:hover {
-            background-color: rgb(200, 142, 14);
-            color: #fff;
-        }
-        
-        .btn-create-account.share-store-btn {
-            background-color: rgb(23, 162, 184);
-            color: #fff;
-        }
-        
-        .btn-create-account.share-store-btn:hover {
-            background-color: rgb(19, 138, 157);
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn {
-            background-color: rgb(108, 117, 125);
-            color: #fff;
-        }
-        
-        .btn-create-account.cancel-btn:hover {
-            background-color: rgb(90, 98, 104);
-            color: #fff;
-        }
-        
-        .table-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-        }
-        
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        
-        .table th, .table td {
-            padding: 10px;
-            border: 1px solid #dee2e6;
-            text-align: left;
-            color: #333;
-        }
-        
-        .table th {
-            background-color: #f8f9fa;
-            color: #333;
-            font-weight: 500;
-        }
-        
-        .table td {
-            background-color: white;
-        }
-        
-        .form-actions {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
-        }
-        
-        .dispense-form {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .dispense-form input[type="number"] {
-            width: 80px;
-            height: 38px;
-            font-size: 13px;
-            padding: 0.375rem 0.75rem;
-            border: 1px solid #ced4da;
-            border-radius: 4px;
-        }
-        
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            .new-sidebar {
-                left: -250px;
-            }
-            
-            .new-sidebar.open {
-                left: 0;
-            }
-            
-            .new-sidebar.open + .main-container::before {
-                display: block;
-            }
-            
-            .main-container {
-                margin-left: 0 !important;
-                margin-right: 0;
-                width: 100%;
-                padding: 15px;
-            }
-            
-            .registration-container {
-                padding: 15px;
-            }
-            
-            .form-group label {
-                font-size: 12px;
-                padding-top: 8px;
-            }
-            
-            .form-control {
-                font-size: 12px;
-                padding: 0.3rem 0.6rem;
-                height: 34px;
-            }
-            
-            .btn-create-account {
-                font-size: 13px;
-                padding: 8px 16px;
-                height: 34px;
-            }
-            
-            .table {
-                font-size: 12px;
-                display: block;
-                overflow-x: auto;
-                white-space: nowrap;
-            }
-            
-            .table th, .table td {
-                padding: 8px;
-                min-width: 100px;
-            }
-            
-            .dispense-form {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-            
-            .dispense-form input[type="number"] {
-                width: 100%;
-                height: 34px;
-            }
-            
-            .form-actions {
-                flex-direction: column;
-                align-items: stretch;
-            }
-        }
-    
-        @media (max-width: 576px) {
-            .main-container {
-                padding: 10px;
-                width: 95%;
-                margin: 0 auto;
-            }
-            
-            .registration-container {
-                padding: 10px;
-            }
-            
-            .card-body {
-                padding: 15px;
-            }
-            
-            .table th, .table td {
-                padding: 6px;
-                min-width: 90px;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Dispense to Outlet</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
 </head>
 <body>
-    <!-- Sidebar -->
-    <nav class="new-sidebar" id="newSidebar">
-        <div class="logo">
-            <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-        </div>
-        <div class="greeting">Welcome, <%= username %>!</div>
-        <a href="/pos" class="nav-link"><i class="fas fa-shopping-bag"></i> <span>Point of Sale</span></a>
-        <a href="/update-stock" class="nav-link"><i class="fas fa-boxes"></i> <span>Manage Inventory</span></a>
-        <a href="/invoices" class="nav-link"><i class="fas fa-file-invoice"></i> <span>Generate Invoice</span></a>
-        <a href="/transactions" class="nav-link"><i class="fas fa-chart-bar"></i> <span>View Transactions</span></a>
-        <a href="/customers" class="nav-link"><i class="fas fa-users"></i> <span>Customers</span></a>
-        <a href="/home" class="nav-link active"><i class="fas fa-store"></i> <span>Manage Outlets</span></a>
-        <a href="/profile" class="nav-link"><i class="fas fa-user"></i> <span>Profile</span></a>
-        <a href="/admin-logout" class="nav-link"><i class="fas fa-power-off"></i> <span>Log Out</span></a>
-    </nav>
 
-    <!-- Toggle Button -->
-    <button class="new-toggle-btn" id="newToggleBtn">
-        <i class="fas fa-bars"></i>
-    </button>
+<%- include('partials/app-sidebar', { currentPage: 'home', admin: admin }) %>
 
-    <!-- Main Container -->
-    <div class="main-container">
-        <div class="registration-container">
-            <div class="card registration-card">
-                <div class="card-body">
-                    <div class="logo-container">
-                        <img src="<%= admin.logo || '/images/logo-a.png' %>" alt="Business Logo">
-                        <h4 style="color: #333; font-size: 16px;">Dispense to Outlet: <%= outlet.name %></h4>
-                        <p style="color: #333; font-size: 13px;">
-                            Email: <%= admin.email || 'N/A' %> | Currency: <%= admin.currency || 'N/A' %>
-                        </p>
-                    </div>
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Dispense to Outlet</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
+      </div>
+    </div>
+  </header>
 
-                    <!-- Main Inventory -->
-                    <div class="table-section">
-                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Main Inventory</h5>
-                        <% if (inventory && inventory.length > 0) { %>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Stock</th>
-                                        <th>Dispense Quantity</th>
-                                        <th>Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% inventory.forEach(item => { %>
-                                        <tr>
-                                            <td><%= item.name %></td>
-                                            <td><%= item.stock %></td>
-                                            <td>
-                                                <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" class="dispense-form">
-                                                    <input type="hidden" name="itemId" value="<%= item._id %>">
-                                                    <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required class="form-control">
-                                            </td>
-                                            <td>
-                                                    <button type="submit" class="btn btn-round btn-create-account share-store-btn">
-                                                        Dispense <i class="fa-solid fa-truck"></i>
-                                                    </button>
-                                                </form>
-                                            </td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        <% } else { %>
-                            <p style="text-align: center; color: #333; font-size: 13px;">No inventory available to dispense.</p>
-                        <% } %>
-                    </div>
+  <main class="app-content">
 
-                    <!-- Outlet Inventory -->
-                    <div class="table-section">
-                        <h5 style="color: #333; font-size: 14px; margin-bottom: 15px;">Outlet Inventory</h5>
-                        <% if (outlet.inventory && outlet.inventory.length > 0) { %>
-                            <table class="table">
-                                <thead>
-                                    <tr>
-                                        <th>Product</th>
-                                        <th>Stock</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <% outlet.inventory.forEach(item => { %>
-                                        <tr>
-                                            <td><%= item.name %></td>
-                                            <td><%= item.stock %></td>
-                                        </tr>
-                                    <% }) %>
-                                </tbody>
-                            </table>
-                        <% } else { %>
-                            <p style="text-align: center; color: #333; font-size: 13px;">No inventory in this outlet yet.</p>
-                        <% } %>
-                    </div>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
 
-                    <div class="form-actions">
-                        <a href="/home" class="btn btn-round btn-create-account cancel-btn">
-                            Back to Home <i class="fa-solid fa-arrow-left"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="page-header">
+      <div>
+        <h1>Dispense Stock</h1>
+        <p>Transfer inventory items to <strong><%= outlet.name %></strong></p>
+      </div>
+      <a href="/outlet-details/<%= outlet._id %>" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Back to Outlet</a>
     </div>
 
-    <!-- JavaScript Dependencies -->
-    <script src="/assets/js/core/jquery.min.js"></script>
-    <script src="/assets/js/core/popper.min.js"></script>
-    <script src="/assets/js/core/bootstrap.min.js"></script>
-    <script src="/assets/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js"></script>
-    <script src="/assets/js/now-ui-dashboard.min.js"></script>
-    <script src="/assets/js/now-ui-dashboard.js.map"></script>
+    <!-- Main Inventory -->
+    <div class="app-card" style="margin-bottom:24px;">
+      <div class="app-card-title" style="background:#0d0d1a; color:#fff; margin:-20px -20px 20px; padding:16px 20px; border-radius:12px 12px 0 0;">
+        <i class="fas fa-warehouse" style="color:#008B8B;"></i> Main Inventory — Select Items to Dispense
+      </div>
+      <% if (inventory && inventory.length > 0) { %>
+        <div style="overflow-x:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Available Stock</th>
+                <th>Quantity to Dispense</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% inventory.forEach(item => { %>
+                <tr>
+                  <td style="font-weight:500;"><%= item.name %></td>
+                  <td>
+                    <span style="background:<%= item.stock <= 5 ? 'rgba(192,57,43,0.1)' : 'rgba(0,139,139,0.1)' %>; color:<%= item.stock <= 5 ? '#c0392b' : '#008B8B' %>; padding:3px 10px; border-radius:20px; font-size:0.83rem; font-weight:600;">
+                      <%= item.stock %>
+                    </span>
+                  </td>
+                  <td>
+                    <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" style="display:flex; align-items:center; gap:10px;">
+                      <input type="hidden" name="itemId" value="<%= item._id %>">
+                      <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required
+                             class="form-control" style="width:90px;">
+                  </td>
+                  <td>
+                      <button type="submit" class="btn-primary-app btn-sm">
+                        <i class="fas fa-truck"></i> Dispense
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div style="text-align:center; padding:48px; color:#999;">
+          <i class="fas fa-box-open" style="font-size:2.5rem; margin-bottom:12px; display:block; color:#ddd;"></i>
+          No inventory available to dispense.
+        </div>
+      <% } %>
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                const sidebar = document.getElementById('newSidebar');
-                const toggleBtn = document.getElementById('newToggleBtn');
+    <!-- Outlet Current Inventory -->
+    <div class="app-card">
+      <div class="app-card-title" style="background:#0d0d1a; color:#fff; margin:-20px -20px 20px; padding:16px 20px; border-radius:12px 12px 0 0;">
+        <i class="fas fa-store" style="color:#008B8B;"></i> <%= outlet.name %> — Current Inventory
+      </div>
+      <% if (outlet.inventory && outlet.inventory.length > 0) { %>
+        <div style="overflow-x:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Stock at Outlet</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% outlet.inventory.forEach(item => { %>
+                <tr>
+                  <td style="font-weight:500;"><%= item.name %></td>
+                  <td><%= item.stock %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p style="color:#999; text-align:center; padding:32px;">No inventory in this outlet yet.</p>
+      <% } %>
+    </div>
 
-                let isCollapsed = false;
-                let isOpenOnMobile = false;
+  </main>
+</div>
 
-                // Toggle sidebar
-                if (toggleBtn && sidebar) {
-                    toggleBtn.addEventListener('click', () => {
-                        if (window.innerWidth <= 768) {
-                            isOpenOnMobile = !isOpenOnMobile;
-                            if (isOpenOnMobile) {
-                                sidebar.classList.add('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-times"></i>';
-                            } else {
-                                sidebar.classList.remove('open');
-                                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                            }
-                        } else {
-                            isCollapsed = !isCollapsed;
-                            if (isCollapsed) {
-                                sidebar.classList.add('collapsed');
-                            } else {
-                                sidebar.classList.remove('collapsed');
-                            }
-                        }
-                    });
-                }
-
-                // Close sidebar on outside click (mobile only)
-                document.addEventListener('click', (e) => {
-                    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
-                        if (!sidebar.contains(e.target) && toggleBtn && !toggleBtn.contains(e.target)) {
-                            sidebar.classList.remove('open');
-                            isOpenOnMobile = false;
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    }
-                });
-
-                // Set initial sidebar state
-                function setSidebarState() {
-                    if (!sidebar || !toggleBtn) return;
-                    if (window.innerWidth <= 768) {
-                        sidebar.classList.remove('collapsed');
-                        if (!isOpenOnMobile) {
-                            sidebar.classList.remove('open');
-                            toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        }
-                    } else {
-                        sidebar.classList.remove('open');
-                        isOpenOnMobile = false;
-                        toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
-                        if (isCollapsed) {
-                            sidebar.classList.add('collapsed');
-                        } else {
-                            sidebar.classList.remove('collapsed');
-                        }
-                    }
-                }
-                setSidebarState();
-                window.addEventListener('resize', setSidebarState);
-            } catch (error) {
-                console.error('Error initializing scripts:', error);
-            }
-        });
-    </script>
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
 </body>
 </html>

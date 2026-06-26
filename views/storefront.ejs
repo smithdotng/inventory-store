@@ -64,52 +64,72 @@
             transform: scale(1.05);
         }
         
-        /* Search Field - Smaller and Centered */
-        .mil-header-search {
-            flex-grow: 1;
-            display: flex;
-            justify-content: center;
-            max-width: 400px;
-            margin: 0 auto;
-        }
-        
-        .mil-search-form {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            position: relative;
-        }
-        
-        .mil-search-input {
-            padding: 8px 15px;
-            border: 1px solid #ddd;
-            border-radius: 25px;
-            width: 100%;
-            max-width: 280px;
-            font-size: 14px;
-            text-transform: none !important;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-        
-        .mil-search-input:focus {
-            border-color: darkcyan;
-            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
-        }
-        
-        .mil-search-button {
+        /* Search icon button */
+        .mil-search-icon-btn {
             background: none;
             border: none;
-            color: #666;
             cursor: pointer;
-            padding: 8px;
-            margin-left: -35px;
-            transition: color 0.3s ease;
+            color: #444;
+            font-size: 18px;
+            padding: 8px 10px;
+            display: flex;
+            align-items: center;
+            border-radius: 6px;
+            transition: color 0.2s, background 0.2s;
+            flex-shrink: 0;
         }
-        
-        .mil-search-button:hover {
-            color: darkcyan;
+        .mil-search-icon-btn:hover { color: darkcyan; background: rgba(0,139,139,0.06); }
+
+        /* Sliding search bar */
+        .mil-search-bar {
+            position: fixed;
+            top: 70px;
+            left: 0; right: 0;
+            background: #fff;
+            border-top: 1px solid #eee;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+            z-index: 1002;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            /* hidden state */
+            visibility: hidden;
+            opacity: 0;
+            transform: translateY(-8px);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
         }
+        .mil-search-bar.open {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0s;
+        }
+        .mil-search-bar .mil-search-bar-icon { color: #aaa; font-size: 16px; flex-shrink: 0; }
+        .mil-search-bar input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            color: #222;
+            background: transparent;
+            text-transform: none !important;
+        }
+        .mil-search-bar input::placeholder { color: #bbb; }
+        .mil-search-bar-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #bbb;
+            font-size: 20px;
+            padding: 2px 6px;
+            line-height: 1;
+            flex-shrink: 0;
+            transition: color 0.15s;
+        }
+        .mil-search-bar-close:hover { color: #333; }
+        /* keep for any lingering JS references */
+        .mil-search-input { text-transform: none !important; }
         
         /* Cart Button with Icon Only */
         .mil-cart-container {
@@ -299,10 +319,72 @@
         .mil-store-banner {
             height: 300px;
         }
-        
+
         .mil-store-content {
             padding-top: 80px;
             padding-bottom: 30px;
+        }
+
+        /* ── Store layout with sidebars ── */
+        /* Banner full width */
+        .mil-banner .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding-left: 48px;
+            padding-right: 48px;
+        }
+        .mil-banner-content { width: 100%; max-width: 100%; }
+
+        /* 3-column product layout: left ads | products | right ads */
+        .store-layout {
+            display: flex;
+            align-items: flex-start;
+            width: 100%;
+        }
+        .store-sidebar {
+            width: 200px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            padding: 32px 14px;
+            position: sticky;
+            top: 70px;
+            max-height: calc(100vh - 70px);
+            overflow-y: auto;
+            background: #f5f5f5;
+        }
+        .store-sidebar-left  { border-right: 1px solid #e8e8e8; }
+        .store-sidebar-right { border-left:  1px solid #e8e8e8; }
+        .store-main { flex: 1; min-width: 0; }
+        .store-sidebar-title {
+            font-size: 0.63rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: .1em; color: #bbb; padding: 0 2px;
+        }
+        .featured-ad-card {
+            display: block; text-decoration: none;
+            background: #fff; border: 1px solid #eee; border-radius: 10px;
+            overflow: hidden; transition: border-color 0.18s, box-shadow 0.18s;
+        }
+        .featured-ad-card:hover { border-color: #008B8B; box-shadow: 0 4px 14px rgba(0,139,139,0.1); }
+        .featured-ad-thumb {
+            width: 100%; height: 110px; background: #f0f0f0;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        .featured-ad-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .featured-ad-thumb i { color: #ccc; font-size: 1.5rem; }
+        .featured-ad-info { padding: 10px 12px; }
+        .featured-ad-name { font-size: 0.82rem; font-weight: 700; color: #0d0d1a; margin-bottom: 2px; line-height: 1.3; }
+        .featured-ad-store { font-size: 0.71rem; color: #999; margin-bottom: 4px; }
+        .featured-ad-price { font-size: 0.8rem; font-weight: 700; color: #008B8B; margin-bottom: 8px; }
+        .featured-ad-cta {
+            display: block; text-align: center; background: #008B8B; color: #fff;
+            border-radius: 6px; padding: 6px 0; font-size: 0.74rem; font-weight: 600;
+        }
+        @media (max-width: 1100px) { .store-sidebar { display: none; } }
+
+        @media (max-width: 600px) {
+            .mil-banner .container { padding: 0 16px; }
         }
         
         .mil-inventory-grid {
@@ -859,44 +941,18 @@
         
         /* Header Layout for different screen sizes */
         @media (max-width: 768px) {
-            .mil-frame-top {
-                padding: 5px 15px;
-            }
-            
-            .mil-header-search {
-                max-width: 300px;
-            }
-            
-            .mil-search-input {
-                max-width: 220px;
-                padding: 8px 12px;
-            }
-            
-            .mil-cart-container {
-                margin-left: 15px;
-            }
-            
-            .mil-cart-button {
-                padding: 8px;
-                min-width: 40px;
-            }
-            
-            .mil-logo img {
-                width: 80px;
-            }
-            
+            .mil-frame-top { padding: 5px 15px; }
+            .mil-logo img { width: 80px; }
             .mil-cart-dropdown {
                 position: fixed;
                 top: 70px;
-                left: 10px;
-                right: 10px;
+                left: 10px; right: 10px;
                 width: auto;
             }
-            
             .mil-inventory-grid {
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
-            
+
             .mil-checkout-form {
                 max-width: 95%;
                 padding: 15px;
@@ -918,103 +974,25 @@
         }
         
         @media (max-width: 576px) {
-            .mil-frame-top {
-                padding: 8px 12px;
-                height: 60px;
-            }
-            
-            .mil-logo {
-                margin-right: 10px;
-            }
-            
-            .mil-logo img {
-                width: 70px;
-            }
-            
-            .mil-header-search {
-                max-width: 200px;
-            }
-            
-            .mil-search-input {
-                max-width: 160px;
-                padding: 6px 10px;
-                font-size: 13px;
-            }
-            
-            .mil-cart-container {
-                margin-left: 10px;
-            }
-            
-            .mil-cart-button {
-                padding: 6px;
-                min-width: 36px;
-                height: 32px;
-            }
-            
-            .mil-cart-count {
-                font-size: 10px;
-                padding: 1px 4px;
-                min-width: 16px;
-            }
-            
-            .mil-store-content {
-                padding-top: 70px;
-            }
-            
-            .mil-cart-dropdown {
-                top: 60px;
-            }
-            
-            .mil-subscribe-form {
-                width: 100%;
-                margin: 10px 0;
-                justify-content: center;
-            }
-            
-            .mil-search-input {
-                width: 100%;
-            }
-            
-            .mil-subscribe-container {
-                max-width: 100%;
-            }
-            
-            footer .mil-subscribe-form input[type="email"] {
-                width: 100%;
-            }
-            
-            .mil-social-links {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 10px;
-            }
-            
-            .mil-contact-info p {
-                font-size: 14px;
-            }
-            
-            .mil-whatsapp-button {
-                width: 45px;
-                height: 45px;
-            }
-            
-            .mil-whatsapp-button i {
-                font-size: 22px;
-            }
+            .mil-frame-top { padding: 8px 12px; height: 60px; }
+            .mil-logo { margin-right: 8px; }
+            .mil-logo img { width: 70px; }
+            .mil-cart-button { padding: 6px; min-width: 36px; height: 32px; }
+            .mil-cart-count { font-size: 10px; padding: 1px 4px; min-width: 16px; }
+            .mil-store-content { padding-top: 70px; }
+            .mil-cart-dropdown { top: 60px; }
+            .mil-search-bar { top: 60px; padding: 10px 16px; }
+            .mil-subscribe-form { width: 100%; margin: 10px 0; justify-content: center; }
+            .mil-subscribe-container { max-width: 100%; }
+            footer .mil-subscribe-form input[type="email"] { width: 100%; }
+            .mil-social-links { flex-direction: column; align-items: flex-start; gap: 10px; }
+            .mil-contact-info p { font-size: 14px; }
+            .mil-whatsapp-button { width: 45px; height: 45px; }
+            .mil-whatsapp-button i { font-size: 22px; }
         }
-        
+
         @media (max-width: 480px) {
-            .mil-header-search {
-                max-width: 160px;
-            }
-            
-            .mil-search-input {
-                max-width: 140px;
-            }
-            
-            .mil-logo img {
-                width: 60px;
-            }
+            .mil-logo img { width: 60px; }
         }
     </style>
 </head>
@@ -1034,36 +1012,30 @@
             <div class="mil-progress"></div>
         </div>
 
-        <!-- Improved Header Section -->
+        <!-- Header -->
         <div class="mil-frame-top">
             <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= outlet ? outlet.name : admin.businessName %> Logo"></a>
-            
-            <div class="mil-header-search">
-                <div class="mil-search-form">
-                    <input type="text" id="inventorySearchInput" placeholder="Search products..." class="mil-search-input">
-                    <button type="submit" class="mil-search-button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="mil-cart-container">
+
+            <div style="flex:1;"></div>
+
+            <!-- Search icon -->
+            <button class="mil-search-icon-btn" id="searchIconBtn" aria-label="Search products">
+                <i class="fas fa-search"></i>
+            </button>
+
+            <!-- Cart -->
+            <div class="mil-cart-container" style="margin-left:8px;">
                 <button class="mil-cart-button" onclick="toggleCartDropdown()" title="View Cart">
                     <i class="fas fa-shopping-cart"></i>
                     <span class="mil-cart-count" id="cartCount">0</span>
                 </button>
-                
+
                 <div class="mil-cart-dropdown" id="cartDropdown">
-                    <div class="mil-cart-dropdown-header">
-                        Your Cart
-                    </div>
+                    <div class="mil-cart-dropdown-header">Your Cart</div>
                     <div class="mil-cart-dropdown-items" id="cartDropdownItems">
-                        <!-- Cart items will be inserted here dynamically -->
-                        <div class="mil-cart-empty-message">
-                            Your cart is empty
-                        </div>
+                        <div class="mil-cart-empty-message">Your cart is empty</div>
                     </div>
-                    <div class="mil-cart-dropdown-footer" id="cartDropdownFooter" style="display: none;">
+                    <div class="mil-cart-dropdown-footer" id="cartDropdownFooter" style="display:none;">
                         <div class="mil-cart-dropdown-total">
                             <span>Total:</span>
                             <span id="cartDropdownTotal">$0.00</span>
@@ -1079,6 +1051,13 @@
                     </div>
                 </div>
             </div>
+        </div>
+
+        <!-- Sliding search bar (revealed when icon clicked) -->
+        <div class="mil-search-bar" id="productSearchBar">
+            <i class="fas fa-search mil-search-bar-icon"></i>
+            <input type="text" id="inventorySearchInput" placeholder="Search products…" autocomplete="off">
+            <button class="mil-search-bar-close" id="searchBarClose" aria-label="Close search">×</button>
         </div>
 
         <div class="mil-content mil-store-content">
@@ -1162,8 +1141,8 @@
                                     </svg>
                                     <button onclick="scrollToStore()" class="mil-button mil-arrow-place mil-icon-button mil-arrow-down"></button>
                                 </div>
-                            </div>
-                        </div>
+                            </div><!-- /mil-banner-content -->
+                        </div><!-- /container -->
                     </div>
                 </section>
 
@@ -1249,50 +1228,91 @@
                                     </div>
                                 </div>
                             </div>
-                        <% } else { %>
-                            <section id="store" class="mil-soft-bg">   
-                                <div class="row">
-                                    <div class="col-12">
-                                        <div class="mil-up">
-                                            <h2 class="mil-mb-30">Our Products</h2>
-                                            
-                                            <div class="mil-inventory-grid" id="inventoryGrid">
-                                                <% inventory.forEach(item => { %>
-                                                  <div class="mil-inventory-item" data-item-id="<%= encodeURIComponent(item.id || item._id || 'missing-id-' + Math.random().toString(36).substr(2, 9)) %>">
-                                                    <div class="mil-product-image-container">
-                                                      <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>/product/<%= encodeURIComponent(item.id || item._id || '') %>" class="mil-product-image-link">
-                                                        <% if (item.images && Array.isArray(item.images) && item.images.length > 0) { %>
-                                                          <img src="<%= item.images[0] %>" class="mil-product-image" alt="<%= item.name || 'Product' %>">
-                                                        <% } else { %>
-                                                          <div class="mil-no-image">
-                                                            <i class="fas fa-image mil-mr-5"></i> No Image
-                                                          </div>
-                                                        <% } %>
-                                                      </a>
-                                                    </div>
-                                                    <div class="mil-product-details">
-                                                      <h3 class="mil-product-title">
-                                                        <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>/product/<%= encodeURIComponent(item.id || item._id || '') %>"><%= item.name || 'Unnamed Product' %></a>
-                                                      </h3>
-                                                      <div class="mil-product-price"><%= currency %><%= formatCurrency(item.cost || 0) %></div>
-                                                      <div class="mil-product-stock">Stock: <%= item.stock || 0 %></div>
-                                                      <input type="number" class="mil-quantity-input" min="1" max="<%= item.stock > 0 ? item.stock : 1 %>" value="1">
-                                                      <button class="mil-add-to-cart" onclick="addToCart('<%= encodeURIComponent(item.id || item._id || 'missing-id-' + Math.random().toString(36).substr(2, 9)) %>', '<%= item.name ? item.name.replace(/'/g, '\\\'') : 'Unnamed Product' %>', <%= Number(item.cost) || 0 %>, <%= Number(item.stock) || 0 %>, this)">
-                                                        <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
-                                                      </button>
-                                                    </div>
-                                                  </div>
-                                                <% }) %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
                         <% } %>
-                    </div>
-                </section>
+                    </div><!-- /container -->
+
+                    <% if (typeof saleId === 'undefined') { %>
+                    <!-- 3-column: left ads | product grid | right ads -->
+                    <div class="store-layout">
+
+                        <aside class="store-sidebar store-sidebar-left">
+                            <% const leftAds = (typeof featuredAds !== 'undefined' ? featuredAds : []).filter(a => a.position === 'left' || a.position === 'both'); %>
+                            <% if (leftAds.length > 0) { %>
+                                <div class="store-sidebar-title">Featured</div>
+                                <% leftAds.forEach(ad => { %>
+                                <a href="<%= ad.storeUrl %>" class="featured-ad-card" target="_blank" rel="noopener">
+                                    <div class="featured-ad-thumb">
+                                        <% if (ad.imageUrl) { %><img src="<%= ad.imageUrl %>" alt="<%= ad.productName %>" onerror="this.style.display='none'"><% } else { %><i class="fas fa-store"></i><% } %>
+                                    </div>
+                                    <div class="featured-ad-info">
+                                        <div class="featured-ad-name"><%= ad.productName %></div>
+                                        <% if (ad.businessName) { %><div class="featured-ad-store"><%= ad.businessName %></div><% } %>
+                                        <% if (ad.price) { %><div class="featured-ad-price"><%= ad.currency %><%= ad.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) %></div><% } %>
+                                        <span class="featured-ad-cta">Visit Store →</span>
+                                    </div>
+                                </a>
+                                <% }) %>
+                            <% } %>
+                        </aside>
+
+                        <section id="store" class="mil-soft-bg store-main">
+                            <div class="mil-up">
+                                <h2 class="mil-mb-30">Our Products</h2>
+                                <div class="mil-inventory-grid" id="inventoryGrid">
+                                    <% inventory.forEach(item => { %>
+                                      <div class="mil-inventory-item" data-item-id="<%= encodeURIComponent(item.id || item._id || 'missing-id-' + Math.random().toString(36).substr(2, 9)) %>">
+                                        <div class="mil-product-image-container">
+                                          <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>/product/<%= encodeURIComponent(item.id || item._id || '') %>" class="mil-product-image-link">
+                                            <% if (item.images && Array.isArray(item.images) && item.images.length > 0) { %>
+                                              <img src="<%= item.images[0] %>" class="mil-product-image" alt="<%= item.name || 'Product' %>">
+                                            <% } else { %>
+                                              <div class="mil-no-image"><i class="fas fa-image mil-mr-5"></i> No Image</div>
+                                            <% } %>
+                                          </a>
+                                        </div>
+                                        <div class="mil-product-details">
+                                          <h3 class="mil-product-title">
+                                            <a href="<%= outlet ? `/outlet/${outlet.username}` : `/store/${admin.username}` %>/product/<%= encodeURIComponent(item.id || item._id || '') %>"><%= item.name || 'Unnamed Product' %></a>
+                                          </h3>
+                                          <div class="mil-product-price"><%= currency %><%= formatCurrency(item.cost || 0) %></div>
+                                          <div class="mil-product-stock">Stock: <%= item.stock || 0 %></div>
+                                          <input type="number" class="mil-quantity-input" min="1" max="<%= item.stock > 0 ? item.stock : 1 %>" value="1">
+                                          <button class="mil-add-to-cart" onclick="addToCart('<%= encodeURIComponent(item.id || item._id || 'missing-id-' + Math.random().toString(36).substr(2, 9)) %>', '<%= item.name ? item.name.replace(/'/g, '\\\'') : 'Unnamed Product' %>', <%= Number(item.cost) || 0 %>, <%= Number(item.stock) || 0 %>, this)">
+                                            <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
+                                          </button>
+                                        </div>
+                                      </div>
+                                    <% }) %>
+                                </div>
+                            </div>
+                        </section>
+
+                        <aside class="store-sidebar store-sidebar-right">
+                            <% const rightAds = (typeof featuredAds !== 'undefined' ? featuredAds : []).filter(a => a.position === 'right' || a.position === 'both'); %>
+                            <% if (rightAds.length > 0) { %>
+                                <div class="store-sidebar-title">Featured</div>
+                                <% rightAds.forEach(ad => { %>
+                                <a href="<%= ad.storeUrl %>" class="featured-ad-card" target="_blank" rel="noopener">
+                                    <div class="featured-ad-thumb">
+                                        <% if (ad.imageUrl) { %><img src="<%= ad.imageUrl %>" alt="<%= ad.productName %>" onerror="this.style.display='none'"><% } else { %><i class="fas fa-store"></i><% } %>
+                                    </div>
+                                    <div class="featured-ad-info">
+                                        <div class="featured-ad-name"><%= ad.productName %></div>
+                                        <% if (ad.businessName) { %><div class="featured-ad-store"><%= ad.businessName %></div><% } %>
+                                        <% if (ad.price) { %><div class="featured-ad-price"><%= ad.currency %><%= ad.price.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}) %></div><% } %>
+                                        <span class="featured-ad-cta">Visit Store →</span>
+                                    </div>
+                                </a>
+                                <% }) %>
+                            <% } %>
+                        </aside>
+
+                    </div><!-- /store-layout -->
+                    <% } %>
+
+                </section><!-- /mil-about -->
             </div>
-        </div>
+        </div><!-- /mil-store-content -->
 
         <!-- Checkout Form (UPDATED TO MATCH PRODUCT PAGE) -->
         <div class="mil-overlay" id="overlay"></div>
@@ -1854,19 +1874,30 @@
             updateCartSummary();
             updateCartDropdown();
             
-            // Add search functionality to the search button
-            const searchButton = document.querySelector('.mil-search-button');
-            const searchInput = document.getElementById('inventorySearchInput');
-            
-            if (searchButton && searchInput) {
-                searchButton.addEventListener('click', searchInventory);
-                searchInput.addEventListener('keyup', function(event) {
-                    if (event.key === 'Enter') {
-                        searchInventory();
-                    }
-                });
-                searchInput.addEventListener('input', searchInventory);
+            // Search icon toggle
+            const searchIconBtn  = document.getElementById('searchIconBtn');
+            const productSearchBar = document.getElementById('productSearchBar');
+            const searchBarClose = document.getElementById('searchBarClose');
+            const searchInput    = document.getElementById('inventorySearchInput');
+
+            function openSearchBar() {
+                productSearchBar.classList.add('open');
+                setTimeout(() => searchInput.focus(), 50);
             }
+            function closeSearchBar() {
+                productSearchBar.classList.remove('open');
+                searchInput.value = '';
+                searchInventory(); // reset grid
+            }
+
+            searchIconBtn.addEventListener('click', openSearchBar);
+            searchBarClose.addEventListener('click', closeSearchBar);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && productSearchBar.classList.contains('open')) closeSearchBar();
+            });
+
+            // Live filter as user types
+            searchInput.addEventListener('input', searchInventory);
             
             // Ensure modal is hidden on load
             document.getElementById('overlay').classList.remove('active');

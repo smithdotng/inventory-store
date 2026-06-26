@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Sales Confirmation</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'pos', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Sales Confirmation</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <div class="page-header">
+      <div>
+        <h1>Sales Confirmation</h1>
+        <p>Review the sale details before confirming</p>
+      </div>
+    </div>
+
+    <div style="max-width:560px;">
+      <div class="app-card">
+        <div class="app-card-title">Sale Details</div>
+
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:0.92rem;">
+            <span style="color:#999; font-weight:500;">Customer Name</span>
+            <span style="font-weight:600; color:#0d0d1a;"><%= customerName %></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:0.92rem;">
+            <span style="color:#999; font-weight:500;">Phone Number</span>
+            <span style="font-weight:600; color:#0d0d1a;"><%= phoneNumber %></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:0.92rem;">
+            <span style="color:#999; font-weight:500;">Email</span>
+            <span style="font-weight:600; color:#0d0d1a;"><%= email %></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:0.92rem;">
+            <span style="color:#999; font-weight:500;">Product</span>
+            <span style="font-weight:600; color:#0d0d1a;"><%= itemName %></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #f5f5f5; font-size:0.92rem;">
+            <span style="color:#999; font-weight:500;">Quantity</span>
+            <span style="font-weight:600; color:#0d0d1a;"><%= quantity %></span>
+          </div>
+          <div style="display:flex; justify-content:space-between; padding:10px 0; font-size:0.92rem;">
+            <span style="color:#999; font-weight:500;">Remaining Stock</span>
+            <span style="font-weight:600; color:<%= (stock - quantity) <= 5 ? '#c0392b' : '#008B8B' %>;">
+              <%= stock - quantity %>
+            </span>
+          </div>
+        </div>
+
+        <form action="/admin/confirm-sale" method="POST">
+          <input type="hidden" name="customerName" value="<%= customerName %>">
+          <input type="hidden" name="phoneNumber" value="<%= phoneNumber %>">
+          <input type="hidden" name="email" value="<%= email %>">
+          <input type="hidden" name="itemId" value="<%= itemId %>">
+          <input type="hidden" name="quantity" value="<%= quantity %>">
+          <div style="display:flex; gap:12px;">
+            <button type="submit" class="btn-primary-app">
+              <i class="fas fa-check-circle"></i> Confirm Sale
+            </button>
+            <a href="/pos" class="btn-secondary-app">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
+</body>
+</html>

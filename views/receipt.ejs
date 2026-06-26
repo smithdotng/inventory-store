@@ -1,375 +1,192 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-GJRGT3KCZ7');
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Receipt — <%= sale.customerName || 'Sale' %> #<%= sale._id.toString().slice(-6) %></title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Jost', sans-serif; background: #f4f6f9; color: #222; }
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shed | Receipt – <%= sale.customerName || 'Sale' %> #<%= sale._id.toString().slice(-6) %></title>
-    <meta name="description" content="View and print customer receipt">
+    .receipt-wrapper {
+      max-width: 560px; margin: 32px auto; background: #fff;
+      border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
 
-    <!-- favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    /* Top bar */
+    .receipt-topbar {
+      background: #0d0d1a; padding: 16px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .receipt-topbar .logo { font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .receipt-topbar .actions { display: flex; gap: 10px; }
+    .btn-print {
+      background: #008B8B; color: #fff; border: none; border-radius: 6px;
+      padding: 8px 16px; font-size: 0.85rem; font-family: 'Jost', sans-serif;
+      font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .btn-print:hover { background: #006f6f; }
+    .btn-back {
+      background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 6px;
+      padding: 8px 16px; font-size: 0.85rem; font-family: 'Jost', sans-serif;
+      font-weight: 600; cursor: pointer; text-decoration: none;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.2); }
 
-    <!-- fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    /* Receipt body */
+    .receipt-body { padding: 32px 28px; }
 
-    <!-- vendor css -->
-    <link rel="stylesheet" href="asset1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="asset1/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="asset1/css/swiper.min.css">
-    <link rel="stylesheet" href="asset1/css/animate.min.css">
-    <link rel="stylesheet" href="asset1/css/magnific-popup.css">
+    .biz-header { text-align: center; margin-bottom: 28px; }
+    .biz-logo { width: 72px; height: 72px; object-fit: contain; margin-bottom: 12px; border-radius: 8px; }
+    .biz-name { font-size: 1.3rem; font-weight: 700; color: #0d0d1a; margin-bottom: 4px; }
+    .biz-info { font-size: 0.82rem; color: #888; line-height: 1.6; }
 
-    <!-- template styles -->
-    <link rel="stylesheet" href="asset1/css/main.css">
-    <link rel="stylesheet" href="asset1/css/rtl.css">
+    .receipt-divider { border: none; border-top: 1px dashed #e0e0e0; margin: 20px 0; }
 
-    <style>
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; }
-            .receipt-card { box-shadow: none; border: 1px solid #ddd; }
-        }
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 4px; }
+    .meta-block .meta-label { font-size: 0.72rem; color: #999; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; margin-bottom: 3px; }
+    .meta-block .meta-value { font-size: 0.9rem; color: #333; line-height: 1.5; }
 
-        .receipt-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 40px rgba(0,0,0,0.08);
-            padding: 40px;
-            max-width: 900px;
-            margin: 0 auto 60px;
-        }
+    /* Items table */
+    .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .items-table thead th {
+      background: #f8f9fa; padding: 9px 10px; text-align: left;
+      font-size: 0.75rem; font-weight: 700; color: #999;
+      text-transform: uppercase; letter-spacing: .05em;
+      border-bottom: 1px solid #eee;
+    }
+    .items-table thead th:last-child, .items-table tbody td:last-child { text-align: right; }
+    .items-table tbody td { padding: 10px; border-bottom: 1px solid #f5f5f5; color: #333; }
+    .items-table tbody tr:last-child td { border-bottom: none; }
+    .items-table tfoot td { padding: 12px 10px; font-weight: 700; }
+    .items-table tfoot td:first-child { font-size: 0.82rem; color: #999; text-transform: uppercase; }
+    .items-table tfoot td:last-child { font-size: 1.1rem; color: #008B8B; text-align: right; }
 
-        .receipt-header {
-            text-align: center;
-            margin-bottom: 40px;
-            border-bottom: 2px dashed #dee2e6;
-            padding-bottom: 30px;
-        }
+    .receipt-footer {
+      background: #f8f9fa; border-top: 1px solid #eee;
+      padding: 16px 28px; text-align: center;
+      font-size: 0.82rem; color: #999;
+    }
 
-        .receipt-logo {
-            max-width: 180px;
-            height: auto;
-            margin-bottom: 15px;
-        }
-
-        .receipt-meta {
-            color: #666;
-            font-size: 1rem;
-            margin: 10px 0;
-        }
-
-        .receipt-items {
-            margin: 40px 0;
-        }
-
-        .receipt-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 30px;
-        }
-
-        .receipt-table th,
-        .receipt-table td {
-            padding: 14px 10px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .receipt-table th {
-            background: #f8f9fa;
-            font-weight: 600;
-            color: #444;
-        }
-
-        .receipt-total {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: var(--primary);
-            text-align: right;
-            padding: 20px 0;
-            border-top: 2px solid #dee2e6;
-        }
-
-        .receipt-footer {
-            text-align: center;
-            margin-top: 40px;
-            color: #777;
-            font-size: 0.95rem;
-        }
-
-        .action-buttons .thm-btn {
-            padding: 12px 36px;
-            font-size: 1.05rem;
-            border-radius: 30px;
-        }
-
-        @media (max-width: 991px) {
-            .receipt-card { padding: 30px; }
-            .receipt-table th, .receipt-table td { padding: 12px 8px; font-size: 0.95rem; }
-        }
-
-        @media print {
-            .receipt-card { padding: 20px; margin: 0; }
-        }
-    </style>
+    /* Print styles */
+    @media print {
+      body { background: #fff; }
+      .receipt-wrapper { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
+      .receipt-topbar .actions { display: none; }
+      .receipt-topbar { background: #0d0d1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
 </head>
 <body>
 
+<div class="receipt-wrapper">
 
+  <!-- Top bar -->
+  <div class="receipt-topbar">
+    <div class="logo">Shed.</div>
+    <div class="actions">
+      <a href="/transactions" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+      <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+    </div>
+  </div>
 
-<div class="page-wrapper">
+  <!-- Body -->
+  <div class="receipt-body">
 
-    <!-- header -->
-    <div class="main-header__two">
-        <div class="header-upper">
-            <div class="container">
-                <div class="logo-box">
-                    <a href="/home">
-                        <img src="/images/logo.png" width="140" alt="Shed">
-                    </a>
-                    <button type="button" class="mobile-nav__toggler">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                </div>
-
-                <div class="header-info">
-                    <div class="header-info__box">
-                        <i class="azino-icon-email1"></i>
-                        <div class="header-info__box-content">
-                            <h3>Email</h3>
-                            <p><a href="mailto:<%= admin.email %>"><%= admin.email || 'admin@shed.app' %></a></p>
-                        </div>
-                    </div>
-                    <div class="header-info__box">
-                        <i class="azino-icon-calling"></i>
-                        <div class="header-info__box-content">
-                            <h3>Business</h3>
-                            <p><%= admin.businessName || 'Your Business' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Business header -->
+    <div class="biz-header">
+      <% if (admin.logo) { %>
+        <img src="<%= admin.logo %>" alt="Business Logo" class="biz-logo">
+      <% } else { %>
+        <div style="width:72px; height:72px; border-radius:8px; background:#0d0d1a; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.6rem; font-weight:700; color:#fff;">
+          <%= (admin.businessName || 'S')[0].toUpperCase() %>
         </div>
-
-        <nav class="main-menu">
-            <div class="container">
-                <ul class="main-menu__list">
-                    <li><a href="/pos">Point of Sale</a></li>
-                    <li><a href="/update-stock">Inventory</a></li>
-                    <li><a href="/invoices">Invoices</a></li>
-                    <li class="active"><a href="/transactions">Transactions</a></li>
-                    <li><a href="/customers">Customers</a></li>
-                    <li><a href="/home">Outlets</a></li>
-                    <li><a href="/profile">Profile</a></li>
-                </ul>
-                <a href="/admin-logout" class="thm-btn dynamic-radius">Logout</a>
-            </div>
-        </nav>
+      <% } %>
+      <div class="biz-name"><%= admin.businessName || 'Your Business' %></div>
+      <div class="biz-info">
+        <%= admin.address || '' %><% if (admin.address && admin.phone) { %><br><% } %>
+        <%= admin.phone || '' %><% if (admin.phone) { %> &bull; <% } %><%= admin.email %>
+      </div>
     </div>
 
-    <!-- mobile sidebar -->
-    <div class="sidebar-nav" id="sidebarNav">
-        <button type="button" class="mobile-nav__close mobile-nav__toggler" style="position:absolute;top:20px;right:25px;font-size:30px;color:white;">
-            <i class="fa fa-times"></i>
-        </button>
+    <hr class="receipt-divider">
 
-        <div style="padding: 0 30px;">
-            <h3 style="color:white;margin-bottom:35px;">Menu</h3>
+    <!-- Receipt meta -->
+    <div class="meta-grid">
+      <div class="meta-block">
+        <div class="meta-label">Receipt #</div>
+        <div class="meta-value"><%= sale._id.toString().slice(-8).toUpperCase() %></div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Date</div>
+        <div class="meta-value"><%= new Date(sale.date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Cashier</div>
+        <div class="meta-value"><%= username || 'Admin' %></div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Customer</div>
+        <div class="meta-value">
+          <%= sale.customerName || 'Walk-in' %>
+          <% if (sale.phoneNumber) { %><br><%= sale.phoneNumber %><% } %>
         </div>
-
-        <a href="/pos"><i class="fas fa-shopping-bag mr-2"></i> Point of Sale</a>
-        <a href="/update-stock"><i class="fas fa-boxes mr-2"></i> Manage Inventory</a>
-        <a href="/invoices"><i class="fas fa-file-invoice mr-2"></i> Generate Invoice</a>
-        <a href="/transactions" class="active"><i class="fas fa-chart-bar mr-2"></i> Transactions</a>
-        <a href="/customers"><i class="fas fa-users mr-2"></i> Customers</a>
-        <a href="/home"><i class="fas fa-store mr-2"></i> Manage Outlets</a>
-        <a href="/profile"><i class="fas fa-user mr-2"></i> Profile</a>
-        <a href="/admin-logout"><i class="fas fa-power-off mr-2"></i> Log Out</a>
+      </div>
     </div>
 
-    <!-- banner -->
-    <section class="main-slider main-slider__two">
-        <div class="swiper-container thm-swiper__slider" data-swiper-options='{"slidesPerView": 1, "loop": true, "effect": "fade", "autoplay": {"delay": 6500}}'>
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="image-layer" style="background-image: url(asset1/images/main-slider/slider-1-1.jpg);"></div>
-                    <div class="container">
-                        <div class="row justify-content-start">
-                            <div class="col-xl-8">
-                                <h2>Sale <span>Receipt</span></h2>
-                                <p>Thank you for your purchase – here's your official receipt</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <hr class="receipt-divider">
 
-    <!-- main content -->
-    <section class="service-two pt-120 pb-120">
-        <div class="container">
+    <!-- Items -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style="text-align:center;">Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sale.items.forEach(item => { %>
+          <tr>
+            <td><%= item.itemName %></td>
+            <td style="text-align:center;"><%= item.quantity %></td>
+            <td><%= admin.currency %> <%= formatCurrency(Number(item.unitCost || item.price || 0)) %></td>
+            <td><%= admin.currency %> <%= formatCurrency(Number(item.totalCost || (item.quantity * (item.unitCost || item.price || 0)))) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Grand Total</td>
+          <td><%= admin.currency %> <%= formatCurrency(Number(sale.totalAmount || 0)) %></td>
+        </tr>
+      </tfoot>
+    </table>
 
-            <div class="receipt-card wow fadeInUp" data-wow-duration="1000ms">
-                <!-- Header -->
-                <div class="receipt-header">
-                    <% if (admin.logo) { %>
-                        <img src="<%= admin.logo %>" alt="Business Logo" class="receipt-logo">
-                    <% } else { %>
-                        <img src="/images/logo.png" alt="Shed Logo" class="receipt-logo">
-                    <% } %>
+    <hr class="receipt-divider">
 
-                    <h2><%= admin.businessName || 'Your Business' %></h2>
-                    <p class="receipt-meta">
-                        <%= admin.address || '' %><br>
-                        <%= admin.phone || '' %> • <%= admin.email %>
-                    </p>
-                </div>
+    <p style="text-align:center; color:#008B8B; font-weight:600; font-size:0.9rem;">
+      Thank you for your purchase!
+    </p>
+    <p style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:6px;">
+      Come again soon &bull; <%= admin.businessName || 'Your Business' %>
+    </p>
 
-                <!-- Sale Info -->
-                <div class="row mb-40">
-                    <div class="col-md-6">
-                        <strong>Receipt #:</strong> <%= sale._id.toString().slice(-8).toUpperCase() %><br>
-                        <strong>Date:</strong> <%= new Date(sale.date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) %><br>
-                        <strong>Cashier:</strong> <%= username || 'Admin' %>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <strong>Customer:</strong> <%= sale.customerName || 'Walk-in Customer' %><br>
-                        <% if (sale.phoneNumber) { %><strong>Phone:</strong> <%= sale.phoneNumber %><br><% } %>
-                        <% if (sale.email) { %><strong>Email:</strong> <%= sale.email %><% } %>
-                    </div>
-                </div>
+  </div>
 
-                <!-- Items Table -->
-                <div class="receipt-items">
-                    <table class="receipt-table">
-                        <thead>
-                            <tr>
-                                <th>Item</th>
-                                <th class="text-center">Qty</th>
-                                <th class="text-end">Unit Price</th>
-                                <th class="text-end">Total</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <% sale.items.forEach(item => { %>
-                                <tr>
-                                    <td><%= item.itemName %></td>
-                                    <td class="text-center"><%= item.quantity %></td>
-                                    <td class="text-end"><%= admin.currency %> <%= Number(item.unitCost || item.price || 0).toFixed(2) %></td>
-                                    <td class="text-end"><%= admin.currency %> <%= Number(item.totalCost || (item.quantity * (item.unitCost || item.price || 0))).toFixed(2) %></td>
-                                </tr>
-                            <% }) %>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Total -->
-                <div class="receipt-total">
-                    Grand Total: <%= admin.currency %> <%= Number(sale.totalAmount || 0).toFixed(2) %>
-                </div>
-
-                <!-- Footer Note -->
-                <div class="receipt-footer">
-                    Thank you for shopping with us!<br>
-                    Come again soon • <%= admin.businessName || 'Your Business' %>
-                </div>
-
-                <!-- Action Buttons (no print) -->
-                <div class="text-center mt-50 no-print">
-                    <button onclick="window.print()" class="thm-btn dynamic-radius" style="background:var(--info); padding:14px 50px;">
-                        <i class="fas fa-print me-2"></i> Print Receipt
-                    </button>
-                    <a href="/transactions" class="thm-btn dynamic-radius ml-3" style="background:var(--secondary);">
-                        Back to Transactions
-                    </a>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- footer -->
-    <section class="site-footer no-print">
-        <div class="main-footer pt-120 pb-80">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <a href="/home">
-                                <img src="/images/logo.png" width="140" alt="">
-                            </a>
-                            <p class="mt-3">Fast & professional receipts for every sale.</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Quick Links</h3>
-                            <ul class="list-unstyled">
-                                <li><a href="/pos">Point of Sale</a></li>
-                                <li><a href="/transactions">Transactions</a></li>
-                                <li><a href="/profile">Settings</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Contact</h3>
-                            <p><strong><%= admin.businessName || 'Your Business' %></strong><br>
-                            <%= admin.email || 'No email set' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>© <%= new Date().getFullYear() %> Shed – All Rights Reserved</p>
-            </div>
-        </div>
-    </section>
+  <!-- Footer -->
+  <div class="receipt-footer">
+    Powered by <strong style="color:#008B8B;">Shed</strong> &bull;
+    &copy; <%= new Date().getFullYear() %> — All Rights Reserved
+  </div>
 
 </div>
-
-<div class="mobile-nav__overlay mobile-nav__toggler"></div>
-
-<script src="asset1/js/jquery-3.5.1.min.js"></script>
-<script src="asset1/js/bootstrap.bundle.min.js"></script>
-<script src="asset1/js/swiper.min.js"></script>
-<script src="asset1/js/wow.js"></script>
-<script src="asset1/js/theme.js"></script>
-
-<script>
-$(document).ready(function(){
-    // Mobile menu toggle
-    $('.mobile-nav__toggler').click(function(e){
-        e.preventDefault();
-        $('#sidebarNav').toggleClass('active');
-        $('.mobile-nav__overlay').toggleClass('active');
-    });
-
-    $('.mobile-nav__close, .mobile-nav__overlay').click(function(){
-        $('#sidebarNav').removeClass('active');
-        $('.mobile-nav__overlay').removeClass('active');
-    });
-
-    // Optional: Auto-focus print button on load (remove if not wanted)
-    // setTimeout(() => window.print(), 1500);
-});
-</script>
 
 </body>
 </html>

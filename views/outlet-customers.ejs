@@ -3,244 +3,108 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta property="og:title" content="Outlet Customers | Shed: Inventory, Invoices and More" />
-  <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-  <meta property="og:image" content="/android-chrome-512x512.png" />
-  <title>Outlet Customers</title>
-  <link rel="stylesheet" href="/style.css">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-  <link rel="manifest" href="/site.webmanifest">
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-      background-image: url('/images/bg.jpg');
-      background-size: cover;
-      background-position: center;
-      background-attachment: fixed;
-      background-repeat: no-repeat;
-      position: relative;
-    }
-    
-    body::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: -1;
-    }
-    
-    .sidebar {
-      position: fixed;
-      width: 200px;
-      height: 100vh;
-      background: #2c3e50;
-      color: white;
-      padding: 20px;
-      transition: all 0.3s;
-    }
-    
-    .sidebar.visible {
-      left: 0;
-    }
-    
-    .sidebar.hidden {
-      left: -200px;
-    }
-    
-    .toggle-btn {
-      position: fixed;
-      top: 10px;
-      left: 10px;
-      z-index: 1000;
-      background: #27ae60;
-      color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    
-    .main-content {
-      transition: all 0.3s;
-      min-height: 100vh;
-    }
-    
-    .container {
-      padding: 20px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    
-    .logo-container img {
-      max-height: 80px;
-      margin-bottom: 15px;
-    }
-    
-    .content-logo-container img {
-      max-height: 100px;
-      margin-bottom: 20px;
-    }
-    
-    .customers-table {
-      background: rgba(255, 255, 255, 0.95);
-      padding: 25px;
-      border-radius: 8px;
-      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-      margin-bottom: 20px;
-    }
-    
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #ddd;
-    }
-    
-    th {
-      background-color: #f8f9fa;
-      font-weight: 600;
-      color: #2c3e50;
-    }
-    
-    tr:hover {
-      background-color: #f5f5f5;
-    }
-    
-    a {
-      color: #3498db;
-      text-decoration: none;
-    }
-    
-    a:hover {
-      text-decoration: underline;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .container {
-        padding: 15px;
-      }
-      
-      .customers-table {
-        padding: 15px;
-      }
-      
-      th, td {
-        padding: 8px 10px;
-        font-size: 14px;
-      }
-    }
-  </style>
+  <title>Shed | Outlet Customers</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
 </head>
 <body>
-  <!-- Sidebar -->
-  <div class="sidebar" id="sidebar">
-    <div class="logo-container">
-      <img src="/images/logo-a.png" alt="Shedfactory Business Solutions">
-    </div>
-    <h2>Welcome, <%= outlet.name %>!</h2>
-    <a href="/outlet/sales-form">Point of Sale</a>
-    <a href="/outlet/<%= outlet._id %>/stock-view">View Inventory</a>
-    <a href="/outlet-transactions/<%= outlet._id %>">View Transactions</a>
-    <a href="/outlet-customers/<%= outlet._id %>" class="active">Customers</a>
-    <a href="/outlet-logout">Log Out</a>
+
+<!-- Outlet Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo">
+    <img src="/images/logo.png" alt="Shed">
   </div>
+  <nav class="sidebar-nav">
+    <a href="/outlet/sales-form" class="<%= typeof currentPage !== 'undefined' && currentPage === 'pos' ? 'active' : '' %>">
+      <i class="fas fa-shopping-bag"></i> Point of Sale
+    </a>
+    <a href="/outlet/<%= outlet._id %>/stock-view" class="<%= typeof currentPage !== 'undefined' && currentPage === 'stock' ? 'active' : '' %>">
+      <i class="fas fa-boxes"></i> View Inventory
+    </a>
+    <a href="/outlet-transactions/<%= outlet._id %>" class="<%= typeof currentPage !== 'undefined' && currentPage === 'transactions' ? 'active' : '' %>">
+      <i class="fas fa-chart-bar"></i> Transactions
+    </a>
+    <a href="/outlet-customers/<%= outlet._id %>" class="<%= typeof currentPage !== 'undefined' && currentPage === 'customers' ? 'active' : '' %>">
+      <i class="fas fa-users"></i> Customers
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="/outlet-logout"><i class="fas fa-power-off"></i> Log Out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- Toggle Button -->
-  <button class="toggle-btn" id="toggleBtn">☰</button>
-
-  <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="container">
-      <div class="content-logo-container">
-        <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="<%= admin.businessName || 'Shed' %>">
-      </div>
-      <h1>Customers for <%= outlet.name %></h1>
-
-      <div class="customers-table">
-        <h2>Customer Information</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Customer Name</th>
-              <th>Phone Number</th>
-              <th>Email</th>
-              <th>Total Purchases</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% customers.forEach(customer => { %>
-              <tr>
-                <td><%= customer.customerName %></td>
-                <td><%= customer.phoneNumber %></td>
-                <td><%= customer.email || 'N/A' %></td>
-                <td><%= admin.currency || '$' %><%= customer.totalPurchases ? customer.totalPurchases.toFixed(2) : '0.00' %></td>
-              </tr>
-            <% }) %>
-            <% if (customers.length === 0) { %>
-              <tr>
-                <td colspan="4">No customer information available for this outlet.</td>
-              </tr>
-            <% } %>
-          </tbody>
-        </table>
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Customers</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Shed' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= outlet.name[0].toUpperCase() %></div>
+        <%= outlet.name %>
       </div>
     </div>
-  </div>
+  </header>
 
-  <script>
-    const sidebar = document.getElementById('sidebar');
-    const mainContent = document.getElementById('mainContent');
-    const toggleBtn = document.getElementById('toggleBtn');
+  <main class="app-content">
 
-    // Initialize sidebar state
-    sidebar.classList.add('visible');
-    sidebar.classList.remove('hidden');
-    mainContent.style.marginLeft = '200px';
-    mainContent.style.width = 'calc(100% - 200px)';
+    <div class="page-header">
+      <div>
+        <h1>Customers</h1>
+        <p><%= outlet.name %> — customer records</p>
+      </div>
+    </div>
 
-    // Toggle sidebar visibility
-    toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('visible');
-      sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('visible')) {
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    });
+    <% if (customers && customers.length > 0) { %>
+      <div class="app-card">
+        <div style="overflow-x:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Customer Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Total Purchases</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% customers.forEach(customer => { %>
+                <tr>
+                  <td style="font-weight:600;"><%= customer.customerName %></td>
+                  <td><%= customer.phoneNumber || '—' %></td>
+                  <td><%= customer.email || '—' %></td>
+                  <td style="color:#008B8B; font-weight:600;">
+                    <%= admin.currency || '$' %><%= customer.totalPurchases ? formatCurrency(customer.totalPurchases) : formatCurrency(0) %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-users" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No customers yet</h3>
+        <p style="color:#999;">Customers who purchase from this outlet will appear here.</p>
+      </div>
+    <% } %>
 
-    // Responsive adjustments
-    function handleResize() {
-      if (window.innerWidth > 768) {
-        sidebar.classList.add('visible');
-        sidebar.classList.remove('hidden');
-        mainContent.style.marginLeft = '200px';
-        mainContent.style.width = 'calc(100% - 200px)';
-      } else {
-        sidebar.classList.remove('visible');
-        sidebar.classList.add('hidden');
-        mainContent.style.marginLeft = '0';
-        mainContent.style.width = '100%';
-      }
-    }
+  </main>
+</div>
 
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Initialize on load
-  </script>
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
 </body>
 </html>

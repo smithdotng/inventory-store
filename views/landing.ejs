@@ -139,29 +139,78 @@
             color: #fff;
             text-decoration: none;
         }
+        /* Search toggle icon */
+        .mil-search-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: inherit;
+            font-size: 16px;
+            padding: 6px 10px;
+            display: flex;
+            align-items: center;
+            opacity: 0.75;
+            transition: opacity 0.2s;
+        }
+        .mil-search-toggle-btn:hover { opacity: 1; }
+
+        /* Search overlay */
+        .mil-search-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.55);
+            z-index: 9998;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 80px;
+        }
+        .mil-search-overlay.active { display: flex; }
+
         /* Search form and results */
         .mil-subscribe-form {
             position: relative;
             display: flex;
             align-items: center;
-            /*background-color: beige;*/
-            padding: 5px;
-            border-radius: 5px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 6px 10px;
+            width: min(600px, 92vw);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
         }
         .mil-subscribe-form input {
             flex: 1;
             border: none;
-            
-            background-color: beige;
-            padding: 8px;
-            font-size: 14px;
-            outline: none;
-        }
-        .mil-subscribe-form button {
             background: transparent;
+            padding: 8px 6px;
+            font-size: 15px;
+            outline: none;
+            color: #222;
+        }
+        .mil-subscribe-form input::placeholder { color: #aaa; }
+        .mil-subscribe-form .mil-search-submit {
+            background: #008B8B;
             border: none;
             cursor: pointer;
+            color: #fff;
+            border-radius: 6px;
+            padding: 7px 14px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
         }
+        .mil-subscribe-form .mil-search-submit:hover { background: #006f6f; }
+        .mil-subscribe-form .mil-search-close-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #aaa;
+            font-size: 18px;
+            padding: 4px 8px;
+            margin-right: 4px;
+            line-height: 1;
+        }
+        .mil-subscribe-form .mil-search-close-btn:hover { color: #333; }
         .mil-search-results {
             position: absolute;
             top: 100%;
@@ -445,19 +494,26 @@
 
         <!-- frame top (header) -->
         <div class="mil-frame-top">
-            <a href="home-1.html" class="mil-logo"><img src="images/logo.png" alt="Logo"></a>
-            <nav class="mil-main-menu" id="swupMenu">
-                <form class="mil-subscribe-form mil-up" style="background-color: beige;" id="searchForm" action="/search" method="GET">
-                    <input type="text" name="q" placeholder="Search for a Shed or Product" size="50">
-                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
-                    <div class="mil-search-results">
-                        <!-- Tabs will be inserted here by JavaScript -->
-                    </div>
-                </form>
-            </nav>
-            <div class="mil-menu-btn">
-                <i class="fas fa-search"></i>
+            <a href="/" class="mil-logo"><img src="images/logo.png" alt="Logo"></a>
+            <nav class="mil-main-menu" id="swupMenu"></nav>
+            <div class="mil-menu-btn" style="display:flex; align-items:center; gap:8px;">
+                <button class="mil-search-toggle-btn" id="searchToggleBtn" aria-label="Open search">
+                    <i class="fas fa-search"></i>
+                </button>
             </div>
+        </div>
+
+        <!-- Search overlay -->
+        <div class="mil-search-overlay" id="searchOverlay">
+            <form class="mil-subscribe-form" id="searchForm" action="/search" method="GET">
+                <i class="fas fa-search" style="color:#aaa; margin-right:8px; flex-shrink:0;"></i>
+                <input type="text" name="q" placeholder="Search for a Shed or Product" autocomplete="off" autofocus>
+                <button type="button" class="mil-search-close-btn" id="searchCloseBtn" aria-label="Close search">×</button>
+                <button type="submit" class="mil-search-submit"><i class="fas fa-arrow-right"></i></button>
+                <div class="mil-search-results">
+                    <!-- Tabs will be inserted here by JavaScript -->
+                </div>
+            </form>
         </div>
         <!-- frame top end -->
 
@@ -980,9 +1036,31 @@
     <!-- Search Functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const searchForm = document.getElementById('searchForm');
-            const searchInput = searchForm.querySelector('input[name="q"]');
-            const searchResults = searchForm.querySelector('.mil-search-results');
+            const searchOverlay  = document.getElementById('searchOverlay');
+            const searchToggleBtn = document.getElementById('searchToggleBtn');
+            const searchCloseBtn  = document.getElementById('searchCloseBtn');
+            const searchForm     = document.getElementById('searchForm');
+            const searchInput    = searchForm.querySelector('input[name="q"]');
+            const searchResults  = searchForm.querySelector('.mil-search-results');
+
+            function openSearch() {
+                searchOverlay.classList.add('active');
+                setTimeout(() => searchInput.focus(), 50);
+            }
+            function closeSearch() {
+                searchOverlay.classList.remove('active');
+                searchResults.classList.remove('active');
+                searchInput.value = '';
+            }
+
+            searchToggleBtn.addEventListener('click', openSearch);
+            searchCloseBtn.addEventListener('click', closeSearch);
+            searchOverlay.addEventListener('click', (e) => {
+                if (e.target === searchOverlay) closeSearch();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeSearch();
+            });
 
             // Create search tabs
             const createSearchTabs = () => {
@@ -1212,8 +1290,8 @@
                 // Form will submit normally to /search?q=query&type=type
             });
 
-            // Hide results when clicking outside
-            document.addEventListener('click', (e) => {
+            // Hide results when clicking outside the form (but inside the overlay)
+            searchOverlay.addEventListener('click', (e) => {
                 if (!searchForm.contains(e.target)) {
                     searchResults.classList.remove('active');
                 }

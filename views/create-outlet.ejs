@@ -1,81 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="Create Outlet | Shed: Inventory, Invoices and More" />
-    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
-    <meta property="og:image" content="/android-chrome-512x512.png" />
-    <title>Create Outlet</title>
-    <link rel="stylesheet" href="/style.css">
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-  
-  </head>
-  <body>
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-      <div class="logo-container">
-        <img src="/images/logo.png" alt="Shedfactory Business Solutions">
-      </div>
-      <h2>Welcome, <%= username %>!</h2>
-      <a href="/admin/sales-form">Sell</a>
-      <a href="/store-view">View Store</a>
-      <a href="/update-stock">Update Stock</a>
-      <a href="/create-outlet">Create Outlet</a>
-      <a href="/invoices">Invoices</a>
-      <a href="/transactions">Transactions</a>
-      <a href="/customers">Customers</a>
-      <a href="/admin-logout">Log Out</a>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Create Outlet</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'home', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Create Outlet</span>
     </div>
-
-    <!-- Toggle Button -->
-    <button class="toggle-btn" id="toggleBtn">☰</button>
-
-    <!-- Main Content -->
-    <div class="main-content" id="mainContent">
-      <div class="container">
-        <div class="content-logo-container">
-          <img src="<%= admin.logo || '/images/logo.jpg' %>" alt="Shedfactory Business Solutions">
-        </div>
-        <div class="form-section">
-          <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
-          <% if (error) { %>
-            <div class="error"><%= error %></div>
-          <% } %>
-          <form action="/create-outlet" method="POST">
-            <input type="text" name="name" placeholder="Outlet Name" required>
-            <input type="text" name="location" placeholder="Location/Address" required>
-            <input type="text" name="mobile" placeholder="Mobile Number" required>
-            <input type="text" name="username" placeholder="Username" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
-          </form>
-          <a href="/home" class="cancel-btn">Back to Home <span class="icon-right-arrow"></span></a>
-        </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
       </div>
     </div>
+  </header>
 
-    <!-- JavaScript for sidebar toggle -->
-    <script>
-      const sidebar = document.getElementById('sidebar');
-      const mainContent = document.getElementById('mainContent');
-      const toggleBtn = document.getElementById('toggleBtn');
+  <main class="app-content">
 
-      // Toggle sidebar visibility (only active on small screens)
-      toggleBtn.addEventListener('click', () => {
-        sidebar.classList.toggle('visible');
-        sidebar.classList.toggle('hidden');
-        if (sidebar.classList.contains('visible')) {
-          mainContent.style.marginLeft = '200px';
-          mainContent.style.width = 'calc(100% - 200px)';
-        } else {
-          mainContent.style.marginLeft = '0';
-          mainContent.style.width = '100%';
-        }
-      });
-    </script>
-  </body>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Create Outlet</h1>
+        <p>Add a new outlet location for your business</p>
+      </div>
+      <a href="/home" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Back to Outlets</a>
+    </div>
+
+    <div style="max-width:560px;">
+      <div class="app-card">
+        <div class="app-card-title">Outlet Details</div>
+        <form action="/create-outlet" method="POST">
+          <div class="form-group">
+            <label>Outlet Name <span style="color:#c0392b">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Downtown Branch" required>
+          </div>
+          <div class="form-group">
+            <label>Location / Address <span style="color:#c0392b">*</span></label>
+            <input type="text" name="location" class="form-control" placeholder="Street, City" required>
+          </div>
+          <div class="form-group">
+            <label>Mobile Number <span style="color:#c0392b">*</span></label>
+            <input type="text" name="mobile" class="form-control" placeholder="0803 xxx xxxx" required>
+          </div>
+          <div class="form-group">
+            <label>Login Username <span style="color:#c0392b">*</span></label>
+            <input type="text" name="username" class="form-control" placeholder="outlet_username" required>
+          </div>
+          <div class="form-group">
+            <label>Password <span style="color:#c0392b">*</span></label>
+            <input type="password" name="password" class="form-control" placeholder="Choose a password" required>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn-primary-app">
+              <i class="fas fa-plus"></i> Create Outlet
+            </button>
+            <a href="/home" class="btn-secondary-app">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
+</body>
 </html>

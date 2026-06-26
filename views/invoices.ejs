@@ -1,747 +1,325 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-GJRGT3KCZ7');
-    </script>
-
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shed | Invoices – Generate & Manage</title>
-    <meta name="description" content="Create, view and download professional invoices for your business">
-
-    <!-- favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-
-    <!-- fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-
-    <!-- vendor css -->
-    <link rel="stylesheet" href="asset1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="asset1/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="asset1/css/swiper.min.css">
-    <link rel="stylesheet" href="asset1/css/animate.min.css">
-    <link rel="stylesheet" href="asset1/css/magnific-popup.css">
-    <link rel="stylesheet" href="asset1/css/bootstrap-select.min.css">
-
-    <!-- template styles -->
-    <link rel="stylesheet" href="asset1/css/main.css">
-    <link rel="stylesheet" href="asset1/css/rtl.css">
-
-    <style>
-        :root {
-            --primary: #e74c3c;
-            --success: #27ae60;
-            --info: #17a2b8;
-            --warning: #f39c12;
-            --danger: #c0392b;
-        }
-
-        .main-header__two { position: relative; z-index: 91; }
-
-        .sidebar-nav {
-            position: fixed;
-            left: -280px;
-            top: 0; bottom: 0;
-            width: 280px;
-            background: #2c3e50;
-            color: white;
-            transition: left .4s ease;
-            z-index: 9999;
-            padding-top: 90px;
-            overflow-y: auto;
-        }
-
-        .sidebar-nav.active { left: 0; }
-
-        .sidebar-nav a {
-            color: white;
-            display: block;
-            padding: 14px 28px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active { background: rgba(255,255,255,0.1); }
-
-        .mobile-nav__toggler {
-            font-size: 28px;
-            color: white;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .invoices-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .invoice-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
-            transition: all 0.35s ease;
-            cursor: pointer;
-        }
-
-        .invoice-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 18px 50px rgba(0,0,0,0.14);
-        }
-
-        .invoice-header {
-            background: #2c5530;
-            color: white;
-            padding: 22px 28px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .invoice-number {
-            font-size: 1.25rem;
-            font-weight: 700;
-        }
-
-        .invoice-content {
-            padding: 28px;
-        }
-
-        .invoice-total {
-            font-size: 1.4rem;
-            font-weight: 700;
-            color: #2c5530;
-            margin: 20px 0;
-            text-align: right;
-        }
-
-        .payment-status {
-            display: inline-block;
-            padding: 6px 16px;
-            border-radius: 30px;
-            font-size: 0.82rem;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
-
-        .payment-status.Pending { background: #fff3cd; color: #856404; }
-        .payment-status.Paid    { background: #d4edda; color: #155724; }
-
-        #createInvoiceForm,
-        .edit-form {
-            display: none;
-            background: #f9fbfc;
-            padding: 40px 35px;
-            border-radius: 8px;
-            box-shadow: 0 6px 35px rgba(0,0,0,0.07);
-            margin: 50px 0;
-        }
-
-        #createInvoiceForm.active,
-        .edit-form.active {
-            display: block;
-        }
-
-        .thm-btn.cancel {
-            background: #95a5a6 !important;
-        }
-
-        .thm-btn.cancel:hover {
-            background: #7f8c8d !important;
-        }
-
-        .form-group {
-            margin-bottom: 28px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 9px;
-            display: block;
-        }
-
-        .item-row-wrapper {
-            background: #f8f9fa;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #e9ecef;
-        }
-
-        .low-stock-warning {
-            color: #e67e22;
-            font-size: 0.9rem;
-            margin-left: 10px;
-        }
-
-        .product-select-loading {
-            color: #95a5a6;
-            font-style: italic;
-        }
-
-        @media (max-width: 991px) {
-            .invoices-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Invoices</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .invoices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .invoice-card {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: all 0.3s ease;
+    }
+    .invoice-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.11); }
+    .invoice-card-header {
+      background: #0d0d1a; color: #fff;
+      padding: 16px 22px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .invoice-card-header .inv-num { font-size: 1rem; font-weight: 700; }
+    .invoice-card-header .inv-date { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+    .invoice-card-body { padding: 20px 22px; }
+    .invoice-card-body h4 { font-size: 0.98rem; font-weight: 700; color: #0d0d1a; margin:0 0 4px; }
+    .invoice-total { font-size:1.4rem; font-weight:700; color:#008B8B; margin:12px 0 6px; }
+    .invoice-items { font-size:0.85rem; color:#888; margin-bottom:14px; }
+    .invoice-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .create-form-box {
+      background:#fff; border-radius:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.07);
+      padding:30px; margin-bottom:26px; display:none;
+    }
+    .create-form-box.active { display:block; }
+    .form-two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    @media(max-width:768px) { .form-two-col{grid-template-columns:1fr;} }
+    .item-row-wrapper {
+      background:#f9fbfc; border:1px solid #eef0f4;
+      border-radius:8px; padding:18px; margin-bottom:12px;
+    }
+    .item-row-grid { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:end; }
+    @media(max-width:480px) { .item-row-grid{grid-template-columns:1fr;} }
+    .low-stock { color:#e67e22; font-size:0.8rem; }
+  </style>
 </head>
 <body>
 
-<div class="page-wrapper">
+<%- include('partials/app-sidebar', { currentPage: 'invoices', admin: admin }) %>
 
-    <!-- header -->
-    <div class="main-header__two">
-        <div class="header-upper">
-            <div class="container">
-                <div class="logo-box">
-                    <a href="/home">
-                        <img src="/images/logo.png" width="140" alt="Shed">
-                    </a>
-                    <button type="button" class="mobile-nav__toggler">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                </div>
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Invoices</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
+      </div>
+    </div>
+  </header>
 
-                <div class="header-info">
-                    <div class="header-info__box">
-                        <i class="azino-icon-email1"></i>
-                        <div class="header-info__box-content">
-                            <h3>Email</h3>
-                            <p><a href="mailto:<%= admin.email %>"><%= admin.email || 'admin@shed.app' %></a></p>
-                        </div>
-                    </div>
-                    <div class="header-info__box">
-                        <i class="azino-icon-calling"></i>
-                        <div class="header-info__box-content">
-                            <h3>Business</h3>
-                            <p><%= admin.businessName || 'Your Business' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <main class="app-content">
 
-        <nav class="main-menu">
-            <div class="container">
-                <ul class="main-menu__list">
-                    <li><a href="/pos">Point of Sale</a></li>
-                    <li><a href="/update-stock">Inventory</a></li>
-                    <li class="active"><a href="/invoices">Invoices</a></li>
-                    <li><a href="/transactions">Transactions</a></li>
-                    <li><a href="/customers">Customers</a></li>
-                    <li><a href="/home">Outlets</a></li>
-                    <li><a href="/profile">Profile</a></li>
-                </ul>
-                <a href="/admin-logout" class="thm-btn dynamic-radius">Logout</a>
-            </div>
-        </nav>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Invoices</h1>
+        <p>Create, manage and download professional invoices</p>
+      </div>
+      <button class="btn-primary-app" id="createInvoiceBtn">
+        <i class="fas fa-plus"></i> Create Invoice
+      </button>
     </div>
 
-    <!-- mobile sidebar -->
-    <div class="sidebar-nav" id="sidebarNav">
-        <button type="button" class="mobile-nav__close mobile-nav__toggler" style="position:absolute;top:20px;right:25px;font-size:30px;color:white;">
-            <i class="fa fa-times"></i>
-        </button>
-
-        <div style="padding: 0 30px 25px;">
-            <h3 style="color:white;margin-bottom:35px;">Menu</h3>
+    <!-- Create Invoice Form -->
+    <div class="create-form-box" id="createInvoiceForm">
+      <h3 style="margin:0 0 24px; font-size:1.1rem; font-weight:700; color:#0d0d1a;">New Invoice</h3>
+      <form action="/invoices/create" method="POST" id="invoiceForm">
+        <div class="form-two-col">
+          <!-- Left -->
+          <div>
+            <div class="form-group">
+              <label>Customer <span style="color:#c0392b">*</span></label>
+              <select name="customerId" id="customerSelect" class="form-control">
+                <option value="">Select Customer</option>
+                <% customers.forEach(c => { %>
+                  <option value="<%= c._id %>"><%= c.name %> (<%= c.phone || 'N/A' %>)</option>
+                <% }) %>
+                <option value="new">+ Create New Customer</option>
+              </select>
+            </div>
+            <div id="newCustomerFields" style="display:none;">
+              <div class="form-group">
+                <label>New Customer Name <span style="color:#c0392b">*</span></label>
+                <input type="text" name="newCustomerName" class="form-control" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label>Phone <span style="color:#c0392b">*</span></label>
+                <input type="tel" name="newCustomerPhone" class="form-control" placeholder="e.g. 08031234567">
+              </div>
+              <div class="form-group">
+                <label>Email (optional)</label>
+                <input type="email" name="newCustomerEmail" class="form-control" placeholder="customer@example.com">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Payment Method <span style="color:#c0392b">*</span></label>
+              <select name="paymentMethod" id="paymentMethod" class="form-control">
+                <option value="">Choose method</option>
+                <option value="Cash">Cash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="POS">POS / Card</option>
+                <option value="Mobile Payment">Mobile Payment</option>
+              </select>
+            </div>
+            <div id="bankDetails" style="display:none;" class="app-card" style="background:#f9fbfc;">
+              <div class="app-card-title">Bank Details</div>
+              <div class="form-group">
+                <label>Bank Name <span style="color:#c0392b">*</span></label>
+                <input type="text" name="bankName" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Account Name <span style="color:#c0392b">*</span></label>
+                <input type="text" name="bankAccountName" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Account Number <span style="color:#c0392b">*</span></label>
+                <input type="text" name="accountNumber" class="form-control">
+              </div>
+            </div>
+          </div>
+          <!-- Right -->
+          <div>
+            <div class="form-group">
+              <label>Items <span style="color:#c0392b">*</span></label>
+              <div id="itemsContainer"></div>
+              <button type="button" id="addItemBtn" class="btn-secondary-app" style="margin-top:10px;">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+            <div class="form-group">
+              <label>Additional Notes</label>
+              <textarea name="additionalComments" class="form-control" rows="4" placeholder="Payment terms, delivery info, thank you message..."></textarea>
+            </div>
+          </div>
         </div>
-
-        <a href="/pos"><i class="fas fa-shopping-bag mr-2"></i> Point of Sale</a>
-        <a href="/update-stock"><i class="fas fa-boxes mr-2"></i> Manage Inventory</a>
-        <a href="/invoices" class="active"><i class="fas fa-file-invoice mr-2"></i> Generate Invoice</a>
-        <a href="/transactions"><i class="fas fa-chart-bar mr-2"></i> Transactions</a>
-        <a href="/customers"><i class="fas fa-users mr-2"></i> Customers</a>
-        <a href="/home"><i class="fas fa-store mr-2"></i> Manage Outlets</a>
-        <a href="/profile"><i class="fas fa-user mr-2"></i> Profile</a>
-        <a href="/admin-logout"><i class="fas fa-power-off mr-2"></i> Log Out</a>
+        <div style="display:flex; gap:12px; margin-top:16px;">
+          <button type="submit" class="btn-primary-app"><i class="fas fa-file-invoice"></i> Generate Invoice</button>
+          <button type="button" class="btn-secondary-app" id="cancelInvoiceBtn"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </form>
     </div>
 
-    <!-- banner -->
-    <section class="main-slider main-slider__two">
-        <div class="swiper-container thm-swiper__slider" data-swiper-options='{"slidesPerView": 1, "loop": true, "effect": "fade", "autoplay": {"delay": 6500}}'>
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="image-layer" style="background-image: url(asset1/images/main-slider/slider-1-2.jpg);"></div>
-                    <div class="container">
-                        <div class="row justify-content-start">
-                            <div class="col-xl-8">
-                                <h2>Professional <span>Invoices</span></h2>
-                                <p>Create, manage and download invoices quickly and easily</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    <!-- Invoices Grid -->
+    <% if (sales && sales.length > 0) { %>
+      <div class="invoices-grid">
+        <% sales.forEach((sale, i) => { %>
+          <div class="invoice-card">
+            <div class="invoice-card-header">
+              <div>
+                <div class="inv-num">INV-<%= String(i+1).padStart(4,'0') %></div>
+                <div class="inv-date"><%= new Date(sale.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) %></div>
+              </div>
+              <% const ps = sale.paymentStatus || 'Pending'; %>
+              <span class="badge <%= ps === 'Paid' ? 'badge-success' : 'badge-warning' %>"><%= ps %></span>
             </div>
-        </div>
-    </section>
-
-    <!-- main content -->
-    <section class="service-two pt-120 pb-120">
-        <div class="container">
-
-            <!-- title & actions -->
-            <div class="row align-items-center mb-60">
-                <div class="col-lg-8">
-                    <div class="block-title">
-                        <p><img src="asset1/images/shapes/heart-2-1.png" width="15" alt=""> Invoicing</p>
-                        <h3>Manage Your Invoices</h3>
-                    </div>
-                </div>
-                <div class="col-lg-4 text-lg-right">
-                    <button id="createInvoiceBtn" class="thm-btn dynamic-radius">Create New Invoice</button>
-                </div>
-            </div>
-
-            <!-- === CREATE INVOICE FORM === -->
-            <div id="createInvoiceForm">
-                <form action="/invoices/create" method="POST" id="invoiceForm">
-                    <div class="row">
-                        <!-- Left Column -->
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>Customer <span style="color:var(--danger)">*</span></label>
-                                <select name="customerId" id="customerSelect" class="form-control selectpicker">
-                                    <option value="">Select Customer</option>
-                                    <% customers.forEach(c => { %>
-                                        <option value="<%= c._id %>"><%= c.name %> (<%= c.phone || 'N/A' %>)</option>
-                                    <% }) %>
-                                    <option value="new">+ Create New Customer</option>
-                                </select>
-                            </div>
-
-                            <div id="newCustomerFields" style="display:none;">
-                                <div class="form-group">
-                                    <label>New Customer Name <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="newCustomerName" class="form-control" placeholder="Full name">
-                                </div>
-                                <div class="form-group">
-                                    <label>Phone Number <span style="color:var(--danger)">*</span></label>
-                                    <input type="tel" name="newCustomerPhone" class="form-control" placeholder="e.g. 0803 123 4567">
-                                </div>
-                                <div class="form-group">
-                                    <label>Email (optional)</label>
-                                    <input type="email" name="newCustomerEmail" class="form-control" placeholder="customer@example.com">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Payment Method <span style="color:var(--danger)">*</span></label>
-                                <select name="paymentMethod" id="paymentMethod" class="form-control selectpicker">
-                                    <option value="">Choose method</option>
-                                    <option value="Cash">Cash</option>
-                                    <option value="Bank Transfer">Bank Transfer</option>
-                                    <option value="POS">POS / Card</option>
-                                    <option value="Mobile Payment">Mobile Payment</option>
-                                </select>
-                            </div>
-
-                            <div id="bankDetails" style="display:none;" class="mt-4 p-4" style="background:#f8f9fa;border-radius:8px;">
-                                <h5 class="mb-3">Bank Details</h5>
-                                <div class="form-group">
-                                    <label>Bank Name <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="bankName" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label>Account Name <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="bankAccountName" class="form-control">
-                                </div>
-                                <div class="form-group">
-                                    <label>Account Number <span style="color:var(--danger)">*</span></label>
-                                    <input type="text" name="accountNumber" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column - Items -->
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>Items <span style="color:var(--danger)">*</span></label>
-                                <div id="itemsContainer">
-                                    <!-- Rows added by JS -->
-                                </div>
-                                <button type="button" id="addItemBtn" class="thm-btn dynamic-radius mt-3" style="background:#27ae60;">
-                                    <i class="fa fa-plus"></i> Add Item
-                                </button>
-                            </div>
-
-                            <div class="form-group mt-4">
-                                <label>Additional Notes / Instructions</label>
-                                <textarea name="additionalComments" class="form-control" rows="4" placeholder="Payment terms, delivery info, thank you message..."></textarea>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-50">
-                        <button type="submit" class="thm-btn dynamic-radius">Generate Invoice</button>
-                        <button type="button" id="cancelInvoiceBtn" class="thm-btn dynamic-radius cancel ml-3">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Existing Invoices Grid -->
-            <div class="invoices-grid">
-                <% if (sales && sales.length > 0) { %>
-                    <% sales.forEach((sale, i) => { %>
-                        <div class="invoice-card" data-id="<%= sale._id %>">
-                            <div class="invoice-header">
-                                <div class="invoice-number">INV-<%= String(i+1).padStart(4,'0') %></div>
-                                <div><%= new Date(sale.date).toLocaleDateString() %></div>
-                            </div>
-
-                            <div class="invoice-content">
-                                <h5><%= sale.customerName %></h5>
-                                <p style="color:#666;font-size:0.95rem;">
-                                    <%= sale.customerPhone || 'No phone' %>
-                                </p>
-
-                                <div class="mt-4">
-                                    <strong>Items:</strong>
-                                    <ul style="padding-left:20px;margin:8px 0;color:#555;">
-                                        <% (sale.items||[]).slice(0,3).forEach(it => { %>
-                                            <li><%= it.itemName %> × <%= it.quantity %></li>
-                                        <% }) %>
-                                        <% if ((sale.items||[]).length > 3) { %>
-                                            <li>+ <%= sale.items.length - 3 %> more...</li>
-                                        <% } %>
-                                    </ul>
-                                </div>
-
-                                <div class="invoice-total">
-                                    <%= admin.currency %><%= Number(sale.totalAmount||0).toFixed(2) %>
-                                </div>
-
-                                <div class="d-flex justify-content-between align-items-center mt-4">
-                                    <span class="payment-status <%= sale.paymentStatus || 'Pending' %>">
-                                        <%= sale.paymentStatus || 'Pending' %>
-                                    </span>
-                                    <div>
-                                        <a href="/invoices/download/<%= sale._id %>" class="thm-btn dynamic-radius btn-sm" style="padding:8px 18px;font-size:0.9rem;">
-                                            Download PDF
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                <% } else { %>
-                    <div class="col-12 text-center py-5">
-                        <i class="fas fa-file-invoice fa-5x text-muted mb-4"></i>
-                        <h4>No invoices yet</h4>
-                        <p class="text-muted">Create your first invoice to get started</p>
-                        <button id="createFirstInvoiceBtn" class="thm-btn dynamic-radius mt-3">Create First Invoice</button>
-                    </div>
+            <div class="invoice-card-body">
+              <h4><%= sale.customerName %></h4>
+              <div style="font-size:0.82rem; color:#999; margin-bottom:10px;"><%= sale.customerPhone || 'No phone' %></div>
+              <div class="invoice-items">
+                <% (sale.items||[]).slice(0,3).forEach(it => { %>
+                  <div>• <%= it.itemName %> × <%= it.quantity %></div>
+                <% }) %>
+                <% if ((sale.items||[]).length > 3) { %>
+                  <div style="color:#aaa;">+ <%= sale.items.length - 3 %> more...</div>
                 <% } %>
+              </div>
+              <div class="invoice-total"><%= admin.currency %><%= formatCurrency(Number(sale.totalAmount||0)) %></div>
+              <div class="invoice-actions">
+                <a href="/invoices/download/<%= sale._id %>" class="btn-primary-app btn-sm">
+                  <i class="fas fa-download"></i> PDF
+                </a>
+                <% if (ps !== 'Paid') { %>
+                  <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-secondary-app btn-sm" style="background:#27ae60; color:#fff; border-color:#27ae60;">
+                      <i class="fas fa-check"></i> Mark Paid
+                    </button>
+                  </form>
+                <% } %>
+              </div>
             </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-file-invoice" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No invoices yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Create your first invoice to get started.</p>
+        <button class="btn-primary-app" id="createFirstInvoiceBtn"><i class="fas fa-plus"></i> Create First Invoice</button>
+      </div>
+    <% } %>
 
-        </div>
-    </section>
-
-    <!-- footer -->
-    <section class="site-footer">
-        <div class="main-footer pt-120 pb-80">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <a href="/home">
-                                <img src="/images/logo.png" width="140" alt="">
-                            </a>
-                            <p class="mt-3">Modern invoicing & business management solution</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Quick Links</h3>
-                            <ul class="list-unstyled">
-                                <li><a href="/pos">Point of Sale</a></li>
-                                <li><a href="/update-stock">Inventory</a></li>
-                                <li><a href="/invoices">Invoices</a></li>
-                                <li><a href="/profile">Settings</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Contact</h3>
-                            <p><strong><%= admin.businessName || 'Your Business' %></strong><br>
-                            <%= admin.email || 'No email set' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>© <%= new Date().getFullYear() %> Shed – All Rights Reserved</p>
-            </div>
-        </div>
-    </section>
-
+  </main>
 </div>
 
-<div class="mobile-nav__overlay mobile-nav__toggler"></div>
-
-<script src="asset1/js/jquery-3.5.1.min.js"></script>
-<script src="asset1/js/bootstrap.bundle.min.js"></script>
-<script src="asset1/js/swiper.min.js"></script>
-<script src="asset1/js/wow.js"></script>
-<script src="asset1/js/bootstrap-select.min.js"></script>
-<script src="asset1/js/theme.js"></script>
-
+<script src="/js/plugins/jquery.min.js"></script>
 <script>
-// Global item counter
-let itemCount = 0;
-
-// Load products dynamically
-async function loadProductsIntoSelect(selectElement) {
-  console.log('[DEBUG] Starting fetch to /api/inventory');
-
-  try {
-    selectElement.innerHTML = '<option value="" class="product-select-loading">Loading products...</option>';
-
-    const response = await fetch('/api/inventory', {
-      credentials: 'include',
-      cache: 'no-store',
-      headers: { 'Cache-Control': 'no-cache', 'Pragma': 'no-cache' }
-    });
-
-    console.log('[DEBUG] Fetch status:', response.status);
-
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    const data = await response.json();
-    console.log('[DEBUG] Data received:', data);
-
-    let html = '<option value="">Select product...</option>';
-
-    if (data.items && Array.isArray(data.items)) {
-      data.items.forEach(p => {
-        const warning = p.stock <= 5 ? `<span class="low-stock-warning">(Low: ${p.stock})</span>` : `(Stock: ${p.stock})`;
-        html += `<option value="${p._id}" data-stock="${p.stock}" data-price="${p.cost||0}" data-vat="${p.isVatable||false}">
-          ${p.name} ${warning}${p.isVatable ? ' [VAT]' : ''}
-        </option>`;
-      });
-    }
-
-    html += '<option value="new">+ Create New Product</option>';
-    selectElement.innerHTML = html;
-
-    if (typeof $('.selectpicker').selectpicker === 'function') {
-      $(selectElement).selectpicker('refresh');
-    }
-  } catch (err) {
-    console.error('[DEBUG] Fetch error:', err);
-    selectElement.innerHTML = '<option>Error loading – check console</option>';
-  }
-}
-
-// Validate item row
-function validateItemRow(row) {
-  const select = row.querySelector('select[name="items[itemId][]"]');
-  const qtyInput = row.querySelector('input[name="items[quantity][]"]');
-  if (!select || !qtyInput) return true;
-
-  const qty = parseInt(qtyInput.value) || 0;
-  const opt = select.options[select.selectedIndex];
-
-  if (opt && opt.value !== 'new' && opt.value) {
-    const stock = parseInt(opt.dataset.stock) || 0;
-    if (qty > stock) {
-      qtyInput.setCustomValidity(`Only ${stock} available`);
-      qtyInput.reportValidity();
-      return false;
-    }
-  }
-
-  qtyInput.setCustomValidity('');
-  return true;
-}
-
-// Add new item row
-function addItemRow() {
-  itemCount++;
-
-  const wrapper = document.createElement('div');
-  wrapper.className = 'item-row-wrapper';
-  wrapper.innerHTML = `
-    <div class="row">
-      <div class="col-md-6">
-        <div class="form-group">
-          <label>Product <span style="color:var(--danger)">*</span></label>
-          <select name="items[itemId][]" class="form-control selectpicker">
-            <option value="">Loading products...</option>
-          </select>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="form-group">
-          <label>Quantity <span style="color:var(--danger)">*</span></label>
-          <input type="number" name="items[quantity][]" class="form-control" min="1" value="1">
-        </div>
-      </div>
-      <div class="col-md-2 d-flex align-items-end">
-        <button type="button" class="btn btn-danger btn-sm remove-item-btn">
-          <i class="fa fa-trash"></i>
-        </button>
-      </div>
-    </div>
-  `;
-
-  document.getElementById('itemsContainer').appendChild(wrapper);
-
-  const select = wrapper.querySelector('select');
-  loadProductsIntoSelect(select);
-
-  select.addEventListener('change', () => validateItemRow(wrapper));
-  wrapper.querySelector('input[type="number"]').addEventListener('input', () => validateItemRow(wrapper));
-
-  wrapper.querySelector('.remove-item-btn').addEventListener('click', () => {
-    if (document.querySelectorAll('.item-row-wrapper').length > 1) wrapper.remove();
+  // Sidebar toggle
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
   });
 
-  $('.selectpicker').selectpicker('refresh');
-}
-
-// Initialize items
-function initializeItemsContainer() {
-  document.getElementById('itemsContainer').innerHTML = '';
-  addItemRow();
-}
-
-// ────────────────────────────────────────────────
-// MAIN FORM LOGIC + IMPROVED SUBMIT HANDLER
-// ────────────────────────────────────────────────
-$(document).ready(function(){
-  // Mobile menu
-  $('.mobile-nav__toggler').click(function(e){
-    e.preventDefault();
-    $('#sidebarNav').toggleClass('active');
-    $('.mobile-nav__overlay').toggleClass('active');
-  });
-
-  $('.mobile-nav__close, .mobile-nav__overlay').click(function(){
-    $('#sidebarNav').removeClass('active');
-    $('.mobile-nav__overlay').removeClass('active');
-  });
-
-  // Open/close form
-  const form = $('#createInvoiceForm');
-  $('#createInvoiceBtn, #createFirstInvoiceBtn').click(function(){
-    form.addClass('active');
+  // Invoice form toggle
+  const invForm = document.getElementById('createInvoiceForm');
+  function showInvForm() {
+    invForm.classList.add('active');
     initializeItemsContainer();
-    $('html,body').animate({scrollTop: form.offset().top - 120}, 600);
+    invForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.getElementById('createInvoiceBtn').addEventListener('click', showInvForm);
+  const firstBtn = document.getElementById('createFirstInvoiceBtn');
+  if (firstBtn) firstBtn.addEventListener('click', showInvForm);
+  document.getElementById('cancelInvoiceBtn').addEventListener('click', function() {
+    invForm.classList.remove('active');
+    document.getElementById('itemsContainer').innerHTML = '';
   });
 
-  $('#cancelInvoiceBtn').click(function(){
-    form.removeClass('active');
-    $('#itemsContainer').empty();
+  // New customer fields
+  document.getElementById('customerSelect').addEventListener('change', function() {
+    document.getElementById('newCustomerFields').style.display = this.value === 'new' ? 'block' : 'none';
   });
-
-  // Toggle new customer fields
-  $('#customerSelect').change(function(){
-    $('#newCustomerFields').toggle(this.value === 'new');
+  // Bank details
+  document.getElementById('paymentMethod').addEventListener('change', function() {
+    document.getElementById('bankDetails').style.display = this.value === 'Bank Transfer' ? 'block' : 'none';
   });
-
-  // Toggle bank details
-  $('#paymentMethod').change(function(){
-    $('#bankDetails').toggle(this.value === 'Bank Transfer');
-  });
-
   // Add item
-  $('#addItemBtn').click(addItemRow);
+  document.getElementById('addItemBtn').addEventListener('click', addItemRow);
 
-  // ────────────────────────────────────────────────
-  // SUBMIT HANDLER – SHOWS CLEAR ERRORS
-  // ────────────────────────────────────────────────
-  $('#invoiceForm').on('submit', function(e) {
-    console.log('[DEBUG] Generate Invoice clicked');
+  // Items management
+  let itemCount = 0;
 
-    let valid = true;
-    let errors = [];
-
-    // Customer
-    const cust = $('#customerSelect').val();
-    if (!cust) {
-      errors.push('Please select or create a customer.');
-      valid = false;
-    }
-
-    if (cust === 'new') {
-      const name = $('input[name="newCustomerName"]').val()?.trim();
-      const phone = $('input[name="newCustomerPhone"]').val()?.trim();
-
-      if (!name) {
-        errors.push('New customer name is required.');
-        valid = false;
+  async function loadProductsIntoSelect(sel) {
+    sel.innerHTML = '<option value="">Loading...</option>';
+    try {
+      const res = await fetch('/api/inventory', { credentials: 'include' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      let html = '<option value="">Select product...</option>';
+      if (data.items) {
+        data.items.forEach(p => {
+          html += `<option value="${p._id}" data-stock="${p.stock}" data-price="${p.cost||0}">
+            ${p.name} (Stock: ${p.stock})${p.isVatable ? ' [VAT]' : ''}
+          </option>`;
+        });
       }
-      if (!phone) {
-        errors.push('New customer phone number is required.');
-        valid = false;
-      } else if (!/^\d{10,11}$/.test(phone.replace(/\s/g, ''))) {
-        errors.push('Phone should be 10–11 digits (e.g. 08031234567).');
-        valid = false;
-      }
+      html += '<option value="new">+ New Product</option>';
+      sel.innerHTML = html;
+    } catch(e) {
+      sel.innerHTML = '<option>Error loading products</option>';
     }
+  }
 
-    // Payment method
-    const pay = $('#paymentMethod').val();
-    if (!pay) {
-      errors.push('Please select a payment method.');
-      valid = false;
-    }
-
-    // Bank transfer fields
-    if (pay === 'Bank Transfer') {
-      ['bankName', 'bankAccountName', 'accountNumber'].forEach(f => {
-        if (!$(`input[name="${f}"]`).val()?.trim()) {
-          errors.push(`${f.replace(/([A-Z])/g, ' $1')} is required for bank transfer.`);
-          valid = false;
-        }
-      });
-    }
-
-    // Items
-    const rows = $('.item-row-wrapper');
-    if (rows.length === 0) {
-      errors.push('Please add at least one item.');
-      valid = false;
-    }
-
-    rows.each((i, row) => {
-      if (!validateItemRow(row)) {
-        errors.push(`Item #${i+1}: quantity exceeds stock or is invalid.`);
-        valid = false;
-      }
+  function addItemRow() {
+    itemCount++;
+    const wrap = document.createElement('div');
+    wrap.className = 'item-row-wrapper';
+    wrap.innerHTML = `
+      <div class="item-row-grid">
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Product</label>
+          <select name="items[itemId][]" class="form-control" required></select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;">
+          <label>Qty</label>
+          <input type="number" name="items[quantity][]" class="form-control" min="1" value="1" style="width:80px;" required>
+        </div>
+        <div style="padding-top:24px;">
+          <button type="button" class="btn-danger-app btn-sm remove-item-btn"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+    document.getElementById('itemsContainer').appendChild(wrap);
+    loadProductsIntoSelect(wrap.querySelector('select'));
+    wrap.querySelector('.remove-item-btn').addEventListener('click', function() {
+      if (document.querySelectorAll('.item-row-wrapper').length > 1) wrap.remove();
     });
+  }
 
-    if (!valid) {
+  function initializeItemsContainer() {
+    document.getElementById('itemsContainer').innerHTML = '';
+    itemCount = 0;
+    addItemRow();
+  }
+
+  // Form validation
+  document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+    const errors = [];
+    if (!document.getElementById('customerSelect').value) errors.push('Please select or create a customer.');
+    if (!document.getElementById('paymentMethod').value) errors.push('Please select a payment method.');
+    if (!document.querySelectorAll('.item-row-wrapper').length) errors.push('Add at least one item.');
+    if (errors.length) {
       e.preventDefault();
       alert('Cannot generate invoice!\n\n' + errors.join('\n'));
-      console.log('[DEBUG] Validation failed:', errors);
-      return false;
     }
-
-    console.log('[DEBUG] Form is valid → submitting');
-    // Form submits to /invoices/create
   });
-});
 </script>
-
 </body>
 </html>

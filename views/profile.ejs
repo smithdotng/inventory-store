@@ -1,662 +1,366 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-GJRGT3KCZ7');
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Profile & Settings</title>
+  <%- include('partials/app-head', { extraCssUrl: 'https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css' }) %>
+  <style>
+    .profile-layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; }
+    @media(max-width:900px) { .profile-layout{grid-template-columns:1fr;} }
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shed | Profile – Business & Account Settings</title>
-    <meta name="description" content="Update your personal details, business info, VAT settings and logo">
+    .profile-summary-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      padding: 28px; text-align: center;
+    }
+    .profile-logo {
+      width: 100px; height: 100px; border-radius: 16px;
+      object-fit: cover; margin-bottom: 16px;
+      border: 3px solid #f0f0f0;
+    }
+    .profile-logo-placeholder {
+      width: 100px; height: 100px; border-radius: 16px;
+      background: #f4f6f9; border: 2px dashed #ddd;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem; color: #ccc; margin: 0 auto 16px;
+    }
+    .profile-summary-card h3 { font-size: 1.1rem; font-weight: 700; color: #0d0d1a; margin: 0 0 4px; }
+    .profile-summary-card p { font-size: 0.85rem; color: #888; margin: 0 0 20px; }
+    .profile-info-row { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 8px 0; border-top: 1px solid #f5f5f5; }
+    .profile-info-row .label { color: #999; }
+    .profile-info-row .val { color: #333; font-weight: 500; }
 
-    <!-- favicons -->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+    .edit-form-card {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      padding: 28px;
+    }
+    .section-heading {
+      font-size: 0.9rem; font-weight: 700; color: #0d0d1a;
+      margin: 24px 0 16px; padding-bottom: 8px;
+      border-bottom: 2px solid #008B8B; display: flex; align-items: center; gap: 8px;
+    }
+    .section-heading:first-child { margin-top: 0; }
+    .form-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    @media(max-width:640px) { .form-two-col,.form-three-col{grid-template-columns:1fr;} }
+    .checkbox-row { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-size: 0.85rem; color: #666; }
+    .checkbox-row input { width: 15px; height: 15px; cursor: pointer; accent-color: #008B8B; }
 
-    <!-- fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    .logo-upload-area { text-align: center; margin: 12px 0; }
+    .logo-preview { width: 90px; height: 90px; border-radius: 12px; object-fit: cover; border: 2px solid #eee; }
+    .logo-placeholder {
+      width: 90px; height: 90px; border-radius: 12px;
+      background: #f9fbfc; border: 2px dashed #ddd;
+      display: flex; align-items: center; justify-content: center;
+      color: #ccc; font-size: 2rem; margin: 0 auto 8px;
+    }
 
-    <!-- vendor css -->
-    <link rel="stylesheet" href="asset1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="asset1/css/fontawesome-all.min.css">
-    <link rel="stylesheet" href="asset1/css/swiper.min.css">
-    <link rel="stylesheet" href="asset1/css/animate.min.css">
-    <link rel="stylesheet" href="asset1/css/magnific-popup.css">
-    <link rel="stylesheet" href="asset1/css/bootstrap-select.min.css">
-    <!-- Cropper.js CSS -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet" />
-
-    <!-- template styles -->
-    <link rel="stylesheet" href="asset1/css/main.css">
-    <link rel="stylesheet" href="asset1/css/rtl.css">
-
-    <style>
-        :root {
-            --primary: #e74c3c;
-            --success: #27ae60;
-            --info: #17a2b8;
-            --warning: #f39c12;
-            --danger: #c0392b;
-        }
-
-        .main-header__two { position: relative; z-index: 91; }
-
-        .sidebar-nav {
-            position: fixed;
-            left: -280px;
-            top: 0; bottom: 0;
-            width: 280px;
-            background: #2c3e50;
-            color: white;
-            transition: left .4s ease;
-            z-index: 9999;
-            padding-top: 90px;
-            overflow-y: auto;
-        }
-
-        .sidebar-nav.active { left: 0; }
-
-        .sidebar-nav a {
-            color: white;
-            display: block;
-            padding: 14px 28px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-        }
-
-        .sidebar-nav a:hover,
-        .sidebar-nav a.active { background: rgba(255,255,255,0.1); }
-
-        .mobile-nav__toggler {
-            font-size: 28px;
-            color: white;
-            background: none;
-            border: none;
-            cursor: pointer;
-        }
-
-        .profile-card {
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 5px 30px rgba(0,0,0,0.08);
-            padding: 35px;
-            margin-bottom: 40px;
-        }
-
-        .profile-header {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-
-        .profile-avatar {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 5px solid #f8f9fa;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.15);
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 28px;
-        }
-
-        .form-group label {
-            font-weight: 600;
-            color: #444;
-            margin-bottom: 9px;
-            display: block;
-        }
-
-        .vat-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 8px;
-            border-left: 5px solid var(--info);
-            margin: 30px 0;
-        }
-
-        .bank-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 8px;
-            margin: 30px 0;
-        }
-
-        .social-links a {
-            color: var(--primary);
-            margin: 0 12px;
-            font-size: 1.1rem;
-        }
-
-        .social-links a:hover {
-            color: #c0392b;
-        }
-
-        .thm-btn.cancel {
-            background: #95a5a6 !important;
-        }
-
-        .thm-btn.cancel:hover {
-            background: #7f8c8d !important;
-        }
-
-        .image-upload-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .image-preview {
-            width: 180px;
-            height: 180px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 4px solid #f8f9fa;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
-
-        .image-placeholder {
-            width: 180px;
-            height: 180px;
-            background: #f8f9fa;
-            border: 3px dashed #ccc;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #999;
-            font-size: 1.1rem;
-            margin: 0 auto 20px;
-        }
-
-        @media (max-width: 991px) {
-            .profile-card { padding: 25px; }
-        }
-    </style>
+    /* Crop modal */
+    .crop-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.6); z-index: 9999;
+      align-items: center; justify-content: center;
+    }
+    .crop-modal-overlay.active { display: flex; }
+    .crop-modal {
+      background: #fff; border-radius: 12px; padding: 24px;
+      max-width: 560px; width: 90%;
+    }
+    .crop-modal h4 { margin: 0 0 16px; font-size: 1.1rem; font-weight: 700; }
+    #imageToCrop { max-width: 100%; display: block; }
+    .crop-modal-actions { display: flex; gap: 12px; margin-top: 16px; }
+  </style>
 </head>
 <body>
 
-<div class="preloader">
-    <img class="preloader__image" src="asset1/images/loader.png" alt="">
-</div>
+<%- include('partials/app-sidebar', { currentPage: 'profile', admin: admin }) %>
 
-<div class="page-wrapper">
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Profile & Settings</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="topbar-user-chip">
+        <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+        <%= admin.firstName || admin.username %>
+      </div>
+    </div>
+  </header>
 
-    <!-- header -->
-    <div class="main-header__two">
-        <div class="header-upper">
-            <div class="container">
-                <div class="logo-box">
-                    <a href="/home">
-                        <img src="/images/logo.png" width="140" alt="Shed">
-                    </a>
-                    <button type="button" class="mobile-nav__toggler">
-                        <i class="fa fa-bars"></i>
-                    </button>
-                </div>
+  <main class="app-content">
 
-                <div class="header-info">
-                    <div class="header-info__box">
-                        <i class="azino-icon-email1"></i>
-                        <div class="header-info__box-content">
-                            <h3>Email</h3>
-                            <p><a href="mailto:<%= admin.email %>"><%= admin.email || 'hello@shed.ng' %></a></p>
-                        </div>
-                    </div>
-                    <div class="header-info__box">
-                        <i class="azino-icon-calling"></i>
-                        <div class="header-info__box-content">
-                            <h3>Business</h3>
-                            <p><%= admin.businessName || 'Your Business' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
 
-        <nav class="main-menu">
-            <div class="container">
-                <ul class="main-menu__list">
-                    <li><a href="/pos">Point of Sale</a></li>
-                    <li><a href="/update-stock">Inventory</a></li>
-                    <li><a href="/invoices">Invoices</a></li>
-                    <li><a href="/transactions">Transactions</a></li>
-                    <li><a href="/customers">Customers</a></li>
-                    <li><a href="/home">Outlets</a></li>
-                    <li class="active"><a href="/profile">Profile</a></li>
-                </ul>
-                <a href="/admin-logout" class="thm-btn dynamic-radius">Logout</a>
-            </div>
-        </nav>
+    <div class="page-header">
+      <div><h1>Profile & Settings</h1><p>Manage your personal info, business details and preferences</p></div>
     </div>
 
-    <!-- mobile sidebar -->
-    <div class="sidebar-nav" id="sidebarNav">
-        <button type="button" class="mobile-nav__close mobile-nav__toggler" style="position:absolute;top:20px;right:25px;font-size:30px;color:white;">
-            <i class="fa fa-times"></i>
-        </button>
+    <div class="profile-layout">
 
-        <div style="padding: 0 30px 25px;">
-            <h3 style="color:white;margin-bottom:35px;">Menu</h3>
+      <!-- Summary card -->
+      <div>
+        <div class="profile-summary-card">
+          <% if (admin.logo) { %>
+            <img src="<%= admin.logo %>" alt="Logo" class="profile-logo">
+          <% } else { %>
+            <div class="profile-logo-placeholder"><i class="fas fa-store"></i></div>
+          <% } %>
+          <h3><%= admin.businessName || 'Your Business' %></h3>
+          <p><%= admin.email %></p>
+
+          <div class="profile-info-row">
+            <span class="label">Username</span>
+            <span class="val">@<%= admin.username %></span>
+          </div>
+          <div class="profile-info-row">
+            <span class="label">Currency</span>
+            <span class="val"><%= admin.currency || 'Not set' %></span>
+          </div>
+          <div class="profile-info-row">
+            <span class="label">VAT</span>
+            <span class="val"><%= admin.applyVat ? 'Enabled (' + (admin.vatRate||0) + '%)' : 'Disabled' %></span>
+          </div>
+          <div class="profile-info-row">
+            <span class="label">Phone</span>
+            <span class="val"><%= admin.phone || 'Not set' %></span>
+          </div>
         </div>
+      </div>
 
-        <a href="/pos"><i class="fas fa-shopping-bag mr-2"></i> Point of Sale</a>
-        <a href="/update-stock"><i class="fas fa-boxes mr-2"></i> Manage Inventory</a>
-        <a href="/invoices"><i class="fas fa-file-invoice mr-2"></i> Generate Invoice</a>
-        <a href="/transactions"><i class="fas fa-chart-bar mr-2"></i> Transactions</a>
-        <a href="/customers"><i class="fas fa-users mr-2"></i> Customers</a>
-        <a href="/home"><i class="fas fa-store mr-2"></i> Manage Outlets</a>
-        <a href="/profile" class="active"><i class="fas fa-user mr-2"></i> Profile</a>
-        <a href="/admin-logout"><i class="fas fa-power-off mr-2"></i> Log Out</a>
+      <!-- Edit form -->
+      <div class="edit-form-card">
+        <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
+
+          <div class="section-heading"><i class="fas fa-user"></i> Personal Information</div>
+          <div class="form-two-col">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" name="firstName" class="form-control" value="<%= admin.firstName || '' %>" placeholder="First Name">
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" name="lastName" class="form-control" value="<%= admin.lastName || '' %>" placeholder="Last Name">
+            </div>
+          </div>
+          <div class="form-two-col">
+            <div class="form-group">
+              <label>Business Name</label>
+              <input type="text" name="businessName" class="form-control" value="<%= admin.businessName || '' %>" placeholder="Business Name">
+            </div>
+            <div class="form-group">
+              <label>Currency</label>
+              <select name="currency" class="form-control">
+                <option value="">Select Currency</option>
+                <option value="NGN" <%= admin.currency === 'NGN' ? 'selected' : '' %>>NGN (₦)</option>
+                <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD ($)</option>
+                <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR (€)</option>
+                <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP (£)</option>
+                <option value="ZAR" <%= admin.currency === 'ZAR' ? 'selected' : '' %>>ZAR (R)</option>
+                <option value="GHS" <%= admin.currency === 'GHS' ? 'selected' : '' %>>GHS (₵)</option>
+                <option value="KES" <%= admin.currency === 'KES' ? 'selected' : '' %>>KES (KSh)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" class="form-control" value="<%= admin.email || '' %>">
+            <div class="checkbox-row">
+              <input type="checkbox" name="publicEmail" id="publicEmail" <%= admin.publicEmail ? 'checked' : '' %>>
+              <label for="publicEmail">Make email public on storefront</label>
+            </div>
+          </div>
+          <div class="form-two-col">
+            <div class="form-group">
+              <label>Phone</label>
+              <input type="text" name="phone" class="form-control" value="<%= admin.phone || '' %>" placeholder="Phone number">
+              <div class="checkbox-row">
+                <input type="checkbox" name="publicPhone" id="publicPhone" <%= admin.publicPhone ? 'checked' : '' %>>
+                <label for="publicPhone">Make public</label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" name="address" class="form-control" value="<%= admin.address || '' %>" placeholder="Full address">
+              <div class="checkbox-row">
+                <input type="checkbox" name="publicAddress" id="publicAddress" <%= admin.publicAddress ? 'checked' : '' %>>
+                <label for="publicAddress">Make public</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-heading"><i class="fas fa-percentage"></i> VAT Configuration</div>
+          <div class="form-group">
+            <div class="checkbox-row" style="margin-bottom:10px;">
+              <input type="checkbox" name="applyVat" id="applyVat" <%= admin.applyVat ? 'checked' : '' %>>
+              <label for="applyVat" style="font-weight:600; font-size:0.9rem;">Enable VAT on products</label>
+            </div>
+            <div id="vatRateGroup" style="display:<%= admin.applyVat ? 'block' : 'none' %>;">
+              <label>VAT Rate (%)</label>
+              <input type="number" name="vatRate" class="form-control" value="<%= admin.vatRate || 0 %>" min="0" max="100" step="0.01" style="max-width:180px;">
+            </div>
+          </div>
+
+          <div class="section-heading"><i class="fas fa-image"></i> Business Logo</div>
+          <div class="logo-upload-area">
+            <% if (admin.logo) { %>
+              <img src="<%= admin.logo %>" class="logo-preview" id="imagePreview">
+            <% } else { %>
+              <div class="logo-placeholder" id="imagePlaceholder"><i class="fas fa-image"></i></div>
+            <% } %>
+            <input type="file" name="logo" id="logoInput" accept="image/*" style="display:none;">
+            <input type="hidden" name="croppedImageData" id="croppedImageData">
+            <br>
+            <button type="button" class="btn-secondary-app" style="margin-top:8px;" onclick="document.getElementById('logoInput').click()">
+              <i class="fas fa-upload"></i> Upload Logo
+            </button>
+          </div>
+
+          <div class="section-heading"><i class="fas fa-university"></i> Bank Accounts</div>
+          <div class="form-two-col">
+            <div>
+              <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#888; margin-bottom:12px;">Primary Account</div>
+              <div class="form-group">
+                <label>Account Name</label>
+                <input type="text" name="primaryBankAccountName" class="form-control" value="<%= admin.primaryAccount?.bankAccountName || '' %>">
+              </div>
+              <div class="form-group">
+                <label>Account Number</label>
+                <input type="text" name="primaryAccountNumber" class="form-control" value="<%= admin.primaryAccount?.accountNumber || '' %>">
+              </div>
+              <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" name="primaryBankName" class="form-control" value="<%= admin.primaryAccount?.bankName || '' %>">
+              </div>
+            </div>
+            <div>
+              <div style="font-size:0.82rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:#888; margin-bottom:12px;">Secondary Account (optional)</div>
+              <div class="form-group">
+                <label>Account Name</label>
+                <input type="text" name="secondaryBankAccountName" class="form-control" value="<%= admin.secondaryAccount?.bankAccountName || '' %>">
+              </div>
+              <div class="form-group">
+                <label>Account Number</label>
+                <input type="text" name="secondaryAccountNumber" class="form-control" value="<%= admin.secondaryAccount?.accountNumber || '' %>">
+              </div>
+              <div class="form-group">
+                <label>Bank Name</label>
+                <input type="text" name="secondaryBankName" class="form-control" value="<%= admin.secondaryAccount?.bankName || '' %>">
+              </div>
+            </div>
+          </div>
+
+          <div class="section-heading"><i class="fas fa-share-alt"></i> Social Media</div>
+          <div class="form-three-col">
+            <div class="form-group">
+              <label>Facebook</label>
+              <input type="url" name="facebook" class="form-control" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/...">
+            </div>
+            <div class="form-group">
+              <label>Instagram</label>
+              <input type="url" name="instagram" class="form-control" value="<%= admin.instagram || '' %>" placeholder="https://instagram.com/...">
+            </div>
+            <div class="form-group">
+              <label>X (Twitter)</label>
+              <input type="url" name="twitter" class="form-control" value="<%= admin.twitter || '' %>" placeholder="https://twitter.com/...">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:12px; margin-top:24px;">
+            <button type="submit" class="btn-primary-app"><i class="fas fa-save"></i> Save Changes</button>
+          </div>
+        </form>
+      </div>
+
     </div>
-
-    <!-- banner -->
-    <section class="main-slider main-slider__two">
-        <div class="swiper-container thm-swiper__slider" data-swiper-options='{"slidesPerView": 1, "loop": true, "effect": "fade", "autoplay": {"delay": 6500}}'>
-            <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="image-layer" style="background-image: url(asset1/images/main-slider/slider-1-1.jpg);"></div>
-                    <div class="container">
-                        <div class="row justify-content-start">
-                            <div class="col-xl-8">
-                                <h2>Profile & <span>Settings</span></h2>
-                                <p>Manage your personal info, business details, VAT and logo</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- main content -->
-    <section class="service-two pt-120 pb-120">
-        <div class="container">
-
-            <!-- Profile Card -->
-            <div class="profile-card wow fadeInUp" data-wow-duration="1200ms">
-                <div class="profile-header">
-                    <% if (admin.logo) { %>
-                        <img src="<%= admin.logo %>" alt="Business Logo" class="profile-avatar">
-                    <% } else { %>
-                        <div class="profile-avatar" style="background:#f8f9fa;display:flex;align-items:center;justify-content:center;font-size:3rem;color:#ccc;">
-                            <i class="fas fa-user"></i>
-                        </div>
-                    <% } %>
-                    <h3><%= admin.businessName || 'Your Business' %></h3>
-                    <p style="color:#666;"><%= admin.email %></p>
-                </div>
-
-                <div class="row">
-                    <div class="col-lg-6">
-                        <div class="form-group">
-                            <label>Full Name</label>
-                            <p class="value"><%= [admin.firstName, admin.lastName].filter(Boolean).join(' ') || 'Not set' %></p>
-                        </div>
-                        <div class="form-group">
-                            <label>Username</label>
-                            <p class="value">@<%= admin.username %></p>
-                        </div>
-                        <div class="form-group">
-                            <label>Business Email</label>
-                            <p class="value"><%= admin.email %> 
-                                <small>(<%= admin.publicEmail ? 'Public' : 'Private' %>)</small>
-                            </p>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <p class="value"><%= admin.phone || 'Not set' %> 
-                                <small>(<%= admin.publicPhone ? 'Public' : 'Private' %>)</small>
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6">
-                        <div class="form-group">
-                            <label>Business Address</label>
-                            <p class="value"><%= admin.address || 'Not set' %> 
-                                <small>(<%= admin.publicAddress ? 'Public' : 'Private' %>)</small>
-                            </p>
-                        </div>
-                        <div class="form-group">
-                            <label>Currency</label>
-                            <p class="value"><%= admin.currency || 'Not set' %></p>
-                        </div>
-                        <div class="form-group">
-                            <label>VAT Status</label>
-                            <p class="value">
-                                <% if (admin.applyVat) { %>
-                                    Enabled (<%= admin.vatRate || 0 %>%)
-                                <% } else { %>
-                                    Disabled
-                                <% } %>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center mt-40">
-                    <button id="editProfileBtn" class="thm-btn dynamic-radius">Edit Profile</button>
-                </div>
-            </div>
-
-            <!-- Edit Form (Hidden by Default) -->
-            <div id="profileEdit" class="profile-card wow fadeInUp" data-wow-duration="1200ms" style="display:none;">
-                <form id="updateProfileForm" action="/profile/update" method="POST" enctype="multipart/form-data">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>First Name</label>
-                                <input type="text" name="firstName" class="form-control" value="<%= admin.firstName || '' %>" placeholder="First Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Last Name</label>
-                                <input type="text" name="lastName" class="form-control" value="<%= admin.lastName || '' %>" placeholder="Last Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Business Name</label>
-                                <input type="text" name="businessName" class="form-control" value="<%= admin.businessName || '' %>" placeholder="Business Name">
-                            </div>
-                            <div class="form-group">
-                                <label>Currency</label>
-                                <select name="currency" class="form-control selectpicker">
-                                    <option value="">Select Currency</option>
-                                    <option value="NGN" <%= admin.currency === 'NGN' ? 'selected' : '' %>>NGN (₦)</option>
-                                    <option value="USD" <%= admin.currency === 'USD' ? 'selected' : '' %>>USD ($)</option>
-                                    <option value="EUR" <%= admin.currency === 'EUR' ? 'selected' : '' %>>EUR (€)</option>
-                                    <option value="GBP" <%= admin.currency === 'GBP' ? 'selected' : '' %>>GBP (£)</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" name="email" class="form-control" value="<%= admin.email || '' %>" placeholder="Email">
-                                <div class="checkbox-group mt-2">
-                                    <input type="checkbox" name="publicEmail" id="publicEmail" <%= admin.publicEmail ? 'checked' : '' %>>
-                                    <label for="publicEmail">Make email public on storefront</label>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Phone</label>
-                                <input type="text" name="phone" class="form-control" value="<%= admin.phone || '' %>" placeholder="Phone">
-                                <div class="checkbox-group mt-2">
-                                    <input type="checkbox" name="publicPhone" id="publicPhone" <%= admin.publicPhone ? 'checked' : '' %>>
-                                    <label for="publicPhone">Make phone public on storefront</label>
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Address</label>
-                                <input type="text" name="address" class="form-control" value="<%= admin.address || '' %>" placeholder="Full address">
-                                <div class="checkbox-group mt-2">
-                                    <input type="checkbox" name="publicAddress" id="publicAddress" <%= admin.publicAddress ? 'checked' : '' %>>
-                                    <label for="publicAddress">Make address public on storefront</label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- VAT Settings -->
-                    <div class="vat-section">
-                        <h5>VAT Configuration</h5>
-                        <div class="form-group checkbox-group">
-                            <input type="checkbox" name="applyVat" id="applyVat" <%= admin.applyVat ? 'checked' : '' %>>
-                            <label for="applyVat">Enable VAT on products</label>
-                        </div>
-                        <div id="vatRateGroup" class="form-group" style="display:<%= admin.applyVat ? 'block' : 'none' %>;">
-                            <label>VAT Rate (%)</label>
-                            <input type="number" name="vatRate" class="form-control" value="<%= admin.vatRate || 0 %>" min="0" max="100" step="0.01">
-                        </div>
-                    </div>
-
-                    <!-- Logo Upload -->
-                    <div class="image-upload-container">
-                        <label>Business Logo</label>
-                        <% if (admin.logo) { %>
-                            <img src="<%= admin.logo %>" class="image-preview" id="imagePreview">
-                        <% } else { %>
-                            <div class="image-placeholder" id="imagePlaceholder">
-                                <i class="fas fa-image fa-3x"></i>
-                            </div>
-                        <% } %>
-                        <input type="file" name="logo" id="logoInput" accept="image/*" class="d-none">
-                        <input type="hidden" name="croppedImageData" id="croppedImageData">
-                        <button type="button" class="thm-btn dynamic-radius mt-3" onclick="document.getElementById('logoInput').click()">
-                            Upload New Logo
-                        </button>
-                    </div>
-
-                    <!-- Bank Accounts -->
-                    <div class="bank-section">
-                        <h5>Bank Account Details</h5>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <h6>Primary Account</h6>
-                                <div class="form-group">
-                                    <label>Account Name</label>
-                                    <input type="text" name="primaryBankAccountName" class="form-control" value="<%= admin.primaryAccount?.bankAccountName || '' %>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Account Number</label>
-                                    <input type="text" name="primaryAccountNumber" class="form-control" value="<%= admin.primaryAccount?.accountNumber || '' %>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Bank Name</label>
-                                    <input type="text" name="primaryBankName" class="form-control" value="<%= admin.primaryAccount?.bankName || '' %>">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <h6>Secondary Account (optional)</h6>
-                                <div class="form-group">
-                                    <label>Account Name</label>
-                                    <input type="text" name="secondaryBankAccountName" class="form-control" value="<%= admin.secondaryAccount?.bankAccountName || '' %>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Account Number</label>
-                                    <input type="text" name="secondaryAccountNumber" class="form-control" value="<%= admin.secondaryAccount?.accountNumber || '' %>">
-                                </div>
-                                <div class="form-group">
-                                    <label>Bank Name</label>
-                                    <input type="text" name="secondaryBankName" class="form-control" value="<%= admin.secondaryAccount?.bankName || '' %>">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Social Links -->
-                    <div class="social-links">
-                        <h5>Social Media</h5>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Facebook</label>
-                                    <input type="url" name="facebook" class="form-control" value="<%= admin.facebook || '' %>" placeholder="https://facebook.com/...">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>Instagram</label>
-                                    <input type="url" name="instagram" class="form-control" value="<%= admin.instagram || '' %>" placeholder="https://instagram.com/...">
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-group">
-                                    <label>X (Twitter)</label>
-                                    <input type="url" name="twitter" class="form-control" value="<%= admin.twitter || '' %>" placeholder="https://twitter.com/...">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="text-center mt-50">
-                        <button type="submit" class="thm-btn dynamic-radius">Save Changes</button>
-                        <button type="button" id="cancelEditBtn" class="thm-btn dynamic-radius cancel ml-3">Cancel</button>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- footer -->
-    <section class="site-footer">
-        <div class="main-footer pt-120 pb-80">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <a href="/home">
-                                <img src="/images/logo.png" width="140" alt="">
-                            </a>
-                            <p class="mt-3">Manage your business identity and preferences</p>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Quick Links</h3>
-                            <ul class="list-unstyled">
-                                <li><a href="/pos">Point of Sale</a></li>
-                                <li><a href="/update-stock">Inventory</a></li>
-                                <li><a href="/invoices">Invoices</a></li>
-                                <li><a href="/profile">Settings</a></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6">
-                        <div class="footer-widget mb-40">
-                            <h3>Contact</h3>
-                            <p><strong><%= admin.businessName || 'Your Business' %></strong><br>
-                            <%= admin.email || 'No email set' %></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="footer-bottom">
-            <div class="container">
-                <p>© <%= new Date().getFullYear() %> Shed – All Rights Reserved</p>
-            </div>
-        </div>
-    </section>
-
+  </main>
 </div>
 
-<div class="mobile-nav__overlay mobile-nav__toggler"></div>
-
-<!-- Cropper Modal -->
-<div class="modal fade" id="cropModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Crop & Resize Logo</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img id="imageToCrop" src="#" alt="Crop preview" style="max-width:100%; max-height:500px;">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="thm-btn dynamic-radius" id="cropButton">Crop & Save</button>
-                <button type="button" class="thm-btn dynamic-radius cancel" data-bs-dismiss="modal">Cancel</button>
-            </div>
-        </div>
+<!-- Crop Modal -->
+<div class="crop-modal-overlay" id="cropModalOverlay">
+  <div class="crop-modal">
+    <h4>Crop & Resize Logo</h4>
+    <img id="imageToCrop" src="#" alt="Crop preview">
+    <div class="crop-modal-actions">
+      <button type="button" class="btn-primary-app" id="cropButton"><i class="fas fa-crop"></i> Crop & Save</button>
+      <button type="button" class="btn-secondary-app" id="cancelCropBtn">Cancel</button>
     </div>
+  </div>
 </div>
 
-<script src="asset1/js/jquery-3.5.1.min.js"></script>
-<script src="asset1/js/bootstrap.bundle.min.js"></script>
-<script src="asset1/js/swiper.min.js"></script>
-<script src="asset1/js/wow.js"></script>
-<script src="asset1/js/bootstrap-select.min.js"></script>
+<script src="/js/plugins/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
-<script src="asset1/js/theme.js"></script>
-
 <script>
-$(document).ready(function(){
-    // Mobile menu toggle
-    $('.mobile-nav__toggler').click(function(e){
-        e.preventDefault();
-        $('#sidebarNav').toggleClass('active');
-        $('.mobile-nav__overlay').toggleClass('active');
-    });
+  // Sidebar toggle
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
 
-    $('.mobile-nav__close, .mobile-nav__overlay').click(function(){
-        $('#sidebarNav').removeClass('active');
-        $('.mobile-nav__overlay').removeClass('active');
-    });
+  // VAT toggle
+  document.getElementById('applyVat').addEventListener('change', function() {
+    document.getElementById('vatRateGroup').style.display = this.checked ? 'block' : 'none';
+  });
 
-    // Edit / Cancel profile
-    $('#editProfileBtn').click(function(){
-        $('#profileEdit').slideDown(400);
-        $('.profile-card:first').slideUp(300);
-        $('html,body').animate({scrollTop: $('#profileEdit').offset().top - 120}, 600);
-    });
+  // Logo cropper
+  let cropper;
+  const logoInput = document.getElementById('logoInput');
+  const cropOverlay = document.getElementById('cropModalOverlay');
+  const imageToCrop = document.getElementById('imageToCrop');
 
-    $('#cancelEditBtn').click(function(){
-        $('#profileEdit').slideUp(300);
-        $('.profile-card:first').slideDown(400);
-    });
+  logoInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      imageToCrop.src = ev.target.result;
+      cropOverlay.classList.add('active');
+      setTimeout(function() {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageToCrop, {
+          aspectRatio: 1, viewMode: 1, autoCropArea: 0.8,
+          responsive: true, minContainerHeight: 300
+        });
+      }, 200);
+    };
+    reader.readAsDataURL(file);
+  });
 
-    // VAT toggle
-    $('#applyVat').change(function(){
-        $('#vatRateGroup').toggle(this.checked);
-    });
+  document.getElementById('cropButton').addEventListener('click', function() {
+    if (cropper) {
+      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const dataUrl = canvas.toDataURL('image/png');
+      const preview = document.getElementById('imagePreview');
+      if (preview) { preview.src = dataUrl; }
+      else {
+        const img = document.createElement('img');
+        img.id = 'imagePreview'; img.className = 'logo-preview'; img.src = dataUrl;
+        const ph = document.getElementById('imagePlaceholder');
+        if (ph) ph.replaceWith(img);
+      }
+      document.getElementById('croppedImageData').value = dataUrl;
+      cropOverlay.classList.remove('active');
+    }
+  });
 
-    // Logo cropper
-    let cropper;
-    const $logoInput = $('#logoInput');
-    const $imagePreview = $('#imagePreview');
-    const $imagePlaceholder = $('#imagePlaceholder');
-    const $croppedData = $('#croppedImageData');
-
-    $logoInput.change(function(e){
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function(ev) {
-                $('#imageToCrop').attr('src', ev.target.result);
-                $('#cropModal').modal('show');
-
-                setTimeout(() => {
-                    if (cropper) cropper.destroy();
-                    cropper = new Cropper(document.getElementById('imageToCrop'), {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 0.8,
-                        responsive: true,
-                        minContainerHeight: 400
-                    });
-                }, 300);
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-
-    $('#cropButton').click(function(){
-        if (cropper) {
-            const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
-            const dataUrl = canvas.toDataURL('image/png');
-            $imagePreview.attr('src', dataUrl).removeClass('hidden');
-            $imagePlaceholder.addClass('hidden');
-            $croppedData.val(dataUrl);
-            $('#cropModal').modal('hide');
-        }
-    });
-});
+  document.getElementById('cancelCropBtn').addEventListener('click', function() {
+    cropOverlay.classList.remove('active');
+    if (cropper) { cropper.destroy(); cropper = null; }
+    logoInput.value = '';
+  });
 </script>
-
 </body>
 </html>
