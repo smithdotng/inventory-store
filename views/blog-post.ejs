@@ -5,7 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= post.title %> | Shed Blog</title>
     <meta name="description" content="<%= post.excerpt || post.title %>">
-    <% if (post.coverImage) { %><meta property="og:image" content="<%= post.coverImage %>"><% } %>
+    <meta property="og:type" content="article" />
+    <meta property="og:title" content="<%= post.title %> | Shed Blog" />
+    <meta property="og:description" content="<%= post.excerpt || post.title %>" />
+    <meta property="og:image" content="<%= post.coverImage || 'https://img.shed.ng/status.jpg' %>" />
+    <meta property="og:url" content="https://shed.ng/blog/<%= post.slug %>" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="<%= post.title %> | Shed Blog" />
+    <meta name="twitter:description" content="<%= post.excerpt || post.title %>" />
+    <meta name="twitter:image" content="<%= post.coverImage || 'https://img.shed.ng/status.jpg' %>" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="manifest" href="/site.webmanifest">
