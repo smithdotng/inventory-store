@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tips, insights and updates from the Shed team on inventory management, invoicing and running a better business.">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Ashley theme CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        /* ── Custom topbar ── */
+        .shed-topbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 9000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(0,0,0,0.82);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .shed-topbar-logo img { height: 40px; width: auto; display: block; }
+        .shed-topbar-right { display: flex; align-items: center; gap: 18px; }
+        .shed-icon-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 18px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
+        }
+        .shed-icon-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-topbar { padding: 0 20px; } }
+        .shed-overlay-header {
+            position: absolute; top: 0; left: 0; right: 0; height: 70px; z-index: 1;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+        }
+        .shed-overlay-header .shed-overlay-logo img { height: 40px; width: auto; display: block; }
+        .shed-close-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 22px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
+        }
+        .shed-close-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-overlay-header { padding: 0 20px; } }
+
+        /* Search overlay */
+        .mil-search-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+            align-items: flex-start; justify-content: center; padding-top: 80px;
+        }
+        .mil-search-overlay.active { display: flex; }
+        .mil-subscribe-form {
+            position: relative; display: flex; align-items: center;
+            background: #fff; border-radius: 8px; padding: 6px 10px;
+            width: min(600px, 92vw); box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .mil-subscribe-form input { flex: 1; border: none; background: transparent; padding: 8px 6px; font-size: 15px; outline: none; color: #222; }
+        .mil-subscribe-form input::placeholder { color: #aaa; }
+        .mil-subscribe-form .mil-search-submit { background: #008B8B; border: none; cursor: pointer; color: #fff; border-radius: 6px; padding: 7px 14px; font-size: 14px; display: flex; align-items: center; }
+        .mil-subscribe-form .mil-search-close-btn { background: none; border: none; cursor: pointer; color: #aaa; font-size: 18px; padding: 4px 8px; margin-right: 4px; }
+        .mil-search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); max-height: 400px; overflow-y: auto; z-index: 1000; display: none; border-radius: 0 0 5px 5px; }
+        .mil-search-results.active { display: block; }
+        .mil-search-result-item { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eee; text-decoration: none; color: #333; }
+        .mil-search-result-item:hover { background: #f5f5f5; }
+        .mil-search-result-item img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+        .mil-search-result-item div { flex: 1; }
+        .mil-search-result-item h6 { margin: 0; font-size: 14px; font-weight: 600; }
+        .mil-search-result-item p { margin: 2px 0 0; font-size: 12px; color: #666; }
+        .mil-search-no-results { padding: 20px; text-align: center; color: #666; font-size: 14px; }
+        .mil-search-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
+        .mil-search-tab { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-size: 14px; color: #666; }
+        .mil-search-tab.active { background: #fff; color: #008B8B; font-weight: 600; border-bottom: 2px solid #008B8B; }
+        .mil-search-section { display: none; }
+        .mil-search-section.active { display: block; }
+        .mil-search-section-header { padding: 8px 15px; background: #f5f5f5; border-bottom: 1px solid #eee; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .mil-search-arrow { color: #999; font-size: 14px; }
+
+        /* ── General ────────────────────────────────────────────────── */
+        footer.mil-dark-bg { padding-bottom: 0; }
+        .mil-light-soft {
+            display: block !important; visibility: visible !important;
+            opacity: 1 !important; color: #fff !important; font-size: 16px !important;
+        }
+        .mil-soft-bg .mil-light-soft { color: #333 !important; }
+        .mil-banner-content, .mil-content, .mil-services-grid { visibility: visible !important; opacity: 1 !important; }
+        .mil-up { transform: none !important; opacity: 1 !important; }
+        /* Suppress checkmarks globally except nav/menu */
+        li { position: relative; padding-left: 0; }
+        li::before { content: none; }
+        .mil-subscribe-container { position: relative; margin-top: 20px; }
+        .mil-subscribe-success { display: none; color: #4CAF50; font-size: 16px; padding: 10px; text-align: center; }
+        .mil-subscribe-error { display: none; color: #F44336; font-size: 14px; margin-bottom: 5px; }
+
+        /* ── Blog-specific styles ──────────────────────────────────── */
+        .mil-blog-card-img {
+            width: calc(100% + 60px); margin: -30px -30px 24px;
+            height: 200px; object-fit: cover; display: block;
+        }
+        .mil-blog-card-img-placeholder {
+            width: calc(100% + 60px); margin: -30px -30px 24px;
+            height: 200px; background: rgba(255,255,255,0.04);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mil-blog-card-img-placeholder i { font-size: 2.5rem; color: rgba(0,139,139,0.35); }
+        .mil-blog-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+        .mil-blog-tag {
+            background: rgba(0,139,139,0.2); color: #008B8B;
+            border-radius: 4px; padding: 2px 9px; font-size: 0.68rem;
+            font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
+        }
+        .mil-blog-meta {
+            font-size: 0.76rem; color: rgba(255,255,255,0.4);
+            display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+        }
+        .mil-blog-meta i { color: #008B8B; }
+        /* Tag filter pills in banner */
+        .mil-tag-filter {
+            display: flex; flex-wrap: wrap; gap: 10px;
+            justify-content: center; margin-top: 40px;
+        }
+        .mil-tag-pill {
+            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.65); border-radius: 20px;
+            padding: 6px 18px; font-size: 0.82rem; font-weight: 500;
+            text-decoration: none; transition: all 0.2s;
+        }
+        .mil-tag-pill:hover, .mil-tag-pill.active {
+            background: rgba(0,139,139,0.2); border-color: #008B8B; color: #fff;
+        }
+        /* Pagination */
+        .mil-blog-pagination {
+            display: flex; gap: 8px; justify-content: center; margin-top: 60px;
+        }
+        .mil-page-link, .mil-page-current {
+            width: 44px; height: 44px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.88rem; font-weight: 600; text-decoration: none;
+        }
+        .mil-page-link {
+            background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.65);
+            border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;
+        }
+        .mil-page-link:hover { background: rgba(0,139,139,0.2); border-color: #008B8B; color: #fff; }
+        .mil-page-current { background: #008B8B; color: #fff; border: 1px solid #008B8B; }
+        /* Empty state */
+        .mil-blog-empty { text-align: center; padding: 60px 0 80px; }
+        .mil-blog-empty p { color: rgba(255,255,255,0.4); font-size: 1rem; margin-top: 12px; }
+    </style>
+    <title>Blog | Shed — Sell Anywhere, Manage Everything</title>
+</head>
+<body>
+
+    <!-- Custom topbar (outside mil-wrapper) -->
+    <div class="shed-topbar">
+        <a href="/" class="shed-topbar-logo"><img src="/images/logo.png" alt="Shed"></a>
+        <div class="shed-topbar-right">
+            <button class="shed-icon-btn" id="searchToggleBtn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="shed-icon-btn" id="shedMenuOpen" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+
+    <!-- Search overlay (outside mil-wrapper) -->
+    <div class="mil-search-overlay" id="searchOverlay">
+        <form class="mil-subscribe-form" id="searchForm" action="/search" method="GET">
+            <i class="fas fa-search" style="color:#aaa;margin-right:8px;flex-shrink:0;"></i>
+            <input type="text" name="q" placeholder="Search for a Shed or Product" autocomplete="off" autofocus>
+            <button type="button" class="mil-search-close-btn" id="searchCloseBtn" aria-label="Close">×</button>
+            <button type="submit" class="mil-search-submit"><i class="fas fa-arrow-right"></i></button>
+            <div class="mil-search-results"></div>
+        </form>
+    </div>
+
+    <!-- Menu overlay (outside mil-wrapper) -->
+    <div class="mil-menu-frame" id="shedMenuFrame">
+        <div class="shed-overlay-header">
+            <a href="/" class="shed-overlay-logo"><img src="/images/logo.png" alt="Shed"></a>
+            <button class="shed-close-btn" id="shedMenuClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="container">
+            <nav class="mil-main-menu" id="swupMenu">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li class="mil-active"><a href="/blog">Blog</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/admin-login">Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="mil-wrapper" id="top">
+
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2-1.2,1.2-3.1,0-4.2L106.1,41.9z"/>
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Choose</div>
+        </div>
+        <!-- cursor end -->
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-preloader-animation">
+                <div class="mil-pos-abs mil-animation-2">
+                    <div class="mil-reveal-frame">
+                        <p class="mil-reveal-box"></p>
+                        <p class="mil-h3 mil-muted mil-thin">Shed.ng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- preloader end -->
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-30">
+                                    <span class="mil-thin">Shed </span>Journal
+                                </h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-30">
+                                            Tips, guides and updates on inventory, invoicing, selling online and growing your business.
+                                        </p>
+                                    </div>
+                                </div>
+                                <% if (allTags && allTags.length > 0) { %>
+                                <div class="mil-tag-filter">
+                                    <a href="/blog" class="mil-tag-pill <%= !tag ? 'active' : '' %>">All Posts</a>
+                                    <% allTags.forEach(function(t) { %>
+                                    <a href="/blog?tag=<%= encodeURIComponent(t) %>" class="mil-tag-pill <%= tag === t ? 'active' : '' %>"><%= t %></a>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- blog grid -->
+                <section class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="2.4" data-value-2="1.4" style="top:300px;right:-100px;"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="2" data-value-2="1" style="left:150px;"></div>
+                        </div>
+                        <div class="container mil-p-120-60">
+
+                            <% if (tag) { %>
+                            <div class="mil-mb-60">
+                                <span class="mil-suptitle mil-light-soft mil-up">Articles tagged: <strong style="color:#008B8B;">#<%= tag %></strong></span>
+                            </div>
+                            <% } else { %>
+                            <div class="mil-mb-60">
+                                <span class="mil-suptitle mil-light-soft mil-up">Insights for smarter business management.</span>
+                            </div>
+                            <% } %>
+
+                            <% if (posts && posts.length > 0) { %>
+                            <div class="row mil-services-grid m-0">
+                                <% posts.forEach(function(post) { %>
+                                <div class="col-md-6 col-lg-4 mil-services-grid-item p-0">
+                                    <a href="/blog/<%= post.slug %>" class="mil-service-card-sm mil-up">
+                                        <% if (post.coverImage && !post.coverImage.includes('default-blog')) { %>
+                                        <img src="<%= post.coverImage %>" alt="<%= post.title %>" class="mil-blog-card-img" loading="lazy">
+                                        <% } else { %>
+                                        <div class="mil-blog-card-img-placeholder">
+                                            <i class="fas fa-newspaper"></i>
+                                        </div>
+                                        <% } %>
+                                        <% if (post.tags && post.tags.length > 0) { %>
+                                        <div class="mil-blog-card-tags">
+                                            <% post.tags.slice(0, 2).forEach(function(t) { %>
+                                            <span class="mil-blog-tag"><%= t %></span>
+                                            <% }); %>
+                                        </div>
+                                        <% } %>
+                                        <h5 class="mil-muted mil-mb-15"><%= post.title %></h5>
+                                        <p class="mil-light-soft mil-mb-20" style="font-size:0.9rem;line-height:1.6;">
+                                            <%= post.excerpt || post.content.replace(/<[^>]+>/g, '').substring(0, 120) %>...
+                                        </p>
+                                        <div class="mil-blog-meta">
+                                            <span><i class="fas fa-user-circle"></i> <%= post.author || 'Shed Team' %></span>
+                                            <span><i class="fas fa-calendar-alt"></i> <%= new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) %></span>
+                                        </div>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <% }); %>
+                            </div>
+
+                            <% if (pages > 1) { %>
+                            <div class="mil-blog-pagination">
+                                <% if (page > 1) { %>
+                                <a href="/blog?page=<%= page-1 %><%= tag ? '&tag='+encodeURIComponent(tag) : '' %>" class="mil-page-link"><i class="fas fa-chevron-left"></i></a>
+                                <% } %>
+                                <% for (var i = 1; i <= pages; i++) { %>
+                                    <% if (i === page) { %>
+                                    <span class="mil-page-current"><%= i %></span>
+                                    <% } else { %>
+                                    <a href="/blog?page=<%= i %><%= tag ? '&tag='+encodeURIComponent(tag) : '' %>" class="mil-page-link"><%= i %></a>
+                                    <% } %>
+                                <% } %>
+                                <% if (page < pages) { %>
+                                <a href="/blog?page=<%= page+1 %><%= tag ? '&tag='+encodeURIComponent(tag) : '' %>" class="mil-page-link"><i class="fas fa-chevron-right"></i></a>
+                                <% } %>
+                            </div>
+                            <% } %>
+
+                            <% } else { %>
+                            <div class="mil-blog-empty mil-center">
+                                <h4 class="mil-muted mil-mb-15">No posts yet</h4>
+                                <p>Check back soon — we're working on something great.</p>
+                            </div>
+                            <% } %>
+
+                        </div>
+                    </div>
+                </section>
+                <!-- blog grid end -->
+
+                <!-- call to action -->
+                <section class="mil-soft-bg">
+                    <div class="container mil-p-120-120">
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <span class="mil-suptitle mil-suptitle-right mil-suptitle-dark mil-up">
+                                    Ready to take control of your inventory and start selling smarter?
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mil-center">
+                            <h2 class="mil-up mil-mb-60">
+                                Launch Your Business <span class="mil-thin">on Shed</span><br>
+                                <span class="mil-thin">— Free to Start.</span>
+                            </h2>
+                            <div class="mil-up">
+                                <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space">
+                                    <span>Create your Shed</span>
+                                </a>
+                                <a href="/contact" class="mil-button mil-arrow-place" style="background:rgba(0,0,0,0.08);color:#333;">
+                                    <span>Contact Us</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- call to action end -->
+
+                <!-- footer -->
+                <footer class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="container mil-p-120-60">
+                            <div class="row justify-content-between">
+                                <div class="col-md-4 col-lg-4 mil-mb-60">
+                                    <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                                    <p class="mil-light-soft mil-up mil-mb-30">Subscribe to our newsletter:</p>
+                                    <div class="mil-subscribe-container">
+                                        <div class="mil-subscribe-error"></div>
+                                        <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                            <input type="email" name="email" placeholder="What is your email address?" required>
+                                            <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                                        </form>
+                                        <div class="mil-subscribe-success">
+                                            <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-md-6 col-lg-9">
+                                            <div class="mil-vert-between">
+                                                <p class="mil-light-soft mil-up">© Copyright <%= new Date().getFullYear() %> — Shed Factory Ltd. All Rights Reserved.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                <!-- footer end -->
+
+                <!-- hidden elements -->
+                <div class="mil-hidden-elements">
+                    <div class="mil-dodecahedron">
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                        <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
+                    </svg>
+                    <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move"/>
+                    </svg>
+                </div>
+                <!-- hidden elements end -->
+
+            </div>
+        </div>
+        <!-- content end -->
+
+    </div>
+    <!-- wrapper end -->
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swup.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/main.js"></script>
+
+    <!-- Search Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchOverlay   = document.getElementById('searchOverlay');
+            const searchToggleBtn = document.getElementById('searchToggleBtn');
+            const searchCloseBtn  = document.getElementById('searchCloseBtn');
+            const searchForm      = document.getElementById('searchForm');
+            const searchInput     = searchForm.querySelector('input[name="q"]');
+            const searchResults   = searchForm.querySelector('.mil-search-results');
+
+            function openSearch()  { searchOverlay.classList.add('active'); setTimeout(() => searchInput.focus(), 50); }
+            function closeSearch() { searchOverlay.classList.remove('active'); searchResults.classList.remove('active'); searchInput.value = ''; }
+
+            searchToggleBtn.addEventListener('click', openSearch);
+            searchCloseBtn.addEventListener('click', closeSearch);
+            searchOverlay.addEventListener('click', (e) => { if (e.target === searchOverlay) closeSearch(); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeSearch(); });
+
+            // Tabs
+            const tabsHtml = `<div class="mil-search-tabs"><button class="mil-search-tab active" data-type="all">All</button><button class="mil-search-tab" data-type="stores">Stores</button><button class="mil-search-tab" data-type="products">Products</button></div>`;
+            searchResults.insertAdjacentHTML('afterbegin', tabsHtml);
+
+            const debounce = (fn, ms) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(() => fn(...a), ms); }; };
+
+            const fetchResults = async (q, type) => {
+                const r = await fetch(`/api/search/suggestions?q=${encodeURIComponent(q)}&type=${type}`);
+                if (!r.ok) throw new Error();
+                return r.json();
+            };
+
+            const displayResults = (data, q, type) => {
+                const id = `mil-search-${type}`;
+                let sec = document.getElementById(id);
+                if (!sec) { sec = document.createElement('div'); sec.id = id; sec.className = `mil-search-section ${type === 'all' ? 'active' : ''}`; searchResults.appendChild(sec); }
+                sec.innerHTML = `<div class="mil-search-section-header">${type === 'all' ? 'All Results' : type === 'stores' ? 'Stores' : 'Products'}</div>`;
+                if (!data.length) { sec.innerHTML += `<div class="mil-search-no-results">No ${type} found</div>`; return; }
+                data.forEach(item => {
+                    const a = document.createElement('a');
+                    a.className = 'mil-search-result-item';
+                    const isStore = item.type === 'store' || type === 'stores';
+                    a.href = isStore ? `/store/${item.username}` : `/store/${item.storeUsername}?product=${item._id}`;
+                    a.innerHTML = `<img src="${item.logo || item.image || '/img/placeholder-store.png'}" alt=""><div><h6>${item.businessName || item.name || 'Unnamed'}</h6><p>${isStore ? '@' + item.username : '₦' + (item.cost ? parseFloat(item.cost).toLocaleString() : '—')}</p></div><div class="mil-search-arrow">→</div>`;
+                    sec.appendChild(a);
+                });
+                const all = document.createElement('a');
+                all.href = `/search?q=${encodeURIComponent(q)}&type=${type}`;
+                all.className = 'mil-search-result-item'; all.style.cssText = 'justify-content:center;font-weight:600;color:#008B8B;';
+                all.innerHTML = `View all ${type} results →`; sec.appendChild(all);
+            };
+
+            searchResults.addEventListener('click', (e) => {
+                if (!e.target.classList.contains('mil-search-tab')) return;
+                document.querySelectorAll('.mil-search-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                const type = e.target.dataset.type;
+                document.querySelectorAll('.mil-search-section').forEach(s => s.classList.remove('active'));
+                const sec = document.getElementById(`mil-search-${type}`);
+                if (sec) sec.classList.add('active');
+                const q = searchInput.value.trim();
+                if (q) fetchAndShow(q, type);
+            });
+
+            const fetchAndShow = async (q, type = 'all') => {
+                if (!q || q.length < 2) { searchResults.classList.remove('active'); return; }
+                try { displayResults(await fetchResults(q, type), q, type); searchResults.classList.add('active'); }
+                catch(e) {}
+            };
+
+            searchInput.addEventListener('input', debounce(() => {
+                const type = document.querySelector('.mil-search-tab.active')?.dataset.type || 'all';
+                fetchAndShow(searchInput.value.trim(), type);
+            }, 300));
+        });
+    </script>
+
+    <!-- Newsletter subscribe -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const form    = document.getElementById('subscribeForm');
+            const success = form?.nextElementSibling;
+            const error   = form?.previousElementSibling;
+            if (!form) return;
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = form.querySelector('input[name="email"]').value;
+                try {
+                    const r = await fetch('/api/newsletter/subscribe', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+                    if (r.ok) { form.style.display = 'none'; if (success) success.style.display = 'block'; }
+                    else { if (error) { error.textContent = 'Could not subscribe. Please try again.'; error.style.display = 'block'; } }
+                } catch(err) { if (error) { error.textContent = 'Network error. Please try again.'; error.style.display = 'block'; } }
+            });
+        });
+    </script>
+    <script>
+        (function() {
+            function initMenu() {
+                var openBtn  = document.getElementById('shedMenuOpen');
+                var closeBtn = document.getElementById('shedMenuClose');
+                var frame    = document.getElementById('shedMenuFrame');
+                if (openBtn)  openBtn.onclick  = function() { frame.classList.add('mil-active'); };
+                if (closeBtn) closeBtn.onclick = function() { frame.classList.remove('mil-active'); };
+                if (frame) frame.addEventListener('click', function(e) {
+                    if (e.target === frame) frame.classList.remove('mil-active');
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initMenu);
+            if (window.swup) window.swup.on('contentReplaced', initMenu);
+        })();
+    </script>
+</body>
+</html>

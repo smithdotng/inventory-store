@@ -21,6 +21,7 @@ const superadminRoutes  = require('./routes/superadmin');
 const profileRoutes     = require('./routes/profile');
 const storeRoutes       = require('./routes/store');
 const apiRoutes         = require('./routes/api');
+const blogRoutes        = require('./routes/blog');
 const miscRoutes        = require('./routes/misc');
 
 const app = express();
@@ -74,6 +75,7 @@ app.use('/superadmin', superadminRoutes);
 app.use('/',           profileRoutes);
 app.use('/',           storeRoutes);
 app.use('/',           apiRoutes);
+app.use('/',           blogRoutes);
 app.use('/',           miscRoutes);   // misc last — contains the * catch-all
 
 // ── Email broadcast utility route ─────────────────────────────────────────────

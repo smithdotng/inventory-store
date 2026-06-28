@@ -30,434 +30,139 @@
 
     <!-- Meta Pixel Code --><script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js'); fbq('init', '1780383529247116'); fbq('track', 'PageView');</script><noscript> <img height="1" width="1" src="https://www.facebook.com/tr?id=1780383529247116&ev=PageView&noscript=1"/></noscript><!-- End Meta Pixel Code -->
 
-    <!-- Inline CSS for Fixes, Menu, and Search Results -->
+    <!-- Inline CSS for Fixes and Search -->
     <style>
-        /* Ensure .row is visible */
-        .mil-banner-content .row {
-            display: flex;
-            visibility: visible;
-            opacity: 1;
-            max-height: none;
-            margin-top: 20px;
+        /* Ashley animation fallbacks */
+        .mil-banner-content, .mil-content, .mil-services-grid { visibility: visible !important; opacity: 1 !important; }
+        .mil-up { transform: none !important; opacity: 1 !important; }
+        .mil-light-soft { display: block !important; visibility: visible !important; opacity: 1 !important; color: #fff !important; font-size: 16px !important; }
+        .mil-soft-bg .mil-light-soft { color: #333 !important; }
+        .mil-banner-content .row { display: flex; visibility: visible; opacity: 1; max-height: none; margin-top: 20px; }
+
+        /* ── Custom topbar ── */
+        .shed-topbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 9000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(0,0,0,0.82);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
         }
-        .mil-banner-content .col-md-7.col-lg-5 {
-            display: block;
-            visibility: visible;
-            opacity: 1;
+        .shed-topbar-logo img { height: 40px; width: auto; display: block; }
+        .shed-topbar-right { display: flex; align-items: center; gap: 18px; }
+        .shed-icon-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 18px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
         }
-        .mil-banner-content .col-md-7.col-lg-5 p {
-            display: block;
-            visibility: visible;
-            opacity: 1;
-            color: #fff;
+        .shed-icon-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-topbar { padding: 0 20px; } }
+        /* Menu overlay header */
+        .shed-overlay-header {
+            position: absolute; top: 0; left: 0; right: 0; height: 70px; z-index: 1;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
         }
-        /* Adjust .mil-frame-top to be fixed at top */
-        .mil-frame-top {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 5px 15px;
-            background: #fff;
-            height: 70px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1001;
+        .shed-overlay-header .shed-overlay-logo img { height: 40px; width: auto; display: block; }
+        .shed-close-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 22px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
         }
-        .mil-logo img {
-            width: 100px;
-            height: auto;
-        }
-        .mil-main-menu {
-            display: flex;
-            position: relative;
-        }
-        .mil-main-menu ul {
-            display: flex;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .mil-main-menu ul li {
-            position: relative;
-            margin: 0 10px;
-        }
-        .mil-main-menu ul li a {
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-            padding: 8px;
-            display: block;
-        }
-        .mil-main-menu ul li.mil-has-children > a::after {
-            content: '\f078';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            margin-left: 5px;
-            font-size: 10px;
-        }
-        .mil-main-menu ul li ul {
-            display: none;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            min-width: 180px;
-            flex-direction: column;
-            z-index: 1000;
-        }
-        .mil-main-menu ul li ul li {
-            margin: 0;
-        }
-        .mil-main-menu ul li ul li a {
-            padding: 8px 12px;
-            color: #333;
-            font-size: 14px;
-        }
-        .mil-main-menu ul li:hover > ul {
-            display: flex;
-        }
-        .mil-main-menu ul li ul li:hover a {
-            background: #f5f5f5;
-        }
-        .mil-menu-btn {
-            display: none;
-            cursor: pointer;
-            font-size: 20px;
-            color: #333;
-        }
-        /* Style mil-frame-bottom to scroll with the page */
-        .mil-frame-bottom {
-            background: #1a1a1a;
-            padding: 10px;
-            text-align: center;
-            color: #fff;
-        }
-        .mil-frame-bottom .mil-back-to-top a {
-            color: #fff;
-            text-decoration: none;
-        }
-        /* Search toggle icon */
-        .mil-search-toggle-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: inherit;
-            font-size: 16px;
-            padding: 6px 10px;
-            display: flex;
-            align-items: center;
-            opacity: 0.75;
-            transition: opacity 0.2s;
-        }
-        .mil-search-toggle-btn:hover { opacity: 1; }
+        .shed-close-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-overlay-header { padding: 0 20px; } }
 
         /* Search overlay */
         .mil-search-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.55);
-            z-index: 9998;
-            align-items: flex-start;
-            justify-content: center;
-            padding-top: 80px;
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+            align-items: flex-start; justify-content: center; padding-top: 80px;
         }
         .mil-search-overlay.active { display: flex; }
-
-        /* Search form and results */
         .mil-subscribe-form {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: #fff;
-            border-radius: 8px;
-            padding: 6px 10px;
-            width: min(600px, 92vw);
-            box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+            position: relative; display: flex; align-items: center;
+            background: #fff; border-radius: 8px; padding: 6px 10px;
+            width: min(600px, 92vw); box-shadow: 0 8px 32px rgba(0,0,0,0.25);
         }
-        .mil-subscribe-form input {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 8px 6px;
-            font-size: 15px;
-            outline: none;
-            color: #222;
-        }
+        .mil-subscribe-form input { flex: 1; border: none; background: transparent; padding: 8px 6px; font-size: 15px; outline: none; color: #222; }
         .mil-subscribe-form input::placeholder { color: #aaa; }
-        .mil-subscribe-form .mil-search-submit {
-            background: #008B8B;
-            border: none;
-            cursor: pointer;
-            color: #fff;
-            border-radius: 6px;
-            padding: 7px 14px;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-        }
+        .mil-subscribe-form .mil-search-submit { background: #008B8B; border: none; cursor: pointer; color: #fff; border-radius: 6px; padding: 7px 14px; font-size: 14px; display: flex; align-items: center; }
         .mil-subscribe-form .mil-search-submit:hover { background: #006f6f; }
-        .mil-subscribe-form .mil-search-close-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: #aaa;
-            font-size: 18px;
-            padding: 4px 8px;
-            margin-right: 4px;
-            line-height: 1;
-        }
+        .mil-subscribe-form .mil-search-close-btn { background: none; border: none; cursor: pointer; color: #aaa; font-size: 18px; padding: 4px 8px; margin-right: 4px; line-height: 1; }
         .mil-subscribe-form .mil-search-close-btn:hover { color: #333; }
-        .mil-search-results {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            background: #fff;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
-            max-height: 400px;
-            overflow-y: auto;
-            z-index: 1000;
-            display: none;
-            border-radius: 0 0 5px 5px;
-        }
-        .mil-search-results.active {
-            display: block;
-        }
-        .mil-search-result-item {
-            display: flex;
-            align-items: center;
-            padding: 10px 15px;
-            border-bottom: 1px solid #eee;
-            text-decoration: none;
-            color: #333;
-            transition: background-color 0.2s ease;
-        }
-        .mil-search-result-item:hover {
-            background: #f5f5f5;
-        }
-        .mil-search-result-item img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-        .mil-search-result-item div {
-            flex: 1;
-        }
-        .mil-search-result-item h6 {
-            margin: 0;
-            font-size: 14px;
-            color: #333;
-            font-weight: 600;
-        }
-        .mil-search-result-item p {
-            margin: 2px 0 0 0;
-            font-size: 12px;
-            color: #666;
-        }
-        .mil-search-no-results {
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-        }
-        /* Search tabs */
-        .mil-search-tabs {
-            display: flex;
-            border-bottom: 1px solid #eee;
-            background: #f9f9f9;
-        }
-        .mil-search-tab {
-            flex: 1;
-            padding: 10px;
-            border: none;
-            background: transparent;
-            cursor: pointer;
-            font-size: 14px;
-            color: #666;
-            transition: all 0.3s ease;
-        }
-        .mil-search-tab:hover {
-            background: #f0f0f0;
-        }
-        .mil-search-tab.active {
-            background: #fff;
-            color: #008B8B;
-            font-weight: 600;
-            border-bottom: 2px solid #008B8B;
-        }
-        .mil-search-section {
-            display: none;
-        }
-        .mil-search-section.active {
-            display: block;
-        }
-        .mil-search-section-header {
-            padding: 8px 15px;
-            background: #f5f5f5;
-            border-bottom: 1px solid #eee;
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: 600;
-        }
-        .mil-search-arrow {
-            color: #999;
-            font-size: 14px;
-        }
-        /* Mobile Menu */
-        @media screen and (max-width: 991px) {
-            .mil-main-menu {
-                display: none;
-                width: 100%;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                background: #fff;
-                z-index: 999;
-                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            }
-            .mil-main-menu.active {
-                display: block;
-            }
-            .mil-main-menu ul {
-                flex-direction: column;
-                padding: 10px;
-            }
-            .mil-main-menu ul li {
-                margin: 5px 0;
-            }
-            .mil-main-menu ul li ul {
-                position: static;
-                box-shadow: none;
-                display: none;
-            }
-            .mil-main-menu ul li.mil-has-children.active > ul {
-                display: flex;
-            }
-            .mil-menu-btn {
-                display: block;
-            }
-            .mil-subscribe-form {
-                width: 100%;
-            }
-            .mil-search-results {
-                width: 100%;
-                position: fixed;
-                left: 0;
-                right: 0;
-                top: 70px;
-                max-height: calc(100vh - 70px);
-            }
-        }
-        /* Content padding to avoid overlap with fixed header */
-        .mil-content {
-            padding-top: 80px;
-            padding-bottom: 30px;
-        }
-        /* Footer adjustments */
-        footer.mil-dark-bg {
-            padding-bottom: 0;
-        }
-        .mil-light-soft {
-            display: block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
-            color: #fff !important;
-            font-size: 16px !important;
-        }
-        .mil-soft-bg .mil-light-soft {
-            color: #333 !important;
-        }
-        .mil-banner-content, .mil-content, .mil-footer, .mil-about, .mil-services-grid {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
-        .mil-up {
-            transform: none !important;
-            opacity: 1 !important;
-        }
-        /* Add tick to all <li> elements */
-        li {
-            position: relative;
-            padding-left: 25px;
-        }
-        li::before {
-            content: '\f00c';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            color: #008B8B;
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 14px;
-        }
-        .mil-main-menu ul li::before,
-        .mil-footer-menu ul li::before,
-        .mil-social-icons li::before {
-            content: none;
-        }
-        .mil-menu-list li::before {
-            color: #fff;
-        }
-        .mil-accordion-content ol li {
-            padding-left: 30px;
-            margin-bottom: 10px;
-        }
-        .mil-accordion-content ol li::before {
-            font-size: 16px;
-            color: #008B8B;
-        }
-        /* Subscription form styles */
-        .mil-subscribe-container {
-            position: relative;
-            margin-top: 20px;
-        }
-        .mil-subscribe-success {
-            display: none;
-            color: #4CAF50;
-            font-size: 16px;
-            padding: 10px;
-            text-align: center;
-        }
-        .mil-subscribe-error {
-            display: none;
-            color: #F44336;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-        @media screen and (max-width: 991px) {
-            .mil-main-menu ul li {
-                padding-left: 25px;
-            }
-            .mil-main-menu ul li::before {
-                content: '\f00c';
-                font-family: 'Font Awesome 6 Free';
-                font-weight: 900;
-                color: #008B8B;
-                position: absolute;
-                left: 5px;
-                top: 50%;
-                transform: translateY(-50%);
-                font-size: 14px;
-            }
-            .mil-main-menu ul li ul li::before {
-                left: 15px;
-            }
-        }
+        .mil-search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); max-height: 400px; overflow-y: auto; z-index: 1000; display: none; border-radius: 0 0 5px 5px; }
+        .mil-search-results.active { display: block; }
+        .mil-search-result-item { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eee; text-decoration: none; color: #333; transition: background 0.2s; }
+        .mil-search-result-item:hover { background: #f5f5f5; }
+        .mil-search-result-item img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+        .mil-search-result-item div { flex: 1; }
+        .mil-search-result-item h6 { margin: 0; font-size: 14px; color: #333; font-weight: 600; }
+        .mil-search-result-item p { margin: 2px 0 0; font-size: 12px; color: #666; }
+        .mil-search-no-results { padding: 20px; text-align: center; color: #666; font-size: 14px; }
+        .mil-search-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
+        .mil-search-tab { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-size: 14px; color: #666; transition: all 0.3s; }
+        .mil-search-tab:hover { background: #f0f0f0; }
+        .mil-search-tab.active { background: #fff; color: #008B8B; font-weight: 600; border-bottom: 2px solid #008B8B; }
+        .mil-search-section { display: none; }
+        .mil-search-section.active { display: block; }
+        .mil-search-section-header { padding: 8px 15px; background: #f5f5f5; border-bottom: 1px solid #eee; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .mil-search-arrow { color: #999; font-size: 14px; }
+
+        /* Footer */
+        footer.mil-dark-bg { padding-bottom: 0; }
+
+        /* Suppress li checkmarks (not part of Ashley design) */
+        li { padding-left: 0; }
+        li::before { content: none !important; }
+
+        /* Subscribe form in footer */
+        .mil-subscribe-container { position: relative; margin-top: 20px; }
+        .mil-subscribe-success { display: none; color: #4CAF50; font-size: 16px; padding: 10px; text-align: center; }
+        .mil-subscribe-error { display: none; color: #F44336; font-size: 14px; margin-bottom: 5px; }
     </style>
 
     <title>Shed | Sell Anywhere. Manage Everything</title>
 </head>
 
 <body>
+
+    <!-- Custom topbar (outside mil-wrapper) -->
+    <div class="shed-topbar">
+        <a href="/" class="shed-topbar-logo"><img src="/images/logo.png" alt="Shed"></a>
+        <div class="shed-topbar-right">
+            <button class="shed-icon-btn" id="searchToggleBtn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="shed-icon-btn" id="shedMenuOpen" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+
+    <!-- Search overlay (outside mil-wrapper) -->
+    <div class="mil-search-overlay" id="searchOverlay">
+        <form class="mil-subscribe-form" id="searchForm" action="/search" method="GET">
+            <i class="fas fa-search" style="color:#aaa; margin-right:8px; flex-shrink:0;"></i>
+            <input type="text" name="q" placeholder="Search for a Shed or Product" autocomplete="off" autofocus>
+            <button type="button" class="mil-search-close-btn" id="searchCloseBtn" aria-label="Close search">×</button>
+            <button type="submit" class="mil-search-submit"><i class="fas fa-arrow-right"></i></button>
+            <div class="mil-search-results"></div>
+        </form>
+    </div>
+
+    <!-- Menu overlay (outside mil-wrapper) -->
+    <div class="mil-menu-frame" id="shedMenuFrame">
+        <div class="shed-overlay-header">
+            <a href="/" class="shed-overlay-logo"><img src="/images/logo.png" alt="Shed"></a>
+            <button class="shed-close-btn" id="shedMenuClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="container">
+            <nav class="mil-main-menu" id="swupMenu">
+                <ul>
+                    <li class="mil-active"><a href="/">Home</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/admin-login">Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
     <!-- wrapper -->
     <div class="mil-wrapper" id="top">
         <!-- cursor -->
@@ -475,7 +180,7 @@
         <!-- preloader -->
         <div class="mil-preloader">
             <div class="mil-preloader-animation">
-                
+
                 <div class="mil-pos-abs mil-animation-2">
                     <div class="mil-reveal-frame">
                         <p class="mil-reveal-box"></p>
@@ -492,31 +197,6 @@
         </div>
         <!-- scrollbar progress end -->
 
-        <!-- frame top (header) -->
-        <div class="mil-frame-top">
-            <a href="/" class="mil-logo"><img src="images/logo.png" alt="Logo"></a>
-            <nav class="mil-main-menu" id="swupMenu"></nav>
-            <div class="mil-menu-btn" style="display:flex; align-items:center; gap:8px;">
-                <button class="mil-search-toggle-btn" id="searchToggleBtn" aria-label="Open search">
-                    <i class="fas fa-search"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Search overlay -->
-        <div class="mil-search-overlay" id="searchOverlay">
-            <form class="mil-subscribe-form" id="searchForm" action="/search" method="GET">
-                <i class="fas fa-search" style="color:#aaa; margin-right:8px; flex-shrink:0;"></i>
-                <input type="text" name="q" placeholder="Search for a Shed or Product" autocomplete="off" autofocus>
-                <button type="button" class="mil-search-close-btn" id="searchCloseBtn" aria-label="Close search">×</button>
-                <button type="submit" class="mil-search-submit"><i class="fas fa-arrow-right"></i></button>
-                <div class="mil-search-results">
-                    <!-- Tabs will be inserted here by JavaScript -->
-                </div>
-            </form>
-        </div>
-        <!-- frame top end -->
-
         <!-- content -->
         <div class="mil-content">
             <div id="swupMain" class="mil-main-transition">
@@ -531,17 +211,17 @@
                         <div class="mil-gradient"></div>
                         <div class="container">
                             <div class="mil-banner-content mil-up">
-                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Welcome to </span>Shed </h1>
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Sell Anywhere.</span><br>Manage Everything.</h1>
                                 <div class="row">
                                     <div class="col-md-7 col-lg-5">
-                                        <p class="mil-light-soft mil-mb-60">Transform your inventory into a beautiful online storefront with just a few clicks. <strong>Shed's integrated e-commerce solution</strong> lets you reach customers 24/7 while managing everything from one dashboard.</p>
+                                        <p class="mil-light-soft mil-mb-60">Most small businesses are juggling stock, invoices, orders, and customers across too many apps—or worse, notebooks. Shed brings it all into one place, so you can stop firefighting and start growing.</p>
                                     </div>
                                 </div>
                                 <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space">
-                                    <span>Create your Shed</span> <i class="fa-solid fa-circle-user"></i>
+                                    <span>Start for free</span> <i class="fa-solid fa-circle-user"></i>
                                 </a>
                                 <a href="/admin-login" class="mil-button mil-muted mil-arrow-place" style="background-color: darkcyan;">
-                                    <span>Already have a Shed? Sign in</span>
+                                    <span>Sign in to your Shed</span>
                                 </a>
                                 <div class="mil-circle-text">
                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 300 300" enable-background="new 0 0 300 300" xml:space="preserve" class="mil-ct-svg mil-rotate" data-value="360">
@@ -570,14 +250,14 @@
                         <div class="row justify-content-between align-items-center">
                             <div class="col-lg-6 col-xl-5">
                                 <div class="mil-mb-90">
-                                    <h2 class="mil-up mil-mb-60">Launch Your <br>Brand <span class="mil-thin">Online</span></h2>
-                                    <p class="mil-up mil-mb-30">Ready to sell your products and grow your brand? Our solution simplifies creating your online store. Stop wasting time on manual inventory updates and start maximizing your profits with an all-in-one platform designed for small and medium businesses.</p>
-                                    <p class="mil-up mil-mb-60">Shed is perfect for anyone who has something to sell, retailers, wholesalers, service providers, and multi-location businesses.</p>
+                                    <h2 class="mil-up mil-mb-60">Your Store. Your Stock.<br><span class="mil-thin">Your Dashboard.</span></h2>
+                                    <p class="mil-up mil-mb-30">Shed gives every business—retailer, wholesaler, or multi-outlet operation—a live view of their inventory, a ready-to-go online storefront, and the tools to sell, invoice, and track customers without switching apps.</p>
+                                    <p class="mil-up mil-mb-60">It's built for the trader who restocks twice a week, the shop owner taking orders on WhatsApp, and the entrepreneur who sells in-store and online at the same time. If you have something to sell, Shed has you covered.</p>
                                     <div class="mil-about-quote">
                                         <div class="mil-avatar mil-up">
-                                            <img src="android-chrome-512x512.png" alt="Founder">
+                                            <img src="android-chrome-512x512.png" alt="Shed">
                                         </div>
-                                        <h6 class="mil-quote mil-up">Sell <span class="mil-thin">Everywhere:</span><br> Manage <span class="mil-thin">Everything</span></h6>
+                                        <h6 class="mil-quote mil-up">One platform.<br><span class="mil-thin">Everything in its place.</span></h6>
                                     </div>
                                 </div>
                             </div>
@@ -605,7 +285,7 @@
                             <div class="mil-mb-120">
                                 <div class="row">
                                     <div class="col-lg-10">
-                                        <span class="mil-suptitle mil-light-soft mil-suptitle-right mil-up">We are focused on helping your business<br> grow and move forward.</span>
+                                        <span class="mil-suptitle mil-light-soft mil-suptitle-right mil-up">Everything your business needs to sell, track, and grow—<br>no spreadsheets, no guesswork, no extra apps.</span>
                                     </div>
                                 </div>
                                 <div class="mil-complex-text justify-content-center mil-up mil-mb-15">
@@ -687,8 +367,8 @@
                     <div class="container mil-p-120-90">
                         <div class="row justify-content-between">
                             <div class="col-lg-4 mil-relative mil-mb-90">
-                                <h4 class="mil-up mil-mb-30">Effortless <span class="mil-thin">Setup</span> <br>and <span class="mil-thin">Instant Results</span></h4>
-                                <p class="mil-up mil-mb-30">With Shed, setting up your business has never been easier. Whether you're tech-savvy or just getting started, our intuitive interface guides you every step of the way—so you can focus on selling, not struggling with software.</p>
+                                <h4 class="mil-up mil-mb-30">Up and running <span class="mil-thin">in minutes,</span><br>not <span class="mil-thin">days</span></h4>
+                                <p class="mil-up mil-mb-30">Sign up, add your products, and your storefront is live—before the day is over. No technical setup, no waiting. Shed is built to get out of your way so you can focus on selling.</p>
                                 <div class="mil-up">
                                     <a href="/admin-register" class="mil-link mil-dark mil-arrow-place">
                                         <span>begin now</span>
@@ -816,18 +496,21 @@
                         <div class="row">
                             <div class="col-lg-10">
                                 <span class="mil-suptitle mil-suptitle-right mil-suptitle-dark mil-up">
-                                    Want to earn cash and exclusive perks? Join our affiliate program <br> and start building your success today.
+                                    Creating your Shed account takes minutes. Add your products, launch your store, <br>and start selling — all before the day is over.
                                 </span>
                             </div>
                         </div>
                         <div class="mil-center">
                             <h2 class="mil-up mil-mb-60">
-                                Become an Affiliate and <span class="mil-thin">Earn Big!</span> <br>
-                                Get <span class="mil-thin">Cash, VIP Access & More</span>
+                                Your business deserves <span class="mil-thin">better tools.</span> <br>
+                                Get started with <span class="mil-thin">Shed today.</span>
                             </h2>
                             <div class="mil-up">
-                                <a href="/referrals/signup" class="mil-button mil-arrow-place">
-                                    <span>Join the Affiliate Program</span>
+                                <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space">
+                                    <span>Create your free account</span>
+                                </a>
+                                <a href="/blog" class="mil-button mil-arrow-place" style="background-color: transparent; border: 1px solid #333; color: #333;">
+                                    <span>Learn more</span>
                                 </a>
                             </div>
                         </div>
@@ -1011,28 +694,7 @@
             }
         });
     </script>
-    <!-- Mobile Menu Toggle -->
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const menuBtn = document.querySelector('.mil-menu-btn');
-            const menu = document.querySelector('.mil-main-menu');
-            const menuItems = document.querySelectorAll('.mil-has-children');
-
-            menuBtn.addEventListener('click', () => {
-                menu.classList.toggle('active');
-            });
-
-            // Toggle submenus on mobile
-            menuItems.forEach(item => {
-                item.addEventListener('click', (e) => {
-                    if (window.innerWidth < 992) {
-                        e.preventDefault();
-                        item.classList.toggle('active');
-                    }
-                });
-            });
-        });
-    </script>
+    <!-- Menu toggle -->
     <!-- Search Functionality -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -1407,6 +1069,22 @@
         if (navigator.serviceWorker) {
             navigator.serviceWorker.register('/sw.js', { scope: '/' });
         }
+    </script>
+    <script>
+        (function() {
+            function initMenu() {
+                var openBtn  = document.getElementById('shedMenuOpen');
+                var closeBtn = document.getElementById('shedMenuClose');
+                var frame    = document.getElementById('shedMenuFrame');
+                if (openBtn)  openBtn.onclick  = function() { frame.classList.add('mil-active'); };
+                if (closeBtn) closeBtn.onclick = function() { frame.classList.remove('mil-active'); };
+                if (frame) frame.addEventListener('click', function(e) {
+                    if (e.target === frame) frame.classList.remove('mil-active');
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initMenu);
+            if (window.swup) window.swup.on('contentReplaced', initMenu);
+        })();
     </script>
 </body>
 

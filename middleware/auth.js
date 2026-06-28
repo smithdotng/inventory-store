@@ -21,6 +21,8 @@ function setupSessionValidation(app) {
       '/admin-register',
       '/verify-email',
       '/verify-email/resend',
+      '/blog',
+      '/contact',
       '/forgot-password',
       '/reset-password',
       '/referrals/login',
@@ -40,6 +42,7 @@ function setupSessionValidation(app) {
       '/store/',
       '/outlet/',
       '/api/',
+      '/blog/',
       '/public-invoice/',
       '/search'
     ];

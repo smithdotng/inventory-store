@@ -52,4 +52,11 @@ const uploadInvoiceFile = multer({
   limits: { fileSize: 5 * 1024 * 1024 }
 }).single('file');
 
-module.exports = { uploadProductImages, uploadLogo, uploadInvoiceFile, uploadsDir };
+// Raw multer instance (no field binding) — use with .single('fieldName') in routes
+const upload = multer({
+  storage: storage,
+  fileFilter: fileFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }
+});
+
+module.exports = { uploadProductImages, uploadLogo, uploadInvoiceFile, uploadsDir, upload };

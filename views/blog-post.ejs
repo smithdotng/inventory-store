@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= post.title %> | Shed Blog</title>
+    <meta name="description" content="<%= post.excerpt || post.title %>">
+    <% if (post.coverImage) { %><meta property="og:image" content="<%= post.coverImage %>"><% } %>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <!-- Ashley theme CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        /* ── Custom topbar ── */
+        .shed-topbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 9000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(0,0,0,0.82);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .shed-topbar-logo img { height: 40px; width: auto; display: block; }
+        .shed-topbar-right { display: flex; align-items: center; gap: 18px; }
+        .shed-icon-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 18px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
+        }
+        .shed-icon-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-topbar { padding: 0 20px; } }
+        .shed-overlay-header {
+            position: absolute; top: 0; left: 0; right: 0; height: 70px; z-index: 1;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+        }
+        .shed-overlay-header .shed-overlay-logo img { height: 40px; width: auto; display: block; }
+        .shed-close-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 22px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
+        }
+        .shed-close-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-overlay-header { padding: 0 20px; } }
+        .mil-search-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+            align-items: flex-start; justify-content: center; padding-top: 80px;
+        }
+        .mil-search-overlay.active { display: flex; }
+        .mil-subscribe-form {
+            position: relative; display: flex; align-items: center;
+            background: #fff; border-radius: 8px; padding: 6px 10px;
+            width: min(600px, 92vw); box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .mil-subscribe-form input { flex: 1; border: none; background: transparent; padding: 8px 6px; font-size: 15px; outline: none; color: #222; }
+        .mil-subscribe-form input::placeholder { color: #aaa; }
+        .mil-subscribe-form .mil-search-submit { background: #008B8B; border: none; cursor: pointer; color: #fff; border-radius: 6px; padding: 7px 14px; font-size: 14px; display: flex; align-items: center; }
+        .mil-subscribe-form .mil-search-close-btn { background: none; border: none; cursor: pointer; color: #aaa; font-size: 18px; padding: 4px 8px; margin-right: 4px; line-height: 1; }
+        .mil-search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); max-height: 400px; overflow-y: auto; z-index: 1000; display: none; border-radius: 0 0 5px 5px; }
+        .mil-search-results.active { display: block; }
+        .mil-search-result-item { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eee; text-decoration: none; color: #333; transition: background 0.2s; }
+        .mil-search-result-item:hover { background: #f5f5f5; }
+        .mil-search-result-item img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+        .mil-search-result-item div { flex: 1; }
+        .mil-search-result-item h6 { margin: 0; font-size: 14px; font-weight: 600; }
+        .mil-search-result-item p { margin: 2px 0 0; font-size: 12px; color: #666; }
+        .mil-search-no-results { padding: 20px; text-align: center; color: #666; font-size: 14px; }
+        .mil-search-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
+        .mil-search-tab { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-size: 14px; color: #666; }
+        .mil-search-tab.active { background: #fff; color: #008B8B; font-weight: 600; border-bottom: 2px solid #008B8B; }
+        .mil-search-section { display: none; }
+        .mil-search-section.active { display: block; }
+        .mil-search-section-header { padding: 8px 15px; background: #f5f5f5; border-bottom: 1px solid #eee; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .mil-search-arrow { color: #999; font-size: 14px; }
+        footer.mil-dark-bg { padding-bottom: 0; }
+        .mil-light-soft { display: block !important; visibility: visible !important; opacity: 1 !important; color: #fff !important; font-size: 16px !important; }
+        .mil-up { transform: none !important; opacity: 1 !important; }
+        li { position: relative; padding-left: 0; }
+        li::before { content: none; }
+        .mil-subscribe-container { position: relative; margin-top: 20px; }
+        .mil-subscribe-success { display: none; color: #4CAF50; font-size: 16px; padding: 10px; text-align: center; }
+        .mil-subscribe-error { display: none; color: #F44336; font-size: 14px; margin-bottom: 5px; }
+
+        /* ── Post-specific styles ──────────────────────────────────── */
+        .mil-post-breadcrumb {
+            display: flex; align-items: center; gap: 8px;
+            color: rgba(255,255,255,0.4); font-size: 0.82rem; margin-bottom: 24px;
+        }
+        .mil-post-breadcrumb a { color: #008B8B; text-decoration: none; }
+        .mil-post-breadcrumb a:hover { color: #fff; }
+        .mil-post-hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+        .mil-post-hero-tag {
+            background: rgba(0,139,139,0.15); color: #008B8B;
+            border: 1px solid rgba(0,139,139,0.3); border-radius: 4px;
+            padding: 4px 12px; font-size: 0.72rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            text-decoration: none; transition: background 0.2s;
+        }
+        .mil-post-hero-tag:hover { background: rgba(0,139,139,0.3); color: #fff; }
+        .mil-post-meta {
+            display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+            color: rgba(255,255,255,0.45); font-size: 0.83rem; margin-top: 24px;
+        }
+        .mil-post-meta span { display: flex; align-items: center; gap: 6px; }
+        .mil-post-meta i { color: #008B8B; }
+
+        /* Cover image */
+        .mil-post-cover-wrap { overflow: hidden; max-height: 460px; background: #111; }
+        .mil-post-cover { width: 100%; max-height: 460px; object-fit: cover; display: block; }
+
+        /* Article layout */
+        .mil-post-layout {
+            display: grid; grid-template-columns: 1fr 280px; gap: 56px;
+            padding: 64px 0 100px; align-items: start;
+        }
+        .mil-post-body {
+            font-family: 'Lora', serif; font-size: 1.06rem;
+            line-height: 1.85; color: #2d2d3e;
+        }
+        .mil-post-body h2 { font-family: inherit; font-size: 1.45rem; font-weight: 700; color: #0d0d1a; margin: 36px 0 14px; font-style: normal; }
+        .mil-post-body h3 { font-family: inherit; font-size: 1.2rem; font-weight: 600; color: #0d0d1a; margin: 28px 0 12px; font-style: normal; }
+        .mil-post-body p { margin-bottom: 20px; }
+        .mil-post-body ul, .mil-post-body ol { padding-left: 24px; margin-bottom: 20px; }
+        .mil-post-body li { margin-bottom: 8px; padding-left: 0; }
+        .mil-post-body li::before { content: none !important; }
+        .mil-post-body blockquote {
+            border-left: 3px solid #008B8B; padding: 16px 20px; margin: 28px 0;
+            background: rgba(0,139,139,0.04); border-radius: 0 8px 8px 0;
+            font-style: italic; color: #555;
+        }
+        .mil-post-body img { max-width: 100%; border-radius: 10px; margin: 24px 0; }
+        .mil-post-body a { color: #008B8B; }
+        .mil-post-body code { background: #f0f4f8; border-radius: 4px; padding: 2px 6px; font-size: 0.88em; font-family: 'Courier New', monospace; }
+        .mil-post-body pre { background: #0d0d1a; color: #e8f4f8; border-radius: 10px; padding: 20px; overflow-x: auto; margin: 24px 0; }
+        .mil-post-body pre code { background: none; padding: 0; font-size: 0.88rem; }
+
+        /* Sidebar */
+        .mil-post-sidebar { position: sticky; top: 90px; }
+        .mil-sidebar-card {
+            background: #f4f6f9; border-radius: 14px; padding: 24px; margin-bottom: 20px;
+        }
+        .mil-sidebar-card h4 {
+            font-size: 0.75rem; font-weight: 700; color: #008B8B;
+            letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;
+        }
+        .mil-sidebar-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+        .mil-sidebar-tag {
+            background: #fff; border: 1px solid #e0e0e0; border-radius: 20px;
+            padding: 5px 14px; font-size: 0.78rem; color: #555; text-decoration: none; transition: all 0.2s;
+        }
+        .mil-sidebar-tag:hover { background: #008B8B; color: #fff; border-color: #008B8B; }
+        .mil-sidebar-cta { background: #0d0d1a; border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 20px; }
+        .mil-sidebar-cta h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .mil-sidebar-cta p { font-size: 0.82rem; color: rgba(255,255,255,0.45); margin-bottom: 20px; line-height: 1.6; }
+        .mil-sidebar-cta a { display: block; background: #008B8B; color: #fff; border-radius: 8px; padding: 11px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+        .mil-sidebar-cta a:hover { background: #006f6f; }
+        .mil-share-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+        .mil-share-btn {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+            border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 8px;
+            font-size: 0.8rem; color: #555; text-decoration: none; background: #fff;
+            cursor: pointer; transition: all 0.2s; font-family: inherit; min-width: 80px;
+        }
+        .mil-share-btn.wa { color: #25D366; border-color: #25D366; }
+        .mil-share-btn.wa:hover { background: #25D366; color: #fff; }
+        .mil-share-btn.tw { color: #1da1f2; border-color: #1da1f2; }
+        .mil-share-btn.tw:hover { background: #1da1f2; color: #fff; }
+        .mil-share-btn.cp:hover { background: #008B8B; color: #fff; border-color: #008B8B; }
+
+        /* Related blog cards */
+        .mil-related-card-img {
+            width: calc(100% + 60px); margin: -30px -30px 20px;
+            height: 160px; object-fit: cover; display: block;
+        }
+        .mil-related-card-img-placeholder {
+            width: calc(100% + 60px); margin: -30px -30px 20px;
+            height: 160px; background: rgba(255,255,255,0.04);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .mil-related-card-img-placeholder i { font-size: 2rem; color: rgba(0,139,139,0.35); }
+        .mil-related-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #008B8B; letter-spacing: 0.06em; margin-bottom: 8px; }
+        .mil-related-date { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 10px; }
+
+        @media (max-width: 900px) {
+            .mil-post-layout { grid-template-columns: 1fr; gap: 40px; }
+            .mil-post-sidebar { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Custom topbar (outside mil-wrapper) -->
+    <div class="shed-topbar">
+        <a href="/" class="shed-topbar-logo"><img src="/images/logo.png" alt="Shed"></a>
+        <div class="shed-topbar-right">
+            <button class="shed-icon-btn" id="searchToggleBtn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="shed-icon-btn" id="shedMenuOpen" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+
+    <!-- Search overlay (outside mil-wrapper) -->
+    <div class="mil-search-overlay" id="searchOverlay">
+        <form class="mil-subscribe-form" id="searchForm" action="/search" method="GET">
+            <i class="fas fa-search" style="color:#aaa;margin-right:8px;flex-shrink:0;"></i>
+            <input type="text" name="q" placeholder="Search for a Shed or Product" autocomplete="off" autofocus>
+            <button type="button" class="mil-search-close-btn" id="searchCloseBtn">×</button>
+            <button type="submit" class="mil-search-submit"><i class="fas fa-arrow-right"></i></button>
+            <div class="mil-search-results"></div>
+        </form>
+    </div>
+
+    <!-- Menu overlay (outside mil-wrapper) -->
+    <div class="mil-menu-frame" id="shedMenuFrame">
+        <div class="shed-overlay-header">
+            <a href="/" class="shed-overlay-logo"><img src="/images/logo.png" alt="Shed"></a>
+            <button class="shed-close-btn" id="shedMenuClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="container">
+            <nav class="mil-main-menu" id="swupMenu">
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li class="mil-active"><a href="/blog">Blog</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/admin-login">Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="mil-wrapper" id="top">
+
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2-1.2,1.2-3.1,0-4.2L106.1,41.9z"/>
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Choose</div>
+        </div>
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-preloader-animation">
+                <div class="mil-pos-abs mil-animation-2">
+                    <div class="mil-reveal-frame">
+                        <p class="mil-reveal-box"></p>
+                        <p class="mil-h3 mil-muted mil-thin">Shed.ng</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track"><div class="mil-progress"></div></div>
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <div class="mil-post-breadcrumb">
+                                    <a href="/blog"><i class="fas fa-arrow-left"></i> Blog</a>
+                                    <i class="fas fa-chevron-right" style="font-size:0.65rem;"></i>
+                                    <span><%= post.title.length > 50 ? post.title.substring(0, 50) + '…' : post.title %></span>
+                                </div>
+                                <% if (post.tags && post.tags.length > 0) { %>
+                                <div class="mil-post-hero-tags">
+                                    <% post.tags.forEach(function(t) { %>
+                                    <a href="/blog?tag=<%= encodeURIComponent(t) %>" class="mil-post-hero-tag"><%= t %></a>
+                                    <% }); %>
+                                </div>
+                                <% } %>
+                                <h1 class="mil-muted" style="max-width:820px;"><%= post.title %></h1>
+                                <div class="mil-post-meta">
+                                    <span><i class="fas fa-user-circle"></i> <%= post.author || 'Shed Team' %></span>
+                                    <span><i class="fas fa-calendar-alt"></i> <%= new Date(post.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'long', year: 'numeric' }) %></span>
+                                    <% if (post.views) { %><span><i class="fas fa-eye"></i> <%= post.views %> views</span><% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- cover image (outside sections) -->
+                <% if (post.coverImage && !post.coverImage.includes('default-blog')) { %>
+                <div class="mil-post-cover-wrap">
+                    <img src="<%= post.coverImage %>" alt="<%= post.title %>" class="mil-post-cover">
+                </div>
+                <% } %>
+
+                <!-- article body -->
+                <section>
+                    <div class="container">
+                        <div class="mil-post-layout">
+                            <!-- main content -->
+                            <article class="mil-post-body">
+                                <%- post.content %>
+                            </article>
+
+                            <!-- sidebar -->
+                            <aside class="mil-post-sidebar">
+                                <% if (post.tags && post.tags.length > 0) { %>
+                                <div class="mil-sidebar-card">
+                                    <h4>Topics</h4>
+                                    <div class="mil-sidebar-tags">
+                                        <% post.tags.forEach(function(t) { %>
+                                        <a href="/blog?tag=<%= encodeURIComponent(t) %>" class="mil-sidebar-tag">#<%= t %></a>
+                                        <% }); %>
+                                    </div>
+                                </div>
+                                <% } %>
+
+                                <div class="mil-sidebar-card">
+                                    <h4>Share this post</h4>
+                                    <div class="mil-share-row">
+                                        <a class="mil-share-btn wa" href="https://wa.me/?text=<%= encodeURIComponent(post.title + ' — https://shed.ng/blog/' + post.slug) %>" target="_blank" rel="noopener">
+                                            <i class="fab fa-whatsapp"></i> WhatsApp
+                                        </a>
+                                        <a class="mil-share-btn tw" href="https://twitter.com/intent/tweet?text=<%= encodeURIComponent(post.title) %>&url=<%= encodeURIComponent('https://shed.ng/blog/' + post.slug) %>" target="_blank" rel="noopener">
+                                            <i class="fab fa-x-twitter"></i> X
+                                        </a>
+                                    </div>
+                                    <div style="margin-top:10px;">
+                                        <button class="mil-share-btn cp" id="copyLinkBtn" style="width:100%;">
+                                            <i class="fas fa-link"></i> <span id="copyLinkText">Copy link</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="mil-sidebar-cta">
+                                    <h4>Start managing smarter</h4>
+                                    <p>Inventory, POS, invoicing and your own storefront — all in Shed.</p>
+                                    <a href="/admin-register">Get started free →</a>
+                                </div>
+                            </aside>
+                        </div>
+                    </div>
+                </section>
+                <!-- article body end -->
+
+                <!-- related posts -->
+                <% if (related && related.length > 0) { %>
+                <section class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="2" data-value-2="1" style="left:150px;"></div>
+                        </div>
+                        <div class="container mil-p-120-60">
+                            <div class="mil-mb-60">
+                                <span class="mil-suptitle mil-light-soft mil-up">Keep reading</span>
+                            </div>
+                            <div class="row mil-services-grid m-0">
+                                <% related.forEach(function(r) { %>
+                                <div class="col-md-6 col-lg-4 mil-services-grid-item p-0">
+                                    <a href="/blog/<%= r.slug %>" class="mil-service-card-sm mil-up">
+                                        <% if (r.coverImage && !r.coverImage.includes('default-blog')) { %>
+                                        <img src="<%= r.coverImage %>" alt="<%= r.title %>" class="mil-related-card-img" loading="lazy">
+                                        <% } else { %>
+                                        <div class="mil-related-card-img-placeholder"><i class="fas fa-newspaper"></i></div>
+                                        <% } %>
+                                        <% if (r.tags && r.tags[0]) { %><div class="mil-related-tag">#<%= r.tags[0] %></div><% } %>
+                                        <h5 class="mil-muted mil-mb-15"><%= r.title %></h5>
+                                        <div class="mil-related-date"><%= new Date(r.createdAt).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric' }) %></div>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place" style="margin-top:16px;"></div>
+                                    </a>
+                                </div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <% } %>
+                <!-- related posts end -->
+
+                <!-- footer -->
+                <footer class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="container mil-p-120-60">
+                            <div class="row justify-content-between">
+                                <div class="col-md-4 col-lg-4 mil-mb-60">
+                                    <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                                    <p class="mil-light-soft mil-up mil-mb-30">Subscribe to our newsletter:</p>
+                                    <div class="mil-subscribe-container">
+                                        <div class="mil-subscribe-error"></div>
+                                        <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                            <input type="email" name="email" placeholder="What is your email address?" required>
+                                            <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                                        </form>
+                                        <div class="mil-subscribe-success">
+                                            <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-md-6 col-lg-9">
+                                            <div class="mil-vert-between">
+                                                <p class="mil-light-soft mil-up">© Copyright <%= new Date().getFullYear() %> — Shed Factory Ltd. All Rights Reserved.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+
+                <!-- hidden elements -->
+                <div class="mil-hidden-elements">
+                    <div class="mil-dodecahedron">
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                        <div class="mil-pentagon"><div></div><div></div><div></div><div></div><div></div></div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                        <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
+                    </svg>
+                    <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move"/>
+                    </svg>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- wrapper end -->
+
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/swup.min.js"></script>
+    <script src="/js/plugins/swiper.min.js"></script>
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Search overlay
+            const overlay  = document.getElementById('searchOverlay');
+            const toggleBtn = document.getElementById('searchToggleBtn');
+            const closeBtn  = document.getElementById('searchCloseBtn');
+            if (toggleBtn) toggleBtn.addEventListener('click', () => { overlay.classList.add('active'); setTimeout(() => overlay.querySelector('input').focus(), 50); });
+            if (closeBtn)  closeBtn.addEventListener('click', () => overlay.classList.remove('active'));
+            if (overlay)   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+
+            // Copy link
+            const copyBtn = document.getElementById('copyLinkBtn');
+            if (copyBtn) {
+                copyBtn.addEventListener('click', () => {
+                    navigator.clipboard.writeText(window.location.href).then(() => {
+                        const txt = document.getElementById('copyLinkText');
+                        txt.textContent = 'Copied!';
+                        setTimeout(() => txt.textContent = 'Copy link', 2000);
+                    });
+                });
+            }
+
+            // Newsletter
+            const subForm = document.getElementById('subscribeForm');
+            if (subForm) {
+                subForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = subForm.querySelector('input[name="email"]').value;
+                    try {
+                        const r = await fetch('/api/newsletter/subscribe', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ email }) });
+                        if (r.ok) { subForm.style.display = 'none'; subForm.nextElementSibling.style.display = 'block'; }
+                    } catch(err) {}
+                });
+            }
+        });
+    </script>
+    <script>
+        (function() {
+            function initMenu() {
+                var openBtn  = document.getElementById('shedMenuOpen');
+                var closeBtn = document.getElementById('shedMenuClose');
+                var frame    = document.getElementById('shedMenuFrame');
+                if (openBtn)  openBtn.onclick  = function() { frame.classList.add('mil-active'); };
+                if (closeBtn) closeBtn.onclick = function() { frame.classList.remove('mil-active'); };
+                if (frame) frame.addEventListener('click', function(e) {
+                    if (e.target === frame) frame.classList.remove('mil-active');
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initMenu);
+            if (window.swup) window.swup.on('contentReplaced', initMenu);
+        })();
+    </script>
+</body>
+</html>
