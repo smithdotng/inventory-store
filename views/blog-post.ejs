@@ -96,110 +96,6 @@
         .mil-subscribe-success { display: none; color: #4CAF50; font-size: 16px; padding: 10px; text-align: center; }
         .mil-subscribe-error { display: none; color: #F44336; font-size: 14px; margin-bottom: 5px; }
 
-        /* ── Post-specific styles ──────────────────────────────────── */
-        .mil-post-breadcrumb {
-            display: flex; align-items: center; gap: 8px;
-            color: rgba(255,255,255,0.4); font-size: 0.82rem; margin-bottom: 24px;
-        }
-        .mil-post-breadcrumb a { color: #008B8B; text-decoration: none; }
-        .mil-post-breadcrumb a:hover { color: #fff; }
-        .mil-post-hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-        .mil-post-hero-tag {
-            background: rgba(0,139,139,0.15); color: #008B8B;
-            border: 1px solid rgba(0,139,139,0.3); border-radius: 4px;
-            padding: 4px 12px; font-size: 0.72rem; font-weight: 700;
-            text-transform: uppercase; letter-spacing: 0.06em;
-            text-decoration: none; transition: background 0.2s;
-        }
-        .mil-post-hero-tag:hover { background: rgba(0,139,139,0.3); color: #fff; }
-        .mil-post-meta {
-            display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
-            color: rgba(255,255,255,0.45); font-size: 0.83rem; margin-top: 24px;
-        }
-        .mil-post-meta span { display: flex; align-items: center; gap: 6px; }
-        .mil-post-meta i { color: #008B8B; }
-
-        /* Cover image */
-        .mil-post-cover-wrap { overflow: hidden; max-height: 460px; background: #111; }
-        .mil-post-cover { width: 100%; max-height: 460px; object-fit: cover; display: block; }
-
-        /* Article layout */
-        .mil-post-layout {
-            display: grid; grid-template-columns: 1fr 280px; gap: 56px;
-            padding: 64px 0 100px; align-items: start;
-        }
-        .mil-post-body {
-            font-family: 'Lora', serif; font-size: 1.06rem;
-            line-height: 1.85; color: #2d2d3e;
-        }
-        .mil-post-body h2 { font-family: inherit; font-size: 1.45rem; font-weight: 700; color: #0d0d1a; margin: 36px 0 14px; font-style: normal; }
-        .mil-post-body h3 { font-family: inherit; font-size: 1.2rem; font-weight: 600; color: #0d0d1a; margin: 28px 0 12px; font-style: normal; }
-        .mil-post-body p { margin-bottom: 20px; }
-        .mil-post-body ul, .mil-post-body ol { padding-left: 24px; margin-bottom: 20px; }
-        .mil-post-body li { margin-bottom: 8px; padding-left: 0; }
-        .mil-post-body li::before { content: none !important; }
-        .mil-post-body blockquote {
-            border-left: 3px solid #008B8B; padding: 16px 20px; margin: 28px 0;
-            background: rgba(0,139,139,0.04); border-radius: 0 8px 8px 0;
-            font-style: italic; color: #555;
-        }
-        .mil-post-body img { max-width: 100%; border-radius: 10px; margin: 24px 0; }
-        .mil-post-body a { color: #008B8B; }
-        .mil-post-body code { background: #f0f4f8; border-radius: 4px; padding: 2px 6px; font-size: 0.88em; font-family: 'Courier New', monospace; }
-        .mil-post-body pre { background: #0d0d1a; color: #e8f4f8; border-radius: 10px; padding: 20px; overflow-x: auto; margin: 24px 0; }
-        .mil-post-body pre code { background: none; padding: 0; font-size: 0.88rem; }
-
-        /* Sidebar */
-        .mil-post-sidebar { position: sticky; top: 90px; }
-        .mil-sidebar-card {
-            background: #f4f6f9; border-radius: 14px; padding: 24px; margin-bottom: 20px;
-        }
-        .mil-sidebar-card h4 {
-            font-size: 0.75rem; font-weight: 700; color: #008B8B;
-            letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px;
-        }
-        .mil-sidebar-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-        .mil-sidebar-tag {
-            background: #fff; border: 1px solid #e0e0e0; border-radius: 20px;
-            padding: 5px 14px; font-size: 0.78rem; color: #555; text-decoration: none; transition: all 0.2s;
-        }
-        .mil-sidebar-tag:hover { background: #008B8B; color: #fff; border-color: #008B8B; }
-        .mil-sidebar-cta { background: #0d0d1a; border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 20px; }
-        .mil-sidebar-cta h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
-        .mil-sidebar-cta p { font-size: 0.82rem; color: rgba(255,255,255,0.45); margin-bottom: 20px; line-height: 1.6; }
-        .mil-sidebar-cta a { display: block; background: #008B8B; color: #fff; border-radius: 8px; padding: 11px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: background 0.2s; }
-        .mil-sidebar-cta a:hover { background: #006f6f; }
-        .mil-share-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-        .mil-share-btn {
-            flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
-            border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 8px;
-            font-size: 0.8rem; color: #555; text-decoration: none; background: #fff;
-            cursor: pointer; transition: all 0.2s; font-family: inherit; min-width: 80px;
-        }
-        .mil-share-btn.wa { color: #25D366; border-color: #25D366; }
-        .mil-share-btn.wa:hover { background: #25D366; color: #fff; }
-        .mil-share-btn.tw { color: #1da1f2; border-color: #1da1f2; }
-        .mil-share-btn.tw:hover { background: #1da1f2; color: #fff; }
-        .mil-share-btn.cp:hover { background: #008B8B; color: #fff; border-color: #008B8B; }
-
-        /* Related blog cards */
-        .mil-related-card-img {
-            width: calc(100% + 60px); margin: -30px -30px 20px;
-            height: 160px; object-fit: cover; display: block;
-        }
-        .mil-related-card-img-placeholder {
-            width: calc(100% + 60px); margin: -30px -30px 20px;
-            height: 160px; background: rgba(255,255,255,0.04);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .mil-related-card-img-placeholder i { font-size: 2rem; color: rgba(0,139,139,0.35); }
-        .mil-related-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #008B8B; letter-spacing: 0.06em; margin-bottom: 8px; }
-        .mil-related-date { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 10px; }
-
-        @media (max-width: 900px) {
-            .mil-post-layout { grid-template-columns: 1fr; gap: 40px; }
-            .mil-post-sidebar { position: static; }
-        }
     </style>
 </head>
 <body>
@@ -273,6 +169,58 @@
         <!-- content -->
         <div class="mil-content">
             <div id="swupMain" class="mil-main-transition">
+                <style>
+                    /* Post-specific styles — inside swupMain so Swup carries them on navigation */
+                    .mil-post-breadcrumb { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,0.4); font-size: 0.82rem; margin-bottom: 24px; }
+                    .mil-post-breadcrumb a { color: #008B8B; text-decoration: none; }
+                    .mil-post-breadcrumb a:hover { color: #fff; }
+                    .mil-post-hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+                    .mil-post-hero-tag { background: rgba(0,139,139,0.15); color: #008B8B; border: 1px solid rgba(0,139,139,0.3); border-radius: 4px; padding: 4px 12px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; text-decoration: none; transition: background 0.2s; }
+                    .mil-post-hero-tag:hover { background: rgba(0,139,139,0.3); color: #fff; }
+                    .mil-post-meta { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; color: rgba(255,255,255,0.45); font-size: 0.83rem; margin-top: 24px; }
+                    .mil-post-meta span { display: flex; align-items: center; gap: 6px; }
+                    .mil-post-meta i { color: #008B8B; }
+                    .mil-post-cover-wrap { overflow: hidden; height: 460px; background: #111; }
+                    .mil-post-cover { width: 100%; height: 100%; object-fit: cover; display: block; }
+                    .mil-post-layout { display: grid; grid-template-columns: 1fr 280px; gap: 56px; padding: 64px 0 100px; align-items: start; }
+                    .mil-post-body { font-family: 'Lora', serif; font-size: 1.06rem; line-height: 1.85; color: #2d2d3e; }
+                    .mil-post-body h2 { font-family: inherit; font-size: 1.45rem; font-weight: 700; color: #0d0d1a; margin: 36px 0 14px; font-style: normal; }
+                    .mil-post-body h3 { font-family: inherit; font-size: 1.2rem; font-weight: 600; color: #0d0d1a; margin: 28px 0 12px; font-style: normal; }
+                    .mil-post-body p { margin-bottom: 20px; }
+                    .mil-post-body ul, .mil-post-body ol { padding-left: 24px; margin-bottom: 20px; }
+                    .mil-post-body li { margin-bottom: 8px; padding-left: 0; }
+                    .mil-post-body li::before { content: none !important; }
+                    .mil-post-body blockquote { border-left: 3px solid #008B8B; padding: 16px 20px; margin: 28px 0; background: rgba(0,139,139,0.04); border-radius: 0 8px 8px 0; font-style: italic; color: #555; }
+                    .mil-post-body img { max-width: 100%; border-radius: 10px; margin: 24px 0; }
+                    .mil-post-body a { color: #008B8B; }
+                    .mil-post-body code { background: #f0f4f8; border-radius: 4px; padding: 2px 6px; font-size: 0.88em; font-family: 'Courier New', monospace; }
+                    .mil-post-body pre { background: #0d0d1a; color: #e8f4f8; border-radius: 10px; padding: 20px; overflow-x: auto; margin: 24px 0; }
+                    .mil-post-body pre code { background: none; padding: 0; font-size: 0.88rem; }
+                    .mil-post-sidebar { position: sticky; top: 90px; }
+                    .mil-sidebar-card { background: #f4f6f9; border-radius: 14px; padding: 24px; margin-bottom: 20px; }
+                    .mil-sidebar-card h4 { font-size: 0.75rem; font-weight: 700; color: #008B8B; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 16px; }
+                    .mil-sidebar-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+                    .mil-sidebar-tag { background: #fff; border: 1px solid #e0e0e0; border-radius: 20px; padding: 5px 14px; font-size: 0.78rem; color: #555; text-decoration: none; transition: all 0.2s; }
+                    .mil-sidebar-tag:hover { background: #008B8B; color: #fff; border-color: #008B8B; }
+                    .mil-sidebar-cta { background: #0d0d1a; border-radius: 14px; padding: 28px; text-align: center; margin-bottom: 20px; }
+                    .mil-sidebar-cta h4 { font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 10px; }
+                    .mil-sidebar-cta p { font-size: 0.82rem; color: rgba(255,255,255,0.45); margin-bottom: 20px; line-height: 1.6; }
+                    .mil-sidebar-cta a { display: block; background: #008B8B; color: #fff; border-radius: 8px; padding: 11px; font-size: 0.88rem; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+                    .mil-sidebar-cta a:hover { background: #006f6f; }
+                    .mil-share-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+                    .mil-share-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 9px 8px; font-size: 0.8rem; color: #555; text-decoration: none; background: #fff; cursor: pointer; transition: all 0.2s; font-family: inherit; min-width: 80px; }
+                    .mil-share-btn.wa { color: #25D366; border-color: #25D366; }
+                    .mil-share-btn.wa:hover { background: #25D366; color: #fff; }
+                    .mil-share-btn.tw { color: #1da1f2; border-color: #1da1f2; }
+                    .mil-share-btn.tw:hover { background: #1da1f2; color: #fff; }
+                    .mil-share-btn.cp:hover { background: #008B8B; color: #fff; border-color: #008B8B; }
+                    .mil-related-card-img { width: calc(100% + 60px); margin: -30px -30px 20px; height: 160px; object-fit: cover; display: block; }
+                    .mil-related-card-img-placeholder { width: calc(100% + 60px); margin: -30px -30px 20px; height: 160px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; }
+                    .mil-related-card-img-placeholder i { font-size: 2rem; color: rgba(0,139,139,0.35); }
+                    .mil-related-tag { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: #008B8B; letter-spacing: 0.06em; margin-bottom: 8px; }
+                    .mil-related-date { font-size: 0.75rem; color: rgba(255,255,255,0.35); margin-top: 10px; }
+                    @media (max-width: 900px) { .mil-post-layout { grid-template-columns: 1fr; gap: 40px; } .mil-post-sidebar { position: static; } }
+                </style>
 
                 <!-- banner -->
                 <section class="mil-banner mil-dark-bg">

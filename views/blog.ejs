@@ -105,60 +105,6 @@
         .mil-subscribe-success { display: none; color: #4CAF50; font-size: 16px; padding: 10px; text-align: center; }
         .mil-subscribe-error { display: none; color: #F44336; font-size: 14px; margin-bottom: 5px; }
 
-        /* ── Blog-specific styles ──────────────────────────────────── */
-        .mil-blog-card-img {
-            width: calc(100% + 60px); margin: -30px -30px 24px;
-            height: 200px; object-fit: cover; display: block;
-        }
-        .mil-blog-card-img-placeholder {
-            width: calc(100% + 60px); margin: -30px -30px 24px;
-            height: 200px; background: rgba(255,255,255,0.04);
-            display: flex; align-items: center; justify-content: center;
-        }
-        .mil-blog-card-img-placeholder i { font-size: 2.5rem; color: rgba(0,139,139,0.35); }
-        .mil-blog-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
-        .mil-blog-tag {
-            background: rgba(0,139,139,0.2); color: #008B8B;
-            border-radius: 4px; padding: 2px 9px; font-size: 0.68rem;
-            font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em;
-        }
-        .mil-blog-meta {
-            font-size: 0.76rem; color: rgba(255,255,255,0.4);
-            display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
-        }
-        .mil-blog-meta i { color: #008B8B; }
-        /* Tag filter pills in banner */
-        .mil-tag-filter {
-            display: flex; flex-wrap: wrap; gap: 10px;
-            justify-content: center; margin-top: 40px;
-        }
-        .mil-tag-pill {
-            background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
-            color: rgba(255,255,255,0.65); border-radius: 20px;
-            padding: 6px 18px; font-size: 0.82rem; font-weight: 500;
-            text-decoration: none; transition: all 0.2s;
-        }
-        .mil-tag-pill:hover, .mil-tag-pill.active {
-            background: rgba(0,139,139,0.2); border-color: #008B8B; color: #fff;
-        }
-        /* Pagination */
-        .mil-blog-pagination {
-            display: flex; gap: 8px; justify-content: center; margin-top: 60px;
-        }
-        .mil-page-link, .mil-page-current {
-            width: 44px; height: 44px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 0.88rem; font-weight: 600; text-decoration: none;
-        }
-        .mil-page-link {
-            background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.65);
-            border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s;
-        }
-        .mil-page-link:hover { background: rgba(0,139,139,0.2); border-color: #008B8B; color: #fff; }
-        .mil-page-current { background: #008B8B; color: #fff; border: 1px solid #008B8B; }
-        /* Empty state */
-        .mil-blog-empty { text-align: center; padding: 60px 0 80px; }
-        .mil-blog-empty p { color: rgba(255,255,255,0.4); font-size: 1rem; margin-top: 12px; }
     </style>
     <title>Blog | Shed — Sell Anywhere, Manage Everything</title>
 </head>
@@ -235,6 +181,26 @@
         <!-- content -->
         <div class="mil-content">
             <div id="swupMain" class="mil-main-transition">
+                <style>
+                    /* Blog-specific styles — inside swupMain so Swup carries them on navigation */
+                    .mil-blog-card-img { width: calc(100% + 60px); margin: -30px -30px 24px; height: 200px; object-fit: cover; display: block; }
+                    .mil-blog-card-img-placeholder { width: calc(100% + 60px); margin: -30px -30px 24px; height: 200px; background: rgba(255,255,255,0.04); display: flex; align-items: center; justify-content: center; }
+                    .mil-blog-card-img-placeholder i { font-size: 2.5rem; color: rgba(0,139,139,0.35); }
+                    .mil-blog-card-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+                    .mil-blog-tag { background: rgba(0,139,139,0.2); color: #008B8B; border-radius: 4px; padding: 2px 9px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+                    .mil-blog-meta { font-size: 0.76rem; color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+                    .mil-blog-meta i { color: #008B8B; }
+                    .mil-tag-filter { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 40px; }
+                    .mil-tag-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.65); border-radius: 20px; padding: 6px 18px; font-size: 0.82rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+                    .mil-tag-pill:hover, .mil-tag-pill.active { background: rgba(0,139,139,0.2); border-color: #008B8B; color: #fff; }
+                    .mil-blog-pagination { display: flex; gap: 8px; justify-content: center; margin-top: 60px; }
+                    .mil-page-link, .mil-page-current { width: 44px; height: 44px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.88rem; font-weight: 600; text-decoration: none; }
+                    .mil-page-link { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.65); border: 1px solid rgba(255,255,255,0.15); transition: all 0.2s; }
+                    .mil-page-link:hover { background: rgba(0,139,139,0.2); border-color: #008B8B; color: #fff; }
+                    .mil-page-current { background: #008B8B; color: #fff; border: 1px solid #008B8B; }
+                    .mil-blog-empty { text-align: center; padding: 60px 0 80px; }
+                    .mil-blog-empty p { color: rgba(255,255,255,0.4); font-size: 1rem; margin-top: 12px; }
+                </style>
 
                 <!-- banner -->
                 <section class="mil-banner mil-dark-bg">
