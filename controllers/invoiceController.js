@@ -315,252 +315,265 @@ exports.postInvoiceShare = async (req, res) => {
 
 // ── Shared PDF invoice renderer ───────────────────────────────────────────────
 function buildInvoicePDF(doc, sale, admin, saleId) {
+  // ── Helpers ───────────────────────────────────────────────────────────────
   const fmt = (amount) => {
     const num = typeof amount === 'number' ? amount : parseFloat(amount);
     return isNaN(num) ? '0.00' : num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   };
 
+  // Convert integer to English words
+  const numToWords = (n) => {
+    const ones = ['','One','Two','Three','Four','Five','Six','Seven','Eight','Nine',
+                  'Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen',
+                  'Seventeen','Eighteen','Nineteen'];
+    const tens = ['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+    const conv = (x) => {
+      if (x === 0) return '';
+      if (x < 20)  return ones[x] + ' ';
+      if (x < 100) return tens[Math.floor(x/10)] + (x%10 ? ' ' + ones[x%10] : '') + ' ';
+      if (x < 1e3) return ones[Math.floor(x/100)] + ' Hundred ' + conv(x%100);
+      if (x < 1e6) return conv(Math.floor(x/1e3)) + 'Thousand ' + conv(x%1e3);
+      if (x < 1e9) return conv(Math.floor(x/1e6)) + 'Million '  + conv(x%1e6);
+      return conv(Math.floor(x/1e9)) + 'Billion ' + conv(x%1e9);
+    };
+    const i = Math.round(parseFloat(n) || 0);
+    return i === 0 ? 'Zero' : conv(i).replace(/\s+/g, ' ').trim();
+  };
+
+  // Draw underlined heading
   const underline = (text, x, y, fontSize, font, color) => {
     doc.fontSize(fontSize).font(font).fillColor(color).text(text, x, y);
     const w = doc.widthOfString(text, { fontSize, font });
-    doc.moveTo(x, y + fontSize + 1).lineTo(x + w, y + fontSize + 1)
-       .strokeColor(color).lineWidth(0.5).stroke();
+    doc.moveTo(x, y + fontSize + 2).lineTo(x + w, y + fontSize + 2)
+       .strokeColor(color).lineWidth(0.75).stroke();
   };
 
-  // Shed brand palette: orange #FF9800, black, light grey
   const C = {
-    orange:      '#FF9800',
-    orangeLight: '#FFF3E0',
-    dark:        '#000000',
-    text:        '#1A1A1A',
-    muted:       '#666666',
-    border:      '#DDDDDD',
-    borderLight: '#EEEEEE',
-    bgAlt:       '#F2F2F2',
-    white:       '#FFFFFF',
-    paid:        '#2E7D32',
-    unpaid:      '#C62828',
+    orange: '#FF9800',
+    dark:   '#1A1A1A',
+    text:   '#333333',
+    muted:  '#888888',
+    border: '#CCCCCC',
+    white:  '#FFFFFF',
   };
 
-  const PW = doc.page.width;
-  const PH = doc.page.height;
-  const M  = 50;
-  const cW = PW - 2 * M;
+  const PW  = doc.page.width;   // 595.28
+  const PH  = doc.page.height;  // 841.89
+  const M   = 50;
+  const cW  = PW - 2 * M;
   const cur = admin.currency || '₦';
+  const bk  = sale.bankDetails || {};
   const invoiceRef  = `INV-${saleId.slice(-8).toUpperCase()}`;
   const invoiceDate = new Date(sale.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
-  const isPaid      = sale.paymentStatus === 'Paid';
-  const bk          = sale.bankDetails || {};
-  const pad         = 6; // cell padding
+  const pad = 8; // table cell padding
 
-  // ── HEADER: orange top stripe + logo ─────────────────────────────────────
-  // Full-width orange band at top
-  doc.rect(0, 0, PW, 8).fill(C.orange);
-  // Subtle orange tint behind header area
-  doc.rect(0, 8, PW, 72).fill(C.orangeLight);
-
+  // ── HEADER ────────────────────────────────────────────────────────────────
+  // Logo / business name (top-left)
   const logoPath = admin.logo ? path.join(__dirname, '..', 'public', admin.logo) : null;
   const hasLogo  = logoPath && fs.existsSync(logoPath);
   if (hasLogo) {
-    try { doc.image(logoPath, M, 18, { height: 50, fit: [160, 50] }); } catch (e) {}
+    try { doc.image(logoPath, M, 14, { height: 50, fit: [190, 50] }); } catch (e) {}
   } else {
-    // Business name with orange square accent
-    doc.rect(M, 22, 5, 26).fill(C.orange);
-    doc.fontSize(18).font('Helvetica-Bold').fillColor(C.dark)
-       .text((admin.businessName || 'BUSINESS').toUpperCase(), M + 12, 26);
+    // Orange square accent + bold business name (Shedfactory logo style)
+    doc.rect(M, 16, 30, 30).fill(C.orange);
+    doc.fontSize(10).font('Helvetica-Bold').fillColor(C.white)
+       .text((admin.businessName || 'SHED').slice(0, 4).toUpperCase(), M, 24, { width: 30, align: 'center' });
+    doc.fontSize(15).font('Helvetica-Bold').fillColor(C.dark)
+       .text(admin.businessName || 'Business', M + 38, 22);
   }
 
-  // Contact line top-right
-  const contactLine = [admin.phone, admin.businessWebsite || 'shed.ng', admin.email].filter(Boolean).join('   •   ');
+  // Contact info — small text top-right
+  const contactParts = [admin.phone, admin.businessWebsite || 'shed.ng', admin.email].filter(Boolean);
   doc.fontSize(8).font('Helvetica').fillColor(C.muted)
-     .text(contactLine, 0, 32, { align: 'right', width: PW - M });
+     .text(contactParts.join('   '), 0, 28, { align: 'right', width: PW - M });
 
-  // Divider — orange line
-  doc.moveTo(0, 80).lineTo(PW, 80).strokeColor(C.orange).lineWidth(1.5).stroke();
+  // Thin divider below header
+  doc.moveTo(M, 72).lineTo(PW - M, 72).strokeColor(C.border).lineWidth(0.5).stroke();
 
-  let y = 96;
+  let y = 88;
 
-  // ── TWO-COLUMN: Invoice details (left) | Bill To (right) ─────────────────
-  const leftW  = 260;
+  // ── TWO-COLUMN: Invoice details LEFT | Bill To RIGHT ──────────────────────
+  const leftW  = 270;
   const rightX = M + leftW + 20;
   const rightW = PW - M - rightX;
 
-  // Left: INVOICE heading (large, thin weight, orange accent letter)
-  doc.fontSize(28).font('Helvetica').fillColor(C.dark).text('INVOICE', M, y);
-  // orange underline accent under "INVOICE"
-  const invW = doc.widthOfString('INVOICE', { fontSize: 28, font: 'Helvetica' });
-  doc.rect(M, y + 32, invW, 3).fill(C.orange);
-  y += 44;
-  doc.fontSize(9.5).font('Helvetica-Bold').fillColor(C.muted).text('DATE', M, y);
-  doc.fontSize(9.5).font('Helvetica').fillColor(C.text).text(invoiceDate, M + 70, y);
-  y += 14;
-  doc.fontSize(9.5).font('Helvetica-Bold').fillColor(C.muted).text('INVOICE NO.', M, y);
-  doc.fontSize(9.5).font('Helvetica').fillColor(C.orange).text(invoiceRef, M + 70, y);
-  y += 14;
-  doc.fontSize(9.5).font('Helvetica-Bold').fillColor(C.muted).text('DUE DATE', M, y);
-  doc.fontSize(9.5).font('Helvetica').fillColor(C.text).text('Upon Receipt', M + 70, y);
-  y += 14;
-  doc.fontSize(9.5).font('Helvetica-Bold').fillColor(C.muted).text('PAYMENT', M, y);
-  doc.fontSize(9.5).font('Helvetica').fillColor(C.text).text(sale.paymentMethod || 'N/A', M + 70, y);
+  // Left — large light "INVOICE" heading
+  doc.fontSize(30).font('Helvetica').fillColor(C.dark).text('INVOICE', M, y);
+  y += 40;
 
-  // Right: Bill To box with orange top accent
-  const btTopY = 96;
-  const btBoxW = rightW;
-  doc.rect(rightX, btTopY, btBoxW, 4).fill(C.orange);
-  doc.rect(rightX, btTopY + 4, btBoxW, 106).fill(C.bgAlt);
-  doc.fontSize(8).font('Helvetica-Bold').fillColor(C.orange)
-     .text('BILL TO', rightX + 10, btTopY + 14);
-  doc.fontSize(12).font('Helvetica-Bold').fillColor(C.dark)
-     .text(sale.customerName || 'N/A', rightX + 10, btTopY + 28, { width: btBoxW - 20 });
-  doc.fontSize(9).font('Helvetica').fillColor(C.muted);
-  let btY = btTopY + 50;
-  if (sale.email && sale.email !== 'N/A')             { doc.text(sale.email,       rightX + 10, btY, { width: btBoxW - 20 }); btY += 14; }
-  if (sale.phoneNumber && sale.phoneNumber !== 'N/A') { doc.text(sale.phoneNumber, rightX + 10, btY, { width: btBoxW - 20 }); }
+  doc.fontSize(10).font('Helvetica').fillColor(C.text).text(`Date: ${invoiceDate}`, M, y);
+  y += 16;
+  doc.text(`Invoice Number: ${invoiceRef}`, M, y);
+  y += 18;
 
-  y += 24;
-  doc.moveTo(M, y).lineTo(PW - M, y).strokeColor(C.borderLight).lineWidth(0.5).stroke();
-  y += 20;
+  // Sale subject / description bold in parentheses (if present)
+  if (sale.description || sale.subject) {
+    const subj = `(${(sale.description || sale.subject).toUpperCase()})`;
+    doc.fontSize(10).font('Helvetica-Bold').fillColor(C.dark).text(subj, M, y, { width: leftW });
+    y += doc.heightOfString(subj, { width: leftW, fontSize: 10, font: 'Helvetica-Bold' }) + 10;
+  }
+
+  doc.fontSize(10).font('Helvetica').fillColor(C.text).text('Due Date: Upon Receipt', M, y);
+  y += 16;
+
+  // Right — "Bill To:" plain, no box
+  const btY0 = 88 + 40; // aligned with first line below INVOICE heading
+  doc.fontSize(10).font('Helvetica').fillColor(C.text).text('Bill To:', rightX, btY0);
+  doc.fontSize(11).font('Helvetica-Bold').fillColor(C.dark)
+     .text(sale.customerName || 'N/A', rightX, btY0 + 18, { width: rightW });
+  let btY = btY0 + 36;
+  doc.fontSize(10).font('Helvetica').fillColor(C.text);
+  if (sale.email && sale.email !== 'N/A')             { doc.text(sale.email,       rightX, btY, { width: rightW }); btY += 16; }
+  if (sale.phoneNumber && sale.phoneNumber !== 'N/A') { doc.text(sale.phoneNumber, rightX, btY, { width: rightW }); btY += 16; }
+
+  // y must be below both columns
+  y = Math.max(y, btY) + 18;
 
   // ── SERVICE SUMMARY ───────────────────────────────────────────────────────
-  underline('Service Summary', M, y, 10, 'Helvetica-Bold', C.orange);
+  underline('Service Summary', M, y, 10, 'Helvetica', C.dark);
   y += 22;
-  doc.fontSize(9).font('Helvetica').fillColor(C.muted)
-     .text(`Billing Period: ${invoiceDate}`, M, y);
-  y += 20;
+  doc.fontSize(10).font('Helvetica').fillColor(C.text).text(`Billing Period: ${invoiceDate}`, M, y);
+  y += 22;
 
   // ── ITEMS TABLE ───────────────────────────────────────────────────────────
-  // Columns: Description | Unit Price | Qty | Amount
+  // Columns: Description | Unit Price | Quantity | Amount
   const tc = {
-    dX: M,       dW: 220,
-    rX: M + 220, rW: 90,
-    qX: M + 310, qW: 60,
-    aX: M + 370, aW: PW - M - (M + 370),  // ≈ 125px
+    dX: M,       dW: 230,
+    rX: M + 230, rW: 95,
+    qX: M + 325, qW: 60,
+    aX: M + 385, aW: PW - M - (M + 385),
   };
-  const hH = 26; // header row height
+  const hH = 28;
 
-  // Draw header cells — black bg, white text (Shed dark brand)
+  // drawCell: fill bg first, then border, then text
   const drawCell = (x, w, yRow, h, text, bold = false, align = 'left', bg = null) => {
     if (bg) doc.rect(x, yRow, w, h).fill(bg);
     doc.rect(x, yRow, w, h).lineWidth(0.5).stroke(C.border);
-    if (text) {
-      doc.fontSize(9).font(bold ? 'Helvetica-Bold' : 'Helvetica').fillColor(C.dark)
-         .text(text, x + pad, yRow + (h - 9) / 2, { width: w - 2 * pad, align });
+    if (text !== null && text !== undefined && String(text).length > 0) {
+      doc.fontSize(9.5).font(bold ? 'Helvetica-Bold' : 'Helvetica').fillColor(C.dark)
+         .text(String(text), x + pad, yRow + Math.max(0, (h - 10) / 2), { width: w - 2 * pad, align });
     }
   };
+
+  // Header row — black background, white bold text (Shed dark brand)
   const drawHeaderCell = (x, w, yRow, h, text, align = 'left') => {
     doc.rect(x, yRow, w, h).fill(C.dark);
-    doc.fontSize(9).font('Helvetica-Bold').fillColor(C.white)
-       .text(text, x + pad, yRow + (h - 9) / 2, { width: w - 2 * pad, align });
+    doc.fontSize(9.5).font('Helvetica-Bold').fillColor(C.white)
+       .text(text, x + pad, yRow + Math.max(0, (h - 10) / 2), { width: w - 2 * pad, align });
   };
-
   drawHeaderCell(tc.dX, tc.dW, y, hH, 'Description');
   drawHeaderCell(tc.rX, tc.rW, y, hH, 'Unit Price');
-  drawHeaderCell(tc.qX, tc.qW, y, hH, 'Quantity', 'center');
-  drawHeaderCell(tc.aX, tc.aW, y, hH, 'Amount', 'right');
+  drawHeaderCell(tc.qX, tc.qW, y, hH, 'Quantity',  'center');
+  drawHeaderCell(tc.aX, tc.aW, y, hH, 'Amount',    'right');
   y += hH;
 
-  // Item rows — alternate light grey background
+  // Item rows — banded: white / light orange
+  const bandColor = '#FFF3E0'; // very light orange tint (Shed brand)
   (sale.items || []).forEach((item, idx) => {
     const name  = item.itemName || 'Item';
-    const nameH = doc.heightOfString(name, { width: tc.dW - 2 * pad });
-    const rH    = Math.max(26, nameH + 14);
-    if (y + rH > 710) { doc.addPage(); y = 50; }
+    const nameH = doc.heightOfString(name, { width: tc.dW - 2 * pad, fontSize: 9.5, font: 'Helvetica' });
+    const rH    = Math.max(28, nameH + 16);
+    if (y + rH > 720) { doc.addPage(); y = 50; }
 
-    const rowBg = idx % 2 === 0 ? C.white : C.bgAlt;
-    doc.rect(tc.dX, y, cW, rH).fill(rowBg);
+    const bg = idx % 2 === 0 ? C.white : bandColor;
+    // Fill entire row first, then draw cells over it
+    doc.rect(tc.dX, y, cW, rH).fill(bg);
     doc.rect(tc.dX, y, tc.dW, rH).lineWidth(0.5).stroke(C.border);
-    doc.fontSize(9).font('Helvetica').fillColor(C.text)
+    doc.fontSize(9.5).font('Helvetica').fillColor(C.dark)
        .text(name, tc.dX + pad, y + 8, { width: tc.dW - 2 * pad });
-    drawCell(tc.rX, tc.rW, y, rH, `${cur} ${fmt(item.unitCost)}`, false, 'left', rowBg);
-    drawCell(tc.qX, tc.qW, y, rH, String(item.quantity || 0), false, 'center', rowBg);
-    drawCell(tc.aX, tc.aW, y, rH, `${cur} ${fmt(item.totalCost)}`, false, 'right', rowBg);
+    drawCell(tc.rX, tc.rW, y, rH, `${cur}${fmt(item.unitCost)}`,     false, 'left',   bg);
+    drawCell(tc.qX, tc.qW, y, rH, String(item.quantity || 0),        false, 'center', bg);
+    drawCell(tc.aX, tc.aW, y, rH, `${cur}${fmt(item.totalCost)}`,    false, 'right',  bg);
     y += rH;
   });
 
-  // VAT row (if applicable)
+  // VAT row
   if (sale.totalVatAmount > 0) {
-    const vH = 24;
-    drawCell(tc.dX, tc.dW, y, vH, `VAT (${sale.vatRate || 0}%)`, false);
-    drawCell(tc.rX, tc.rW, y, vH, '');
-    drawCell(tc.qX, tc.qW, y, vH, '');
-    drawCell(tc.aX, tc.aW, y, vH, `${cur} ${fmt(sale.totalVatAmount)}`, false, 'right');
+    const vH = 26;
+    drawCell(tc.dX, tc.dW, y, vH, `VAT (${sale.vatRate || 0}%)`);
+    drawCell(tc.rX, tc.rW, y, vH, null);
+    drawCell(tc.qX, tc.qW, y, vH, null);
+    drawCell(tc.aX, tc.aW, y, vH, `${cur}${fmt(sale.totalVatAmount)}`, false, 'right');
     y += vH;
   }
 
-  // Total row — orange accent background
+  // Total row — orange background, bold dark text (Shed accent)
   const tH = 28;
   doc.rect(tc.dX, y, cW, tH).fill(C.orange);
-  doc.fontSize(9).font('Helvetica-Bold').fillColor(C.dark)
-     .text('TOTAL', tc.dX + pad, y + (tH - 9) / 2, { width: tc.dW - 2 * pad });
-  doc.text(`${cur} ${fmt(sale.totalAmount)}`, tc.aX + pad, y + (tH - 9) / 2,
+  doc.fontSize(9.5).font('Helvetica-Bold').fillColor(C.dark)
+     .text('Total', tc.dX + pad, y + Math.max(0, (tH - 10) / 2), { width: tc.dW - 2 * pad });
+  doc.text(`${cur}${fmt(sale.totalAmount)}`, tc.aX + pad, y + Math.max(0, (tH - 10) / 2),
      { width: tc.aW - 2 * pad, align: 'right' });
-  y += tH + 18;
+  // draw border outlines on total row cells
+  [tc.dX, tc.rX, tc.qX, tc.aX].forEach((x, i) => {
+    const w = [tc.dW, tc.rW, tc.qW, tc.aW][i];
+    doc.rect(x, y, w, tH).lineWidth(0.5).stroke(C.border);
+  });
+  y += tH + 22;
 
   // ── DIVIDER ────────────────────────────────────────────────────────────────
   doc.moveTo(M, y).lineTo(PW - M, y).strokeColor(C.border).lineWidth(0.5).stroke();
-  y += 14;
+  y += 16;
 
-  // ── TOTAL AMOUNT DUE ───────────────────────────────────────────────────────
-  doc.fontSize(10).font('Helvetica').fillColor(C.dark)
-     .text(`Total Amount Due: ${cur} ${fmt(sale.totalAmount)}`, M, y, { width: cW });
-  y += 20;
-
-  // Status note
-  const statusColor = isPaid ? C.paid : C.unpaid;
-  doc.fontSize(9).font('Helvetica-Bold').fillColor(statusColor)
-     .text(isPaid ? 'Status: PAID' : 'Status: PAYMENT PENDING', M, y);
-  y += 20;
+  // ── TOTAL AMOUNT DUE (with amount in words) ────────────────────────────────
+  const words    = numToWords(Math.round(parseFloat(sale.totalAmount) || 0));
+  const curName  = cur === '₦' ? 'Naira' : 'Units';
+  const dueText  = `Total Amount Due: ${cur}${fmt(sale.totalAmount)} (${words} ${curName} Only)`;
+  doc.fontSize(10).font('Helvetica').fillColor(C.dark).text(dueText, M, y, { width: cW });
+  y += doc.heightOfString(dueText, { width: cW, fontSize: 10, font: 'Helvetica' }) + 14;
 
   // Notes / additional comments
   if (sale.additionalComments) {
-    doc.fontSize(9).font('Helvetica').fillColor(C.text)
-       .text(sale.additionalComments, M, y, { width: cW });
-    y += doc.heightOfString(sale.additionalComments, { width: cW }) + 14;
+    const noteText = `Note: ${sale.additionalComments}`;
+    doc.fontSize(10).font('Helvetica').fillColor(C.text).text(noteText, M, y, { width: cW });
+    y += doc.heightOfString(noteText, { width: cW, fontSize: 10, font: 'Helvetica' }) + 16;
   }
 
   // ── PAYMENT INSTRUCTIONS ──────────────────────────────────────────────────
-  if (y > 660) { doc.addPage(); y = 50; }
-  underline('Payment Instructions', M, y, 10, 'Helvetica-Bold', C.orange);
+  if (y > 650) { doc.addPage(); y = 50; }
+  underline('Payment Instructions', M, y, 10, 'Helvetica', C.dark);
   y += 22;
 
-  doc.fontSize(9).font('Helvetica').fillColor(C.text);
-  doc.text(`Bank: ${bk.bankName || admin.bankName || 'N/A'}`, M, y);          y += 14;
-  doc.text(`Account Name: ${bk.bankAccountName || admin.businessName || 'N/A'}`, M, y); y += 14;
-  doc.text(`Account Number: ${bk.accountNumber || admin.accountNumber || 'N/A'}`, M, y); y += 30;
+  doc.fontSize(10).font('Helvetica').fillColor(C.dark);
+  doc.text(`Bank: ${bk.bankName      || admin.bankName      || 'N/A'}`,             M, y); y += 16;
+  doc.text(`Account Name: ${bk.bankAccountName || admin.businessName || 'N/A'}`,    M, y); y += 16;
+  doc.text(`Account Number: ${bk.accountNumber || admin.accountNumber || 'N/A'}`,   M, y); y += 36;
 
-  // ── SIGNATURE LINE ─────────────────────────────────────────────────────────
-  doc.moveTo(M, y).lineTo(M + 130, y).strokeColor(C.border).lineWidth(0.5).stroke();
-  y += 8;
-  doc.fontSize(9).font('Helvetica-Bold').fillColor(C.dark).text(admin.businessName || 'Authorized Signatory', M, y);
-  y += 13;
-  doc.fontSize(8).font('Helvetica').fillColor(C.muted).text('Authorized Signatory', M, y);
+  // ── SIGNATURE ─────────────────────────────────────────────────────────────
+  doc.moveTo(M, y).lineTo(M + 110, y).strokeColor(C.border).lineWidth(0.5).stroke();
+  y += 10;
+  doc.fontSize(11).font('Helvetica-Bold').fillColor(C.dark)
+     .text(admin.ownerName || admin.businessName || 'Authorized Signatory', M, y);
+  y += 16;
+  doc.fontSize(9).font('Helvetica').fillColor(C.muted)
+     .text(`CEO / ${admin.businessName || 'Business'}`, M, y);
 
-  // ── FOOTER ─────────────────────────────────────────────────────────────────
-  const fY = PH - 52;
-  // Orange footer band
-  doc.rect(0, fY, PW, 52).fill(C.dark);
-  doc.moveTo(0, fY).lineTo(PW, fY).strokeColor(C.orange).lineWidth(2).stroke();
+  // ── FOOTER — Shed brand: black band, orange top stripe, white text ────────
+  const fH  = 56;
+  const fY  = PH - fH;
+  // Black footer band
+  doc.rect(0, fY, PW, fH).fill(C.dark);
+  // Orange top border on footer
+  doc.moveTo(0, fY).lineTo(PW, fY).strokeColor(C.orange).lineWidth(3).stroke();
 
-  // Three contact items centred
-  const footerItems = [
-    { label: admin.phone || '' },
-    { label: admin.businessWebsite || 'shed.ng' },
-    { label: admin.email || '' },
-  ].filter(f => f.label);
+  // Three contact items with filled orange circles
+  const footItems = [
+    { text: admin.phone || '' },
+    { text: admin.businessWebsite || 'shed.ng' },
+    { text: admin.email || '' },
+  ].filter(f => f.text);
 
-  const slotW = cW / Math.max(footerItems.length, 1);
-  footerItems.forEach((item, i) => {
-    const fx = M + i * slotW;
-    const cx = fx + slotW / 2;
-    // Orange dot
-    doc.circle(cx - 36, fY + 20, 5).fill(C.orange);
-    doc.fontSize(8.5).font('Helvetica').fillColor(C.white)
-       .text(item.label, cx - 28, fY + 15, { width: slotW - 10 });
+  const slotW = cW / Math.max(footItems.length, 1);
+  footItems.forEach((item, i) => {
+    const midX  = M + i * slotW + slotW / 2;
+    const iconX = midX - 52;
+    const textX = iconX + 24;
+    // Filled orange circle icon
+    doc.circle(iconX + 10, fY + fH / 2, 10).fill(C.orange);
+    // Contact text in white
+    doc.fontSize(9).font('Helvetica-Bold').fillColor(C.white)
+       .text(item.text, textX, fY + fH / 2 - 6, { width: slotW - 30 });
   });
-
-  // Powered-by text bottom
-  doc.fontSize(7).font('Helvetica').fillColor('rgba(255,255,255,0.4)')
-     .text('Powered by Shed · shed.ng', 0, fY + 36, { align: 'center', width: PW });
 }
 
 // GET /invoices/download/:saleId
