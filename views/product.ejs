@@ -956,14 +956,9 @@
                                             <div class="mil-product-description"><%= product.description %></div>
                                         <% } %>
                                         <input type="number" class="mil-quantity-input" min="1" max="<%= product.stock %>" value="1">
-                                        <button class="mil-add-to-cart" onclick="addToCart('<%= product._id %>', '<%= product.name %>', <%= product.cost %>, <%= product.stock %>, this)">
+                                        <button class="mil-add-to-cart" onclick="addToShopperCart('<%= admin._id %>', '<%= product._id %>', this)">
                                             <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
                                         </button>
-                                        <% if (typeof shopper !== 'undefined' && shopper) { %>
-                                          <button class="mil-add-to-cart" style="background:#0d0d1a; margin-top:8px;" onclick="addToShopperCart('<%= admin._id %>', '<%= product._id %>', this)">
-                                            <i class="fas fa-user-plus mil-mr-5"></i> Add to My Cart
-                                          </button>
-                                        <% } %>
                                     </div>
                                 </div>
                             </div>
@@ -1099,8 +1094,15 @@
             localStorage.setItem('cart', JSON.stringify(cart));
         }
 
-        // Logged-in shoppers: add to the account-based, cross-store cart (server-side).
+        const SHED_SHOPPER_LOGGED_IN = <%= (typeof shopper !== 'undefined' && shopper) ? 'true' : 'false' %>;
+
+        // Add to the account-based, cross-store cart (server-side). Anonymous
+        // visitors are sent to sign in first — the cart lives on the account.
         async function addToShopperCart(adminId, itemId, button) {
+            if (!SHED_SHOPPER_LOGGED_IN) {
+                window.location.href = '/shopper/login?next=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
             const original = button.innerHTML;
             button.disabled = true;
             button.innerHTML = 'Adding…';

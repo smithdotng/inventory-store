@@ -1018,32 +1018,6 @@
         </a>
         <div class="shed-topbar-right">
             <button class="shed-icon-btn" id="searchIconBtn" aria-label="Search products"><i class="fas fa-search"></i></button>
-            <div class="mil-cart-container">
-                <button class="shed-icon-btn mil-cart-button" onclick="toggleCartDropdown()" title="View Cart" style="position:relative;">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="mil-cart-count" id="cartCount">0</span>
-                </button>
-                <div class="mil-cart-dropdown" id="cartDropdown">
-                    <div class="mil-cart-dropdown-header">Your Cart</div>
-                    <div class="mil-cart-dropdown-items" id="cartDropdownItems">
-                        <div class="mil-cart-empty-message">Your cart is empty</div>
-                    </div>
-                    <div class="mil-cart-dropdown-footer" id="cartDropdownFooter" style="display:none;">
-                        <div class="mil-cart-dropdown-total">
-                            <span>Total:</span>
-                            <span id="cartDropdownTotal">$0.00</span>
-                        </div>
-                        <div class="mil-cart-dropdown-buttons">
-                            <button class="mil-cart-dropdown-btn mil-cart-dropdown-btn-primary" onclick="showCheckoutForm()">
-                                <i class="fas fa-check-circle"></i> Checkout
-                            </button>
-                            <button class="mil-cart-dropdown-btn mil-cart-dropdown-btn-danger" onclick="clearCart()">
-                                <i class="fas fa-trash"></i> Clear Cart
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <a href="<%= buyerProfile ? '/buyer' : '/buyer/login' %>" class="shed-icon-btn" title="<%= buyerProfile ? 'My Shed Profile' : 'Sign in to Shed' %>" style="position:relative;text-decoration:none;">
                 <i class="fas fa-user-circle" style="font-size:18px;"></i>
                 <% if (buyerProfile) { %><span style="position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:#4caf50;border:1.5px solid #fff;"></span><% } %>
@@ -1310,14 +1284,9 @@
                                           <div class="mil-product-price"><%= currency %><%= formatCurrency(item.cost || 0) %></div>
                                           <div class="mil-product-stock">Stock: <%= item.stock || 0 %></div>
                                           <input type="number" class="mil-quantity-input" min="1" max="<%= item.stock > 0 ? item.stock : 1 %>" value="1">
-                                          <button class="mil-add-to-cart" onclick="addToCart('<%= encodeURIComponent(item.id || item._id || 'missing-id-' + Math.random().toString(36).substr(2, 9)) %>', '<%= item.name ? item.name.replace(/'/g, '\\\'') : 'Unnamed Product' %>', <%= Number(item.cost) || 0 %>, <%= Number(item.stock) || 0 %>, this)">
+                                          <button class="mil-add-to-cart" onclick="addToShopperCart('<%= admin._id %>', '<%= item.id || item._id %>', this)">
                                             <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
                                           </button>
-                                          <% if (typeof shopper !== 'undefined' && shopper) { %>
-                                            <button class="mil-add-to-cart" style="background:#0d0d1a; margin-top:6px;" onclick="addToShopperCart('<%= admin._id %>', '<%= item.id || item._id %>', this)">
-                                              <i class="fas fa-user-plus mil-mr-5"></i> Add to My Cart
-                                            </button>
-                                          <% } %>
                                         </div>
                                       </div>
                                     <% }) %>
@@ -1351,115 +1320,6 @@
                 </section><!-- /mil-about -->
             </div>
         </div><!-- /mil-store-content -->
-
-        <!-- ─── Checkout Modal ─── -->
-        <div class="mil-overlay" id="overlay" onclick="hideCheckoutForm()"></div>
-
-        <div class="ck-modal" id="checkoutForm">
-            <!-- Left: Order Summary -->
-            <div class="ck-summary">
-                <div class="ck-summary-title">Order Summary</div>
-                <div class="ck-summary-store">
-                    <div class="ck-summary-store-logo">
-                        <% if (admin.logo) { %><img src="<%= admin.logo %>" alt="logo"><% } else { %><%= (outlet ? outlet.name : admin.businessName || 'S').charAt(0).toUpperCase() %><% } %>
-                    </div>
-                    <div class="ck-summary-store-name"><%= outlet ? outlet.name : admin.businessName || 'Shed Store' %></div>
-                </div>
-                <div class="ck-summary-items" id="ckSummaryItems">
-                    <!-- populated by JS -->
-                </div>
-                <hr class="ck-divider">
-                <div class="ck-total-row">
-                    <span class="ck-total-label">Total</span>
-                    <span class="ck-total-value" id="ckTotalValue">₦0.00</span>
-                </div>
-            </div>
-
-            <!-- Right: Form Panel -->
-            <div class="ck-form-panel">
-                <div class="ck-panel-header">
-                    <h2 id="ckPanelTitle">Complete your order</h2>
-                    <button class="ck-close" onclick="hideCheckoutForm()" title="Close">&times;</button>
-                </div>
-
-                <!-- Progress -->
-                <div class="ck-progress" id="ckProgress">
-                    <div class="ck-prog-step active" id="ckProg1">
-                        <div class="ck-prog-dot">1</div>
-                        <span>Your details</span>
-                    </div>
-                    <div class="ck-prog-line"></div>
-                    <div class="ck-prog-step" id="ckProg2">
-                        <div class="ck-prog-dot">2</div>
-                        <span>Confirmation</span>
-                    </div>
-                </div>
-
-                <!-- Step 1: Buyer details -->
-                <div class="ck-step active" id="ckStep1">
-                    <% if (buyerProfile) { %>
-                    <div class="ck-autofill-banner">
-                        <i class="fas fa-bolt"></i>
-                        <span>Details filled from your <strong>Shed profile</strong> — just confirm and pay.</span>
-                    </div>
-                    <% } %>
-
-                    <form id="checkoutFormSubmit" action="<%= outlet ? `/outlet/${outlet.username}/checkout` : `/store/${admin.username}/checkout` %>" method="POST">
-                        <div class="ck-field">
-                            <label class="ck-label" for="customerName">Full name</label>
-                            <input type="text" id="customerName" name="customerName" class="ck-input"
-                                   placeholder="Your name"
-                                   value="<%= buyerProfile ? buyerProfile.name || '' : '' %>" required>
-                        </div>
-                        <div class="ck-field">
-                            <label class="ck-label" for="email">Email address</label>
-                            <input type="email" id="email" name="email" class="ck-input"
-                                   placeholder="you@example.com"
-                                   value="<%= buyerProfile ? buyerProfile.email || '' : '' %>" required>
-                        </div>
-                        <div class="ck-field">
-                            <label class="ck-label" for="phoneNumber">Phone number</label>
-                            <input type="tel" id="phoneNumber" name="phoneNumber" class="ck-input"
-                                   placeholder="+234 000 000 0000"
-                                   value="<%= buyerProfile ? buyerProfile.phone || '' : '' %>" required>
-                        </div>
-                        <input type="hidden" id="cartItems" name="cartItems">
-                        <button type="submit" class="ck-btn-primary" id="ckSubmitBtn">
-                            <i class="fas fa-lock"></i> Place Order
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Step 2: Receipt -->
-                <div class="ck-step" id="ckStep2">
-                    <div class="ck-receipt-icon"><i class="fas fa-check"></i></div>
-                    <div class="ck-receipt-title">Order placed!</div>
-                    <div class="ck-receipt-sub" id="ckReceiptSub">Your order has been received.</div>
-
-                    <div id="ckReceiptDetails">
-                        <!-- populated by JS -->
-                    </div>
-
-                    <div class="ck-receipt-actions">
-                        <a href="#" id="ckInvoiceLink" class="ck-btn-primary" target="_blank">
-                            <i class="fas fa-file-invoice"></i> Download Invoice
-                        </a>
-                        <button class="ck-btn-ghost" onclick="hideCheckoutForm()">
-                            <i class="fas fa-shopping-bag"></i> Keep shopping
-                        </button>
-                    </div>
-
-                    <div class="ck-buyer-profile-cta">
-                        <i class="fas fa-history" style="margin-right:6px;color:#FF9800;"></i>
-                        <% if (buyerProfile) { %>
-                            <a href="/buyer">View this order in My Shed Profile &rarr;</a>
-                        <% } else { %>
-                            <a href="/buyer/login">Sign in to Shed</a> to track this order and all your future purchases across stores.
-                        <% } %>
-                    </div>
-                </div>
-            </div>
-        </div>
 
         <footer class="mil-dark-bg">
             <div class="mi-invert-fix">
@@ -1585,8 +1445,15 @@
     <script src="/js/main.js"></script>
 
     <script>
-        // Logged-in shoppers: add to the account-based, cross-store cart (server-side).
+        const SHED_SHOPPER_LOGGED_IN = <%= (typeof shopper !== 'undefined' && shopper) ? 'true' : 'false' %>;
+
+        // Add to the account-based, cross-store cart (server-side). Anonymous
+        // visitors are sent to sign in first — the cart lives on the account.
         async function addToShopperCart(adminId, itemId, button) {
+            if (!SHED_SHOPPER_LOGGED_IN) {
+                window.location.href = '/shopper/login?next=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
             const original = button.innerHTML;
             button.disabled = true;
             button.innerHTML = 'Adding…';
@@ -1612,224 +1479,7 @@
             }
         }
 
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const currency = '<%= currency %>';
-        let cartDropdownOpen = false;
-
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
-
-        function formatCurrency(value) {
-            return parseFloat(value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        }
-
-        function addToCart(itemId, itemName, itemCost, maxStock, button) {
-            try {
-                const decodedItemId = decodeURIComponent(itemId);
-                console.log('addToCart called:', { itemId: decodedItemId, itemName, itemCost, maxStock });
-
-                if (!decodedItemId) {
-                    console.error('Error: decodedItemId is empty or invalid');
-                    alert('Error: Invalid item ID. Please try again.');
-                    return;
-                }
-
-                if (isNaN(itemCost) || itemCost < 0) {
-                    console.error('Error: Invalid itemCost:', itemCost);
-                    alert('Error: Invalid item cost. Please try again.');
-                    return;
-                }
-
-                if (isNaN(maxStock) || maxStock < 0) {
-                    console.error('Error: Invalid maxStock:', maxStock);
-                    alert('Error: Invalid stock value. Please try again.');
-                    return;
-                }
-
-                const quantityInput = document.querySelector(`.mil-inventory-item[data-item-id="${CSS.escape(decodedItemId)}"] .mil-quantity-input`);
-                if (!quantityInput) {
-                    console.error(`Error: Quantity input not found for itemId=${decodedItemId}`);
-                    alert('Error: Could not find quantity input. Please try again.');
-                    return;
-                }
-
-                const quantity = parseInt(quantityInput.value);
-                if (isNaN(quantity) || quantity <= 0 || quantity > maxStock) {
-                    console.error('Error: Invalid quantity', { quantity, maxStock });
-                    alert('Please enter a valid quantity within available stock.');
-                    return;
-                }
-
-                const existingItemIndex = cart.findIndex(item => item.id === decodedItemId);
-                if (existingItemIndex !== -1) {
-                    cart.splice(existingItemIndex, 1);
-                    button.classList.remove('mil-added');
-                    button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
-                    button.style.backgroundColor = '';
-                } else {
-                    cart.push({
-                        id: decodedItemId,
-                        name: itemName,
-                        cost: Number(itemCost),
-                        quantity: quantity,
-                        image: document.querySelector(`.mil-inventory-item[data-item-id="${CSS.escape(decodedItemId)}"] .mil-product-image`)?.src || ''
-                    });
-                    button.classList.add('mil-added');
-                    button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
-                    button.style.backgroundColor = '#dc3545';
-                }
-                saveCart();
-                updateCartCount();
-                updateCartSummary();
-                updateCkSummary();
-                updateCartDropdown();
-            } catch (error) {
-                console.error('Error in addToCart:', error.message, error.stack);
-                alert('Error adding item to cart: ' + error.message);
-            }
-        }
-
-        function removeFromCart(itemId) {
-            cart = cart.filter(item => item.id !== itemId);
-            saveCart();
-            updateCartCount();
-            updateCartSummary();
-            updateCkSummary();
-            updateCartDropdown();
-            initializeButtonStates();
-            // Update hidden input
-            const ci = document.getElementById('cartItems');
-            if (ci) ci.value = JSON.stringify(cart);
-            if (cart.length === 0) hideCheckoutForm();
-        }
-
-        function clearCart() {
-            if (cart.length === 0) {
-                alert('Your cart is already empty.');
-                return;
-            }
-            
-            if (confirm('Are you sure you want to clear your cart? This action cannot be undone.')) {
-                cart = [];
-                saveCart();
-                updateCartCount();
-                updateCartSummary();
-                updateCartDropdown();
-                initializeButtonStates();
-                closeCartDropdown();
-                alert('Your cart has been cleared.');
-            }
-        }
-
-        function updateCartCount() {
-            const cartCount = document.getElementById('cartCount');
-            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
-            const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
-            
-            cartCount.textContent = `${itemCount}`;
-            cartCount.title = `Total: ${currency}${formatCurrency(totalValue)}`;
-        }
-
-        function updateCartSummary() {
-            // Legacy (no-op — summary panel driven separately)
-        }
-
-        function updateCkSummary() {
-            const container = document.getElementById('ckSummaryItems');
-            const totalEl   = document.getElementById('ckTotalValue');
-            if (!container) return;
-            container.innerHTML = cart.map(item => `
-                <div class="ck-item">
-                    <div class="ck-item-thumb"><i class="fas fa-box"></i></div>
-                    <div class="ck-item-details">
-                        <div class="ck-item-name">${item.name}</div>
-                        <div class="ck-item-qty">Qty: ${item.quantity}</div>
-                    </div>
-                    <div class="ck-item-price">${currency}${formatCurrency(item.cost * item.quantity)}</div>
-                    <button class="ck-item-remove" onclick="removeFromCart('${item.id}')" title="Remove"><i class="fas fa-times"></i></button>
-                </div>
-            `).join('');
-            const total = cart.reduce((s, i) => s + i.cost * i.quantity, 0);
-            if (totalEl) totalEl.textContent = `${currency}${formatCurrency(total)}`;
-        }
-
-        function updateCartDropdown() {
-            const cartDropdownItems = document.getElementById('cartDropdownItems');
-            const cartDropdownFooter = document.getElementById('cartDropdownFooter');
-            const cartDropdownTotal = document.getElementById('cartDropdownTotal');
-            
-            if (cart.length === 0) {
-                cartDropdownItems.innerHTML = '<div class="mil-cart-empty-message">Your cart is empty</div>';
-                cartDropdownFooter.style.display = 'none';
-                cartDropdownTotal.textContent = `${currency}0.00`;
-            } else {
-                // Update items list
-                cartDropdownItems.innerHTML = cart.map(item => `
-                    <div class="mil-cart-dropdown-item">
-                        <div class="mil-cart-dropdown-item-name" title="${item.name}">${item.name}</div>
-                        <div class="mil-cart-dropdown-item-qty">${item.quantity}</div>
-                    </div>
-                `).join('');
-                
-                // Update total
-                const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
-                cartDropdownTotal.textContent = `${currency}${formatCurrency(totalValue)}`;
-                cartDropdownFooter.style.display = 'block';
-            }
-        }
-
-        function initializeButtonStates() {
-            document.querySelectorAll('.mil-inventory-item').forEach(item => {
-                const itemId = item.dataset.itemId;
-                const button = item.querySelector('.mil-add-to-cart');
-                if (cart.some(cartItem => cartItem.id === itemId)) {
-                    button.classList.add('mil-added');
-                    button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
-                    button.style.backgroundColor = '#dc3545';
-                } else {
-                    button.classList.remove('mil-added');
-                    button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
-                    button.style.backgroundColor = '';
-                }
-            });
-        }
-
-        function toggleCartDropdown() {
-            const dropdown = document.getElementById('cartDropdown');
-            if (cartDropdownOpen) {
-                closeCartDropdown();
-            } else {
-                openCartDropdown();
-            }
-        }
-
-        function openCartDropdown() {
-            const dropdown = document.getElementById('cartDropdown');
-            dropdown.classList.add('show');
-            cartDropdownOpen = true;
-            
-            // Close dropdown when clicking outside
-            setTimeout(() => {
-                document.addEventListener('click', closeCartDropdownOnClickOutside);
-            }, 10);
-        }
-
-        function closeCartDropdown() {
-            const dropdown = document.getElementById('cartDropdown');
-            dropdown.classList.remove('show');
-            cartDropdownOpen = false;
-            document.removeEventListener('click', closeCartDropdownOnClickOutside);
-        }
-
-        function closeCartDropdownOnClickOutside(event) {
-            const cartContainer = document.querySelector('.mil-cart-container');
-            const dropdown = document.getElementById('cartDropdown');
-            
-            if (!cartContainer.contains(event.target) && !dropdown.contains(event.target)) {
-                closeCartDropdown();
-            }
-        }
 
         function scrollToStore() {
             const storeSection = document.getElementById('store');
@@ -1842,34 +1492,6 @@
             } else {
                 window.scrollTo({top: storeSection?.offsetTop - 80, behavior: 'smooth'});
             }
-        }
-
-        function showCheckoutForm() {
-            if (cart.length === 0) {
-                alert('Please add items to your cart before checking out.');
-                return;
-            }
-            const cartItemsInput = document.getElementById('cartItems');
-            cartItemsInput.value = JSON.stringify(cart);
-
-            // Reset to step 1
-            document.getElementById('ckStep1').classList.add('active');
-            document.getElementById('ckStep2').classList.remove('active');
-            document.getElementById('ckProg1').classList.add('active');
-            document.getElementById('ckProg1').classList.remove('done');
-            document.getElementById('ckProg2').classList.remove('active');
-            document.getElementById('ckPanelTitle').textContent = 'Complete your order';
-            document.getElementById('ckProgress').style.display = '';
-
-            updateCkSummary();
-            closeCartDropdown();
-            document.getElementById('overlay').classList.add('active');
-            document.getElementById('checkoutForm').classList.add('active');
-        }
-
-        function hideCheckoutForm() {
-            document.getElementById('overlay').classList.remove('active');
-            document.getElementById('checkoutForm').classList.remove('active');
         }
 
         function searchInventory() {
@@ -1906,93 +1528,7 @@
             }
         }
 
-        document.getElementById('checkoutFormSubmit').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const customerName = document.getElementById('customerName').value.trim();
-            const phoneNumber  = document.getElementById('phoneNumber').value.trim();
-            const email        = document.getElementById('email').value.trim();
-            const cartItemsInput = document.getElementById('cartItems');
-
-            if (!customerName || !phoneNumber || !email) {
-                alert('Please fill in all required fields.');
-                return;
-            }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-            if (cart.length === 0) {
-                alert('Your cart is empty. Please add items before checking out.');
-                return;
-            }
-
-            const submitBtn = document.getElementById('ckSubmitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
-
-            try {
-                const payload = { customerName, phoneNumber, email, cartItems: cartItemsInput.value };
-                const response = await fetch(e.target.action, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-                const result = await response.json();
-
-                if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
-                if (!result.success || !result.invoiceUrl) throw new Error(result.error || 'Invalid server response');
-
-                // ── Clear cart ──
-                cart = [];
-                saveCart();
-                updateCartCount();
-                initializeButtonStates();
-                updateCartDropdown();
-                updateCkSummary();
-
-                // ── Move to Step 2: receipt ──
-                const total = JSON.parse(payload.cartItems).reduce((s, i) => s + i.cost * i.quantity, 0);
-                const itemCount = JSON.parse(payload.cartItems).reduce((s, i) => s + i.quantity, 0);
-
-                document.getElementById('ckReceiptSub').textContent =
-                    `Thank you, ${customerName}! Your order confirmation is below.`;
-
-                document.getElementById('ckReceiptDetails').innerHTML = `
-                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Order ID</span><span class="ck-receipt-val">${result.saleId ? result.saleId.toString().slice(-8).toUpperCase() : '—'}</span></div>
-                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Name</span><span class="ck-receipt-val">${customerName}</span></div>
-                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Email</span><span class="ck-receipt-val">${email}</span></div>
-                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Items</span><span class="ck-receipt-val">${itemCount}</span></div>
-                    <div class="ck-receipt-total"><span>Total Paid</span><span>${currency}${formatCurrency(total)}</span></div>
-                `;
-
-                document.getElementById('ckInvoiceLink').href = result.invoiceUrl;
-
-                // Progress: step 1 done → step 2 active
-                const prog1 = document.getElementById('ckProg1');
-                const prog2 = document.getElementById('ckProg2');
-                prog1.classList.remove('active'); prog1.classList.add('done');
-                prog1.querySelector('.ck-prog-dot').innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
-                prog2.classList.add('active');
-
-                document.getElementById('ckPanelTitle').textContent = 'Order confirmed';
-                document.getElementById('ckStep1').classList.remove('active');
-                document.getElementById('ckStep2').classList.add('active');
-
-            } catch (error) {
-                console.error('Checkout error:', error);
-                alert(`Error: ${error.message}. Please try again.`);
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-lock"></i> Place Order';
-            }
-        });
-
         window.addEventListener('load', () => {
-            updateCartCount();
-            initializeButtonStates();
-            updateCartSummary();
-            updateCartDropdown();
-            
             // Search icon toggle
             const searchIconBtn  = document.getElementById('searchIconBtn');
             const productSearchBar = document.getElementById('productSearchBar');
@@ -2017,25 +1553,7 @@
 
             // Live filter as user types
             searchInput.addEventListener('input', searchInventory);
-            
-            // Ensure modal is hidden on load
-            document.getElementById('overlay').classList.remove('active');
-            document.getElementById('checkoutForm').classList.remove('active');
-            updateCkSummary();
         });
-
-        if (window.location.search.includes('checkout_success=true')) {
-            setTimeout(() => {
-                alert('Your order has been placed successfully!');
-                cart = [];
-                saveCart();
-                updateCartCount();
-                initializeButtonStates();
-                updateCartSummary();
-                updateCartDropdown();
-                history.replaceState(null, '', window.location.pathname);
-            }, 500);
-        }
 
         document.getElementById('orderSearchInput')?.addEventListener('input', searchOrderTable);
 
