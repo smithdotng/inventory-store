@@ -1,5 +1,10 @@
 const { ObjectId } = require('mongodb');
 const { getDb } = require('../config/db');
+const { isAccountLocked } = require('../utils/subscription');
+
+// Paths an admin/business_user should always be able to reach even when their
+// store is locked for non-payment — otherwise they could never fix it.
+const LOCKOUT_ALLOWLIST = ['/billing', '/billing/subscribe', '/billing/callback', '/admin-logout', '/account-locked'];
 
 // Session validation middleware - validates every authenticated request
 function setupSessionValidation(app) {
@@ -35,7 +40,12 @@ function setupSessionValidation(app) {
       '/offline.html',
       '/site.webmanifest',
       '/status',
-      '/health'
+      '/health',
+      '/buyer',
+      '/buyer/login',
+      '/buyer/logout',
+      '/cart',
+      '/cart/count'
     ];
 
     const publicRoutePrefixes = [
@@ -44,7 +54,11 @@ function setupSessionValidation(app) {
       '/api/',
       '/blog/',
       '/public-invoice/',
-      '/search'
+      '/search',
+      '/buyer/',
+      '/shopper/',
+      '/cart/',
+      '/webhooks/'
     ];
 
     const isExactPublicRoute = publicRoutes.some(route => req.path === route);
@@ -116,6 +130,8 @@ function setupSessionValidation(app) {
           _original: user
         };
 
+        let ownerAdminDoc = null;
+
         if (userType === 'admin') {
           req.user.businessName = user.businessName;
           req.user.logo = user.logo;
@@ -123,6 +139,7 @@ function setupSessionValidation(app) {
           req.user.country = user.country;
           req.user.applyVat = user.applyVat;
           req.user.vatRate = user.vatRate;
+          ownerAdminDoc = user;
         } else if (userType === 'business_user') {
           req.user.adminId = user.adminId;
           req.user.businessName = user.businessName;
@@ -135,6 +152,7 @@ function setupSessionValidation(app) {
               _id: new ObjectId(user.adminId)
             });
             if (admin) {
+              ownerAdminDoc = admin;
               req.user.adminDetails = {
                 businessName: admin.businessName,
                 logo: admin.logo,
@@ -145,6 +163,20 @@ function setupSessionValidation(app) {
               };
             }
           }
+        }
+
+        // ── Subscription lockout — full lockout of dashboard access once a
+        // store owner's trial/subscription has lapsed. Superadmins and the
+        // billing/logout pages themselves are always reachable.
+        if (user.role !== 'superadmin' && !LOCKOUT_ALLOWLIST.includes(req.path) && isAccountLocked(ownerAdminDoc)) {
+          console.log('🔒 Subscription locked — blocking', req.path);
+          if (userType === 'admin') {
+            return res.redirect('/billing?locked=1');
+          }
+          return res.status(403).render('account-locked', {
+            businessName: (ownerAdminDoc && (ownerAdminDoc.businessName || ownerAdminDoc.username)) || 'This store',
+            forBusinessUser: true
+          });
         }
 
         if (!req.session.role && user.role) req.session.role = user.role;

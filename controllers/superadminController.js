@@ -6,6 +6,37 @@ const { transporter } = require('../config/mailer');
 const { formatCurrency } = require('../utils/helpers');
 const { sendPasswordResetEmail } = require('../utils/emailHelpers');
 
+// POST /superadmin/subscription/:id/comp — manually grant/revoke free access,
+// e.g. for a store owner you've agreed to comp or want to unblock by hand.
+exports.postCompSubscription = async (req, res) => {
+  try {
+    const db = getDb();
+    const admin = await db.collection('admins').findOne({ _id: new ObjectId(req.params.id) });
+    if (!admin) {
+      req.flash('error', 'Admin not found.');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    if (!admin.subscription || admin.subscription.legacyAccount) {
+      req.flash('error', 'This admin is not on the subscription system.');
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    const undo = req.body.undo === '1';
+    await db.collection('admins').updateOne(
+      { _id: admin._id },
+      { $set: { 'subscription.status': undo ? 'expired' : 'comped' } }
+    );
+
+    req.flash('success', undo ? `Removed comp access for ${admin.username}.` : `Granted free access to ${admin.username}.`);
+    res.redirect('/superadmin/dashboard');
+  } catch (err) {
+    console.error('Comp subscription error:', err);
+    req.flash('error', 'Could not update subscription.');
+    res.redirect('/superadmin/dashboard');
+  }
+};
+
 exports.getDashboard = async (req, res) => {
   try {
     const db = getDb();

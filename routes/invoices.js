@@ -10,6 +10,8 @@ router.get('/invoices/upload', isAuthenticated, invoiceController.getInvoiceUplo
 router.post('/invoices/upload', isAuthenticated, uploadInvoiceFile, invoiceController.postInvoiceUpload);
 router.post('/invoices/share', isAuthenticated, uploadInvoiceFile, invoiceController.postInvoiceShare);
 router.get('/invoices/download/:saleId', isAuthenticated, invoiceController.getInvoiceDownload);
+router.get('/invoices/preview/:saleId',  isAuthenticated, invoiceController.getInvoicePreview);
+router.post('/invoices/update/:saleId',  isAuthenticated, invoiceController.postUpdateInvoice);
 router.post('/invoices/mark-paid/:saleId', isAuthenticated, invoiceController.postMarkPaid);
 router.get('/public-invoice/:saleId', invoiceController.getPublicInvoice);
 

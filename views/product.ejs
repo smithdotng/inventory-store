@@ -860,6 +860,7 @@
 </head>
 
 <body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
     <!-- wrapper -->
     <div class="mil-wrapper" id="top">
         <!-- cursor -->
@@ -958,6 +959,11 @@
                                         <button class="mil-add-to-cart" onclick="addToCart('<%= product._id %>', '<%= product.name %>', <%= product.cost %>, <%= product.stock %>, this)">
                                             <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
                                         </button>
+                                        <% if (typeof shopper !== 'undefined' && shopper) { %>
+                                          <button class="mil-add-to-cart" style="background:#0d0d1a; margin-top:8px;" onclick="addToShopperCart('<%= admin._id %>', '<%= product._id %>', this)">
+                                            <i class="fas fa-user-plus mil-mr-5"></i> Add to My Cart
+                                          </button>
+                                        <% } %>
                                     </div>
                                 </div>
                             </div>
@@ -1091,6 +1097,33 @@
         // Save cart to localStorage
         function saveCart() {
             localStorage.setItem('cart', JSON.stringify(cart));
+        }
+
+        // Logged-in shoppers: add to the account-based, cross-store cart (server-side).
+        async function addToShopperCart(adminId, itemId, button) {
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = 'Adding…';
+            try {
+                const res = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId, itemId, quantity: 1 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Added!';
+                    const badge = document.getElementById('shedCartCount');
+                    if (badge) { badge.textContent = data.count; badge.style.display = 'flex'; }
+                    setTimeout(() => { button.innerHTML = original; button.disabled = false; }, 1500);
+                } else {
+                    alert(data.error || 'Could not add item.');
+                    button.innerHTML = original; button.disabled = false;
+                }
+            } catch (err) {
+                alert('Could not add item. Please try again.');
+                button.innerHTML = original; button.disabled = false;
+            }
         }
 
         function formatCurrency(value) {

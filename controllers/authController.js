@@ -6,6 +6,7 @@ const { transporter } = require('../config/mailer');
 const { uploadLogo } = require('../config/multer');
 const { getDashboardUrl } = require('../utils/helpers');
 const { sendWelcomeEmailToUser } = require('../utils/emailHelpers');
+const { newTrialSubscription } = require('../utils/subscription');
 
 // GET /admin-login
 exports.getLogin = (req, res) => {
@@ -279,8 +280,11 @@ exports.postVerifyEmail = async (req, res) => {
     }
     if (record.otp !== otp.trim()) return renderError('Incorrect code. Please try again.');
 
-    // Create the account
+    // Create the account — new self-registered store owners start a 14-day
+    // free trial; the ₦7,200/month subscription kicks in once it ends.
+    // (Pre-existing admins are untouched — see scripts/grandfatherExistingAdmins.js.)
     const newAdmin = record.pendingAdmin;
+    newAdmin.subscription = newTrialSubscription();
     await db.collection('admins').insertOne(newAdmin);
 
     // Send welcome email

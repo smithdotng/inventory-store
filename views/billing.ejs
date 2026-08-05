@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Subscription &amp; Billing</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Jost', sans-serif; background: #f7f7f8; color: #222; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; border-radius: 16px; padding: 44px 40px; max-width: 480px; width: 100%; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
+    .logo { text-align: center; margin-bottom: 18px; }
+    .logo img { width: 90px; }
+    h1 { font-size: 1.35rem; text-align: center; margin-bottom: 6px; }
+    .subtitle { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 26px; }
+    .status-banner { border-radius: 10px; padding: 14px 18px; font-size: 0.9rem; margin-bottom: 22px; }
+    .status-trial { background: #fff8ec; color: #b26a00; border: 1px solid #ffd699; }
+    .status-active { background: #eafaf1; color: #1e8449; border: 1px solid #b7e4c7; }
+    .status-locked { background: #fdecea; color: #c0392b; border: 1px solid #f5b7b1; }
+    .price-row { display: flex; align-items: baseline; justify-content: center; gap: 6px; margin: 24px 0; }
+    .price { font-size: 2.2rem; font-weight: 700; color: #0d0d1a; }
+    .price-period { color: #888; font-size: 0.95rem; }
+    .btn-auth { width: 100%; padding: 14px; background: #FF9800; color: #fff; border: none; border-radius: 10px; font-size: 1rem; font-weight: 700; cursor: pointer; text-decoration: none; display: block; text-align: center; }
+    .btn-auth:hover { background: #e68900; }
+    .card-on-file { background: #f7f7f8; border-radius: 10px; padding: 14px 18px; font-size: 0.88rem; color: #555; margin-bottom: 20px; }
+    .error-banner { background: #fff5f5; border: 1px solid #fcc; border-radius: 8px; padding: 12px 16px; color: #c0392b; font-size: 0.88rem; margin-bottom: 20px; }
+    .success-banner { background: #eafaf1; border: 1px solid #b7e4c7; border-radius: 8px; padding: 12px 16px; color: #1e8449; font-size: 0.88rem; margin-bottom: 20px; }
+    .back-link { display: block; text-align: center; margin-top: 18px; color: #888; font-size: 0.88rem; text-decoration: none; }
+    ul.perks { list-style: none; margin: 20px 0; }
+    ul.perks li { padding: 6px 0; font-size: 0.9rem; color: #555; }
+    ul.perks li i { color: #FF9800; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo"><img src="/images/logo.png" alt="Shed"></div>
+    <h1>Store Subscription</h1>
+    <p class="subtitle"><%= admin.businessName || admin.username %></p>
+
+    <% if (error) { %><div class="error-banner"><%= error %></div><% } %>
+    <% if (justSubscribed) { %><div class="success-banner">You're subscribed! Your store is fully active.</div><% } %>
+
+    <% if (locked) { %>
+      <div class="status-banner status-locked"><i class="fas fa-lock"></i> Your dashboard and storefront are paused until you subscribe.</div>
+    <% } else if (admin.subscription && admin.subscription.status === 'trial') { %>
+      <div class="status-banner status-trial"><i class="fas fa-clock"></i> Free trial — <%= daysLeft %> day<%= daysLeft === 1 ? '' : 's' %> left.</div>
+    <% } else if (admin.subscription && (admin.subscription.status === 'active' || admin.subscription.status === 'comped')) { %>
+      <div class="status-banner status-active"><i class="fas fa-check-circle"></i> Subscription active<% if (admin.subscription.currentPeriodEnd) { %> — renews <%= new Date(admin.subscription.currentPeriodEnd).toLocaleDateString() %><% } %></div>
+    <% } else if (!admin.subscription) { %>
+      <div class="status-banner status-active"><i class="fas fa-check-circle"></i> Your account isn't subject to billing.</div>
+    <% } %>
+
+    <% if (admin.subscription && !locked && (admin.subscription.status === 'active') && admin.subscription.card && admin.subscription.card.last4) { %>
+      <div class="card-on-file"><i class="fas fa-credit-card"></i> Card on file ending in <%= admin.subscription.card.last4 %></div>
+    <% } %>
+
+    <div class="price-row">
+      <span class="price">₦<%= amount.toLocaleString('en-US') %></span>
+      <span class="price-period">/ month</span>
+    </div>
+
+    <ul class="perks">
+      <li><i class="fas fa-check"></i> Unlimited inventory &amp; sales</li>
+      <li><i class="fas fa-check"></i> Your own online storefront</li>
+      <li><i class="fas fa-check"></i> Shopper checkout &amp; order management</li>
+    </ul>
+
+    <% if (admin.subscription && (locked || admin.subscription.status !== 'active')) { %>
+      <% if (!flwConfigured) { %>
+        <div class="error-banner">Payments aren't configured yet — contact support.</div>
+      <% } else { %>
+        <form action="/billing/subscribe" method="POST">
+          <button type="submit" class="btn-auth"><i class="fas fa-lock"></i> Subscribe with Card</button>
+        </form>
+      <% } %>
+    <% } %>
+
+    <a class="back-link" href="/home">← Back to dashboard</a>
+  </div>
+</body>
+</html>

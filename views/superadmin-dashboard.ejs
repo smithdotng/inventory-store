@@ -118,6 +118,7 @@
                 <th>Phone</th>
                 <th>Currency</th>
                 <th>Role</th>
+                <th>Subscription</th>
                 <th>Logged In?</th>
                 <th>Login Count</th>
                 <th>Last Login</th>
@@ -150,6 +151,23 @@
                       <option value="admin" <%= item.role === 'admin' ? 'selected' : '' %>>Admin</option>
                       <option value="superadmin" <%= item.role === 'superadmin' ? 'selected' : '' %>>Superadmin</option>
                     </select>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <% if (!item.subscription) { %>
+                      <span class="btn-xs" style="background:#eee;color:#555;">N/A</span>
+                    <% } else if (item.subscription.legacyAccount) { %>
+                      <span class="btn-xs" style="background:#eee;color:#555;">Legacy</span>
+                    <% } else { %>
+                      <span class="btn-xs" style="background:<%= ['active','comped'].includes(item.subscription.status) ? '#eafaf1' : (item.subscription.status === 'trial' ? '#fff8ec' : '#fdecea') %>;color:<%= ['active','comped'].includes(item.subscription.status) ? '#1e8449' : (item.subscription.status === 'trial' ? '#b26a00' : '#c0392b') %>;">
+                        <%= item.subscription.status %>
+                      </span>
+                      <form action="/superadmin/subscription/<%= item._id %>/comp" method="POST" style="display:inline;">
+                        <input type="hidden" name="undo" value="<%= item.subscription.status === 'comped' ? '1' : '' %>">
+                        <button type="submit" class="btn-xs btn-edit" style="margin-left:4px;">
+                          <%= item.subscription.status === 'comped' ? 'Un-comp' : 'Comp' %>
+                        </button>
+                      </form>
+                    <% } %>
                   </td>
                   <td><%= item.hasLoggedIn ? 'Yes' : 'No' %></td>
                   <td><%= item.loginCount || 0 %></td>
@@ -187,7 +205,7 @@
                 </tr>
                 <!-- POS Sales row -->
                 <tr>
-                  <td colspan="10" style="padding:0 14px; background:#fafafa;">
+                  <td colspan="11" style="padding:0 14px; background:#fafafa;">
                     <div class="sales-section">
                       <div class="sales-toggle" data-target="pos-sales-<%= item._id %>">
                         <i class="fas fa-chevron-down"></i>
@@ -220,7 +238,7 @@
                 </tr>
                 <!-- Online Sales row -->
                 <tr>
-                  <td colspan="10" style="padding:0 14px; background:#fafafa; border-bottom:4px solid #f0f0f0;">
+                  <td colspan="11" style="padding:0 14px; background:#fafafa; border-bottom:4px solid #f0f0f0;">
                     <div class="sales-section">
                       <div class="sales-toggle" data-target="online-sales-<%= item._id %>">
                         <i class="fas fa-chevron-down"></i>

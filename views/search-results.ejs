@@ -788,6 +788,7 @@
 </head>
 
 <body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
     <!-- Initialize error variable if not passed -->
     <% if (typeof error === 'undefined') { %>
         <% error = null; %>

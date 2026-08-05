@@ -13,6 +13,7 @@ router.get('/admin/:adminUsername', isAuthenticated, isSuperAdmin, superadminCon
 router.post('/delete-admin/:id', isAuthenticated, isSuperAdmin, superadminController.deleteAdmin);
 router.post('/update-admin/:id', isAuthenticated, isSuperAdmin, superadminController.updateAdmin);
 router.post('/reset-password/:id', isAuthenticated, isSuperAdmin, superadminController.resetAdminPassword);
+router.post('/subscription/:id/comp', isAuthenticated, isSuperAdmin, superadminController.postCompSubscription);
 router.get('/ads', isAuthenticated, isSuperAdmin, superadminController.getAds);
 router.post('/ads/create', isAuthenticated, isSuperAdmin, superadminController.postCreateAd);
 router.post('/ads/toggle/:id', isAuthenticated, isSuperAdmin, superadminController.postToggleAd);

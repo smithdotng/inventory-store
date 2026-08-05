@@ -8,6 +8,7 @@ const { transporter } = require('../config/mailer');
 
 const countryCodes = require('country-code-lookup');
 const { countries } = require('country-data');
+const { isAccountLocked } = require('../utils/subscription');
 
 // Helper: build public store view
 function buildPublicStore(admin) {
@@ -193,6 +194,9 @@ exports.getStore = async (req, res) => {
       username: { $regex: `^${adminUsername}$`, $options: 'i' }
     });
     if (!admin) return res.status(404).render('404', { message: 'Store not found' });
+    if (isAccountLocked(admin)) {
+      return res.status(503).render('account-locked', { businessName: admin.businessName || admin.username, forBusinessUser: false });
+    }
 
     let sale = null;
     if (saleId && ObjectId.isValid(saleId)) {
@@ -250,7 +254,8 @@ exports.getStore = async (req, res) => {
       .toArray();
 
     const host = process.env.BASE_URL || req.get('host') || 'localhost:3000';
-    const templateData = { admin, outlet: undefined, inventory, currency: admin.currency || '$', whatsappNumber, host, formatCurrency, getSocialHandle, featuredAds };
+    const buyerProfile = req.session.buyer || null;
+    const templateData = { admin, outlet: undefined, inventory, currency: admin.currency || '$', whatsappNumber, host, formatCurrency, getSocialHandle, featuredAds, buyerProfile, shopper: req.session.shopper || null };
 
     if (sale) {
       Object.assign(templateData, {
@@ -282,6 +287,9 @@ exports.getStoreProduct = async (req, res) => {
 
     const admin = await db.collection('admins').findOne({ username: { $regex: `^${adminUsername}$`, $options: 'i' } });
     if (!admin) return res.status(404).render('404', { message: 'Store not found' });
+    if (isAccountLocked(admin)) {
+      return res.status(503).render('account-locked', { businessName: admin.businessName || admin.username, forBusinessUser: false });
+    }
 
     const product = await db.collection('inventory').findOne({ _id: new ObjectId(productId), adminId: admin._id, stock: { $gt: 0 } });
     if (!product) return res.status(404).render('404', { message: 'Product not found or out of stock' });
@@ -291,7 +299,7 @@ exports.getStoreProduct = async (req, res) => {
       return amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    res.render('product', { admin, product, currency: admin.currency || '$', formatCurrency });
+    res.render('product', { admin, product, currency: admin.currency || '$', formatCurrency, shopper: req.session.shopper || null });
   } catch (error) {
     console.error('Error rendering product page:', error);
     res.status(500).render('500', { message: 'Error loading product page', error: process.env.NODE_ENV === 'development' ? error : undefined });
@@ -317,6 +325,7 @@ exports.postCheckout = async (req, res) => {
 
     const admin = await db.collection('admins').findOne({ username: adminUsername });
     if (!admin) return res.status(404).json({ error: 'Store not found' });
+    if (isAccountLocked(admin)) return res.status(503).json({ error: 'This store is temporarily unavailable.' });
 
     let parsedCart;
     try {
@@ -426,8 +435,18 @@ exports.postCheckout = async (req, res) => {
           transporter.sendMail(mailOptions).catch(err => console.error('Error sending notification email:', err));
         }
 
+        // Upsert buyer profile so order appears in their dashboard
+        await db.collection('buyer_profiles').updateOne(
+          { email: customer.email },
+          {
+            $set:     { name: customer.name, phone: customer.phone, lastPurchase: new Date() },
+            $setOnInsert: { createdAt: new Date() }
+          },
+          { upsert: true, session }
+        );
+
         const invoiceUrl = `/store/${adminUsername}/confirmation/${saleResult.insertedId}?token=${token}`;
-        return res.json({ success: true, invoiceUrl });
+        return res.json({ success: true, invoiceUrl, saleId: saleResult.insertedId.toString() });
       });
     } finally {
       await session.endSession();
@@ -545,7 +564,8 @@ exports.getSearch = async (req, res) => {
       error: null,
       formatCurrency: (amount) => `₦${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
       formatDate: (date) => date ? new Date(date).toLocaleDateString() : '',
-      truncateText: (text) => text ? (text.length > 100 ? text.substring(0, 100) + '...' : text) : ''
+      truncateText: (text) => text ? (text.length > 100 ? text.substring(0, 100) + '...' : text) : '',
+      shopper: req.session.shopper || null
     };
 
     res.render('search-results', templateData);

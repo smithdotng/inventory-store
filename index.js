@@ -23,6 +23,12 @@ const storeRoutes       = require('./routes/store');
 const apiRoutes         = require('./routes/api');
 const blogRoutes        = require('./routes/blog');
 const miscRoutes        = require('./routes/misc');
+const buyerRoutes       = require('./routes/buyer');
+const shopperRoutes     = require('./routes/shopper');
+const cartRoutes        = require('./routes/cart');
+const billingRoutes     = require('./routes/billing');
+
+const { startSubscriptionRenewalJob } = require('./jobs/subscriptionRenewal');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -76,6 +82,10 @@ app.use('/',           profileRoutes);
 app.use('/',           storeRoutes);
 app.use('/',           apiRoutes);
 app.use('/',           blogRoutes);
+app.use('/',           buyerRoutes);
+app.use('/',           shopperRoutes);
+app.use('/',           cartRoutes);
+app.use('/',           billingRoutes);
 app.use('/',           miscRoutes);   // misc last — contains the * catch-all
 
 // ── Email broadcast utility route ─────────────────────────────────────────────
@@ -90,6 +100,7 @@ app.use((err, req, res, next) => {
 // ── Start ─────────────────────────────────────────────────────────────────────
 async function startServer() {
   await connectToMongo();
+  startSubscriptionRenewalJob();
   app.listen(port, '0.0.0.0', () => {
     console.log(`Server running on port ${port}`);
   });

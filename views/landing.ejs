@@ -124,6 +124,7 @@
 </head>
 
 <body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
 
     <!-- Custom topbar (outside mil-wrapper) -->
     <div class="shed-topbar">
@@ -214,14 +215,20 @@
                                 <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Sell Anywhere.</span><br>Manage Everything.</h1>
                                 <div class="row">
                                     <div class="col-md-7 col-lg-5">
-                                        <p class="mil-light-soft mil-mb-60">Most small businesses are juggling stock, invoices, orders, and customers across too many apps—or worse, notebooks. Shed brings it all into one place, so you can stop firefighting and start growing.</p>
+                                        <p class="mil-light-soft mil-mb-30">Most small businesses are juggling stock, invoices, orders, and customers across too many apps—or worse, notebooks. Shed brings it all into one place — inventory, invoices, and your own online storefront — so you can stop firefighting and start growing.</p>
+                                        <p class="mil-light-soft mil-mb-60" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,152,0,0.12);border:1px solid rgba(255,152,0,0.35);border-radius:30px;padding:8px 18px;font-size:0.85rem;">
+                                            <i class="fas fa-gift" style="color:#FF9800;"></i> 14-day free trial — no card required to start
+                                        </p>
                                     </div>
                                 </div>
-                                <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space">
-                                    <span>Start for free</span> <i class="fa-solid fa-circle-user"></i>
+                                <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space" style="margin-bottom: 15px;">
+                                    <span>Start your free trial</span> <i class="fa-solid fa-circle-user"></i>
                                 </a>
-                                <a href="/admin-login" class="mil-button mil-muted mil-arrow-place" style="background-color: darkcyan;">
+                                <a href="/admin-login" class="mil-button mil-muted mil-arrow-place mil-btn-space" style="background-color: darkcyan; margin-bottom: 15px;">
                                     <span>Sign in to your Shed</span>
+                                </a>
+                                <a href="/shopper/register" class="mil-button mil-muted mil-arrow-place" style="background-color: #FF9800; margin-bottom: 15px;">
+                                    <span>Shop on Shed</span> <i class="fa-solid fa-cart-shopping"></i>
                                 </a>
                                 <div class="mil-circle-text">
                                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 300 300" enable-background="new 0 0 300 300" xml:space="preserve" class="mil-ct-svg mil-rotate" data-value="360">
@@ -273,6 +280,49 @@
                     </div>
                 </section>
                 <!-- about end -->
+
+                <!-- for shoppers -->
+                <section id="shoppers">
+                    <div class="container mil-p-120-30">
+                        <div class="row justify-content-between align-items-center flex-row-reverse">
+                            <div class="col-lg-6 col-xl-5">
+                                <div class="mil-mb-90">
+                                    <h2 class="mil-up mil-mb-60">Every Shed. <br><span class="mil-thin">One Search. One Dashboard.</span></h2>
+                                    <p class="mil-up mil-mb-30">Shed.ng helps you find sheds — real stores — selling exactly what you're looking for. Search once, browse product from store after store, and check out from as many of them as you like in a single cart.</p>
+                                    <p class="mil-up mil-mb-60">Every order lands in your own shopper dashboard, so you always know what you bought, from which store, and where it stands — no digging through emails or WhatsApp chats to find a receipt.</p>
+                                    <div class="mil-up">
+                                        <a href="/shopper/register" class="mil-link mil-dark mil-arrow-place">
+                                            <span>create your free shopper account</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="mil-about-photo mil-mb-90">
+                                    <div class="mil-lines-place"></div>
+                                    <div class="mil-up mil-img-frame" style="padding-bottom: 160%;">
+                                        <img src="images/promo.jpg" alt="Shop on Shed" class="mil-scale" data-value-1="1" data-value-2="1.2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mil-mb-30">
+                            <div class="col-md-4 mil-mb-30">
+                                <h5 class="mil-mb-15"><i class="fas fa-magnifying-glass" style="color:#FF9800;"></i> Find what you need</h5>
+                                <p class="mil-light-soft">Search across every shed on the platform at once, instead of hunting store by store.</p>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <h5 class="mil-mb-15"><i class="fas fa-cart-shopping" style="color:#FF9800;"></i> One cart, every store</h5>
+                                <p class="mil-light-soft">Add items from different sheds to a single centralized cart and check out once.</p>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <h5 class="mil-mb-15"><i class="fas fa-receipt" style="color:#FF9800;"></i> Track every purchase</h5>
+                                <p class="mil-light-soft">Your dashboard keeps a running history of every order, from every store, in one place.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- for shoppers end -->
 
                 <!-- services -->
                 <section class="mil-dark-bg">
@@ -350,9 +400,9 @@
                                     </a>
                                 </div>
                                 <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
-                                    <a href="#" class="mil-service-card-sm mil-up">
-                                        <h5 class="mil-muted mil-mb-30">Built for <br>Growth</h5>
-                                        <p class="mil-light-soft mil-mb-30">From solo entrepreneurs to multi-outlet businesses, Shed scales with you.</p>
+                                    <a href="/admin-register" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">14-Day Free <br>Trial</h5>
+                                        <p class="mil-light-soft mil-mb-30">Full access to inventory, invoicing and your storefront from day one — no card required to start.</p>
                                         <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
                                     </a>
                                 </div>
@@ -371,11 +421,23 @@
                                 <p class="mil-up mil-mb-30">Sign up, add your products, and your storefront is live—before the day is over. No technical setup, no waiting. Shed is built to get out of your way so you can focus on selling.</p>
                                 <div class="mil-up">
                                     <a href="/admin-register" class="mil-link mil-dark mil-arrow-place">
-                                        <span>begin now</span>
+                                        <span>start your 14-day free trial</span>
                                     </a>
                                 </div>
                             </div>
                             <div class="col-lg-6">
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">14-Day Free Trial — No Card Needed</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Every new store gets full access — inventory, invoicing, and your storefront — for 14 days, completely free. You don't need to enter card details to start; we'll only ask for payment once your trial ends, and it's just ₦7,200/month after that.</p>
+                                    </div>
+                                </div>
                                 <div class="mil-accordion-group mil-up">
                                     <div class="mil-accordion-menu">
                                         <p class="mil-accordion-head">One-Click Registration</p>
@@ -496,7 +558,7 @@
                         <div class="row">
                             <div class="col-lg-10">
                                 <span class="mil-suptitle mil-suptitle-right mil-suptitle-dark mil-up">
-                                    Creating your Shed account takes minutes. Add your products, launch your store, <br>and start selling — all before the day is over.
+                                    Creating your Shed account takes minutes. Add your products, launch your store, <br>and start selling — all before the day is over. 14 days free, no card required.
                                 </span>
                             </div>
                         </div>
@@ -507,9 +569,12 @@
                             </h2>
                             <div class="mil-up">
                                 <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space">
-                                    <span>Create your free account</span>
+                                    <span>Start your 14-day free trial</span>
                                 </a>
-                                <a href="/blog" class="mil-button mil-arrow-place" style="background-color: transparent; border: 1px solid #333; color: #333;">
+                                <a href="/shopper/register" class="mil-button mil-arrow-place mil-btn-space" style="background-color: #FF9800; color:#fff;">
+                                    <span>Shop on Shed instead</span>
+                                </a>
+                                <a href="/blog" class="mil-button mil-arrow-place" style="background-color: transparent; border: 1px solid #333; color: #333; margin-top: 16px;">
                                     <span>Learn more</span>
                                 </a>
                             </div>

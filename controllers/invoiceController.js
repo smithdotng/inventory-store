@@ -392,6 +392,19 @@ function buildInvoicePDF(doc, sale, admin, saleId) {
 
   let y = 88;
 
+  // ── REVISED INVOICE BANNER (shown when invoice has been updated) ──────────
+  if (sale.isUpdated) {
+    const bannerY = 76;
+    const bannerH = 22;
+    const updDate = new Date(sale.updatedAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+    const revText = `REVISED INVOICE  —  Updated: ${updDate}  (Revision #${sale.updateCount || 1})`;
+    doc.rect(M, bannerY, cW, bannerH).fill('#FFF3E0');
+    doc.rect(M, bannerY, 5, bannerH).fill(C.orange);
+    doc.fontSize(8).font('Helvetica-Bold').fillColor('#7A4100')
+       .text(revText, M + 11, bannerY + 7, { width: cW - 18 });
+    y = bannerY + bannerH + 8; // push content below banner
+  }
+
   // ── TWO-COLUMN: Invoice details LEFT | Bill To RIGHT ──────────────────────
   const leftW  = 270;
   const rightX = M + leftW + 20;
@@ -599,6 +612,45 @@ exports.getInvoiceDownload = async (req, res) => {
   }
 };
 
+// GET /shopper/orders/:saleId/invoice — a shopper viewing/downloading their own
+// order's invoice/receipt. Matches on shopperId (cart checkout orders) or the
+// shopper's email (older guest-checkout orders made before they had an account).
+exports.getShopperInvoice = async (req, res) => {
+  try {
+    const db = getDb();
+    const { saleId } = req.params;
+    if (!ObjectId.isValid(saleId)) return res.status(404).render('404', { message: 'Order not found' });
+
+    const shopper = req.session.shopper;
+    const sale = await db.collection('sales').findOne({
+      _id: new ObjectId(saleId),
+      source: 'storefront',
+      $or: [
+        { shopperId: ObjectId.isValid(shopper.id) ? new ObjectId(shopper.id) : null },
+        { email: shopper.email }
+      ]
+    });
+    if (!sale) return res.status(404).render('404', { message: 'Order not found' });
+
+    const admin = await db.collection('admins').findOne({ _id: sale.adminId });
+    if (!admin) return res.status(404).render('404', { message: 'Store not found' });
+
+    const download = req.query.download === '1';
+    const doc = new PDFDocument({
+      margin: 0, size: 'A4', bufferPages: true,
+      info: { Title: `Invoice ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' }
+    });
+    res.setHeader('Content-Disposition', `${download ? 'attachment' : 'inline'}; filename="invoice-${saleId.slice(-8)}.pdf"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    doc.pipe(res);
+    buildInvoicePDF(doc, sale, admin, saleId);
+    doc.end();
+  } catch (error) {
+    console.error('Shopper invoice error:', error);
+    if (!res.headersSent) res.status(500).render('500', { message: 'Error generating invoice' });
+  }
+};
+
 // POST /invoices/mark-paid/:saleId
 exports.postMarkPaid = async (req, res) => {
   try {
@@ -614,6 +666,100 @@ exports.postMarkPaid = async (req, res) => {
   } catch (error) {
     console.error('Error marking invoice as paid:', error);
     res.status(500).send('Internal Server Error');
+  }
+};
+
+// GET /invoices/preview/:saleId — authenticated, inline (opens in browser tab)
+exports.getInvoicePreview = async (req, res) => {
+  try {
+    const db     = getDb();
+    const saleId = req.params.saleId;
+    const admin  = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) return res.status(403).send('Unauthorized');
+    const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+    if (!sale) return res.status(404).send('Invoice not found');
+
+    const doc = new PDFDocument({ margin: 0, size: 'A4', bufferPages: true, info: { Title: `Invoice ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' } });
+    res.setHeader('Content-Disposition', `inline; filename="invoice-${saleId.slice(-8)}.pdf"`);
+    res.setHeader('Content-Type', 'application/pdf');
+    doc.pipe(res);
+    buildInvoicePDF(doc, sale, admin, saleId);
+    doc.end();
+  } catch (error) {
+    console.error('Preview error:', error);
+    if (!res.headersSent) res.status(500).send('Error generating preview');
+  }
+};
+
+// POST /invoices/update/:saleId — update invoice fields, mark as revised
+exports.postUpdateInvoice = async (req, res) => {
+  const saleId = req.params.saleId;
+  const { customerName, phoneNumber, email, paymentMethod, bankName, bankAccountName, accountNumber, additionalComments, items } = req.body;
+
+  try {
+    const db    = getDb();
+    const admin = await db.collection('admins').findOne({ username: req.session.admin });
+    if (!admin) return res.status(401).json({ error: 'Unauthorized' });
+
+    const existing = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
+    if (!existing) return res.status(404).json({ error: 'Invoice not found' });
+
+    // Parse items arrays
+    const itemNames  = Array.isArray(items?.itemName)  ? items.itemName  : [items?.itemName].filter(Boolean);
+    const unitCosts  = Array.isArray(items?.unitCost)  ? items.unitCost  : [items?.unitCost].filter(Boolean);
+    const quantities = Array.isArray(items?.quantity)  ? items.quantity  : [items?.quantity].filter(Boolean);
+
+    if (!itemNames.length) return res.status(400).json({ error: 'At least one item is required.' });
+
+    let subtotalAmount   = 0;
+    let totalVatAmount   = 0;
+    let totalOrderAmount = 0;
+
+    const saleItems = itemNames.map((name, i) => {
+      const unitCost  = parseFloat(unitCosts[i])  || 0;
+      const qty       = Math.max(1, parseInt(quantities[i]) || 1);
+      const totalCost = unitCost * qty;
+      const isVatable = !!admin.applyVat;
+      const vatRate   = admin.vatRate || 0;
+      const vatAmount = isVatable ? (totalCost * vatRate) / 100 : 0;
+      const itemTotal = totalCost + vatAmount;
+
+      subtotalAmount   += totalCost;
+      totalVatAmount   += vatAmount;
+      totalOrderAmount += itemTotal;
+
+      return { itemId: null, itemName: String(name).trim(), quantity: qty, unitCost, totalCost, isVatable, vatRate, vatAmount, itemTotalWithVat: itemTotal };
+    });
+
+    const updateDoc = {
+      customerName:       (customerName || '').trim(),
+      phoneNumber:        (phoneNumber  || '').trim(),
+      email:              (email        || '').trim(),
+      items:              saleItems,
+      subtotalAmount,
+      totalVatAmount,
+      totalAmount:        totalOrderAmount,
+      paymentMethod:      paymentMethod || existing.paymentMethod,
+      additionalComments: (additionalComments || '').trim().slice(0, 1000),
+      isUpdated:          true,
+      updatedAt:          new Date(),
+      updateCount:        (existing.updateCount || 0) + 1,
+      formattedTotal:     totalOrderAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    };
+
+    if (paymentMethod === 'Bank Transfer') {
+      updateDoc.bankDetails = { bankName: bankName || '', bankAccountName: bankAccountName || '', accountNumber: accountNumber || '' };
+    }
+
+    await db.collection('sales').updateOne(
+      { _id: new ObjectId(saleId), adminId: admin._id },
+      { $set: updateDoc }
+    );
+
+    return res.json({ success: true });
+  } catch (error) {
+    console.error('Update invoice error:', error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 };
 

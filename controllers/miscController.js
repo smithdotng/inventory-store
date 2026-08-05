@@ -3,11 +3,11 @@ const path = require('path');
 const { getDb } = require('../config/db');
 
 // GET /
-exports.getLanding = (req, res) => res.render('landing', { error: null });
+exports.getLanding = (req, res) => res.render('landing', { error: null, shopper: req.session.shopper || null });
 
 // GET /landing
 exports.getLandingPage = (req, res) => {
-  res.render('landing', { admin: { currency: '$' } });
+  res.render('landing', { admin: { currency: '$' }, shopper: req.session.shopper || null });
 };
 
 // GET /home redirect for non-auth

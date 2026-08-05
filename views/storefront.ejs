@@ -513,177 +513,200 @@
             background: #c82333;
         }
         
-        /* ==================== CHECKOUT MODAL STYLES (UPDATED TO MATCH PRODUCT PAGE) ==================== */
+        /* ==================== CHECKOUT MODAL — MULTI-STEP ==================== */
         .mil-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.75); z-index: 1000;
+            display: none; backdrop-filter: blur(4px);
+        }
+        .mil-overlay.active { display: block; }
+
+        /* ── Modal shell ── */
+        .ck-modal {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) scale(0.96);
+            opacity: 0;
+            width: min(860px, 96vw);
+            max-height: 90vh;
             display: none;
-            transition: opacity 0.3s ease;
-        }
-        
-        .mil-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-        
-        .mil-checkout-form {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.55);
             z-index: 1001;
-            max-width: 450px;
-            width: 90%;
-            max-height: 80vh;
-            overflow-y: auto;
-            display: none;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.28s cubic-bezier(.34,1.56,.64,1), opacity 0.22s ease;
         }
-        
-        .mil-checkout-form.active {
-            display: block;
+        .ck-modal.active {
+            display: flex;
             transform: translate(-50%, -50%) scale(1);
             opacity: 1;
         }
-        
-        .mil-checkout-form h2 {
-            font-size: 1.4rem;
-            margin-bottom: 15px;
-            color: #333;
-            text-align: center;
-            font-weight: 600;
+
+        /* ── Order summary sidebar ── */
+        .ck-summary {
+            width: 300px; flex-shrink: 0;
+            background: #0d0d0d;
+            padding: 28px 24px;
+            display: flex; flex-direction: column;
+            overflow-y: auto;
         }
-        
-        .mil-cart-summary {
-            margin-bottom: 15px;
+        .ck-summary-title {
+            font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; color: #555; margin-bottom: 20px;
         }
-        
-        .mil-cart-summary h3 {
-            font-size: 1.1rem;
-            color: #444;
-            margin-bottom: 10px;
+        .ck-summary-store {
+            display: flex; align-items: center; gap: 10px; margin-bottom: 20px;
         }
-        
-        .mil-cart-summary table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 0.85rem;
+        .ck-summary-store-logo {
+            width: 36px; height: 36px; border-radius: 8px; overflow: hidden;
+            background: #FF9800; display: flex; align-items: center; justify-content: center;
+            font-size: 11px; font-weight: 800; color: #000; flex-shrink: 0;
         }
-        
-        .mil-cart-summary th, .mil-cart-summary td {
-            padding: 6px 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
+        .ck-summary-store-logo img { width: 100%; height: 100%; object-fit: cover; }
+        .ck-summary-store-name { font-size: 0.9rem; font-weight: 600; color: #fff; }
+        .ck-summary-items { flex: 1; display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        .ck-item {
+            display: flex; align-items: flex-start; gap: 10px;
         }
-        
-        .mil-cart-summary th {
-            background: #f8f9fa;
-            font-weight: 500;
+        .ck-item-thumb {
+            width: 40px; height: 40px; border-radius: 6px;
+            background: #1a1a1a; overflow: hidden; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
         }
-        
-        .mil-total {
-            font-weight: 600;
-            margin-top: 8px;
-            text-align: right;
-            font-size: 0.9rem;
+        .ck-item-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .ck-item-thumb i { color: #444; font-size: 12px; }
+        .ck-item-details { flex: 1; min-width: 0; }
+        .ck-item-name { font-size: 0.82rem; color: #ddd; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .ck-item-qty  { font-size: 0.72rem; color: #666; margin-top: 2px; }
+        .ck-item-price{ font-size: 0.82rem; color: #FF9800; font-weight: 600; white-space: nowrap; }
+        .ck-item-remove {
+            background: none; border: none; color: #444; cursor: pointer;
+            font-size: 11px; padding: 4px; transition: color 0.15s;
         }
-        
-        .mil-form-group {
-            margin-bottom: 12px;
+        .ck-item-remove:hover { color: #f44336; }
+        .ck-divider { border: none; border-top: 1px solid #1e1e1e; margin: 4px 0 16px; }
+        .ck-total-row {
+            display: flex; justify-content: space-between; align-items: center;
         }
-        
-        .mil-form-group label {
-            display: block;
-            margin-bottom: 4px;
-            font-weight: 500;
-            font-size: 0.85rem;
-            color: #555;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .ck-total-label { font-size: 0.82rem; color: #888; }
+        .ck-total-value { font-size: 1.2rem; font-weight: 800; color: #fff; }
+
+        /* ── Form panel ── */
+        .ck-form-panel {
+            flex: 1; background: #fff; padding: 32px 32px;
+            overflow-y: auto; display: flex; flex-direction: column;
         }
-        
-        .mil-form-control {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            transition: border-color 0.3s ease;
+        .ck-panel-header {
+            display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
         }
-        
-        .mil-form-control:focus {
-            border-color: darkcyan;
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
+        .ck-panel-header h2 { font-size: 1.25rem; font-weight: 700; color: #111; }
+        .ck-close {
+            background: none; border: none; cursor: pointer; color: #999;
+            font-size: 20px; padding: 4px; transition: color 0.15s; line-height: 1;
         }
-        
-        .mil-flex {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
+        .ck-close:hover { color: #333; }
+
+        /* Progress bar */
+        .ck-progress { display: flex; align-items: center; gap: 0; margin-bottom: 28px; }
+        .ck-prog-step {
+            display: flex; align-items: center; gap: 7px; font-size: 0.75rem;
+            color: #bbb; font-weight: 500;
         }
-        
-        .mil-flex-1 {
-            flex: 1;
+        .ck-prog-step.active { color: #FF9800; font-weight: 700; }
+        .ck-prog-step.done   { color: #4caf50; }
+        .ck-prog-dot {
+            width: 24px; height: 24px; border-radius: 50%;
+            border: 2px solid currentColor;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; font-weight: 700; flex-shrink: 0;
         }
-        
-        .mil-delete-item {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            padding: 2px;
-            font-size: 0.8rem;
+        .ck-prog-step.active .ck-prog-dot { background: #FF9800; border-color: #FF9800; color: #000; }
+        .ck-prog-step.done   .ck-prog-dot { background: #4caf50; border-color: #4caf50; color: #fff; }
+        .ck-prog-line { flex: 1; height: 1px; background: #e0e0e0; margin: 0 8px; }
+
+        /* Auto-fill banner */
+        .ck-autofill-banner {
+            display: flex; align-items: center; gap: 10px;
+            background: #FFF3E0; border: 1px solid #FFD54F;
+            border-radius: 8px; padding: 10px 14px; margin-bottom: 20px;
+            font-size: 0.8rem; color: #7A5100;
         }
-        
-        .mil-delete-item:hover {
-            transform: scale(1.1);
+        .ck-autofill-banner i { color: #FF9800; }
+
+        /* Form fields */
+        .ck-field { margin-bottom: 16px; }
+        .ck-label {
+            display: block; font-size: 0.75rem; font-weight: 600;
+            color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px;
         }
-        
-        .mil-checkout-form .mil-button {
-            padding: 10px 15px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 6px;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            flex: 1;
+        .ck-input {
+            width: 100%; padding: 11px 14px;
+            border: 1.5px solid #e0e0e0; border-radius: 8px;
+            font-size: 0.92rem; color: #111;
+            transition: border-color 0.2s, box-shadow 0.2s; outline: none;
+            text-transform: none !important;
         }
-        
-        .mil-checkout-form .mil-button-primary {
-            background: darkcyan;
-            color: white;
+        .ck-input:focus { border-color: #FF9800; box-shadow: 0 0 0 3px rgba(255,152,0,0.12); }
+
+        .ck-btn-primary {
+            width: 100%; padding: 13px; border: none; border-radius: 8px;
+            background: #FF9800; color: #000;
+            font-size: 0.95rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            transition: background 0.2s, transform 0.15s;
         }
-        
-        .mil-checkout-form .mil-button-primary:hover {
-            background: #006969;
-            transform: translateY(-1px);
+        .ck-btn-primary:hover { background: #e68900; transform: translateY(-1px); }
+        .ck-btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+        .ck-btn-ghost {
+            display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+            padding: 10px 18px; border-radius: 8px;
+            border: 1.5px solid #e0e0e0; background: #fff; color: #555;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; text-decoration: none;
+            transition: all 0.2s;
         }
-        
-        .mil-checkout-form .mil-button-secondary {
-            background: #6c757d;
-            color: white;
+        .ck-btn-ghost:hover { border-color: #999; color: #222; }
+
+        /* Step panels */
+        .ck-step { display: none; }
+        .ck-step.active { display: block; animation: ckFadeIn 0.25s ease; }
+        @keyframes ckFadeIn { from { opacity: 0; transform: translateX(12px); } to { opacity: 1; transform: none; } }
+
+        /* Receipt step */
+        .ck-receipt-icon {
+            width: 56px; height: 56px; border-radius: 50%;
+            background: #E8F5E9; display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 16px; font-size: 26px; color: #4caf50;
         }
-        
-        .mil-checkout-form .mil-button-secondary:hover {
-            background: #5a6268;
-            transform: translateY(-1px);
+        .ck-receipt-title  { font-size: 1.3rem; font-weight: 700; color: #111; text-align: center; margin-bottom: 6px; }
+        .ck-receipt-sub    { font-size: 0.85rem; color: #888; text-align: center; margin-bottom: 24px; }
+        .ck-receipt-detail { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid #f0f0f0; font-size: 0.85rem; }
+        .ck-receipt-detail:last-child { border: none; }
+        .ck-receipt-key    { color: #888; }
+        .ck-receipt-val    { color: #111; font-weight: 600; text-align: right; }
+        .ck-receipt-total  { display: flex; justify-content: space-between; padding: 14px 0 0; font-size: 1rem; font-weight: 800; color: #111; }
+        .ck-receipt-actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
+        .ck-receipt-actions .ck-btn-primary { flex: 1; }
+        .ck-receipt-actions .ck-btn-ghost   { flex: 1; }
+        .ck-buyer-profile-cta {
+            margin-top: 16px; padding: 12px 16px;
+            background: #FFF8F0; border: 1px solid #FFE0B2; border-radius: 8px;
+            font-size: 0.8rem; color: #6D3B00; text-align: center;
+        }
+        .ck-buyer-profile-cta a { color: #FF9800; font-weight: 600; text-decoration: none; }
+        .ck-buyer-profile-cta a:hover { text-decoration: underline; }
+
+        /* Legacy: keep mil-total, mil-form-group etc for other pages */
+        .mil-total { font-weight: 600; margin-top: 8px; text-align: right; font-size: 0.9rem; }
+        .mil-form-group { margin-bottom: 12px; }
+        .mil-form-control { width: 100%; padding: 8px 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 0.9rem; }
+        .mil-form-control:focus { border-color: darkcyan; outline: none; }
+        .mil-flex { display: flex; gap: 10px; margin-top: 15px; }
+        .mil-flex-1 { flex: 1; }
+        .mil-delete-item { background: none; border: none; color: #dc3545; cursor: pointer; padding: 2px; font-size: 0.8rem; }
+
+        @media (max-width: 680px) {
+            .ck-summary { display: none; }
+            .ck-form-panel { padding: 24px 20px; }
         }
         
         .mil-confirmation-container {
@@ -945,10 +968,8 @@
                 grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
             }
 
-            .mil-checkout-form {
-                max-width: 95%;
-                padding: 15px;
-            }
+            .ck-modal { width: 96vw; }
+            .ck-summary { display: none; }
             
             .mil-social-links {
                 flex-wrap: wrap;
@@ -988,6 +1009,7 @@
 </head>
 
 <body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
 
     <!-- Custom topbar (outside mil-wrapper) -->
     <div class="shed-topbar">
@@ -1022,6 +1044,10 @@
                     </div>
                 </div>
             </div>
+            <a href="<%= buyerProfile ? '/buyer' : '/buyer/login' %>" class="shed-icon-btn" title="<%= buyerProfile ? 'My Shed Profile' : 'Sign in to Shed' %>" style="position:relative;text-decoration:none;">
+                <i class="fas fa-user-circle" style="font-size:18px;"></i>
+                <% if (buyerProfile) { %><span style="position:absolute;top:2px;right:2px;width:7px;height:7px;border-radius:50%;background:#4caf50;border:1.5px solid #fff;"></span><% } %>
+            </a>
             <button class="shed-icon-btn" id="shedMenuOpen" aria-label="Open menu"><i class="fas fa-bars"></i></button>
         </div>
     </div>
@@ -1287,6 +1313,11 @@
                                           <button class="mil-add-to-cart" onclick="addToCart('<%= encodeURIComponent(item.id || item._id || 'missing-id-' + Math.random().toString(36).substr(2, 9)) %>', '<%= item.name ? item.name.replace(/'/g, '\\\'') : 'Unnamed Product' %>', <%= Number(item.cost) || 0 %>, <%= Number(item.stock) || 0 %>, this)">
                                             <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
                                           </button>
+                                          <% if (typeof shopper !== 'undefined' && shopper) { %>
+                                            <button class="mil-add-to-cart" style="background:#0d0d1a; margin-top:6px;" onclick="addToShopperCart('<%= admin._id %>', '<%= item.id || item._id %>', this)">
+                                              <i class="fas fa-user-plus mil-mr-5"></i> Add to My Cart
+                                            </button>
+                                          <% } %>
                                         </div>
                                       </div>
                                     <% }) %>
@@ -1321,49 +1352,113 @@
             </div>
         </div><!-- /mil-store-content -->
 
-        <!-- Checkout Form (UPDATED TO MATCH PRODUCT PAGE) -->
-        <div class="mil-overlay" id="overlay"></div>
-        <div class="mil-checkout-form" id="checkoutForm">
-            <h2 class="mil-mb-20">Checkout</h2>
-            <div class="mil-cart-summary" id="cartSummary">
-                <h3>Your Cart - <%= outlet ? outlet.name : admin.businessName || 'Shed Store' %></h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Item</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="cartSummaryBody"></tbody>
-                </table>
-                <div class="mil-total" id="cartTotal"></div>
+        <!-- ─── Checkout Modal ─── -->
+        <div class="mil-overlay" id="overlay" onclick="hideCheckoutForm()"></div>
+
+        <div class="ck-modal" id="checkoutForm">
+            <!-- Left: Order Summary -->
+            <div class="ck-summary">
+                <div class="ck-summary-title">Order Summary</div>
+                <div class="ck-summary-store">
+                    <div class="ck-summary-store-logo">
+                        <% if (admin.logo) { %><img src="<%= admin.logo %>" alt="logo"><% } else { %><%= (outlet ? outlet.name : admin.businessName || 'S').charAt(0).toUpperCase() %><% } %>
+                    </div>
+                    <div class="ck-summary-store-name"><%= outlet ? outlet.name : admin.businessName || 'Shed Store' %></div>
+                </div>
+                <div class="ck-summary-items" id="ckSummaryItems">
+                    <!-- populated by JS -->
+                </div>
+                <hr class="ck-divider">
+                <div class="ck-total-row">
+                    <span class="ck-total-label">Total</span>
+                    <span class="ck-total-value" id="ckTotalValue">₦0.00</span>
+                </div>
             </div>
-            <form id="checkoutFormSubmit" action="<%= outlet ? `/outlet/${outlet.username}/checkout` : `/store/${admin.username}/checkout` %>" method="POST">
-                <div class="mil-form-group mil-mb-15">
-                    <label for="customerName"><i class="fas fa-user"></i> Name</label>
-                    <input type="text" id="customerName" name="customerName" class="mil-form-control" required>
+
+            <!-- Right: Form Panel -->
+            <div class="ck-form-panel">
+                <div class="ck-panel-header">
+                    <h2 id="ckPanelTitle">Complete your order</h2>
+                    <button class="ck-close" onclick="hideCheckoutForm()" title="Close">&times;</button>
                 </div>
-                <div class="mil-form-group mil-mb-15">
-                    <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number</label>
-                    <input type="tel" id="phoneNumber" name="phoneNumber" class="mil-form-control" required>
+
+                <!-- Progress -->
+                <div class="ck-progress" id="ckProgress">
+                    <div class="ck-prog-step active" id="ckProg1">
+                        <div class="ck-prog-dot">1</div>
+                        <span>Your details</span>
+                    </div>
+                    <div class="ck-prog-line"></div>
+                    <div class="ck-prog-step" id="ckProg2">
+                        <div class="ck-prog-dot">2</div>
+                        <span>Confirmation</span>
+                    </div>
                 </div>
-                <div class="mil-form-group mil-mb-20">
-                    <label for="email"><i class="fas fa-envelope"></i> Email</label>
-                    <input type="email" id="email" name="email" class="mil-form-control" required>
+
+                <!-- Step 1: Buyer details -->
+                <div class="ck-step active" id="ckStep1">
+                    <% if (buyerProfile) { %>
+                    <div class="ck-autofill-banner">
+                        <i class="fas fa-bolt"></i>
+                        <span>Details filled from your <strong>Shed profile</strong> — just confirm and pay.</span>
+                    </div>
+                    <% } %>
+
+                    <form id="checkoutFormSubmit" action="<%= outlet ? `/outlet/${outlet.username}/checkout` : `/store/${admin.username}/checkout` %>" method="POST">
+                        <div class="ck-field">
+                            <label class="ck-label" for="customerName">Full name</label>
+                            <input type="text" id="customerName" name="customerName" class="ck-input"
+                                   placeholder="Your name"
+                                   value="<%= buyerProfile ? buyerProfile.name || '' : '' %>" required>
+                        </div>
+                        <div class="ck-field">
+                            <label class="ck-label" for="email">Email address</label>
+                            <input type="email" id="email" name="email" class="ck-input"
+                                   placeholder="you@example.com"
+                                   value="<%= buyerProfile ? buyerProfile.email || '' : '' %>" required>
+                        </div>
+                        <div class="ck-field">
+                            <label class="ck-label" for="phoneNumber">Phone number</label>
+                            <input type="tel" id="phoneNumber" name="phoneNumber" class="ck-input"
+                                   placeholder="+234 000 000 0000"
+                                   value="<%= buyerProfile ? buyerProfile.phone || '' : '' %>" required>
+                        </div>
+                        <input type="hidden" id="cartItems" name="cartItems">
+                        <button type="submit" class="ck-btn-primary" id="ckSubmitBtn">
+                            <i class="fas fa-lock"></i> Place Order
+                        </button>
+                    </form>
                 </div>
-                <input type="hidden" id="cartItems" name="cartItems">
-                <div class="mil-flex mil-gap-15">
-                    <button type="submit" class="mil-button mil-button-primary">
-                        <i class="fas fa-check"></i> Submit Order
-                    </button>
-                    <button type="button" class="mil-button mil-button-secondary" onclick="hideCheckoutForm()">
-                        <i class="fas fa-times"></i> Cancel
-                    </button>
+
+                <!-- Step 2: Receipt -->
+                <div class="ck-step" id="ckStep2">
+                    <div class="ck-receipt-icon"><i class="fas fa-check"></i></div>
+                    <div class="ck-receipt-title">Order placed!</div>
+                    <div class="ck-receipt-sub" id="ckReceiptSub">Your order has been received.</div>
+
+                    <div id="ckReceiptDetails">
+                        <!-- populated by JS -->
+                    </div>
+
+                    <div class="ck-receipt-actions">
+                        <a href="#" id="ckInvoiceLink" class="ck-btn-primary" target="_blank">
+                            <i class="fas fa-file-invoice"></i> Download Invoice
+                        </a>
+                        <button class="ck-btn-ghost" onclick="hideCheckoutForm()">
+                            <i class="fas fa-shopping-bag"></i> Keep shopping
+                        </button>
+                    </div>
+
+                    <div class="ck-buyer-profile-cta">
+                        <i class="fas fa-history" style="margin-right:6px;color:#FF9800;"></i>
+                        <% if (buyerProfile) { %>
+                            <a href="/buyer">View this order in My Shed Profile &rarr;</a>
+                        <% } else { %>
+                            <a href="/buyer/login">Sign in to Shed</a> to track this order and all your future purchases across stores.
+                        <% } %>
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
 
         <footer class="mil-dark-bg">
@@ -1490,6 +1585,33 @@
     <script src="/js/main.js"></script>
 
     <script>
+        // Logged-in shoppers: add to the account-based, cross-store cart (server-side).
+        async function addToShopperCart(adminId, itemId, button) {
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = 'Adding…';
+            try {
+                const res = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId, itemId, quantity: 1 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Added!';
+                    const badge = document.getElementById('shedCartCount');
+                    if (badge) { badge.textContent = data.count; badge.style.display = 'flex'; }
+                    setTimeout(() => { button.innerHTML = original; button.disabled = false; }, 1500);
+                } else {
+                    alert(data.error || 'Could not add item.');
+                    button.innerHTML = original; button.disabled = false;
+                }
+            } catch (err) {
+                alert('Could not add item. Please try again.');
+                button.innerHTML = original; button.disabled = false;
+            }
+        }
+
         let cart = JSON.parse(localStorage.getItem('cart')) || [];
         const currency = '<%= currency %>';
         let cartDropdownOpen = false;
@@ -1560,6 +1682,7 @@
                 saveCart();
                 updateCartCount();
                 updateCartSummary();
+                updateCkSummary();
                 updateCartDropdown();
             } catch (error) {
                 console.error('Error in addToCart:', error.message, error.stack);
@@ -1572,11 +1695,13 @@
             saveCart();
             updateCartCount();
             updateCartSummary();
+            updateCkSummary();
             updateCartDropdown();
             initializeButtonStates();
-            if (cart.length === 0) {
-                hideCheckoutForm();
-            }
+            // Update hidden input
+            const ci = document.getElementById('cartItems');
+            if (ci) ci.value = JSON.stringify(cart);
+            if (cart.length === 0) hideCheckoutForm();
         }
 
         function clearCart() {
@@ -1607,22 +1732,26 @@
         }
 
         function updateCartSummary() {
-            const cartSummaryBody = document.getElementById('cartSummaryBody');
-            const cartTotal = document.getElementById('cartTotal');
-            if (!cartSummaryBody || !cartTotal) return;
+            // Legacy (no-op — summary panel driven separately)
+        }
 
-            cartSummaryBody.innerHTML = cart.map(item => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>${currency}${formatCurrency(item.cost)}</td>
-                    <td>${currency}${formatCurrency(item.cost * item.quantity)}</td>
-                    <td><button class="mil-delete-item" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>
+        function updateCkSummary() {
+            const container = document.getElementById('ckSummaryItems');
+            const totalEl   = document.getElementById('ckTotalValue');
+            if (!container) return;
+            container.innerHTML = cart.map(item => `
+                <div class="ck-item">
+                    <div class="ck-item-thumb"><i class="fas fa-box"></i></div>
+                    <div class="ck-item-details">
+                        <div class="ck-item-name">${item.name}</div>
+                        <div class="ck-item-qty">Qty: ${item.quantity}</div>
+                    </div>
+                    <div class="ck-item-price">${currency}${formatCurrency(item.cost * item.quantity)}</div>
+                    <button class="ck-item-remove" onclick="removeFromCart('${item.id}')" title="Remove"><i class="fas fa-times"></i></button>
+                </div>
             `).join('');
-
-            const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
-            cartTotal.textContent = `Total: ${currency}${formatCurrency(totalValue)}`;
+            const total = cart.reduce((s, i) => s + i.cost * i.quantity, 0);
+            if (totalEl) totalEl.textContent = `${currency}${formatCurrency(total)}`;
         }
 
         function updateCartDropdown() {
@@ -1715,55 +1844,32 @@
             }
         }
 
-        // UPDATED showCheckoutForm function to match product page
         function showCheckoutForm() {
             if (cart.length === 0) {
                 alert('Please add items to your cart before checking out.');
                 return;
             }
             const cartItemsInput = document.getElementById('cartItems');
-            try {
-                if (!Array.isArray(cart) || !cart.every(item => item.id && item.name && item.cost && item.quantity)) {
-                    throw new Error('Invalid cart structure');
-                }
-                cartItemsInput.value = JSON.stringify(cart);
-            } catch (err) {
-                console.error('Error stringifying cart:', err);
-                alert('Error preparing cart data. Please try again.');
-                return;
-            }
-            updateCartSummary();
+            cartItemsInput.value = JSON.stringify(cart);
+
+            // Reset to step 1
+            document.getElementById('ckStep1').classList.add('active');
+            document.getElementById('ckStep2').classList.remove('active');
+            document.getElementById('ckProg1').classList.add('active');
+            document.getElementById('ckProg1').classList.remove('done');
+            document.getElementById('ckProg2').classList.remove('active');
+            document.getElementById('ckPanelTitle').textContent = 'Complete your order';
+            document.getElementById('ckProgress').style.display = '';
+
+            updateCkSummary();
             closeCartDropdown();
             document.getElementById('overlay').classList.add('active');
             document.getElementById('checkoutForm').classList.add('active');
-            
-            // Add smooth animation
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('#checkoutForm', 
-                    { opacity: 0, scale: 0.9, y: -20 },
-                    { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.2)' }
-                );
-            }
         }
-        
-        // UPDATED hideCheckoutForm function to match product page
+
         function hideCheckoutForm() {
-            if (typeof gsap !== 'undefined') {
-                gsap.to('#checkoutForm', {
-                    opacity: 0,
-                    scale: 0.9,
-                    y: -20,
-                    duration: 0.2,
-                    ease: 'power2.in',
-                    onComplete: function() {
-                        document.getElementById('overlay').classList.remove('active');
-                        document.getElementById('checkoutForm').classList.remove('active');
-                    }
-                });
-            } else {
-                document.getElementById('overlay').classList.remove('active');
-                document.getElementById('checkoutForm').classList.remove('active');
-            }
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('checkoutForm').classList.remove('active');
         }
 
         function searchInventory() {
@@ -1804,74 +1910,80 @@
             e.preventDefault();
 
             const customerName = document.getElementById('customerName').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
-            const email = document.getElementById('email').value.trim();
+            const phoneNumber  = document.getElementById('phoneNumber').value.trim();
+            const email        = document.getElementById('email').value.trim();
             const cartItemsInput = document.getElementById('cartItems');
 
             if (!customerName || !phoneNumber || !email) {
                 alert('Please fill in all required fields.');
                 return;
             }
-
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
                 alert('Please enter a valid email address.');
                 return;
             }
-
-            if (!/[\d]{6,}/.test(phoneNumber)) {
-                alert('Please enter a valid phone number.');
-                return;
-            }
-
             if (cart.length === 0) {
                 alert('Your cart is empty. Please add items before checking out.');
                 return;
             }
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const submitBtn = document.getElementById('ckSubmitBtn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mil-mr-5"></i> Processing...';
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing…';
 
             try {
-                const payload = {
-                    customerName,
-                    phoneNumber,
-                    email,
-                    cartItems: cartItemsInput.value
-                };
-
+                const payload = { customerName, phoneNumber, email, cartItems: cartItemsInput.value };
                 const response = await fetch(e.target.action, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(payload)
                 });
-
                 const result = await response.json();
 
-                if (!response.ok) {
-                    throw new Error(result.error || `HTTP error! Status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(result.error || `HTTP ${response.status}`);
+                if (!result.success || !result.invoiceUrl) throw new Error(result.error || 'Invalid server response');
 
-                if (result.success && result.invoiceUrl) {
-                    cart = [];
-                    saveCart();
-                    updateCartCount();
-                    initializeButtonStates();
-                    updateCartSummary();
-                    updateCartDropdown();
-                    window.location.href = result.invoiceUrl;
-                } else {
-                    throw new Error(result.error || 'Invalid server response');
-                }
+                // ── Clear cart ──
+                cart = [];
+                saveCart();
+                updateCartCount();
+                initializeButtonStates();
+                updateCartDropdown();
+                updateCkSummary();
+
+                // ── Move to Step 2: receipt ──
+                const total = JSON.parse(payload.cartItems).reduce((s, i) => s + i.cost * i.quantity, 0);
+                const itemCount = JSON.parse(payload.cartItems).reduce((s, i) => s + i.quantity, 0);
+
+                document.getElementById('ckReceiptSub').textContent =
+                    `Thank you, ${customerName}! Your order confirmation is below.`;
+
+                document.getElementById('ckReceiptDetails').innerHTML = `
+                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Order ID</span><span class="ck-receipt-val">${result.saleId ? result.saleId.toString().slice(-8).toUpperCase() : '—'}</span></div>
+                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Name</span><span class="ck-receipt-val">${customerName}</span></div>
+                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Email</span><span class="ck-receipt-val">${email}</span></div>
+                    <div class="ck-receipt-detail"><span class="ck-receipt-key">Items</span><span class="ck-receipt-val">${itemCount}</span></div>
+                    <div class="ck-receipt-total"><span>Total Paid</span><span>${currency}${formatCurrency(total)}</span></div>
+                `;
+
+                document.getElementById('ckInvoiceLink').href = result.invoiceUrl;
+
+                // Progress: step 1 done → step 2 active
+                const prog1 = document.getElementById('ckProg1');
+                const prog2 = document.getElementById('ckProg2');
+                prog1.classList.remove('active'); prog1.classList.add('done');
+                prog1.querySelector('.ck-prog-dot').innerHTML = '<i class="fas fa-check" style="font-size:9px"></i>';
+                prog2.classList.add('active');
+
+                document.getElementById('ckPanelTitle').textContent = 'Order confirmed';
+                document.getElementById('ckStep1').classList.remove('active');
+                document.getElementById('ckStep2').classList.add('active');
+
             } catch (error) {
-                console.error('Checkout error:', error.message, error.stack);
-                alert(`Error submitting order: ${error.message}. Please try again or contact support.`);
-            } finally {
+                console.error('Checkout error:', error);
+                alert(`Error: ${error.message}. Please try again.`);
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Submit Order';
+                submitBtn.innerHTML = '<i class="fas fa-lock"></i> Place Order';
             }
         });
 
@@ -1909,6 +2021,7 @@
             // Ensure modal is hidden on load
             document.getElementById('overlay').classList.remove('active');
             document.getElementById('checkoutForm').classList.remove('active');
+            updateCkSummary();
         });
 
         if (window.location.search.includes('checkout_success=true')) {

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | My Account</title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Jost', sans-serif; background: #f7f7f8; color: #222; }
+    .topbar { background: #0d0d1a; padding: 16px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar img { height: 34px; }
+    .topbar-links { display: flex; gap: 20px; align-items: center; }
+    .topbar-links a { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .topbar-links a:hover { color: #FF9800; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 36px 20px 80px; }
+    .profile-card { background: #fff; border-radius: 14px; padding: 26px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.05); margin-bottom: 28px; display: flex; align-items: center; gap: 18px; }
+    .avatar { width: 58px; height: 58px; border-radius: 50%; background: #FF9800; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; }
+    .profile-card h2 { font-size: 1.25rem; margin-bottom: 4px; }
+    .profile-card p { color: #888; font-size: 0.9rem; }
+    .section-title { font-size: 1.05rem; font-weight: 700; margin: 30px 0 14px; color: #0d0d1a; }
+    .order-card { background: #fff; border-radius: 12px; padding: 18px 22px; margin-bottom: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+    .order-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .order-store { font-weight: 600; color: #0d0d1a; }
+    .order-date { color: #999; font-size: 0.82rem; }
+    .order-total { font-weight: 700; color: #FF9800; }
+    .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-paid { background: #eafaf1; color: #1e8449; }
+    .status-pending { background: #fff8ec; color: #b26a00; }
+    .order-invoice-links { display: flex; gap: 18px; margin-top: 12px; padding-top: 12px; border-top: 1px solid #f0f0f0; }
+    .order-invoice-links a { color: #FF9800; text-decoration: none; font-size: 0.85rem; font-weight: 600; }
+    .order-invoice-links a:hover { text-decoration: underline; }
+    .empty-state { text-align: center; color: #999; padding: 40px 0; }
+    .empty-state a { color: #FF9800; font-weight: 600; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="/"><img src="/images/logo.png" alt="Shed"></a>
+    <div class="topbar-links">
+      <a href="/search">Browse Stores</a>
+      <a href="/cart">My Cart</a>
+      <a href="/shopper/logout">Log Out</a>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="profile-card">
+      <div class="avatar"><%= (shopper.firstName || '?').charAt(0).toUpperCase() %></div>
+      <div>
+        <h2><%= shopper.firstName %> <%= shopper.lastName %></h2>
+        <p><%= shopper.email %> · <%= shopper.phone || 'No phone on file' %></p>
+      </div>
+    </div>
+
+    <div class="section-title">Your Orders</div>
+
+    <% if (!orders.length) { %>
+      <div class="empty-state">
+        You haven't ordered anything yet. <a href="/search">Find a store</a> to get started.
+      </div>
+    <% } else { %>
+      <% orders.forEach(function(o) { %>
+        <div class="order-card">
+          <div class="order-top">
+            <div>
+              <div class="order-store"><%= o.storeName %></div>
+              <div class="order-date"><%= new Date(o.date).toLocaleString() %></div>
+            </div>
+            <div>
+              <span class="status-pill <%= o.paymentStatus === 'Paid' ? 'status-paid' : 'status-pending' %>"><%= o.paymentStatus || 'Pending' %></span>
+            </div>
+            <div class="order-total"><%= o.currency %><%= Number(o.totalAmount || 0).toLocaleString('en-US', {minimumFractionDigits:2}) %></div>
+          </div>
+          <div class="order-invoice-links">
+            <a href="/shopper/orders/<%= o._id %>/invoice" target="_blank" rel="noopener"><i class="fas fa-file-invoice"></i> View Invoice</a>
+            <a href="/shopper/orders/<%= o._id %>/invoice?download=1"><i class="fas fa-download"></i> Download</a>
+          </div>
+        </div>
+      <% }); %>
+    <% } %>
+  </div>
+</body>
+</html>

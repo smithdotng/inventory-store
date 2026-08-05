@@ -521,6 +521,7 @@ exports.getOutletStorefront = async (req, res) => {
       inventory,
       sale,
       currency: admin.currency || '₦',
+      buyerProfile: req.session.buyer || null,
       error: null
     });
   } catch (err) {
