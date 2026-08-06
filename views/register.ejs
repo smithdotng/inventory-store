@@ -310,6 +310,31 @@
           </div>
         </div>
 
+        <div class="row">
+          <div class="col-half">
+            <div class="form-group">
+              <label>Business Category <span style="font-weight:400;text-transform:none;color:#aaa;">(optional)</span></label>
+              <select class="form-control" name="category">
+                <option value="">Select a category</option>
+                <% (typeof categories !== 'undefined' ? categories : []).forEach(cat => { %>
+                  <option value="<%= cat %>" <%= typeof category !== 'undefined' && category === cat ? 'selected' : '' %>><%= cat %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <div class="col-half">
+            <div class="form-group">
+              <label>Market Cluster <span style="font-weight:400;text-transform:none;color:#aaa;">(optional)</span></label>
+              <select class="form-control" name="clusterId">
+                <option value="">Not part of a market cluster</option>
+                <% (typeof clusters !== 'undefined' ? clusters : []).forEach(c => { %>
+                  <option value="<%= c._id %>" <%= typeof clusterId !== 'undefined' && String(clusterId) === String(c._id) ? 'selected' : '' %>><%= c.name %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+        </div>
+
         <!-- Logo Upload -->
         <div class="form-group">
           <label>Business Logo <span style="font-weight:400;text-transform:none;color:#aaa;">(optional)</span></label>

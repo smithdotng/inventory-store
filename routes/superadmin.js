@@ -10,6 +10,7 @@ router.get('/outlets', isAuthenticated, isSuperAdmin, superadminController.getOu
 router.get('/sent-messages', isAuthenticated, isSuperAdmin, superadminController.getSentMessages);
 router.post('/send-message', isAuthenticated, isSuperAdmin, superadminController.sendMessage);
 router.get('/admin/:adminUsername', isAuthenticated, isSuperAdmin, superadminController.getAdminDetails);
+router.post('/admin/:adminUsername/verify', isAuthenticated, isSuperAdmin, superadminController.postToggleVerify);
 router.post('/delete-admin/:id', isAuthenticated, isSuperAdmin, superadminController.deleteAdmin);
 router.post('/update-admin/:id', isAuthenticated, isSuperAdmin, superadminController.updateAdmin);
 router.post('/reset-password/:id', isAuthenticated, isSuperAdmin, superadminController.resetAdminPassword);
@@ -18,6 +19,12 @@ router.get('/ads', isAuthenticated, isSuperAdmin, superadminController.getAds);
 router.post('/ads/create', isAuthenticated, isSuperAdmin, superadminController.postCreateAd);
 router.post('/ads/toggle/:id', isAuthenticated, isSuperAdmin, superadminController.postToggleAd);
 router.post('/ads/delete/:id', isAuthenticated, isSuperAdmin, superadminController.postDeleteAd);
+
+router.get('/clusters', isAuthenticated, isSuperAdmin, superadminController.getClusters);
+router.post('/clusters/create', isAuthenticated, isSuperAdmin, superadminController.postCreateCluster);
+router.post('/clusters/edit/:id', isAuthenticated, isSuperAdmin, superadminController.postEditCluster);
+router.post('/clusters/toggle/:id', isAuthenticated, isSuperAdmin, superadminController.postToggleCluster);
+router.post('/clusters/delete/:id', isAuthenticated, isSuperAdmin, superadminController.postDeleteCluster);
 
 router.get('/create-admin', isAuthenticated, isSuperAdmin, superadminController.getCreateAdmin);
 router.post('/create-admin', isAuthenticated, isSuperAdmin, uploadLogo, superadminController.postCreateAdmin);

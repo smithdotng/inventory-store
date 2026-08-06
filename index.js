@@ -27,6 +27,7 @@ const buyerRoutes       = require('./routes/buyer');
 const shopperRoutes     = require('./routes/shopper');
 const cartRoutes        = require('./routes/cart');
 const billingRoutes     = require('./routes/billing');
+const clusterRoutes     = require('./routes/cluster');
 
 const { startSubscriptionRenewalJob } = require('./jobs/subscriptionRenewal');
 
@@ -86,6 +87,7 @@ app.use('/',           buyerRoutes);
 app.use('/',           shopperRoutes);
 app.use('/',           cartRoutes);
 app.use('/',           billingRoutes);
+app.use('/',           clusterRoutes);
 app.use('/',           miscRoutes);   // misc last — contains the * catch-all
 
 // ── Email broadcast utility route ─────────────────────────────────────────────

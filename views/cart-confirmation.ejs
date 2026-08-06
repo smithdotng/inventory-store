@@ -34,12 +34,12 @@
       <p>Each store owner has been notified and will process your order.</p>
       <% if (saleIds && saleIds.length) { %>
         <div class="invoice-list">
-          <p>Invoices &amp; receipts</p>
+          <p>Receipts</p>
           <% saleIds.forEach(function(id, i) { %>
             <div class="invoice-row">
               <span>Order <%= i + 1 %></span>
               <span>
-                <a href="/shopper/orders/<%= id %>/invoice" target="_blank" rel="noopener">View</a>
+                <a href="/shopper/orders/<%= id %>/invoice" target="_blank" rel="noopener">View Receipt</a>
                 <a href="/shopper/orders/<%= id %>/invoice?download=1">Download</a>
               </span>
             </div>

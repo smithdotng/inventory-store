@@ -45,7 +45,8 @@ function setupSessionValidation(app) {
       '/buyer/login',
       '/buyer/logout',
       '/cart',
-      '/cart/count'
+      '/cart/count',
+      '/clusters'
     ];
 
     const publicRoutePrefixes = [
@@ -58,7 +59,8 @@ function setupSessionValidation(app) {
       '/buyer/',
       '/shopper/',
       '/cart/',
-      '/webhooks/'
+      '/webhooks/',
+      '/cluster/'
     ];
 
     const isExactPublicRoute = publicRoutes.some(route => req.path === route);

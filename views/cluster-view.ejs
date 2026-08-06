@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | <%= cluster.name %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Jost', sans-serif; background: #f7f7f8; color: #222; }
+    .topbar { background: #0d0d1a; padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; }
+    .topbar img { height: 36px; }
+    .topbar a.home-link { color: rgba(255,255,255,0.8); text-decoration: none; font-size: 0.9rem; }
+    .topbar a.home-link:hover { color: #FF9800; }
+    .hero { background: linear-gradient(135deg, #0d0d1a, #14283a); padding: 50px 32px; text-align: center; }
+    .hero .crumb { color: rgba(255,255,255,0.45); font-size: 0.8rem; margin-bottom: 14px; }
+    .hero .crumb a { color: rgba(255,255,255,0.6); text-decoration: none; }
+    .hero h1 { color: #fff; font-size: 2.1rem; font-weight: 700; margin-bottom: 10px; }
+    .hero p { color: rgba(255,255,255,0.65); font-size: 0.98rem; max-width: 620px; margin: 0 auto 20px; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 22px; }
+    .hero-tag { background: rgba(255,255,255,0.1); color: #fff; padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; }
+    .search-box { max-width: 480px; margin: 0 auto; display: flex; background: #fff; border-radius: 30px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,0.2); }
+    .search-box input { flex: 1; border: none; padding: 13px 18px; font-size: 0.92rem; font-family: 'Jost', sans-serif; outline: none; }
+    .search-box button { border: none; background: #FF9800; color: #fff; padding: 0 22px; cursor: pointer; font-size: 0.95rem; }
+
+    .wrap { max-width: 1150px; margin: 0 auto; padding: 40px 24px 80px; }
+    .section-title { font-size: 1.3rem; font-weight: 700; color: #0d0d1a; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+    .section-title i { color: #008B8B; }
+
+    .store-scroll { display: flex; gap: 16px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 48px; }
+    .store-chip { flex: 0 0 auto; width: 190px; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 18px; text-align: center; text-decoration: none; color: inherit; transition: transform 0.15s; }
+    .store-chip:hover { transform: translateY(-3px); }
+    .store-chip img { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; }
+    .store-chip .name { font-size: 0.88rem; font-weight: 600; color: #0d0d1a; margin-bottom: 3px; }
+    .store-chip .cat { font-size: 0.72rem; color: #008B8B; }
+
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 22px; }
+    .product-card { background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 12px rgba(0,0,0,0.06); text-decoration: none; color: inherit; display: block; transition: transform 0.15s; }
+    .product-card:hover { transform: translateY(-3px); }
+    .product-img { height: 160px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 1.8rem; }
+    .product-img img { width: 100%; height: 160px; object-fit: cover; }
+    .product-body { padding: 14px 16px; }
+    .product-name { font-size: 0.95rem; font-weight: 600; color: #0d0d1a; margin-bottom: 4px; }
+    .product-store { font-size: 0.75rem; color: #888; margin-bottom: 8px; }
+    .product-price { font-size: 1rem; font-weight: 700; color: #008B8B; }
+
+    .empty-state { text-align: center; color: #999; padding: 50px 0; }
+    .pagination { display: flex; justify-content: center; gap: 8px; margin-top: 40px; }
+    .pagination a, .pagination span { padding: 8px 14px; border-radius: 8px; border: 1px solid #eee; text-decoration: none; color: #333; font-size: 0.85rem; }
+    .pagination .active { background: #008B8B; color: #fff; border-color: #008B8B; }
+    .pagination .disabled { opacity: 0.4; }
+  </style>
+</head>
+<body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
+
+  <div class="topbar">
+    <a href="/"><img src="/images/logo.png" alt="Shed"></a>
+    <a href="/clusters" class="home-link"><i class="fas fa-arrow-left"></i> All Clusters</a>
+  </div>
+
+  <div class="hero">
+    <div class="crumb"><a href="/clusters">Market Clusters</a> / <%= cluster.name %></div>
+    <h1><%= cluster.name %></h1>
+    <% if (cluster.description) { %><p><%= cluster.description %></p><% } %>
+    <% if (cluster.focusCategories && cluster.focusCategories.length) { %>
+      <div class="hero-tags">
+        <% cluster.focusCategories.forEach(function(cat) { %><span class="hero-tag"><%= cat %></span><% }) %>
+      </div>
+    <% } %>
+    <form class="search-box" action="/cluster/<%= cluster.slug %>" method="GET">
+      <input type="text" name="q" placeholder="Search products in <%= cluster.name %>..." value="<%= query %>">
+      <button type="submit"><i class="fas fa-search"></i></button>
+    </form>
+  </div>
+
+  <div class="wrap">
+    <div class="section-title"><i class="fas fa-store"></i> Stores in <%= cluster.name %> (<%= stores.length %>)</div>
+    <% if (!stores.length) { %>
+      <div class="empty-state" style="margin-bottom:48px;">No stores are listed in this cluster yet.</div>
+    <% } else { %>
+      <div class="store-scroll">
+        <% stores.forEach(function(s) { %>
+          <a href="/store/<%= s.username %>" class="store-chip">
+            <img src="<%= s.logo || '/images/logo.png' %>" alt="<%= s.businessName || s.username %>" onerror="this.src='/images/logo.png'">
+            <div class="name"><%= s.businessName || s.username %></div>
+            <% if (s.isVerified) { %><div style="color:#1e8449;font-size:0.68rem;font-weight:700;margin-bottom:3px;"><i class="fas fa-badge-check"></i> Verified</div><% } %>
+            <% if (s.category) { %><div class="cat"><%= s.category %></div><% } %>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+
+    <div class="section-title">
+      <i class="fas fa-box"></i>
+      <%= query ? `Products matching "${query}"` : 'Products in this cluster' %> (<%= totalProducts %>)
+    </div>
+    <% if (!products.length) { %>
+      <div class="empty-state">
+        <% if (query) { %>
+          No products matched "<%= query %>" in <%= cluster.name %>.
+        <% } else { %>
+          No products listed in this cluster's stores yet.
+        <% } %>
+      </div>
+    <% } else { %>
+      <div class="products-grid">
+        <% products.forEach(function(p) { %>
+          <a href="/store/<%= p.storeUsername %>/product/<%= p._id %>" class="product-card">
+            <div class="product-img">
+              <% if (Array.isArray(p.images) && p.images.length) { %>
+                <img src="<%= p.images[0] %>" alt="<%= p.name %>" onerror="this.style.display='none';this.parentElement.innerHTML='<i class=&quot;fas fa-image&quot;></i>'">
+              <% } else { %>
+                <i class="fas fa-image"></i>
+              <% } %>
+            </div>
+            <div class="product-body">
+              <div class="product-name"><%= p.name %></div>
+              <div class="product-store"><%= p.storeName %></div>
+              <div class="product-price">₦<%= formatCurrency(p.cost) %></div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <% if (page > 1) { %>
+            <a href="/cluster/<%= cluster.slug %>?q=<%= encodeURIComponent(query) %>&page=<%= page - 1 %>">Previous</a>
+          <% } else { %><span class="disabled">Previous</span><% } %>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+            <% if (i === page) { %><span class="active"><%= i %></span>
+            <% } else { %><a href="/cluster/<%= cluster.slug %>?q=<%= encodeURIComponent(query) %>&page=<%= i %>"><%= i %></a><% } %>
+          <% } %>
+          <% if (page < totalPages) { %>
+            <a href="/cluster/<%= cluster.slug %>?q=<%= encodeURIComponent(query) %>&page=<%= page + 1 %>">Next</a>
+          <% } else { %><span class="disabled">Next</span><% } %>
+        </div>
+      <% } %>
+    <% } %>
+  </div>
+</body>
+</html>

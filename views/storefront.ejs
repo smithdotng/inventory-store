@@ -1079,7 +1079,14 @@
                         <div class="mil-gradient"></div>
                         <div class="container">
                             <div class="mil-banner-content mil-up">
-                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Welcome to </span><%= outlet ? outlet.name : admin.businessName || 'Shed Store' %></h1>
+                                <h1 class="mil-muted mil-mb-60">
+                                    <span class="mil-thin">Welcome to </span><%= outlet ? outlet.name : admin.businessName || 'Shed Store' %>
+                                    <% if (!outlet && admin.isVerified) { %>
+                                        <span title="Verified by Shed" style="display:inline-flex;align-items:center;gap:5px;background:rgba(30,132,73,0.15);color:#2ecc71;font-size:0.72rem;font-weight:700;padding:4px 12px;border-radius:20px;vertical-align:middle;margin-left:10px;letter-spacing:.03em;">
+                                            <i class="fas fa-badge-check"></i> VERIFIED
+                                        </span>
+                                    <% } %>
+                                </h1>
                                 <div class="row">
                                     <div class="col-md-7 col-lg-5">
                                         <p class="mil-light-soft mil-mb-60">Shop our latest inventory <strong>with ease!</strong></p>

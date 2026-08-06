@@ -5,6 +5,31 @@ const { getDb } = require('../config/db');
 const { transporter } = require('../config/mailer');
 const { formatCurrency } = require('../utils/helpers');
 const { sendPasswordResetEmail } = require('../utils/emailHelpers');
+const { BUSINESS_CATEGORIES } = require('../utils/categories');
+
+// Turn "Alaba International" into "alaba-international"; used both for new
+// clusters and to keep a unique slug when a name collides.
+function slugify(text) {
+  return String(text || '')
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 80);
+}
+
+async function uniqueClusterSlug(db, name, excludeId) {
+  const base = slugify(name) || 'cluster';
+  let slug = base;
+  let n = 2;
+  while (true) {
+    const query = { slug };
+    if (excludeId) query._id = { $ne: excludeId };
+    const existing = await db.collection('market_clusters').findOne(query, { projection: { _id: 1 } });
+    if (!existing) return slug;
+    slug = `${base}-${n++}`;
+  }
+}
 
 // POST /superadmin/subscription/:id/comp — manually grant/revoke free access,
 // e.g. for a store owner you've agreed to comp or want to unblock by hand.
@@ -511,6 +536,183 @@ exports.postDeleteAd = async (req, res) => {
     console.error('Error deleting ad:', err);
     req.flash('error', 'Failed to delete ad.');
     res.redirect('/superadmin/ads');
+  }
+};
+
+// POST /superadmin/admin/:adminUsername/verify — toggle a store's verified
+// status. Verification is the gate for market cluster governance: an
+// unverified store's cluster pick stays inert (invisible on public cluster
+// pages) until superadmin verifies them here.
+exports.postToggleVerify = async (req, res) => {
+  try {
+    const db = getDb();
+    const admin = await db.collection('admins').findOne({
+      username: { $regex: `^${req.params.adminUsername}$`, $options: 'i' }
+    });
+    if (!admin) {
+      req.session.error = ['Admin not found'];
+      return res.redirect('/superadmin/dashboard');
+    }
+
+    const nowVerified = !admin.isVerified;
+    await db.collection('admins').updateOne(
+      { _id: admin._id },
+      { $set: { isVerified: nowVerified, verifiedAt: nowVerified ? new Date() : null } }
+    );
+
+    req.session.success = [`${admin.businessName || admin.username} is now ${nowVerified ? 'verified' : 'unverified'}.`];
+    res.redirect(`/superadmin/admin/${encodeURIComponent(admin.username)}`);
+  } catch (err) {
+    console.error('Error toggling store verification:', err);
+    req.session.error = ['Failed to update verification status.'];
+    res.redirect('/superadmin/dashboard');
+  }
+};
+
+// GET /superadmin/clusters — list market clusters + how many stores sit in each
+exports.getClusters = async (req, res) => {
+  try {
+    const db = getDb();
+    const currentAdmin = await db.collection('admins').findOne({ username: req.session.admin });
+
+    // Internal management view — unlike the public cluster pages, this shows
+    // both verified and pending-verification stores so superadmin can see
+    // who's waiting on approval.
+    const clusters = await db.collection('market_clusters').aggregate([
+      { $sort: { createdAt: -1 } },
+      { $lookup: {
+        from: 'admins',
+        let: { cid: '$_id' },
+        pipeline: [{ $match: { $expr: { $eq: ['$clusterId', '$$cid'] } } }, { $project: { isVerified: 1 } }],
+        as: 'clusterStores'
+      } },
+      { $addFields: {
+        storeCount: { $size: '$clusterStores' },
+        verifiedCount: { $size: { $filter: { input: '$clusterStores', cond: { $eq: ['$$this.isVerified', true] } } } }
+      } },
+      { $project: { clusterStores: 0 } }
+    ]).toArray();
+    clusters.forEach(c => { c.pendingCount = c.storeCount - c.verifiedCount; });
+
+    res.render('superadmin-clusters', {
+      clusters, currentAdmin,
+      categories: BUSINESS_CATEGORIES,
+      success: req.flash('success'),
+      error: req.flash('error')
+    });
+  } catch (err) {
+    console.error('Error loading market clusters:', err);
+    req.flash('error', 'Failed to load market clusters.');
+    res.redirect('/superadmin/dashboard');
+  }
+};
+
+// POST /superadmin/clusters/create
+exports.postCreateCluster = async (req, res) => {
+  try {
+    const db = getDb();
+    const { name, description, image, focusCategories } = req.body;
+    if (!name || !name.trim()) {
+      req.flash('error', 'Cluster name is required.');
+      return res.redirect('/superadmin/clusters');
+    }
+
+    const slug = await uniqueClusterSlug(db, name);
+    const categories = Array.isArray(focusCategories) ? focusCategories : (focusCategories ? [focusCategories] : []);
+
+    await db.collection('market_clusters').insertOne({
+      name: name.trim(),
+      slug,
+      description: (description || '').trim(),
+      image: (image || '').trim(),
+      focusCategories: categories.filter(c => BUSINESS_CATEGORIES.includes(c)),
+      isActive: true,
+      createdAt: new Date()
+    });
+
+    req.flash('success', `Market cluster "${name.trim()}" created.`);
+    res.redirect('/superadmin/clusters');
+  } catch (err) {
+    console.error('Error creating market cluster:', err);
+    req.flash('error', 'Failed to create market cluster.');
+    res.redirect('/superadmin/clusters');
+  }
+};
+
+// POST /superadmin/clusters/edit/:id
+exports.postEditCluster = async (req, res) => {
+  try {
+    const db = getDb();
+    const cluster = await db.collection('market_clusters').findOne({ _id: new ObjectId(req.params.id) });
+    if (!cluster) {
+      req.flash('error', 'Market cluster not found.');
+      return res.redirect('/superadmin/clusters');
+    }
+
+    const { name, description, image, focusCategories } = req.body;
+    if (!name || !name.trim()) {
+      req.flash('error', 'Cluster name is required.');
+      return res.redirect('/superadmin/clusters');
+    }
+
+    const categories = Array.isArray(focusCategories) ? focusCategories : (focusCategories ? [focusCategories] : []);
+    const update = {
+      name: name.trim(),
+      description: (description || '').trim(),
+      image: (image || '').trim(),
+      focusCategories: categories.filter(c => BUSINESS_CATEGORIES.includes(c)),
+      updatedAt: new Date()
+    };
+
+    // Only re-slug if the name actually changed, so existing /cluster/:slug
+    // links shared by store owners don't silently break.
+    if (name.trim() !== cluster.name) {
+      update.slug = await uniqueClusterSlug(db, name, cluster._id);
+    }
+
+    await db.collection('market_clusters').updateOne({ _id: cluster._id }, { $set: update });
+    req.flash('success', 'Market cluster updated.');
+    res.redirect('/superadmin/clusters');
+  } catch (err) {
+    console.error('Error updating market cluster:', err);
+    req.flash('error', 'Failed to update market cluster.');
+    res.redirect('/superadmin/clusters');
+  }
+};
+
+// POST /superadmin/clusters/toggle/:id
+exports.postToggleCluster = async (req, res) => {
+  try {
+    const db = getDb();
+    const cluster = await db.collection('market_clusters').findOne({ _id: new ObjectId(req.params.id) });
+    if (!cluster) { req.flash('error', 'Market cluster not found.'); return res.redirect('/superadmin/clusters'); }
+    await db.collection('market_clusters').updateOne(
+      { _id: cluster._id },
+      { $set: { isActive: !cluster.isActive } }
+    );
+    req.flash('success', `Cluster ${cluster.isActive ? 'deactivated' : 'activated'}.`);
+    res.redirect('/superadmin/clusters');
+  } catch (err) {
+    console.error('Error toggling market cluster:', err);
+    req.flash('error', 'Failed to update market cluster.');
+    res.redirect('/superadmin/clusters');
+  }
+};
+
+// POST /superadmin/clusters/delete/:id
+exports.postDeleteCluster = async (req, res) => {
+  try {
+    const db = getDb();
+    const id = new ObjectId(req.params.id);
+    // Don't leave stores pointing at a deleted cluster.
+    await db.collection('admins').updateMany({ clusterId: id }, { $unset: { clusterId: '' } });
+    await db.collection('market_clusters').deleteOne({ _id: id });
+    req.flash('success', 'Market cluster deleted.');
+    res.redirect('/superadmin/clusters');
+  } catch (err) {
+    console.error('Error deleting market cluster:', err);
+    req.flash('error', 'Failed to delete market cluster.');
+    res.redirect('/superadmin/clusters');
   }
 };
 

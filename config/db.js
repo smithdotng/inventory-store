@@ -82,6 +82,15 @@ async function connectToMongo() {
       console.warn('Inventory indexes:', error.message);
     }
 
+    // Market clusters (e.g. "Alaba International") + business category live
+    // on the admins collection, one of each per store owner.
+    try {
+      await adminCollection.createIndex({ clusterId: 1 });
+      await adminCollection.createIndex({ category: 1 });
+    } catch (error) {
+      console.warn('Admin cluster/category indexes:', error.message);
+    }
+
     // Create indexes for other collections
     const collections = [
       { name: 'outlets', indexes: [
@@ -151,6 +160,10 @@ async function connectToMongo() {
         { key: { txRef: 1 }, options: { unique: true } },
         { key: { shopperId: 1 } },
         { key: { createdAt: 1 } }
+      ]},
+      { name: 'market_clusters', indexes: [
+        { key: { slug: 1 }, options: { unique: true } },
+        { key: { isActive: 1 } }
       ]}
     ];
 

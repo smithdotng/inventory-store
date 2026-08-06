@@ -1,13 +1,42 @@
 const { ObjectId } = require('mongodb');
 const path = require('path');
 const { getDb } = require('../config/db');
+const { BUSINESS_CATEGORIES } = require('../utils/categories');
+
+// Small helper shared by the two landing routes below — pulls a handful of
+// active market clusters (busiest first) to feature on the homepage.
+async function getFeaturedClusters() {
+  try {
+    const db = getDb();
+    if (!db) return [];
+    return await db.collection('market_clusters').aggregate([
+      { $match: { isActive: true } },
+      { $lookup: {
+        from: 'admins',
+        let: { cid: '$_id' },
+        pipeline: [{ $match: { $expr: { $eq: ['$clusterId', '$$cid'] } } }, { $count: 'n' }],
+        as: 'storeCount'
+      } },
+      { $addFields: { storeCount: { $ifNull: [{ $arrayElemAt: ['$storeCount.n', 0] }, 0] } } },
+      { $sort: { storeCount: -1, name: 1 } },
+      { $limit: 6 }
+    ]).toArray();
+  } catch (err) {
+    console.error('Error loading featured clusters:', err);
+    return [];
+  }
+}
 
 // GET /
-exports.getLanding = (req, res) => res.render('landing', { error: null, shopper: req.session.shopper || null });
+exports.getLanding = async (req, res) => {
+  const clusters = await getFeaturedClusters();
+  res.render('landing', { error: null, shopper: req.session.shopper || null, clusters, categories: BUSINESS_CATEGORIES });
+};
 
 // GET /landing
-exports.getLandingPage = (req, res) => {
-  res.render('landing', { admin: { currency: '$' }, shopper: req.session.shopper || null });
+exports.getLandingPage = async (req, res) => {
+  const clusters = await getFeaturedClusters();
+  res.render('landing', { admin: { currency: '$' }, shopper: req.session.shopper || null, clusters, categories: BUSINESS_CATEGORIES });
 };
 
 // GET /home redirect for non-auth

@@ -363,7 +363,11 @@ function buildInvoicePDF(doc, sale, admin, saleId) {
   const cW  = PW - 2 * M;
   const cur = admin.currency || '₦';
   const bk  = sale.bankDetails || {};
-  const invoiceRef  = `INV-${saleId.slice(-8).toUpperCase()}`;
+  // Paid orders read as a receipt (proof of payment); unpaid ones read as an
+  // invoice (a bill still awaiting payment).
+  const isPaid      = sale.paymentStatus === 'Paid';
+  const docLabel    = isPaid ? 'RECEIPT' : 'INVOICE';
+  const invoiceRef  = `${isPaid ? 'RCT' : 'INV'}-${saleId.slice(-8).toUpperCase()}`;
   const invoiceDate = new Date(sale.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
   const pad = 8; // table cell padding
 
@@ -410,13 +414,19 @@ function buildInvoicePDF(doc, sale, admin, saleId) {
   const rightX = M + leftW + 20;
   const rightW = PW - M - rightX;
 
-  // Left — large light "INVOICE" heading
-  doc.fontSize(30).font('Helvetica').fillColor(C.dark).text('INVOICE', M, y);
+  // Left — large light "INVOICE" / "RECEIPT" heading, with a green PAID
+  // badge next to it when the order has actually been paid for.
+  doc.fontSize(30).font('Helvetica').fillColor(C.dark).text(docLabel, M, y);
+  if (isPaid) {
+    const headingW = doc.widthOfString(docLabel, { fontSize: 30, font: 'Helvetica' });
+    doc.roundedRect(M + headingW + 14, y + 6, 52, 20, 4).fill('#1E8449');
+    doc.fontSize(9).font('Helvetica-Bold').fillColor(C.white).text('PAID', M + headingW + 14, y + 12, { width: 52, align: 'center' });
+  }
   y += 40;
 
   doc.fontSize(10).font('Helvetica').fillColor(C.text).text(`Date: ${invoiceDate}`, M, y);
   y += 16;
-  doc.text(`Invoice Number: ${invoiceRef}`, M, y);
+  doc.text(`${isPaid ? 'Receipt' : 'Invoice'} Number: ${invoiceRef}`, M, y);
   y += 18;
 
   // Sale subject / description bold in parentheses (if present)
@@ -426,7 +436,8 @@ function buildInvoicePDF(doc, sale, admin, saleId) {
     y += doc.heightOfString(subj, { width: leftW, fontSize: 10, font: 'Helvetica-Bold' }) + 10;
   }
 
-  doc.fontSize(10).font('Helvetica').fillColor(C.text).text('Due Date: Upon Receipt', M, y);
+  doc.fontSize(10).font('Helvetica').fillColor(C.text)
+     .text(isPaid ? `Payment Status: Paid${sale.paymentMethod ? ' via ' + sale.paymentMethod : ''}` : 'Due Date: Upon Receipt', M, y);
   y += 16;
 
   // Right — "Bill To:" plain, no box
@@ -531,7 +542,7 @@ function buildInvoicePDF(doc, sale, admin, saleId) {
   // ── TOTAL AMOUNT DUE (with amount in words) ────────────────────────────────
   const words    = numToWords(Math.round(parseFloat(sale.totalAmount) || 0));
   const curName  = cur === '₦' ? 'Naira' : 'Units';
-  const dueText  = `Total Amount Due: ${cur}${fmt(sale.totalAmount)} (${words} ${curName} Only)`;
+  const dueText  = `Total Amount ${isPaid ? 'Paid' : 'Due'}: ${cur}${fmt(sale.totalAmount)} (${words} ${curName} Only)`;
   doc.fontSize(10).font('Helvetica').fillColor(C.dark).text(dueText, M, y, { width: cW });
   y += doc.heightOfString(dueText, { width: cW, fontSize: 10, font: 'Helvetica' }) + 14;
 
@@ -542,15 +553,23 @@ function buildInvoicePDF(doc, sale, admin, saleId) {
     y += doc.heightOfString(noteText, { width: cW, fontSize: 10, font: 'Helvetica' }) + 16;
   }
 
-  // ── PAYMENT INSTRUCTIONS ──────────────────────────────────────────────────
+  // ── PAYMENT INSTRUCTIONS (unpaid) / THANK YOU (paid) ───────────────────────
   if (y > 650) { doc.addPage(); y = 50; }
-  underline('Payment Instructions', M, y, 10, 'Helvetica', C.dark);
-  y += 22;
+  if (isPaid) {
+    underline('Thank You', M, y, 10, 'Helvetica', C.dark);
+    y += 22;
+    doc.fontSize(10).font('Helvetica').fillColor(C.dark)
+       .text('Payment received in full. This receipt confirms your order has been paid for.', M, y, { width: cW });
+    y += 36;
+  } else {
+    underline('Payment Instructions', M, y, 10, 'Helvetica', C.dark);
+    y += 22;
 
-  doc.fontSize(10).font('Helvetica').fillColor(C.dark);
-  doc.text(`Bank: ${bk.bankName      || admin.bankName      || 'N/A'}`,             M, y); y += 16;
-  doc.text(`Account Name: ${bk.bankAccountName || admin.businessName || 'N/A'}`,    M, y); y += 16;
-  doc.text(`Account Number: ${bk.accountNumber || admin.accountNumber || 'N/A'}`,   M, y); y += 36;
+    doc.fontSize(10).font('Helvetica').fillColor(C.dark);
+    doc.text(`Bank: ${bk.bankName      || admin.bankName      || 'N/A'}`,             M, y); y += 16;
+    doc.text(`Account Name: ${bk.bankAccountName || admin.businessName || 'N/A'}`,    M, y); y += 16;
+    doc.text(`Account Number: ${bk.accountNumber || admin.accountNumber || 'N/A'}`,   M, y); y += 36;
+  }
 
   // ── SIGNATURE ─────────────────────────────────────────────────────────────
   doc.moveTo(M, y).lineTo(M + 110, y).strokeColor(C.border).lineWidth(0.5).stroke();
@@ -600,8 +619,9 @@ exports.getInvoiceDownload = async (req, res) => {
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
     if (!sale) return res.status(404).send('Sale not found');
 
-    const doc = new PDFDocument({ margin: 0, size: 'A4', bufferPages: true, info: { Title: `Invoice ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' } });
-    res.setHeader('Content-disposition', `attachment; filename="invoice-${saleId.slice(-8)}.pdf"`);
+    const docWord = sale.paymentStatus === 'Paid' ? 'Receipt' : 'Invoice';
+    const doc = new PDFDocument({ margin: 0, size: 'A4', bufferPages: true, info: { Title: `${docWord} ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' } });
+    res.setHeader('Content-disposition', `attachment; filename="${docWord.toLowerCase()}-${saleId.slice(-8)}.pdf"`);
     res.setHeader('Content-type', 'application/pdf');
     doc.pipe(res);
     buildInvoicePDF(doc, sale, admin, saleId);
@@ -636,11 +656,12 @@ exports.getShopperInvoice = async (req, res) => {
     if (!admin) return res.status(404).render('404', { message: 'Store not found' });
 
     const download = req.query.download === '1';
+    const docWord = sale.paymentStatus === 'Paid' ? 'Receipt' : 'Invoice';
     const doc = new PDFDocument({
       margin: 0, size: 'A4', bufferPages: true,
-      info: { Title: `Invoice ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' }
+      info: { Title: `${docWord} ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' }
     });
-    res.setHeader('Content-Disposition', `${download ? 'attachment' : 'inline'}; filename="invoice-${saleId.slice(-8)}.pdf"`);
+    res.setHeader('Content-Disposition', `${download ? 'attachment' : 'inline'}; filename="${docWord.toLowerCase()}-${saleId.slice(-8)}.pdf"`);
     res.setHeader('Content-Type', 'application/pdf');
     doc.pipe(res);
     buildInvoicePDF(doc, sale, admin, saleId);
@@ -679,8 +700,9 @@ exports.getInvoicePreview = async (req, res) => {
     const sale = await db.collection('sales').findOne({ _id: new ObjectId(saleId), adminId: admin._id });
     if (!sale) return res.status(404).send('Invoice not found');
 
-    const doc = new PDFDocument({ margin: 0, size: 'A4', bufferPages: true, info: { Title: `Invoice ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' } });
-    res.setHeader('Content-Disposition', `inline; filename="invoice-${saleId.slice(-8)}.pdf"`);
+    const docWord = sale.paymentStatus === 'Paid' ? 'Receipt' : 'Invoice';
+    const doc = new PDFDocument({ margin: 0, size: 'A4', bufferPages: true, info: { Title: `${docWord} ${saleId.slice(-8)}`, Author: admin.businessName || 'Shed' } });
+    res.setHeader('Content-Disposition', `inline; filename="${docWord.toLowerCase()}-${saleId.slice(-8)}.pdf"`);
     res.setHeader('Content-Type', 'application/pdf');
     doc.pipe(res);
     buildInvoicePDF(doc, sale, admin, saleId);

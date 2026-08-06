@@ -9,6 +9,7 @@ const { transporter } = require('../config/mailer');
 const countryCodes = require('country-code-lookup');
 const { countries } = require('country-data');
 const { isAccountLocked } = require('../utils/subscription');
+const { BUSINESS_CATEGORIES } = require('../utils/categories');
 
 // Helper: build public store view
 function buildPublicStore(admin) {
@@ -502,8 +503,15 @@ exports.getStoreConfirmation = async (req, res) => {
 
 // GET /search
 exports.getSearch = async (req, res) => {
+  const db = getDb();
+  const category = (req.query && req.query.category && BUSINESS_CATEGORIES.includes(req.query.category)) ? req.query.category : '';
+  const clusterSlug = (req.query && req.query.cluster) ? String(req.query.cluster).trim() : '';
+
+  // Filter dropdown data — cheap, small collections, safe to load on every
+  // search request regardless of whether a query was typed.
+  const clusters = await db.collection('market_clusters').find({ isActive: true }).sort({ name: 1 }).toArray();
+
   try {
-    const db = getDb();
     const query = (req.query && req.query.q) ? String(req.query.q).trim() : '';
     const type = (req.query && req.query.type) ? String(req.query.type) : 'all';
     const page = parseInt(req.query.page) || 1;
@@ -515,27 +523,61 @@ exports.getSearch = async (req, res) => {
     let totalStores = 0;
     let totalProducts = 0;
 
-    if (query && query.length > 0) {
-      if (type === 'all' || type === 'stores') {
-        const storeQuery = {
+    let selectedCluster = null;
+    if (clusterSlug) {
+      selectedCluster = clusters.find(c => c.slug === clusterSlug) || null;
+    }
+
+    // Category/cluster act as filters on top of (or instead of) a text
+    // search — browsing "/search?category=Electricals" with no query still
+    // returns every store in that category.
+    const hasFilters = query.length > 0 || category || selectedCluster;
+
+    if (hasFilters) {
+      const storeClauses = [];
+      if (query) {
+        storeClauses.push({
           $or: [
             { businessName: { $regex: query, $options: 'i' } },
             { username: { $regex: query, $options: 'i' } }
           ]
-        };
+        });
+      }
+      if (category) storeClauses.push({ category });
+      // Governance: filtering by cluster only surfaces verified stores —
+      // an unverified store's cluster pick is inert until superadmin approves it.
+      if (selectedCluster) storeClauses.push({ clusterId: selectedCluster._id, isVerified: true });
+      const storeQuery = storeClauses.length ? { $and: storeClauses } : {};
+
+      if (type === 'all' || type === 'stores') {
         totalStores = await db.collection('admins').countDocuments(storeQuery);
         stores = await db.collection('admins').find(storeQuery)
-          .project({ businessName: 1, username: 1, logo: 1, description: 1, country: 1 })
+          .project({ businessName: 1, username: 1, logo: 1, description: 1, country: 1, category: 1, isVerified: 1 })
           .skip(skip).limit(limit).toArray();
       }
 
       if (type === 'all' || type === 'products') {
-        const productQuery = {
-          $or: [
-            { name: { $regex: query, $options: 'i' } },
-            { description: { $regex: query, $options: 'i' } }
-          ]
-        };
+        const productClauses = [];
+        if (query) {
+          productClauses.push({
+            $or: [
+              { name: { $regex: query, $options: 'i' } },
+              { description: { $regex: query, $options: 'i' } }
+            ]
+          });
+        }
+        // Products don't carry the store's business category/cluster
+        // directly, so resolve matching store IDs first when either filter
+        // is active.
+        if (category || selectedCluster) {
+          const storeFilter = {};
+          if (category) storeFilter.category = category;
+          if (selectedCluster) { storeFilter.clusterId = selectedCluster._id; storeFilter.isVerified = true; }
+          const matchingStoreIds = await db.collection('admins').find(storeFilter).project({ _id: 1 }).toArray();
+          productClauses.push({ adminId: { $in: matchingStoreIds.map(s => s._id) } });
+        }
+        const productQuery = productClauses.length ? { $and: productClauses } : {};
+
         totalProducts = await db.collection('inventory').countDocuments(productQuery);
         products = await db.collection('inventory').aggregate([
           { $match: productQuery },
@@ -562,6 +604,10 @@ exports.getSearch = async (req, res) => {
       page,
       totalPages,
       error: null,
+      category,
+      categories: BUSINESS_CATEGORIES,
+      clusters,
+      clusterSlug,
       formatCurrency: (amount) => `₦${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
       formatDate: (date) => date ? new Date(date).toLocaleDateString() : '',
       truncateText: (text) => text ? (text.length > 100 ? text.substring(0, 100) + '...' : text) : '',
@@ -582,6 +628,10 @@ exports.getSearch = async (req, res) => {
       page: 1,
       totalPages: 1,
       error: 'An error occurred while searching. Please try again.',
+      category,
+      categories: BUSINESS_CATEGORIES,
+      clusters,
+      clusterSlug,
       formatCurrency: (amount) => `₦${parseFloat(amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2 })}`,
       formatDate: (date) => date ? new Date(date).toLocaleDateString() : '',
       truncateText: (text) => text ? (text.length > 100 ? text.substring(0, 100) + '...' : text) : ''

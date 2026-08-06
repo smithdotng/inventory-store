@@ -894,12 +894,6 @@
                 </div>
             </div>
             
-            <div class="mil-cart-container">
-                <button class="mil-cart-button" onclick="toggleCart()" title="View Cart">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="mil-cart-count" id="cartCount">0</span>
-                </button>
-            </div>
         </div>
         <!-- frame top end -->
 
@@ -909,10 +903,15 @@
                 <section class="mil-product">
                     <div class="container mil-p-60-30">
                         <!-- Back to Store Button -->
-                        <div class="mil-back-to-store">
+                        <div class="mil-back-to-store" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                             <a href="/store/<%= admin && admin.username || '' %>" class="mil-button mil-border">
                                 <i class="fas fa-arrow-left mil-mr-5"></i> Back to Store
                             </a>
+                            <% if (admin && admin.isVerified) { %>
+                                <span title="Verified by Shed" style="display:inline-flex;align-items:center;gap:5px;background:rgba(30,132,73,0.12);color:#1e8449;font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:20px;letter-spacing:.03em;">
+                                    <i class="fas fa-badge-check"></i> VERIFIED STORE
+                                </span>
+                            <% } %>
                         </div>
                         <% if (!product) { %>
                             <div class="mil-error-message">
@@ -967,51 +966,6 @@
                 </section>
             </div>
         </div>
-
-        <!-- Checkout Form -->
-        <div class="mil-overlay" id="overlay"></div>
-    <div class="mil-checkout-form" id="checkoutForm">
-        <h2 class="mil-mb-20">Checkout</h2>
-        <div class="mil-cart-summary" id="cartSummary">
-            <h3>Your Cart - <%= admin && admin.businessName || 'Shed Store' %></h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Qty</th>
-                        <th>Price</th>
-                        <th>Total</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="cartSummaryBody"></tbody>
-            </table>
-            <div class="mil-total" id="cartTotal"></div>
-        </div>
-        <form id="checkoutFormSubmit" action="/store/<%= admin && admin.username || '' %>/checkout" method="POST">
-            <div class="mil-form-group mil-mb-15">
-                <label for="customerName"><i class="fas fa-user"></i> Name</label>
-                <input type="text" id="customerName" name="customerName" class="mil-form-control" required>
-            </div>
-            <div class="mil-form-group mil-mb-15">
-                <label for="phoneNumber"><i class="fas fa-phone"></i> Phone Number</label>
-                <input type="tel" id="phoneNumber" name="phoneNumber" class="mil-form-control" required>
-            </div>
-            <div class="mil-form-group mil-mb-20">
-                <label for="email"><i class="fas fa-envelope"></i> Email</label>
-                <input type="email" id="email" name="email" class="mil-form-control" required>
-            </div>
-            <input type="hidden" id="cartItems" name="cartItems">
-            <div class="mil-flex mil-gap-15">
-                <button type="submit" class="mil-button mil-button-primary">
-                    <i class="fas fa-check"></i> Submit Order
-                </button>
-                <button type="button" class="mil-button mil-button-secondary" onclick="hideCheckoutForm()">
-                    <i class="fas fa-times"></i> Cancel
-                </button>
-            </div>
-        </form>
-    </div>
 
         <!-- Footer -->
         <footer class="mil-dark-bg">
@@ -1083,16 +1037,9 @@
     <script src="/js/main.js"></script>
 
     <script>
-        // Initialize cart from localStorage or empty array
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
         let currentSlide = 0;
         const currency = '<%= currency %>';
         const images = <%- product && product.images ? JSON.stringify(product.images) : '[]' %>;
-
-        // Save cart to localStorage
-        function saveCart() {
-            localStorage.setItem('cart', JSON.stringify(cart));
-        }
 
         const SHED_SHOPPER_LOGGED_IN = <%= (typeof shopper !== 'undefined' && shopper) ? 'true' : 'false' %>;
 
@@ -1128,149 +1075,6 @@
             }
         }
 
-        function formatCurrency(value) {
-            return parseFloat(value).toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
-        }
-
-        function addToCart(itemId, itemName, itemCost, maxStock, button) {
-            const quantityInput = document.querySelector('.mil-quantity-input');
-            const quantity = parseInt(quantityInput.value);
-
-            if (isNaN(quantity) || quantity <= 0 || quantity > maxStock) {
-                alert('Please enter a valid quantity within available stock.');
-                return;
-            }
-
-            const existingItemIndex = cart.findIndex(item => item.id === itemId);
-            if (existingItemIndex !== -1) {
-                cart.splice(existingItemIndex, 1);
-                button.classList.remove('mil-added');
-                button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
-                button.style.backgroundColor = '';
-            } else {
-                cart.push({
-                    id: itemId,
-                    name: itemName,
-                    cost: itemCost,
-                    quantity: quantity,
-                    image: images[0] || ''
-                });
-                button.classList.add('mil-added');
-                button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
-                button.style.backgroundColor = '#dc3545';
-            }
-            saveCart();
-            updateCartCount();
-            updateCartSummary();
-        }
-
-        function removeFromCart(itemId) {
-            cart = cart.filter(item => item.id !== itemId);
-            saveCart();
-            updateCartCount();
-            updateCartSummary();
-            initializeButtonStates();
-            if (cart.length === 0) {
-                hideCheckoutForm();
-                alert('Your cart is now empty.');
-            }
-        }
-
-        function updateCartCount() {
-            const cartCount = document.getElementById('cartCount');
-            const itemCount = cart.reduce((total, item) => total + item.quantity, 0);
-            cartCount.textContent = itemCount;
-        }
-
-        function updateCartSummary() {
-            const cartSummaryBody = document.getElementById('cartSummaryBody');
-            const cartTotal = document.getElementById('cartTotal');
-            if (!cartSummaryBody || !cartTotal) return;
-
-            cartSummaryBody.innerHTML = cart.map(item => `
-                <tr>
-                    <td>${item.name}</td>
-                    <td>${item.quantity}</td>
-                    <td>${currency}${formatCurrency(item.cost)}</td>
-                    <td>${currency}${formatCurrency(item.cost * item.quantity)}</td>
-                    <td><button class="mil-delete-item" onclick="removeFromCart('${item.id}')"><i class="fas fa-trash"></i></button></td>
-                </tr>
-            `).join('');
-
-            const totalValue = cart.reduce((total, item) => total + item.cost * item.quantity, 0);
-            cartTotal.textContent = `Total: ${currency}${formatCurrency(totalValue)}`;
-        }
-
-        function initializeButtonStates() {
-            const button = document.querySelector('.mil-add-to-cart');
-            if (!button) return;
-            if (cart.some(cartItem => cartItem.id === '<%= product && product._id %>')) {
-                button.classList.add('mil-added');
-                button.innerHTML = '<i class="fas fa-trash mil-mr-5"></i> Remove from Cart';
-                button.style.backgroundColor = '#dc3545';
-            } else {
-                button.classList.remove('mil-added');
-                button.innerHTML = '<i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart';
-                button.style.backgroundColor = '';
-            }
-        }
-
-        function toggleCart() {
-            if (cart.length === 0) {
-                alert('Your cart is empty. Add items to proceed to checkout.');
-            } else {
-                showCheckoutForm();
-            }
-        }
-
-         function showCheckoutForm() {
-            if (cart.length === 0) {
-                alert('Please add items to your cart before checking out.');
-                return;
-            }
-            const cartItemsInput = document.getElementById('cartItems');
-            try {
-                if (!Array.isArray(cart) || !cart.every(item => item.id && item.name && item.cost && item.quantity)) {
-                    throw new Error('Invalid cart structure');
-                }
-                cartItemsInput.value = JSON.stringify(cart);
-            } catch (err) {
-                console.error('Error stringifying cart:', err);
-                alert('Error preparing cart data. Please try again.');
-                return;
-            }
-            updateCartSummary();
-            document.getElementById('overlay').classList.add('active');
-            document.getElementById('checkoutForm').classList.add('active');
-            
-            // Add smooth animation
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('#checkoutForm', 
-                    { opacity: 0, scale: 0.9, y: -20 },
-                    { opacity: 1, scale: 1, y: 0, duration: 0.3, ease: 'back.out(1.2)' }
-                );
-            }
-        }
-        
-        function hideCheckoutForm() {
-            if (typeof gsap !== 'undefined') {
-                gsap.to('#checkoutForm', {
-                    opacity: 0,
-                    scale: 0.9,
-                    y: -20,
-                    duration: 0.2,
-                    ease: 'power2.in',
-                    onComplete: function() {
-                        document.getElementById('overlay').classList.remove('active');
-                        document.getElementById('checkoutForm').classList.remove('active');
-                    }
-                });
-            } else {
-                document.getElementById('overlay').classList.remove('active');
-                document.getElementById('checkoutForm').classList.remove('active');
-            }
-        }
-           
 
         function changeSlide(direction) {
             const images = document.querySelectorAll('.mil-product-image');
@@ -1341,89 +1145,8 @@
             });
         }
 
-        // Initialize cart count, button states, and cart summary on page load
         window.addEventListener('load', () => {
-            updateCartCount();
-            initializeButtonStates();
-            updateCartSummary();
             updateThumbnailState();
-            // Ensure modal is hidden on load
-            document.getElementById('overlay').classList.remove('active');
-            document.getElementById('checkoutForm').classList.remove('active');
-        });
-
-        document.getElementById('checkoutFormSubmit').addEventListener('submit', async (e) => {
-            e.preventDefault();
-
-            const customerName = document.getElementById('customerName').value.trim();
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const cartItemsInput = document.getElementById('cartItems');
-
-            if (!customerName || !phoneNumber || !email) {
-                alert('Please fill in all required fields.');
-                return;
-            }
-
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-                alert('Please enter a valid email address.');
-                return;
-            }
-
-            if (!/[\d]{6,}/.test(phoneNumber)) {
-                alert('Please enter a valid phone number.');
-                return;
-            }
-
-            if (cart.length === 0) {
-                alert('Your cart is empty. Please add items before checking out.');
-                return;
-            }
-
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mil-mr-5"></i> Processing...';
-
-            try {
-                const payload = {
-                    customerName,
-                    phoneNumber,
-                    email,
-                    cartItems: cartItemsInput.value
-                };
-
-                const response = await fetch(e.target.action, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.error || `HTTP error! Status: ${response.status}`);
-                }
-
-                if (result.success && result.invoiceUrl) {
-                    cart = [];
-                    saveCart();
-                    updateCartCount();
-                    initializeButtonStates();
-                    updateCartSummary();
-                    window.location.href = result.invoiceUrl;
-                } else {
-                    throw new Error(result.error || 'Invalid server response');
-                }
-            } catch (error) {
-                console.error('Checkout error:', error.message, error.stack);
-                alert(`Error submitting order: ${error.message}. Please try again or contact support.`);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Submit Order';
-            }
         });
 
         // Subscription Form Handling

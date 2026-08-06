@@ -124,8 +124,18 @@
           <% } else { %>
             <div class="profile-logo-placeholder"><i class="fas fa-store"></i></div>
           <% } %>
-          <h3><%= admin.businessName || 'Your Business' %></h3>
+          <h3>
+            <%= admin.businessName || 'Your Business' %>
+            <% if (admin.isVerified) { %>
+              <i class="fas fa-badge-check" title="Verified by Shed" style="color:#1e8449;font-size:0.9rem;"></i>
+            <% } %>
+          </h3>
           <p><%= admin.email %></p>
+          <% if (admin.clusterId && !admin.isVerified) { %>
+            <p style="font-size:0.78rem;color:#b7760d;background:#fff8e6;border-radius:6px;padding:6px 10px;margin-top:8px;">
+              <i class="fas fa-hourglass-half"></i> Your market cluster pick is pending verification — Shed reviews new stores before they appear publicly in a cluster.
+            </p>
+          <% } %>
 
           <div class="profile-info-row">
             <span class="label">Username</span>
@@ -142,6 +152,21 @@
           <div class="profile-info-row">
             <span class="label">Phone</span>
             <span class="val"><%= admin.phone || 'Not set' %></span>
+          </div>
+          <div class="profile-info-row">
+            <span class="label">Verification</span>
+            <span class="val"><%= admin.isVerified ? 'Verified ✓' : 'Not verified' %></span>
+          </div>
+          <div class="profile-info-row">
+            <span class="label">Category</span>
+            <span class="val"><%= admin.category || 'Not set' %></span>
+          </div>
+          <div class="profile-info-row">
+            <span class="label">Market Cluster</span>
+            <span class="val">
+              <% const myCluster = admin.clusterId && typeof clusters !== 'undefined' ? clusters.find(c => String(c._id) === String(admin.clusterId)) : null; %>
+              <%= myCluster ? myCluster.name : 'Not set' %>
+            </span>
           </div>
         </div>
       </div>
@@ -204,6 +229,28 @@
                 <input type="checkbox" name="publicAddress" id="publicAddress" <%= admin.publicAddress ? 'checked' : '' %>>
                 <label for="publicAddress">Make public</label>
               </div>
+            </div>
+          </div>
+
+          <div class="section-heading"><i class="fas fa-map-marker-alt"></i> Marketplace Listing</div>
+          <div class="form-two-col">
+            <div class="form-group">
+              <label>Business Category</label>
+              <select name="category" class="form-control">
+                <option value="">Select a category</option>
+                <% (typeof categories !== 'undefined' ? categories : []).forEach(cat => { %>
+                  <option value="<%= cat %>" <%= admin.category === cat ? 'selected' : '' %>><%= cat %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Market Cluster</label>
+              <select name="clusterId" class="form-control">
+                <option value="">Not part of a market cluster</option>
+                <% (typeof clusters !== 'undefined' ? clusters : []).forEach(c => { %>
+                  <option value="<%= c._id %>" <%= admin.clusterId && String(admin.clusterId) === String(c._id) ? 'selected' : '' %>><%= c.name %></option>
+                <% }) %>
+              </select>
             </div>
           </div>
 

@@ -29,6 +29,7 @@
     <a href="/superadmin/affiliates"><i class="fas fa-handshake"></i> Affiliates</a>
     <a href="/superadmin/outlets"><i class="fas fa-store"></i> All Outlets</a>
     <a href="/superadmin/ads"><i class="fas fa-ad"></i> Featured Ads</a>
+    <a href="/superadmin/clusters"><i class="fas fa-map-marker-alt"></i> Market Clusters</a>
     <a href="/superadmin/sent-messages"><i class="fas fa-envelope"></i> Sent Messages</a>
   </nav>
   <div class="sidebar-bottom">
@@ -73,6 +74,33 @@
         <p><%= escapeEjs(admin.businessName || 'N/A') %></p>
       </div>
       <a href="/superadmin/dashboard" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <!-- Verification -->
+    <div class="app-card" style="margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; background:<%= admin.isVerified ? 'rgba(30,132,73,0.12)' : 'rgba(0,0,0,0.06)' %>; color:<%= admin.isVerified ? '#1e8449' : '#999' %>;">
+          <i class="fas <%= admin.isVerified ? 'fa-badge-check' : 'fa-shield-halved' %>"></i>
+        </div>
+        <div>
+          <div style="font-weight:700; color:#0d0d1a;">
+            <%= admin.isVerified ? 'Verified store' : 'Not yet verified' %>
+          </div>
+          <div style="font-size:0.82rem; color:#888;">
+            <% if (admin.isVerified) { %>
+              Eligible to appear in its market cluster<% if (admin.verifiedAt) { %> · verified <%= new Date(admin.verifiedAt).toLocaleDateString() %><% } %>
+            <% } else { %>
+              Won't appear on public market cluster pages until verified, even if a cluster is selected on their profile.
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <form action="/superadmin/admin/<%= encodeURIComponent(admin.username) %>/verify" method="POST">
+        <button type="submit" class="<%= admin.isVerified ? 'btn-secondary-app' : 'btn-primary-app' %>">
+          <i class="fas <%= admin.isVerified ? 'fa-times' : 'fa-check' %>"></i>
+          <%= admin.isVerified ? 'Revoke Verification' : 'Verify Store' %>
+        </button>
+      </form>
     </div>
 
     <!-- Admin info -->

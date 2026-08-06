@@ -334,6 +334,99 @@
                 </section>
                 <!-- for shoppers end -->
 
+                <!-- market clusters + categories -->
+                <% const featuredClusters = typeof clusters !== 'undefined' ? clusters : []; %>
+                <% const allCategories = typeof categories !== 'undefined' ? categories : []; %>
+                <section>
+                    <div class="container mil-p-120-30">
+
+                        <!-- Intro / trust banner -->
+                        <div class="row mil-mb-60">
+                            <div class="col-lg-9">
+                                <span class="mil-suptitle mil-up" style="display:inline-block;background:rgba(0,139,139,0.1);color:#008B8B;padding:5px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;letter-spacing:.06em;margin-bottom:16px;">
+                                    <i class="fas fa-sparkles"></i> NEW ON SHED
+                                </span>
+                                <h2 class="mil-up mil-mb-15">Introducing <span class="mil-thin">Market Clusters.</span></h2>
+                                <p class="mil-up mil-light-soft mil-mb-30">
+                                    Shed now groups stores into established market areas — like Alaba International for electricals and electronics — so you can browse every store and product in that market in one place.
+                                    Every store inside a cluster is <strong style="color:#0d0d1a;">reviewed and verified by our team</strong> before it's listed, so you know exactly who you're buying from.
+                                </p>
+                                <div class="row mil-up">
+                                    <div class="col-md-4 mil-mb-20">
+                                        <h6 class="mil-mb-5" style="color:#0d0d1a;"><i class="fas fa-file-signature" style="color:#FF9800;"></i> 1. Store applies</h6>
+                                        <p class="mil-light-soft" style="font-size:0.85rem;">A store owner picks the cluster and category their business belongs to.</p>
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <h6 class="mil-mb-5" style="color:#0d0d1a;"><i class="fas fa-badge-check" style="color:#FF9800;"></i> 2. Shed verifies</h6>
+                                        <p class="mil-light-soft" style="font-size:0.85rem;">Our team reviews the store before it's allowed to appear publicly — that's the governance layer protecting shoppers.</p>
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <h6 class="mil-mb-5" style="color:#0d0d1a;"><i class="fas fa-store" style="color:#FF9800;"></i> 3. You shop with confidence</h6>
+                                        <p class="mil-light-soft" style="font-size:0.85rem;">Only verified stores show up in a cluster, so every purchase there is backed by that review.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cluster grid -->
+                        <% if (featuredClusters.length > 0) { %>
+                            <div class="row justify-content-between align-items-end mil-mb-30">
+                                <div class="col-lg-8">
+                                    <h5 class="mil-up" style="color:#0d0d1a;">Shop by Market Cluster</h5>
+                                </div>
+                                <div class="col-lg-3 mil-up" style="text-align:right;">
+                                    <a href="/clusters" class="mil-link mil-dark mil-arrow-place"><span>view all clusters</span></a>
+                                </div>
+                            </div>
+                            <div class="row mil-mb-60">
+                                <% featuredClusters.forEach(function(c) { %>
+                                    <div class="col-md-6 col-lg-4 mil-mb-30">
+                                        <a href="/cluster/<%= c.slug %>" class="mil-up" style="display:block; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); text-decoration:none; color:inherit; transition:transform .2s;">
+                                            <div style="height:110px; background:linear-gradient(135deg,#008B8B,#0d0d1a); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.85); font-size:1.8rem;">
+                                                <% if (c.image) { %>
+                                                    <img src="<%= c.image %>" alt="<%= c.name %>" style="width:100%;height:110px;object-fit:cover;">
+                                                <% } else { %>
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                <% } %>
+                                            </div>
+                                            <div style="padding:18px 20px;">
+                                                <h5 style="margin-bottom:6px;color:#0d0d1a;"><%= c.name %></h5>
+                                                <p class="mil-light-soft" style="font-size:0.85rem;margin-bottom:4px;"><%= c.storeCount %> verified store<%= c.storeCount === 1 ? '' : 's' %></p>
+                                                <p style="font-size:0.72rem;color:#1e8449;font-weight:700;"><i class="fas fa-badge-check"></i> Every store checked by Shed</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="row mil-mb-60">
+                                <div class="col-lg-8 mil-up">
+                                    <p class="mil-light-soft">Clusters are being verified and populated right now — check <a href="/clusters" style="color:#008B8B;">the full clusters page</a> for the latest.</p>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <!-- Category dropdown -->
+                        <% if (allCategories.length > 0) { %>
+                            <div class="row align-items-center mil-up" style="margin:0 0 20px;">
+                                <div class="col-lg-8" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                                    <h5 style="color:#0d0d1a; margin:0;">Or Browse by Category</h5>
+                                    <form action="/search" method="GET" onchange="this.submit()" style="display:inline-block;">
+                                        <select name="category"
+                                                style="padding:10px 16px; border-radius:8px; border:1px solid #e5e5e5; background:#fff; color:#333; font-family:'Jost',sans-serif; font-size:0.88rem; min-width:220px; cursor:pointer;">
+                                            <option value="">Select a category…</option>
+                                            <% allCategories.filter(cat => cat !== 'Other').forEach(function(cat) { %>
+                                                <option value="<%= cat %>"><%= cat %></option>
+                                            <% }) %>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </section>
+                <!-- market clusters + categories end -->
+
                 <!-- services -->
                 <section class="mil-dark-bg">
                     <div class="mi-invert-fix">

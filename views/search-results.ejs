@@ -805,6 +805,13 @@
         const safeTotalResults = parseInt(totalResults) || 0;
         const safeStores = stores || [];
         const safeProducts = products || [];
+        const safeCategory = typeof category !== 'undefined' ? category : '';
+        const safeClusterSlug = typeof clusterSlug !== 'undefined' ? clusterSlug : '';
+        const hasActiveSearch = (safeQuery && safeQuery.length > 0) || !!safeCategory || !!safeClusterSlug;
+        // Appended to internal tab/pagination links so switching tabs or
+        // pages never silently drops an active category/cluster filter.
+        const filterSuffix = (safeCategory ? '&category=' + encodeURIComponent(safeCategory) : '') +
+                              (safeClusterSlug ? '&cluster=' + encodeURIComponent(safeClusterSlug) : '');
     %>
 
     
@@ -866,30 +873,57 @@
                                 </div>
                                 
                                 <!-- Search Form in Banner -->
-                                <div class="mil-search-form-container" style="max-width: 600px; margin: 0 auto 40px;">
+                                <div class="mil-search-form-container" style="max-width: 600px; margin: 0 auto 24px;">
                                     <form class="mil-subscribe-form mil-up" style="background-color: beige;" action="/search" method="GET">
-                                        <input type="text" name="q" placeholder="Search for stores or products..." value="<%= safeQuery %>" required>
+                                        <% if (typeof safeType !== 'undefined') { %><input type="hidden" name="type" value="<%= safeType %>"><% } %>
+                                        <input type="text" name="q" placeholder="Search for stores or products..." value="<%= safeQuery %>">
                                         <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
                                     </form>
                                 </div>
-                                
-                                <% if (safeQuery && safeQuery.length > 0) { %>
+
+                                <!-- Category / Market Cluster Filters -->
+                                <div class="mil-up" style="max-width: 600px; margin: 0 auto 40px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
+                                    <form action="/search" method="GET" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center;">
+                                        <input type="hidden" name="q" value="<%= safeQuery %>">
+                                        <input type="hidden" name="type" value="<%= safeType %>">
+                                        <select name="category" onchange="this.form.submit()" style="padding:9px 12px;border-radius:6px;border:none;font-family:'Jost',sans-serif;font-size:0.85rem;">
+                                            <option value="">All Categories</option>
+                                            <% (typeof categories !== 'undefined' ? categories : []).forEach(function(cat) { %>
+                                                <option value="<%= cat %>" <%= (typeof category !== 'undefined' && category === cat) ? 'selected' : '' %>><%= cat %></option>
+                                            <% }) %>
+                                        </select>
+                                        <select name="cluster" onchange="this.form.submit()" style="padding:9px 12px;border-radius:6px;border:none;font-family:'Jost',sans-serif;font-size:0.85rem;">
+                                            <option value="">All Market Clusters</option>
+                                            <% (typeof clusters !== 'undefined' ? clusters : []).forEach(function(c) { %>
+                                                <option value="<%= c.slug %>" <%= (typeof clusterSlug !== 'undefined' && clusterSlug === c.slug) ? 'selected' : '' %>><%= c.name %></option>
+                                            <% }) %>
+                                        </select>
+                                        <% if ((typeof category !== 'undefined' && category) || (typeof clusterSlug !== 'undefined' && clusterSlug)) { %>
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>" style="color:rgba(255,255,255,0.7);font-size:0.8rem;text-decoration:underline;">Clear filters</a>
+                                        <% } %>
+                                    </form>
+                                    <a href="/clusters" style="color:#fff;font-size:0.82rem;text-decoration:none;background:rgba(255,255,255,0.12);padding:8px 14px;border-radius:20px;">
+                                        <i class="fas fa-map-marker-alt"></i> Browse Market Clusters
+                                    </a>
+                                </div>
+
+                                <% if (hasActiveSearch) { %>
                                     <div class="mil-search-tabs">
-                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=all" 
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=all<%= filterSuffix %>"
                                            class="mil-search-tab <%= safeType === 'all' ? 'active' : '' %>">
                                             All Results
                                             <% if (safeType === 'all') { %>
                                                 <span class="count"><%= safeTotalResults %></span>
                                             <% } %>
                                         </a>
-                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores" 
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores<%= filterSuffix %>"
                                            class="mil-search-tab <%= safeType === 'stores' ? 'active' : '' %>">
                                             Stores
                                             <% if (safeType === 'stores') { %>
                                                 <span class="count"><%= safeTotalStores %></span>
                                             <% } %>
                                         </a>
-                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products" 
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products<%= filterSuffix %>"
                                            class="mil-search-tab <%= safeType === 'products' ? 'active' : '' %>">
                                             Products
                                             <% if (safeType === 'products') { %>
@@ -913,11 +947,12 @@
                             </div>
                         <% } %>
 
-                        <% if (safeQuery && safeQuery.length > 0) { %>
+                        <% if (hasActiveSearch) { %>
                             <!-- Results Count -->
+                            <% const forText = safeQuery ? ` for "${safeQuery}"` : (safeCategory || safeClusterSlug ? ' matching your filters' : ''); %>
                             <div class="mil-results-count mil-up">
                                 <% if (safeType === 'all') { %>
-                                    Found <strong><%= safeTotalResults %></strong> results for "<%= safeQuery %>"
+                                    Found <strong><%= safeTotalResults %></strong> results<%= forText %>
                                     <% if (safeTotalStores > 0 && safeTotalProducts > 0) { %>
                                         (<%= safeTotalStores %> stores and <%= safeTotalProducts %> products)
                                     <% } else if (safeTotalStores > 0) { %>
@@ -926,12 +961,12 @@
                                         (<%= safeTotalProducts %> products)
                                     <% } %>
                                 <% } else if (safeType === 'stores') { %>
-                                    Found <strong><%= safeTotalStores %></strong> stores for "<%= safeQuery %>"
+                                    Found <strong><%= safeTotalStores %></strong> stores<%= forText %>
                                     <% if (safePage > 1) { %>
                                         (Page <%= safePage %> of <%= safeTotalPages %>)
                                     <% } %>
                                 <% } else if (safeType === 'products') { %>
-                                    Found <strong><%= safeTotalProducts %></strong> products for "<%= safeQuery %>"
+                                    Found <strong><%= safeTotalProducts %></strong> products<%= forText %>
                                     <% if (safePage > 1) { %>
                                         (Page <%= safePage %> of <%= safeTotalPages %>)
                                     <% } %>
@@ -965,7 +1000,12 @@
                                                                  class="mil-store-logo"
                                                                  onerror="this.src='/images/logo.png'">
                                                             <div class="mil-store-info">
-                                                                <h3 class="mil-store-name"><%= storeName %></h3>
+                                                                <h3 class="mil-store-name">
+                                                                    <%= storeName %>
+                                                                    <% if (store.isVerified) { %>
+                                                                        <i class="fas fa-badge-check" title="Verified by Shed" style="color:#1e8449;font-size:0.85rem;margin-left:4px;"></i>
+                                                                    <% } %>
+                                                                </h3>
                                                                 <p class="mil-store-username">@<%= storeUsername %></p>
                                                                 <p class="mil-store-description">
                                                                     <%= typeof truncateText === 'function' ? truncateText(storeDescription, 120) : storeDescription.substring(0, 120) + '...' %>
@@ -990,7 +1030,7 @@
                                                 <% }) %>
                                             </div>
                                             <% if (safeTotalStores > safeStores.length) { %>
-                                                <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores" class="mil-view-all-link mil-up">
+                                                <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores<%= filterSuffix %>" class="mil-view-all-link mil-up">
                                                     View all <%= safeTotalStores %> stores <i class="fas fa-arrow-right"></i>
                                                 </a>
                                             <% } %>
@@ -1072,7 +1112,7 @@
                                                 <% }) %>
                                             </div>
                                             <% if (safeTotalProducts > safeProducts.length) { %>
-                                                <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products" class="mil-view-all-link mil-up">
+                                                <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products<%= filterSuffix %>" class="mil-view-all-link mil-up">
                                                     View all <%= safeTotalProducts %> products <i class="fas fa-arrow-right"></i>
                                                 </a>
                                             <% } %>
@@ -1119,7 +1159,12 @@
                                                          class="mil-store-logo"
                                                          onerror="this.src='/images/logo.png'">
                                                     <div class="mil-store-info">
-                                                        <h3 class="mil-store-name"><%= storeName %></h3>
+                                                        <h3 class="mil-store-name">
+                                                            <%= storeName %>
+                                                            <% if (store.isVerified) { %>
+                                                                <i class="fas fa-badge-check" title="Verified by Shed" style="color:#1e8449;font-size:0.85rem;margin-left:4px;"></i>
+                                                            <% } %>
+                                                        </h3>
                                                         <p class="mil-store-username">@<%= storeUsername %></p>
                                                         <p class="mil-store-description">
                                                             <%= typeof truncateText === 'function' ? truncateText(storeDescription, 150) : storeDescription.substring(0, 150) + '...' %>
@@ -1256,7 +1301,7 @@
                             <% if ((safeType === 'stores' && safeTotalPages > 1) || (safeType === 'products' && safeTotalPages > 1)) { %>
                                 <div class="mil-pagination">
                                     <% if (safePage > 1) { %>
-                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= safePage - 1 %>" 
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= safePage - 1 %><%= filterSuffix %>" 
                                            class="mil-pagination-button mil-up">
                                             <i class="fas fa-chevron-left"></i> Previous
                                         </a>
@@ -1270,10 +1315,10 @@
                                         <% if (i === safePage) { %>
                                             <span class="mil-pagination-button active mil-up"><%= i %></span>
                                         <% } else if (i >= safePage - 2 && i <= safePage + 2) { %>
-                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= i %>" 
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= i %><%= filterSuffix %>" 
                                                class="mil-pagination-button mil-up"><%= i %></a>
                                         <% } else if (i === 1 || i === safeTotalPages) { %>
-                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= i %>" 
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= i %><%= filterSuffix %>" 
                                                class="mil-pagination-button mil-up"><%= i %></a>
                                         <% } else if (i === safePage - 3 || i === safePage + 3) { %>
                                             <span class="mil-pagination-button mil-up">...</span>
@@ -1281,7 +1326,7 @@
                                     <% } %>
 
                                     <% if (safePage < safeTotalPages) { %>
-                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= safePage + 1 %>" 
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= safePage + 1 %><%= filterSuffix %>" 
                                            class="mil-pagination-button mil-up">
                                             Next <i class="fas fa-chevron-right"></i>
                                         </a>

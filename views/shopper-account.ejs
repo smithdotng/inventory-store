@@ -74,8 +74,13 @@
             <div class="order-total"><%= o.currency %><%= Number(o.totalAmount || 0).toLocaleString('en-US', {minimumFractionDigits:2}) %></div>
           </div>
           <div class="order-invoice-links">
-            <a href="/shopper/orders/<%= o._id %>/invoice" target="_blank" rel="noopener"><i class="fas fa-file-invoice"></i> View Invoice</a>
-            <a href="/shopper/orders/<%= o._id %>/invoice?download=1"><i class="fas fa-download"></i> Download</a>
+            <% const isPaid = o.paymentStatus === 'Paid'; %>
+            <a href="/shopper/orders/<%= o._id %>/invoice" target="_blank" rel="noopener">
+              <i class="fas <%= isPaid ? 'fa-receipt' : 'fa-file-invoice' %>"></i> View <%= isPaid ? 'Receipt' : 'Invoice' %>
+            </a>
+            <a href="/shopper/orders/<%= o._id %>/invoice?download=1">
+              <i class="fas fa-download"></i> Download <%= isPaid ? 'Receipt' : 'Invoice' %>
+            </a>
           </div>
         </div>
       <% }); %>
