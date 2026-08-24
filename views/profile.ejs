@@ -340,7 +340,7 @@
       setTimeout(function() {
         if (cropper) cropper.destroy();
         cropper = new Cropper(imageToCrop, {
-          aspectRatio: 1, viewMode: 1, autoCropArea: 0.8,
+          aspectRatio: NaN, viewMode: 1, autoCropArea: 0.8,
           responsive: true, minContainerHeight: 300
         });
       }, 200);
@@ -350,7 +350,7 @@
 
   document.getElementById('cropButton').addEventListener('click', function() {
     if (cropper) {
-      const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
+      const canvas = cropper.getCroppedCanvas({ maxWidth: 600, maxHeight: 400 });
       const dataUrl = canvas.toDataURL('image/png');
       const preview = document.getElementById('imagePreview');
       if (preview) { preview.src = dataUrl; }

@@ -23,6 +23,7 @@ const storeRoutes       = require('./routes/store');
 const apiRoutes         = require('./routes/api');
 const blogRoutes        = require('./routes/blog');
 const miscRoutes        = require('./routes/misc');
+const buyerRoutes       = require('./routes/buyer');
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -76,6 +77,7 @@ app.use('/',           profileRoutes);
 app.use('/',           storeRoutes);
 app.use('/',           apiRoutes);
 app.use('/',           blogRoutes);
+app.use('/',           buyerRoutes);
 app.use('/',           miscRoutes);   // misc last — contains the * catch-all
 
 // ── Email broadcast utility route ─────────────────────────────────────────────

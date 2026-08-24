@@ -250,7 +250,8 @@ exports.getStore = async (req, res) => {
       .toArray();
 
     const host = process.env.BASE_URL || req.get('host') || 'localhost:3000';
-    const templateData = { admin, outlet: undefined, inventory, currency: admin.currency || '$', whatsappNumber, host, formatCurrency, getSocialHandle, featuredAds };
+    const buyerProfile = req.session.buyer || null;
+    const templateData = { admin, outlet: undefined, inventory, currency: admin.currency || '$', whatsappNumber, host, formatCurrency, getSocialHandle, featuredAds, buyerProfile };
 
     if (sale) {
       Object.assign(templateData, {
@@ -426,8 +427,18 @@ exports.postCheckout = async (req, res) => {
           transporter.sendMail(mailOptions).catch(err => console.error('Error sending notification email:', err));
         }
 
+        // Upsert buyer profile so order appears in their dashboard
+        await db.collection('buyer_profiles').updateOne(
+          { email: customer.email },
+          {
+            $set:     { name: customer.name, phone: customer.phone, lastPurchase: new Date() },
+            $setOnInsert: { createdAt: new Date() }
+          },
+          { upsert: true, session }
+        );
+
         const invoiceUrl = `/store/${adminUsername}/confirmation/${saleResult.insertedId}?token=${token}`;
-        return res.json({ success: true, invoiceUrl });
+        return res.json({ success: true, invoiceUrl, saleId: saleResult.insertedId.toString() });
       });
     } finally {
       await session.endSession();
