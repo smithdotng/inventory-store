@@ -1,35 +1,256 @@
-<!-- Shopper nav — small floating pill, safe to include on any public page
-     without fighting that page's own header markup/CSS. -->
+<!-- Shopper auth / cart controls.
+     Docks itself into `.shed-topbar-right` on pages that have a fixed topbar
+     (landing, storefront) so it never sits on top of the search / menu icons.
+     On pages with no topbar (cluster-index, cluster-view, search-results,
+     product) it falls back to the original floating pill. -->
 <style>
   #shedShopperBar {
-    position: fixed; top: 14px; right: 14px; z-index: 99999;
+    --sb-accent: #FF9800;
+    --sb-accent-dark: #F57C00;
     display: flex; align-items: center; gap: 8px;
-    background: rgba(13,13,26,0.92); backdrop-filter: blur(6px);
-    border-radius: 30px; padding: 7px 10px 7px 16px;
-    font-family: 'Jost', Arial, sans-serif; box-shadow: 0 4px 18px rgba(0,0,0,0.18);
+    font-family: 'Jost', Arial, sans-serif;
+    opacity: 0; transition: opacity .18s ease;
   }
-  #shedShopperBar a { color: #fff; text-decoration: none; font-size: 0.82rem; font-weight: 500; white-space: nowrap; }
-  #shedShopperBar a:hover { color: #FF9800; }
-  #shedShopperBar .sb-cart { position: relative; background: #FF9800; color: #fff !important; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  #shedShopperBar .sb-cart-count { position: absolute; top: -4px; right: -4px; background: #c0392b; color: #fff; font-size: 0.62rem; font-weight: 700; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
-  @media (max-width: 600px) { #shedShopperBar { top: auto; bottom: 14px; right: 14px; } }
+  #shedShopperBar[data-ready] { opacity: 1; }
+
+  /* ── floating pill (pages without a topbar) ── */
+  #shedShopperBar[data-mode="floating"] {
+    position: fixed; top: 14px; right: 14px; z-index: 99999;
+    background: rgba(13,13,26,0.92);
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 999px; padding: 6px 6px 6px 8px;
+    box-shadow: 0 6px 22px rgba(0,0,0,0.28);
+  }
+  /* ── docked into the site topbar ── */
+  #shedShopperBar[data-mode="docked"] {
+    position: static; background: none; border: 0;
+    box-shadow: none; padding: 0; gap: 10px;
+  }
+
+  /* ── shared button shapes ── */
+  #shedShopperBar .sb-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+    height: 34px; padding: 0 15px; border-radius: 999px;
+    font-size: 0.8rem; line-height: 1; white-space: nowrap;
+    text-decoration: none; border: 1px solid transparent;
+    cursor: pointer; transition: background-color .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+  }
+  #shedShopperBar .sb-btn:focus-visible,
+  #shedShopperBar .sb-icon-link:focus-visible,
+  #shedShopperBar .sb-cart:focus-visible,
+  #shedShopperBar .sb-menu a:focus-visible {
+    outline: 2px solid var(--sb-accent); outline-offset: 2px;
+  }
+
+  /* ghost: Log In */
+  #shedShopperBar .sb-ghost {
+    color: #fff; background: transparent;
+    border-color: rgba(255,255,255,0.30); font-weight: 500;
+  }
+  #shedShopperBar .sb-ghost:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.65); color: #fff; }
+
+  /* primary: Sign Up */
+  #shedShopperBar .sb-primary {
+    color: #fff; background: var(--sb-accent); font-weight: 600;
+    box-shadow: 0 2px 10px rgba(255,152,0,0.30);
+  }
+  #shedShopperBar .sb-primary:hover { background: var(--sb-accent-dark); color: #fff; box-shadow: 0 3px 14px rgba(255,152,0,0.42); }
+
+  /* compact single entry point on narrow screens */
+  #shedShopperBar .sb-icon-link {
+    display: none; width: 34px; height: 34px; border-radius: 50%;
+    align-items: center; justify-content: center;
+    color: #fff; text-decoration: none; font-size: 16px;
+    border: 1px solid rgba(255,255,255,0.30); transition: background-color .18s ease, border-color .18s ease;
+  }
+  #shedShopperBar .sb-icon-link:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.65); }
+
+  /* ── signed-in chip + dropdown ── */
+  #shedShopperBar .sb-account { position: relative; display: flex; }
+  #shedShopperBar .sb-user {
+    display: inline-flex; align-items: center; gap: 8px;
+    height: 34px; padding: 0 12px 0 4px; border-radius: 999px;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.14);
+    color: #fff; font-size: 0.8rem; font-weight: 500; line-height: 1;
+    cursor: pointer; transition: background-color .18s ease, border-color .18s ease;
+  }
+  #shedShopperBar .sb-user:hover,
+  #shedShopperBar .sb-user[aria-expanded="true"] { background: rgba(255,255,255,0.16); border-color: rgba(255,255,255,0.30); }
+  #shedShopperBar .sb-avatar {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #FFB74D, #F57C00);
+    color: #fff; font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+  }
+  #shedShopperBar .sb-caret { font-size: 0.62rem; opacity: 0.7; transition: transform .18s ease; }
+  #shedShopperBar .sb-user[aria-expanded="true"] .sb-caret { transform: rotate(180deg); }
+
+  #shedShopperBar .sb-menu {
+    position: absolute; top: calc(100% + 10px); right: 0; z-index: 100000;
+    min-width: 200px; max-width: calc(100vw - 20px); padding: 6px;
+    background: #16161f; border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px; box-shadow: 0 12px 34px rgba(0,0,0,0.45);
+    display: none;
+  }
+  #shedShopperBar .sb-menu[data-open] { display: block; }
+  #shedShopperBar .sb-menu a {
+    display: flex; align-items: center; gap: 11px;
+    padding: 10px 12px; border-radius: 8px;
+    color: #e9e9f2; font-size: 0.82rem; font-weight: 500; text-decoration: none; white-space: nowrap;
+    transition: background-color .15s ease, color .15s ease;
+  }
+  #shedShopperBar .sb-menu a i { width: 15px; text-align: center; opacity: 0.75; font-size: 0.85rem; }
+  #shedShopperBar .sb-menu a:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  #shedShopperBar .sb-menu .sb-signout { color: #ff9a8f; margin-top: 4px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.09); border-radius: 0 0 8px 8px; }
+  #shedShopperBar .sb-menu .sb-signout:hover { background: rgba(255,90,70,0.14); color: #ff7a6b; }
+  #shedShopperBar .sb-menu-name { padding: 8px 12px 10px; margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.09); }
+  #shedShopperBar .sb-menu-name b { display: block; color: #fff; font-size: 0.82rem; font-weight: 600; }
+  #shedShopperBar .sb-menu-name span { display: block; color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-top: 2px; }
+
+  /* ── cart ── */
+  #shedShopperBar .sb-cart {
+    position: relative; width: 34px; height: 34px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: var(--sb-accent); color: #fff !important; text-decoration: none; font-size: 14px;
+    transition: background-color .18s ease, transform .18s ease;
+  }
+  #shedShopperBar .sb-cart:hover { background: var(--sb-accent-dark); transform: translateY(-1px); }
+  /* inside the topbar the orange Sign-up pill is the accent, so the cart goes quiet */
+  #shedShopperBar[data-mode="docked"] .sb-cart {
+    background: transparent; border: 1px solid rgba(255,255,255,0.30); font-size: 15px;
+  }
+  #shedShopperBar[data-mode="docked"] .sb-cart:hover { background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.65); }
+  #shedShopperBar .sb-cart-count {
+    position: absolute; top: -3px; right: -3px;
+    background: #c0392b; color: #fff; font-size: 0.62rem; font-weight: 700;
+    min-width: 17px; height: 17px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center; padding: 0 4px;
+    border: 2px solid rgba(13,13,26,0.92);
+  }
+  #shedShopperBar[data-mode="docked"] .sb-cart-count { border-color: #0b0b0b; }
+
+  /* ── narrow screens ── */
+  @media (max-width: 700px) {
+    #shedShopperBar { gap: 7px; }
+    #shedShopperBar .sb-logged-out .sb-btn { display: none; }
+    #shedShopperBar .sb-logged-out .sb-icon-link { display: inline-flex; }
+    #shedShopperBar .sb-user { padding: 0 8px 0 4px; }
+    #shedShopperBar .sb-user .sb-name { display: none; }
+  }
+  @media (max-width: 600px) {
+    #shedShopperBar[data-mode="floating"] { top: auto; bottom: 14px; right: 14px; }
+    #shedShopperBar[data-mode="floating"] .sb-menu { top: auto; bottom: calc(100% + 10px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #shedShopperBar, #shedShopperBar * { transition: none !important; }
+  }
 </style>
-<div id="shedShopperBar">
+
+<div id="shedShopperBar" data-mode="floating">
   <% if (typeof shopper !== 'undefined' && shopper) { %>
-    <a href="/shopper/account"><i class="fas fa-user"></i> <%= shopper.firstName %></a>
-    <a href="/shopper/logout" title="Log out"><i class="fas fa-sign-out-alt"></i></a>
+    <div class="sb-account">
+      <button type="button" class="sb-user" id="sbUserBtn" aria-haspopup="true" aria-expanded="false" aria-controls="sbUserMenu">
+        <span class="sb-avatar" aria-hidden="true"><%= (shopper.firstName || '?').charAt(0) %></span>
+        <span class="sb-name"><%= shopper.firstName %></span>
+        <i class="fas fa-chevron-down sb-caret" aria-hidden="true"></i>
+      </button>
+      <div class="sb-menu" id="sbUserMenu" role="menu" aria-labelledby="sbUserBtn">
+        <div class="sb-menu-name">
+          <b><%= shopper.firstName %><%= shopper.lastName ? ' ' + shopper.lastName : '' %></b>
+          <% if (shopper.email) { %><span><%= shopper.email %></span><% } %>
+        </div>
+        <a href="/shopper/account" role="menuitem"><i class="fas fa-user" aria-hidden="true"></i> My account</a>
+        <a href="/shopper/account" role="menuitem"><i class="fas fa-box" aria-hidden="true"></i> My orders</a>
+        <a href="/cart" role="menuitem"><i class="fas fa-shopping-cart" aria-hidden="true"></i> My cart</a>
+        <a href="/shopper/logout" role="menuitem" class="sb-signout"><i class="fas fa-sign-out-alt" aria-hidden="true"></i> Log out</a>
+      </div>
+    </div>
   <% } else { %>
-    <a href="/shopper/login">Log In</a>
-    <a href="/shopper/register">Sign Up</a>
+    <div class="sb-logged-out" style="display:contents;">
+      <a href="/shopper/login" class="sb-btn sb-ghost">Log in</a>
+      <a href="/shopper/register" class="sb-btn sb-primary">Sign up</a>
+      <a href="/shopper/login" class="sb-icon-link" aria-label="Log in or sign up"><i class="fas fa-user" aria-hidden="true"></i></a>
+    </div>
   <% } %>
-  <a class="sb-cart" href="/cart" title="My Cart">
-    <i class="fas fa-shopping-cart"></i>
+  <a class="sb-cart" href="/cart" aria-label="My cart">
+    <i class="fas fa-shopping-cart" aria-hidden="true"></i>
     <span class="sb-cart-count" id="shedCartCount" style="display:none;">0</span>
   </a>
 </div>
+
 <script>
-  fetch('/cart/count').then(r => r.json()).then(d => {
-    const el = document.getElementById('shedCartCount');
-    if (d.count > 0) { el.textContent = d.count; el.style.display = 'flex'; }
-  }).catch(() => {});
+(function () {
+  if (window.__shedShopperBarInit) return;
+  window.__shedShopperBarInit = true;
+
+  function init() {
+    var bar = document.getElementById('shedShopperBar');
+    if (!bar) return;
+
+    // Dock into the page's own topbar when there is one, so the auth controls
+    // sit inline with search / menu instead of floating on top of them.
+    var slot = document.querySelector('.shed-topbar-right');
+    if (slot) {
+      slot.insertBefore(bar, slot.firstChild);
+      bar.setAttribute('data-mode', 'docked');
+    }
+    bar.setAttribute('data-ready', '');
+
+    // Account dropdown
+    var btn = document.getElementById('sbUserBtn');
+    var menu = document.getElementById('sbUserMenu');
+    if (btn && menu) {
+      var close = function (refocus) {
+        menu.removeAttribute('data-open');
+        btn.setAttribute('aria-expanded', 'false');
+        menu.style.cssText = '';
+        if (refocus) btn.focus();
+      };
+      // Anchored under the chip by default; if that would push it off-screen
+      // (narrow viewports), pin it to the viewport edge instead.
+      var place = function () {
+        menu.style.cssText = '';
+        var m = menu.getBoundingClientRect();
+        if (m.left >= 8 && m.right <= window.innerWidth - 8) return;
+        var b = btn.getBoundingClientRect();
+        menu.style.position = 'fixed';
+        menu.style.right = '10px';
+        menu.style.left = 'auto';
+        if (b.top > window.innerHeight / 2) {
+          menu.style.bottom = (window.innerHeight - b.top + 10) + 'px';
+          menu.style.top = 'auto';
+        } else {
+          menu.style.top = (b.bottom + 10) + 'px';
+          menu.style.bottom = 'auto';
+        }
+      };
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (menu.hasAttribute('data-open')) { close(false); return; }
+        menu.setAttribute('data-open', '');
+        btn.setAttribute('aria-expanded', 'true');
+        place();
+      });
+      window.addEventListener('resize', function () {
+        if (menu.hasAttribute('data-open')) close(false);
+      });
+      document.addEventListener('click', function (e) {
+        if (menu.hasAttribute('data-open') && !menu.contains(e.target) && e.target !== btn) close(false);
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && menu.hasAttribute('data-open')) close(true);
+      });
+    }
+
+    // Cart badge
+    fetch('/cart/count').then(function (r) { return r.json(); }).then(function (d) {
+      var el = document.getElementById('shedCartCount');
+      if (el && d && d.count > 0) { el.textContent = d.count > 99 ? '99+' : d.count; el.style.display = 'flex'; }
+    }).catch(function () {});
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
+})();
 </script>

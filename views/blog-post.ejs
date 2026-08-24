@@ -469,11 +469,42 @@
                 var openBtn  = document.getElementById('shedMenuOpen');
                 var closeBtn = document.getElementById('shedMenuClose');
                 var frame    = document.getElementById('shedMenuFrame');
-                if (openBtn)  openBtn.onclick  = function() { frame.classList.add('mil-active'); };
-                if (closeBtn) closeBtn.onclick = function() { frame.classList.remove('mil-active'); };
+                var setMenu = function(open) {
+                    if (!frame) return;
+                    frame.classList.toggle('mil-active', open);
+                    if (openBtn) {
+                        openBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                        openBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+                    }
+                };
+                if (openBtn) {
+                    openBtn.setAttribute('aria-controls', 'shedMenuFrame');
+                    setMenu(frame ? frame.classList.contains('mil-active') : false);
+                    // tapping the button again closes the menu
+                    openBtn.onclick = function() {
+                        setMenu(!frame.classList.contains('mil-active'));
+                    };
+                }
+                if (closeBtn) closeBtn.onclick = function() { setMenu(false); };
                 if (frame) frame.addEventListener('click', function(e) {
-                    if (e.target === frame) frame.classList.remove('mil-active');
+                    if (e.target === frame) setMenu(false);
                 });
+                if (!window.__shedMenuEscBound) {
+                    window.__shedMenuEscBound = true;
+                    document.addEventListener('keydown', function(e) {
+                        if (e.key !== 'Escape') return;
+                        var f = document.getElementById('shedMenuFrame');
+                        var b = document.getElementById('shedMenuOpen');
+                        if (f && f.classList.contains('mil-active')) {
+                            f.classList.remove('mil-active');
+                            if (b) {
+                                b.setAttribute('aria-expanded', 'false');
+                                b.setAttribute('aria-label', 'Open menu');
+                                b.focus();
+                            }
+                        }
+                    });
+                }
             }
             document.addEventListener('DOMContentLoaded', initMenu);
             if (window.swup) window.swup.on('contentReplaced', initMenu);
