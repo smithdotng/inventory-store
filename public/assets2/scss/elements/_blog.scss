@@ -1,0 +1,124 @@
+/*====================
+    Blog Area 
+=====================*/
+.blog {
+    &__thumb {
+        overflow: hidden;
+        a {
+            img {
+                width: 100%;
+                transition: 0.5s;
+            }
+        }
+    }
+    &__content {
+        margin-top: 29px;
+        .meta {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            li {
+                color: #252525;
+                display: inline-block;
+                font-size: 13px;
+                font-weight: 400;
+                letter-spacing: 0.2px;
+                list-style: outside none none;
+                margin-right: 23px;
+                position: relative;
+                a {
+                    color: #252525;
+                    transition: 0.4s;
+                    &:hover {
+                        color: $theme-color;
+                    }
+                }
+                &::before {
+                    content: "-";
+                    position: absolute;
+                    right: -17px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                }
+                &:last-child::before {
+                    content: none;
+                }
+            }
+        }
+        h3 {
+            font-size: 26px;
+            font-weight: 500;
+            line-height: 35px;
+            margin: 0 0 15px;
+            overflow-wrap: break-word;
+            margin-top: 10px;
+            
+            @media #{$lg-layout} {
+                font-size: 20px;
+                font-weight: 500;
+                line-height: 30px;
+            }
+            
+            @media #{$md-layout} {
+                font-size: 20px;
+                font-weight: 500;
+                line-height: 30px;
+            }
+
+            @media #{$sm-layout} {
+                font-size: 18px;
+                margin: 0 0 8px;
+            }
+            a {
+                color: #252525;
+                transition: 0.4s;
+                &:hover {
+                    color: $theme-color;
+                }
+            }
+        }
+        p {
+            margin-bottom: 15px;
+            font-size: 16px;
+            line-height: 29px;
+        }
+        a {
+            &.blog_btn {
+                color: #191919;
+                display: inline-block;
+                font-size: 16px;
+                font-weight: 500;
+                padding-left: 46px;
+                position: relative;
+                transition: 0.4s;
+                &::before {
+                    background: #454545 none repeat scroll 0 0;
+                    content: "";
+                    height: 1px;
+                    left: 0;
+                    position: absolute;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 30px;
+                    transition: 0.4s;
+                }
+                &:hover {
+                    color: $theme-color;
+                    &::before{
+                        background: $theme-color none repeat scroll 0 0;
+                        width: 35px;
+                    }
+                }
+            }
+        }
+    }
+    &:hover{
+        .blog__thumb{
+            a{
+                img{
+                    transform: scale(1.1);
+                }
+            }
+        }
+    }
+}

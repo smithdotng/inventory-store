@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:title" content="Shed | Sell Anywhere, Manage Everything" />
+    <meta property="og:description" content="Organize Your Business, Like a Well-Stocked Shed." />
+    <meta property="og:image" content="https://img.shed.ng/status.jpg" />
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Meta Pixel Code --><script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js'); fbq('init', '1780383529247116'); fbq('track', 'PageView');</script><noscript> <img height="1" width="1" src="https://www.facebook.com/tr?id=1780383529247116&ev=PageView&noscript=1"/></noscript><!-- End Meta Pixel Code -->
+
+    <!-- Inline CSS for Fixes and Search -->
+    <style>
+        /* Ashley animation fallbacks */
+        .mil-banner-content, .mil-content, .mil-services-grid { visibility: visible !important; opacity: 1 !important; }
+        .mil-up { transform: none !important; opacity: 1 !important; }
+        .mil-light-soft { display: block !important; visibility: visible !important; opacity: 1 !important; color: #fff !important; font-size: 16px !important; }
+        .mil-soft-bg .mil-light-soft { color: #333 !important; }
+        .mil-banner-content .row { display: flex; visibility: visible; opacity: 1; max-height: none; margin-top: 20px; }
+
+        /* ── Custom topbar ── */
+        .shed-topbar {
+            position: fixed; top: 0; left: 0; right: 0; height: 70px; z-index: 9000;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 40px;
+            background: rgba(0,0,0,0.82);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+        }
+        .shed-topbar-logo img { height: 40px; width: auto; display: block; }
+        .shed-topbar-right { display: flex; align-items: center; gap: 18px; }
+        .shed-icon-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 18px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
+        }
+        .shed-icon-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-topbar { padding: 0 20px; } }
+        /* Menu overlay header */
+        .shed-overlay-header {
+            position: absolute; top: 0; left: 0; right: 0; height: 70px; z-index: 1;
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+        }
+        .shed-overlay-header .shed-overlay-logo img { height: 40px; width: auto; display: block; }
+        .shed-close-btn {
+            background: none; border: none; cursor: pointer; padding: 6px;
+            color: #fff; font-size: 22px; line-height: 1; opacity: 0.85;
+            display: flex; align-items: center; transition: opacity 0.2s;
+        }
+        .shed-close-btn:hover { opacity: 1; }
+        @media (max-width: 768px) { .shed-overlay-header { padding: 0 20px; } }
+
+        /* Search overlay */
+        .mil-search-overlay {
+            display: none; position: fixed; inset: 0;
+            background: rgba(0,0,0,0.6); z-index: 9999;
+            align-items: flex-start; justify-content: center; padding-top: 80px;
+        }
+        .mil-search-overlay.active { display: flex; }
+        .mil-subscribe-form {
+            position: relative; display: flex; align-items: center;
+            background: #fff; border-radius: 8px; padding: 6px 10px;
+            width: min(600px, 92vw); box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+        }
+        .mil-subscribe-form input { flex: 1; border: none; background: transparent; padding: 8px 6px; font-size: 15px; outline: none; color: #222; }
+        .mil-subscribe-form input::placeholder { color: #aaa; }
+        .mil-subscribe-form .mil-search-submit { background: #008B8B; border: none; cursor: pointer; color: #fff; border-radius: 6px; padding: 7px 14px; font-size: 14px; display: flex; align-items: center; }
+        .mil-subscribe-form .mil-search-submit:hover { background: #006f6f; }
+        .mil-subscribe-form .mil-search-close-btn { background: none; border: none; cursor: pointer; color: #aaa; font-size: 18px; padding: 4px 8px; margin-right: 4px; line-height: 1; }
+        .mil-subscribe-form .mil-search-close-btn:hover { color: #333; }
+        .mil-search-results { position: absolute; top: 100%; left: 0; right: 0; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15); max-height: 400px; overflow-y: auto; z-index: 1000; display: none; border-radius: 0 0 5px 5px; }
+        .mil-search-results.active { display: block; }
+        .mil-search-result-item { display: flex; align-items: center; padding: 10px 15px; border-bottom: 1px solid #eee; text-decoration: none; color: #333; transition: background 0.2s; }
+        .mil-search-result-item:hover { background: #f5f5f5; }
+        .mil-search-result-item img { width: 40px; height: 40px; border-radius: 50%; margin-right: 10px; object-fit: cover; }
+        .mil-search-result-item div { flex: 1; }
+        .mil-search-result-item h6 { margin: 0; font-size: 14px; color: #333; font-weight: 600; }
+        .mil-search-result-item p { margin: 2px 0 0; font-size: 12px; color: #666; }
+        .mil-search-no-results { padding: 20px; text-align: center; color: #666; font-size: 14px; }
+        .mil-search-tabs { display: flex; border-bottom: 1px solid #eee; background: #f9f9f9; }
+        .mil-search-tab { flex: 1; padding: 10px; border: none; background: transparent; cursor: pointer; font-size: 14px; color: #666; transition: all 0.3s; }
+        .mil-search-tab:hover { background: #f0f0f0; }
+        .mil-search-tab.active { background: #fff; color: #008B8B; font-weight: 600; border-bottom: 2px solid #008B8B; }
+        .mil-search-section { display: none; }
+        .mil-search-section.active { display: block; }
+        .mil-search-section-header { padding: 8px 15px; background: #f5f5f5; border-bottom: 1px solid #eee; font-size: 12px; color: #666; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
+        .mil-search-arrow { color: #999; font-size: 14px; }
+
+        /* Footer */
+        footer.mil-dark-bg { padding-bottom: 0; }
+
+        /* Suppress li checkmarks (not part of Ashley design) */
+        li { padding-left: 0; }
+        li::before { content: none !important; }
+
+        /* Subscribe form in footer */
+        .mil-subscribe-container { position: relative; margin-top: 20px; }
+        .mil-subscribe-success { display: none; color: #4CAF50; font-size: 16px; padding: 10px; text-align: center; }
+        .mil-subscribe-error { display: none; color: #F44336; font-size: 14px; margin-bottom: 5px; }
+
+        /* Mobile banner fix: the hero content is bottom-anchored inside a
+           100vh section. On mobile the extra trial badge + 3 buttons make it
+           taller than the viewport, so its top edge overflows above the page
+           and gets cut off. Let the section grow instead of clipping, and
+           clear the fixed 90px mobile header bar. */
+        @media screen and (max-width: 1200px) {
+            .mil-banner { height: auto; min-height: 100vh; }
+            .mil-banner .mil-banner-content { padding-top: 130px; }
+        }
+    </style>
+
+    <title>Shed | Sell Anywhere. Manage Everything</title>
+</head>
+
+<body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
+
+    <!-- Custom topbar (outside mil-wrapper) -->
+    <div class="shed-topbar">
+        <a href="/" class="shed-topbar-logo"><img src="/images/logo.png" alt="Shed"></a>
+        <div class="shed-topbar-right">
+            <button class="shed-icon-btn" id="searchToggleBtn" aria-label="Search"><i class="fas fa-search"></i></button>
+            <button class="shed-icon-btn" id="shedMenuOpen" aria-label="Open menu"><i class="fas fa-bars"></i></button>
+        </div>
+    </div>
+
+    <!-- Search overlay (outside mil-wrapper) -->
+    <div class="mil-search-overlay" id="searchOverlay">
+        <form class="mil-subscribe-form" id="searchForm" action="/search" method="GET">
+            <i class="fas fa-search" style="color:#aaa; margin-right:8px; flex-shrink:0;"></i>
+            <input type="text" name="q" placeholder="Search for a Shed or Product" autocomplete="off" autofocus>
+            <button type="button" class="mil-search-close-btn" id="searchCloseBtn" aria-label="Close search">×</button>
+            <button type="submit" class="mil-search-submit"><i class="fas fa-arrow-right"></i></button>
+            <div class="mil-search-results"></div>
+        </form>
+    </div>
+
+    <!-- Menu overlay (outside mil-wrapper) -->
+    <div class="mil-menu-frame" id="shedMenuFrame">
+        <div class="shed-overlay-header">
+            <a href="/" class="shed-overlay-logo"><img src="/images/logo.png" alt="Shed"></a>
+            <button class="shed-close-btn" id="shedMenuClose" aria-label="Close menu"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="container">
+            <nav class="mil-main-menu" id="swupMenu">
+                <ul>
+                    <li class="mil-active"><a href="/">Home</a></li>
+                    <li><a href="/blog">Blog</a></li>
+                    <li><a href="/contact">Contact</a></li>
+                    <li><a href="/admin-login">Sign In</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2-1.2,1.2-3.1,0-4.2L106.1,41.9 z" />
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Сhoose</div>
+        </div>
+        <!-- cursor end -->
+
+        <!-- preloader -->
+        <div class="mil-preloader">
+            <div class="mil-preloader-animation">
+
+                <div class="mil-pos-abs mil-animation-2">
+                    <div class="mil-reveal-frame">
+                        <p class="mil-reveal-box"></p>
+                        <p class="mil-h3 mil-muted mil-thin">Shed.ng</p>
+                    </div>
+                </div>
+            </div>
+</div>
+        <!-- preloader end -->
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scrollbar progress end -->
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60"><span class="mil-thin">Sell Anywhere.</span><br>Manage Everything.</h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-30">Most small businesses are juggling stock, invoices, orders, and customers across too many apps—or worse, notebooks. Shed brings it all into one place — inventory, invoices, and your own online storefront — so you can stop firefighting and start growing.</p>
+                                        <p class="mil-light-soft mil-mb-60" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,152,0,0.12);border:1px solid rgba(255,152,0,0.35);border-radius:30px;padding:8px 18px;font-size:0.85rem;">
+                                            <i class="fas fa-gift" style="color:#FF9800;"></i> 14-day free trial — no card required to start
+                                        </p>
+                                    </div>
+                                </div>
+                                <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space" style="margin-bottom: 15px;">
+                                    <span>Start your free trial</span> <i class="fa-solid fa-circle-user"></i>
+                                </a>
+                                <a href="/admin-login" class="mil-button mil-muted mil-arrow-place mil-btn-space" style="background-color: darkcyan; margin-bottom: 15px;">
+                                    <span>Sign in to your Shed</span>
+                                </a>
+                                <a href="/shopper/register" class="mil-button mil-muted mil-arrow-place" style="background-color: #FF9800; margin-bottom: 15px;">
+                                    <span>Shop on Shed</span> <i class="fa-solid fa-cart-shopping"></i>
+                                </a>
+                                <div class="mil-circle-text">
+                                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 300 300" enable-background="new 0 0 300 300" xml:space="preserve" class="mil-ct-svg mil-rotate" data-value="360">
+                                        <defs>
+                                            <path id="circlePath" d="M 150, 150 m -60, 0 a 60,60 0 0,1 120,0 a 60,60 0 0,1 -120,0 " />
+                                        </defs>
+                                        <circle cx="150" cy="100" r="75" fill="none" />
+                                        <g>
+                                            <use xlink:href="#circlePath" fill="none" />
+                                            <text style="letter-spacing: 6.5px">
+                                                <textPath xlink:href="#circlePath">Scroll down - Scroll down - </textPath>
+                                            </text>
+                                        </g>
+                                    </svg>
+                                    <a href="#about" class="mil-button mil-arrow-place mil-icon-button mil-arrow-down"></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- about -->
+                <section id="about">
+                    <div class="container mil-p-120-30">
+                        <div class="row justify-content-between align-items-center">
+                            <div class="col-lg-6 col-xl-5">
+                                <div class="mil-mb-90">
+                                    <h2 class="mil-up mil-mb-60">Your Store. Your Stock.<br><span class="mil-thin">Your Dashboard.</span></h2>
+                                    <p class="mil-up mil-mb-30">Shed gives every business—retailer, wholesaler, or multi-outlet operation—a live view of their inventory, a ready-to-go online storefront, and the tools to sell, invoice, and track customers without switching apps.</p>
+                                    <p class="mil-up mil-mb-60">It's built for the trader who restocks twice a week, the shop owner taking orders on WhatsApp, and the entrepreneur who sells in-store and online at the same time. If you have something to sell, Shed has you covered.</p>
+                                    <div class="mil-about-quote">
+                                        <div class="mil-avatar mil-up">
+                                            <img src="android-chrome-512x512.png" alt="Shed">
+                                        </div>
+                                        <h6 class="mil-quote mil-up">One platform.<br><span class="mil-thin">Everything in its place.</span></h6>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="mil-about-photo mil-mb-90">
+                                    <div class="mil-lines-place"></div>
+                                    <div class="mil-up mil-img-frame" style="padding-bottom: 160%;">
+                                        <img src="images/promo.jpg" alt="img" class="mil-scale" data-value-1="1" data-value-2="1.2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- about end -->
+
+                <!-- for shoppers -->
+                <section id="shoppers">
+                    <div class="container mil-p-120-30">
+                        <div class="row justify-content-between align-items-center flex-row-reverse">
+                            <div class="col-lg-6 col-xl-5">
+                                <div class="mil-mb-90">
+                                    <h2 class="mil-up mil-mb-60">Every Shed. <br><span class="mil-thin">One Search. One Dashboard.</span></h2>
+                                    <p class="mil-up mil-mb-30">Shed.ng helps you find sheds — real stores — selling exactly what you're looking for. Search once, browse product from store after store, and check out from as many of them as you like in a single cart.</p>
+                                    <p class="mil-up mil-mb-60">Every order lands in your own shopper dashboard, so you always know what you bought, from which store, and where it stands — no digging through emails or WhatsApp chats to find a receipt.</p>
+                                    <div class="mil-up">
+                                        <a href="/shopper/register" class="mil-link mil-dark mil-arrow-place">
+                                            <span>create your free shopper account</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-lg-5">
+                                <div class="mil-about-photo mil-mb-90">
+                                    <div class="mil-lines-place"></div>
+                                    <div class="mil-up mil-img-frame" style="padding-bottom: 160%;">
+                                        <img src="images/promo.jpg" alt="Shop on Shed" class="mil-scale" data-value-1="1" data-value-2="1.2">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mil-mb-30">
+                            <div class="col-md-4 mil-mb-30">
+                                <h5 class="mil-mb-15"><i class="fas fa-magnifying-glass" style="color:#FF9800;"></i> Find what you need</h5>
+                                <p class="mil-light-soft">Search across every shed on the platform at once, instead of hunting store by store.</p>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <h5 class="mil-mb-15"><i class="fas fa-cart-shopping" style="color:#FF9800;"></i> One cart, every store</h5>
+                                <p class="mil-light-soft">Add items from different sheds to a single centralized cart and check out once.</p>
+                            </div>
+                            <div class="col-md-4 mil-mb-30">
+                                <h5 class="mil-mb-15"><i class="fas fa-receipt" style="color:#FF9800;"></i> Track every purchase</h5>
+                                <p class="mil-light-soft">Your dashboard keeps a running history of every order, from every store, in one place.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- for shoppers end -->
+
+                <!-- market clusters + categories -->
+                <% const featuredClusters = typeof clusters !== 'undefined' ? clusters : []; %>
+                <% const allCategories = typeof categories !== 'undefined' ? categories : []; %>
+                <section>
+                    <div class="container mil-p-120-30">
+
+                        <!-- Intro / trust banner -->
+                        <div class="row mil-mb-60">
+                            <div class="col-lg-9">
+                                <span class="mil-suptitle mil-up" style="display:inline-block;background:rgba(0,139,139,0.1);color:#008B8B;padding:5px 14px;border-radius:20px;font-size:0.75rem;font-weight:700;letter-spacing:.06em;margin-bottom:16px;">
+                                    <i class="fas fa-sparkles"></i> NEW ON SHED
+                                </span>
+                                <h2 class="mil-up mil-mb-15">Introducing <span class="mil-thin">Market Clusters.</span></h2>
+                                <p class="mil-up mil-light-soft mil-mb-30">
+                                    Shed now groups stores into established market areas — like Alaba International for electricals and electronics — so you can browse every store and product in that market in one place.
+                                    Every store inside a cluster is <strong style="color:#0d0d1a;">reviewed and verified by our team</strong> before it's listed, so you know exactly who you're buying from.
+                                </p>
+                                <div class="row mil-up">
+                                    <div class="col-md-4 mil-mb-20">
+                                        <h6 class="mil-mb-5" style="color:#0d0d1a;"><i class="fas fa-file-signature" style="color:#FF9800;"></i> 1. Store applies</h6>
+                                        <p class="mil-light-soft" style="font-size:0.85rem;">A store owner picks the cluster and category their business belongs to.</p>
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <h6 class="mil-mb-5" style="color:#0d0d1a;"><i class="fas fa-badge-check" style="color:#FF9800;"></i> 2. Shed verifies</h6>
+                                        <p class="mil-light-soft" style="font-size:0.85rem;">Our team reviews the store before it's allowed to appear publicly — that's the governance layer protecting shoppers.</p>
+                                    </div>
+                                    <div class="col-md-4 mil-mb-20">
+                                        <h6 class="mil-mb-5" style="color:#0d0d1a;"><i class="fas fa-store" style="color:#FF9800;"></i> 3. You shop with confidence</h6>
+                                        <p class="mil-light-soft" style="font-size:0.85rem;">Only verified stores show up in a cluster, so every purchase there is backed by that review.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cluster grid -->
+                        <% if (featuredClusters.length > 0) { %>
+                            <div class="row justify-content-between align-items-end mil-mb-30">
+                                <div class="col-lg-8">
+                                    <h5 class="mil-up" style="color:#0d0d1a;">Shop by Market Cluster</h5>
+                                </div>
+                                <div class="col-lg-3 mil-up" style="text-align:right;">
+                                    <a href="/clusters" class="mil-link mil-dark mil-arrow-place"><span>view all clusters</span></a>
+                                </div>
+                            </div>
+                            <div class="row mil-mb-60">
+                                <% featuredClusters.forEach(function(c) { %>
+                                    <div class="col-md-6 col-lg-4 mil-mb-30">
+                                        <a href="/cluster/<%= c.slug %>" class="mil-up" style="display:block; background:#fff; border-radius:14px; overflow:hidden; box-shadow:0 4px 20px rgba(0,0,0,0.06); text-decoration:none; color:inherit; transition:transform .2s;">
+                                            <div style="height:110px; background:linear-gradient(135deg,#008B8B,#0d0d1a); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.85); font-size:1.8rem;">
+                                                <% if (c.image) { %>
+                                                    <img src="<%= c.image %>" alt="<%= c.name %>" style="width:100%;height:110px;object-fit:cover;">
+                                                <% } else { %>
+                                                    <i class="fas fa-map-marker-alt"></i>
+                                                <% } %>
+                                            </div>
+                                            <div style="padding:18px 20px;">
+                                                <h5 style="margin-bottom:6px;color:#0d0d1a;"><%= c.name %></h5>
+                                                <p class="mil-light-soft" style="font-size:0.85rem;margin-bottom:4px;"><%= c.storeCount %> verified store<%= c.storeCount === 1 ? '' : 's' %></p>
+                                                <p style="font-size:0.72rem;color:#1e8449;font-weight:700;"><i class="fas fa-badge-check"></i> Every store checked by Shed</p>
+                                            </div>
+                                        </a>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="row mil-mb-60">
+                                <div class="col-lg-8 mil-up">
+                                    <p class="mil-light-soft">Clusters are being verified and populated right now — check <a href="/clusters" style="color:#008B8B;">the full clusters page</a> for the latest.</p>
+                                </div>
+                            </div>
+                        <% } %>
+
+                        <!-- Category dropdown -->
+                        <% if (allCategories.length > 0) { %>
+                            <div class="row align-items-center mil-up" style="margin:0 0 20px;">
+                                <div class="col-lg-8" style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">
+                                    <h5 style="color:#0d0d1a; margin:0;">Or Browse by Category</h5>
+                                    <form action="/search" method="GET" onchange="this.submit()" style="display:inline-block;">
+                                        <select name="category"
+                                                style="padding:10px 16px; border-radius:8px; border:1px solid #e5e5e5; background:#fff; color:#333; font-family:'Jost',sans-serif; font-size:0.88rem; min-width:220px; cursor:pointer;">
+                                            <option value="">Select a category…</option>
+                                            <% allCategories.filter(cat => cat !== 'Other').forEach(function(cat) { %>
+                                                <option value="<%= cat %>"><%= cat %></option>
+                                            <% }) %>
+                                        </select>
+                                    </form>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </section>
+                <!-- market clusters + categories end -->
+
+                <!-- services -->
+                <section class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="2.4" data-value-2="1.4" style="top: 300px; right: -100px"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="2" data-value-2="1" style="left: 150px"></div>
+                        </div>
+                        <div class="container mil-p-120-0">
+                            <div class="mil-mb-120">
+                                <div class="row">
+                                    <div class="col-lg-10">
+                                        <span class="mil-suptitle mil-light-soft mil-suptitle-right mil-up">Everything your business needs to sell, track, and grow—<br>no spreadsheets, no guesswork, no extra apps.</span>
+                                    </div>
+                                </div>
+                                <div class="mil-complex-text justify-content-center mil-up mil-mb-15">
+                                    <span class="mil-text-image"><img src="img/photo/2.jpg" alt="team"></span>
+                                    <h2 class="mil-h1 mil-muted mil-center">Join and <span class="mil-thin">Thrive</span></h2>
+                                </div>
+                                <div class="mil-complex-text justify-content-center mil-up">
+                                    <h2 class="mil-h1 mil-muted mil-center">with <span class="mil-thin">Shed.</span></h2>
+                                    <a href="/admin-register" class="mil-services-button mil-button mil-arrow-place"><span>Create your Shed</span></a>
+                                </div>
+                            </div>
+                            <div class="row mil-services-grid m-0">
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Seamless Inventory <br>Management</h5>
+                                        <p class="mil-light-soft mil-mb-30">Track stock levels, costs, and commissions in real-time—no more guesswork or lost notebooks.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Smart Point-of-Sale <br>(POS) Systems</h5>
+                                        <p class="mil-light-soft mil-mb-30">Process sales, generate invoices, and accept payments effortlessly—whether in-store or remotely.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Multi-Outlet &<br>Affiliate Support</h5>
+                                        <p class="mil-light-soft mil-mb-30">Manage multiple outlets, track commissions, and empower affiliates with a built-in referral program.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Automated Financial <br>Tracking</h5>
+                                        <p class="mil-light-soft mil-mb-30">Monitor sales, customer transactions, and pending payments—all in one dashboard.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row mil-services-grid m-0">
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Professional Invoices <br>& Receipts</h5>
+                                        <p class="mil-light-soft mil-mb-30">Generate and email branded PDF invoices with just a few clicks.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Customer & <br>(POS) Sales Analytics</h5>
+                                        <p class="mil-light-soft mil-mb-30">Identify top customers, track purchase history, and optimize your business strategy.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="#" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">Cloud-Based<br>& Secure</h5>
+                                        <p class="mil-light-soft mil-mb-30">Access your business data anytime, anywhere—with bank-grade security and automatic backups.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                                <div class="col-md-6 col-lg-3 mil-services-grid-item p-0">
+                                    <a href="/admin-register" class="mil-service-card-sm mil-up">
+                                        <h5 class="mil-muted mil-mb-30">14-Day Free <br>Trial</h5>
+                                        <p class="mil-light-soft mil-mb-30">Full access to inventory, invoicing and your storefront from day one — no card required to start.</p>
+                                        <div class="mil-button mil-icon-button-sm mil-arrow-place"></div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- services end -->
+
+                <!-- service -->
+                <section id="service">
+                    <div class="container mil-p-120-90">
+                        <div class="row justify-content-between">
+                            <div class="col-lg-4 mil-relative mil-mb-90">
+                                <h4 class="mil-up mil-mb-30">Up and running <span class="mil-thin">in minutes,</span><br>not <span class="mil-thin">days</span></h4>
+                                <p class="mil-up mil-mb-30">Sign up, add your products, and your storefront is live—before the day is over. No technical setup, no waiting. Shed is built to get out of your way so you can focus on selling.</p>
+                                <div class="mil-up">
+                                    <a href="/admin-register" class="mil-link mil-dark mil-arrow-place">
+                                        <span>start your 14-day free trial</span>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">14-Day Free Trial — No Card Needed</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Every new store gets full access — inventory, invoicing, and your storefront — for 14 days, completely free. You don't need to enter card details to start; we'll only ask for payment once your trial ends, and it's just ₦7,200/month after that.</p>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">One-Click Registration</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Sign up in seconds—no complicated forms or confusing steps. Just enter your details, and you're in!</p>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">Step-by-Step Store Configuration</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Our guided setup helps you:</p>
+                                        <ol>
+                                            <li>Add products (with images, prices & stock levels)</li>
+                                            <li>Set up payment methods (cash, bank transfer, etc.)</li>
+                                            <li>Customize your store's branding (logo, colors, currency)</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">Instant Access to Features</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">No waiting. Once you sign up, you can:</p>
+                                        <ol>
+                                            <li>Start adding products</li>
+                                            <li>Record sales immediately</li>
+                                            <li>Generate invoices in seconds</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">Online Functional Storefront</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Launch your e-commerce presence instantly and start receiving payments.</p>
+                                        <ol>
+                                            <li>Automatic store creation from your inventory</li>
+                                            <li>Customizable store URL (yourbusiness.shed.ng)</li>
+                                            <li>Integrated payment gateway for easy transactions</li>
+                                            <li>Customizable store design to match your brand</li>
+                                            <li>Mobile-responsive design</li>
+                                            <li>Secure checkout process</li>
+                                            <li>Real-time inventory synchronization</li>
+                                            <li>Customer account creation</li>
+                                            <li>Order tracking and notifications</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">Inventory Management</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Effortlessly manage your stock and pricing.</p>
+                                        <ol>
+                                            <li>Add new products with stock, cost, and commission</li>
+                                            <li>Update stock levels in real-time via sales</li>
+                                            <li>Edit product costs and commission rates</li>
+                                            <li>View inventory across admin and outlet levels</li>
+                                            <li>Dispense stock to outlets securely</li>
+                                            <li>Receive instant payments</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                                <div class="mil-accordion-group mil-up">
+                                    <div class="mil-accordion-menu">
+                                        <p class="mil-accordion-head">Point of Sale</p>
+                                        <div class="mil-symbol mil-h3">
+                                            <div class="mil-plus">+</div>
+                                            <div class="mil-minus">-</div>
+                                        </div>
+                                    </div>
+                                    <div class="mil-accordion-content">
+                                        <p class="mil-mb-30">Streamline sales with a powerful POS.</p>
+                                        <ol>
+                                            <li>Record sales with customer details</li>
+                                            <li>Support cash and mobile money payments</li>
+                                            <li>Update stock automatically on sale</li>
+                                            <li>Generate branded receipts</li>
+                                            <li>Track daily sales performance</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- service end -->
+
+                <!-- call to action -->
+                <section class="mil-soft-bg">
+                    <div class="container mil-p-120-120">
+                        <div class="row">
+                            <div class="col-lg-10">
+                                <span class="mil-suptitle mil-suptitle-right mil-suptitle-dark mil-up">
+                                    Creating your Shed account takes minutes. Add your products, launch your store, <br>and start selling — all before the day is over. 14 days free, no card required.
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mil-center">
+                            <h2 class="mil-up mil-mb-60">
+                                Your business deserves <span class="mil-thin">better tools.</span> <br>
+                                Get started with <span class="mil-thin">Shed today.</span>
+                            </h2>
+                            <div class="mil-up">
+                                <a href="/admin-register" class="mil-button mil-arrow-place mil-btn-space">
+                                    <span>Start your 14-day free trial</span>
+                                </a>
+                                <a href="/shopper/register" class="mil-button mil-arrow-place mil-btn-space" style="background-color: #FF9800; color:#fff;">
+                                    <span>Shop on Shed instead</span>
+                                </a>
+                                <a href="/blog" class="mil-button mil-arrow-place" style="background-color: transparent; border: 1px solid #333; color: #333; margin-top: 16px;">
+                                    <span>Learn more</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- call to action end -->
+
+                <!-- footer -->
+                <footer class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="container mil-p-120-60">
+                            <div class="row justify-content-between">
+                                <div class="col-md-4 col-lg-4 mil-mb-60">
+                                    <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                                    <p class="mil-light-soft mil-up mil-mb-30">Subscribe to our newsletter:</p>
+                                    
+                                    <div class="mil-subscribe-container">
+                                        <div class="mil-subscribe-error"></div>
+                                        
+                                        <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                            <input type="email" name="email" placeholder="What is your email address?" required>
+                                            <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                                        </form>
+                                        <div class="mil-subscribe-success">
+                                            <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-md-6 col-lg-9">
+                                            <div class="mil-vert-between">
+                                                <p class="mil-light-soft mil-up">© Copyright 2025 - Shed Factory Ltd. All Rights Reserved.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </footer>
+                <!-- footer end -->
+
+                <!-- hidden elements -->
+                <div class="mil-hidden-elements">
+                    <div class="mil-dodecahedron">
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                        <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+                    </svg>
+                    <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+                    </svg>
+                </div>
+                <!-- hidden elements end -->
+            </div>
+        </div>
+        <!-- content end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jQuery js -->
+    <script src="js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="js/main.js"></script>
+
+    <!-- Fallback for .row visibility -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const row = document.querySelector('.mil-banner-content .row');
+            if (row) {
+                row.style.display = 'flex';
+                row.style.visibility = 'visible';
+                row.style.opacity = '1';
+            }
+        });
+    </script>
+    <!-- Menu toggle -->
+    <!-- Search Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchOverlay  = document.getElementById('searchOverlay');
+            const searchToggleBtn = document.getElementById('searchToggleBtn');
+            const searchCloseBtn  = document.getElementById('searchCloseBtn');
+            const searchForm     = document.getElementById('searchForm');
+            const searchInput    = searchForm.querySelector('input[name="q"]');
+            const searchResults  = searchForm.querySelector('.mil-search-results');
+
+            function openSearch() {
+                searchOverlay.classList.add('active');
+                setTimeout(() => searchInput.focus(), 50);
+            }
+            function closeSearch() {
+                searchOverlay.classList.remove('active');
+                searchResults.classList.remove('active');
+                searchInput.value = '';
+            }
+
+            searchToggleBtn.addEventListener('click', openSearch);
+            searchCloseBtn.addEventListener('click', closeSearch);
+            searchOverlay.addEventListener('click', (e) => {
+                if (e.target === searchOverlay) closeSearch();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeSearch();
+            });
+
+            // Create search tabs
+            const createSearchTabs = () => {
+                const tabsHtml = `
+                    <div class="mil-search-tabs">
+                        <button class="mil-search-tab active" data-type="all">All</button>
+                        <button class="mil-search-tab" data-type="stores">Stores</button>
+                        <button class="mil-search-tab" data-type="products">Products</button>
+                    </div>
+                `;
+                searchResults.insertAdjacentHTML('afterbegin', tabsHtml);
+            };
+
+            // Initialize tabs
+            createSearchTabs();
+
+            // Debounce function
+            const debounce = (func, wait) => {
+                let timeout;
+                return (...args) => {
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(this, args), wait);
+                };
+            };
+
+            // Fetch data based on active tab
+            const fetchSearchResults = async (query, type) => {
+                try {
+                    const endpoint = `/api/search/suggestions?q=${encodeURIComponent(query)}&type=${type}`;
+                    const response = await fetch(endpoint);
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Error fetching suggestions:`, error);
+                    throw error;
+                }
+            };
+
+            // Display suggestion results
+            const displaySuggestions = (data, type) => {
+                const sectionId = `mil-search-${type}`;
+                let section = document.getElementById(sectionId);
+                
+                if (!section) {
+                    section = document.createElement('div');
+                    section.id = sectionId;
+                    section.className = `mil-search-section ${type === 'all' ? 'active' : ''}`;
+                    
+                    const header = document.createElement('div');
+                    header.className = 'mil-search-section-header';
+                    header.textContent = type === 'all' ? 'All Results' : 
+                                       type === 'stores' ? 'Stores' : 'Products';
+                    
+                    section.appendChild(header);
+                    searchResults.appendChild(section);
+                }
+                
+                section.innerHTML = ''; // Clear previous content
+                
+                // Re-add header
+                const header = document.createElement('div');
+                header.className = 'mil-search-section-header';
+                header.textContent = type === 'all' ? 'All Results' : 
+                                   type === 'stores' ? 'Stores' : 'Products';
+                section.appendChild(header);
+                
+                if (data.length === 0) {
+                    const noResults = document.createElement('div');
+                    noResults.className = 'mil-search-no-results';
+                    noResults.textContent = `No ${type} found`;
+                    section.appendChild(noResults);
+                    return;
+                }
+                
+                data.forEach(item => {
+                    const resultItem = document.createElement('a');
+                    resultItem.className = 'mil-search-result-item mil-up';
+                    
+                    if (type === 'stores' || (type === 'all' && item.type === 'store')) {
+                        resultItem.href = `/store/${item.username}`;
+                        resultItem.innerHTML = `
+                            ${item.logo ? `<img src="${item.logo}" alt="${item.businessName || 'Store'} logo">` : '<img src="/img/placeholder-store.png" alt="Store placeholder">'}
+                            <div>
+                                <h6>${item.businessName || 'Unnamed Store'}</h6>
+                                <p>@${item.username || 'unknown'}</p>
+                            </div>
+                            <div class="mil-search-arrow">→</div>
+                        `;
+                    } else if (type === 'products' || (type === 'all' && item.type === 'product')) {
+                        resultItem.href = `/store/${item.storeUsername}?product=${item._id}`;
+                        resultItem.innerHTML = `
+                            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">` : '<img src="/img/placeholder-product.png" alt="Product placeholder" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px; background: #f0f0f0;">'}
+                            <div style="flex: 1;">
+                                <h6>${item.name || 'Unnamed Product'}</h6>
+                                <p style="font-size: 12px; color: #666; margin: 2px 0;">₦${item.cost ? parseFloat(item.cost).toLocaleString('en-US') : 'Price not set'}</p>
+                                ${item.storeName ? `<p style="font-size: 11px; color: #888;">From: ${item.storeName}</p>` : ''}
+                            </div>
+                            <div class="mil-search-arrow">→</div>
+                        `;
+                    } else if (type === 'all') {
+                        // For "all" type, show mixed results
+                        resultItem.href = item.type === 'store' ? `/store/${item.username}` : `/store/${item.storeUsername}?product=${item._id}`;
+                        resultItem.innerHTML = `
+                            ${item.logo || item.image ? `<img src="${item.logo || item.image}" alt="${item.businessName || item.name}" style="width: 40px; height: 40px; object-fit: cover; border-radius: ${item.type === 'store' ? '50%' : '4px'};">` : 
+                            `<img src="${item.type === 'store' ? '/img/placeholder-store.png' : '/img/placeholder-product.png'}" alt="${item.type === 'store' ? 'Store' : 'Product'} placeholder" style="width: 40px; height: 40px; object-fit: cover; border-radius: ${item.type === 'store' ? '50%' : '4px'}; background: #f0f0f0;">`}
+                            <div style="flex: 1;">
+                                <h6>${item.businessName || item.name || 'Unnamed'}</h6>
+                                <p style="font-size: 12px; color: #666; margin: 2px 0;">
+                                    ${item.type === 'store' ? `@${item.username}` : `₦${item.cost ? parseFloat(item.cost).toLocaleString('en-US') : 'Price not set'}`}
+                                </p>
+                                ${item.type === 'product' && item.storeName ? `<p style="font-size: 11px; color: #888;">From: ${item.storeName}</p>` : ''}
+                            </div>
+                            <div class="mil-search-arrow">→</div>
+                        `;
+                    }
+                    
+                    section.appendChild(resultItem);
+                });
+                
+                // Add "View all results" link
+                const viewAllLink = document.createElement('a');
+                viewAllLink.href = `/search?q=${encodeURIComponent(query)}&type=${type}`;
+                viewAllLink.className = 'mil-search-result-item mil-up';
+                viewAllLink.style.justifyContent = 'center';
+                viewAllLink.style.fontWeight = '600';
+                viewAllLink.style.color = '#008B8B';
+                viewAllLink.innerHTML = `View all ${type} results →`;
+                section.appendChild(viewAllLink);
+            };
+
+            // Handle tab switching
+            searchResults.addEventListener('click', (e) => {
+                if (e.target.classList.contains('mil-search-tab')) {
+                    // Update active tab
+                    document.querySelectorAll('.mil-search-tab').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    
+                    // Show active section
+                    const type = e.target.dataset.type;
+                    document.querySelectorAll('.mil-search-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    const activeSection = document.getElementById(`mil-search-${type}`);
+                    if (activeSection) {
+                        activeSection.classList.add('active');
+                    }
+                    
+                    // If there's a search query, fetch suggestions for the new tab
+                    const query = searchInput.value.trim();
+                    if (query) {
+                        fetchAndShowSuggestions(query, type);
+                    }
+                }
+            });
+
+            // Main suggestion function
+            const fetchAndShowSuggestions = async (query, type = 'all') => {
+                if (!query || query.length < 2) {
+                    searchResults.classList.remove('active');
+                    return;
+                }
+                
+                try {
+                    const data = await fetchSearchResults(query, type);
+                    displaySuggestions(data, type);
+                    searchResults.classList.add('active');
+                } catch (error) {
+                    const sectionId = `mil-search-${type}`;
+                    let section = document.getElementById(sectionId);
+                    
+                    if (!section) {
+                        section = document.createElement('div');
+                        section.id = sectionId;
+                        section.className = `mil-search-section ${type === 'all' ? 'active' : ''}`;
+                        
+                        const header = document.createElement('div');
+                        header.className = 'mil-search-section-header';
+                        header.textContent = type === 'all' ? 'All Results' : 
+                                           type === 'stores' ? 'Stores' : 'Products';
+                        section.appendChild(header);
+                        
+                        searchResults.appendChild(section);
+                    }
+                    
+                    const errorMsg = document.createElement('div');
+                    errorMsg.className = 'mil-search-no-results';
+                    errorMsg.textContent = 'Error loading suggestions';
+                    section.appendChild(errorMsg);
+                    
+                    searchResults.classList.add('active');
+                }
+            };
+
+            // Debounced search for suggestions
+            const debouncedSuggestions = debounce((query) => {
+                const activeTab = document.querySelector('.mil-search-tab.active');
+                const type = activeTab ? activeTab.dataset.type : 'all';
+                fetchAndShowSuggestions(query, type);
+            }, 200);
+
+            searchInput.addEventListener('input', (e) => {
+                const query = e.target.value.trim();
+                debouncedSuggestions(query);
+            });
+
+            // Handle form submission - redirect to search page
+            searchForm.addEventListener('submit', (e) => {
+                const query = searchInput.value.trim();
+                if (!query) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                // Get active tab to determine type
+                const activeTab = document.querySelector('.mil-search-tab.active');
+                const type = activeTab ? activeTab.dataset.type : 'all';
+                
+                // Add type parameter to form
+                const typeInput = document.createElement('input');
+                typeInput.type = 'hidden';
+                typeInput.name = 'type';
+                typeInput.value = type;
+                searchForm.appendChild(typeInput);
+                
+                // Form will submit normally to /search?q=query&type=type
+            });
+
+            // Hide results when clicking outside the form (but inside the overlay)
+            searchOverlay.addEventListener('click', (e) => {
+                if (!searchForm.contains(e.target)) {
+                    searchResults.classList.remove('active');
+                }
+            });
+
+            // Show suggestions when input is focused (if there's a query)
+            searchInput.addEventListener('focus', () => {
+                const query = searchInput.value.trim();
+                if (query && query.length >= 2) {
+                    const activeTab = document.querySelector('.mil-search-tab.active');
+                    const type = activeTab ? activeTab.dataset.type : 'all';
+                    
+                    // Check if we already have suggestions for this type
+                    const section = document.getElementById(`mil-search-${type}`);
+                    if (section && section.children.length > 0) {
+                        searchResults.classList.add('active');
+                    } else if (query.length >= 2) {
+                        // Fetch fresh suggestions
+                        fetchAndShowSuggestions(query, type);
+                    }
+                }
+            });
+
+            // Keyboard navigation for suggestions
+            searchInput.addEventListener('keydown', (e) => {
+                if (!searchResults.classList.contains('active')) return;
+                
+                const items = searchResults.querySelectorAll('.mil-search-result-item');
+                if (items.length === 0) return;
+                
+                let currentIndex = -1;
+                items.forEach((item, index) => {
+                    if (item === document.activeElement) {
+                        currentIndex = index;
+                    }
+                });
+                
+                switch(e.key) {
+                    case 'ArrowDown':
+                        e.preventDefault();
+                        const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                        items[nextIndex].focus();
+                        break;
+                    case 'ArrowUp':
+                        e.preventDefault();
+                        const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                        items[prevIndex].focus();
+                        break;
+                    case 'Escape':
+                        searchResults.classList.remove('active');
+                        searchInput.focus();
+                        break;
+                }
+            });
+        });
+    </script>
+    <!-- Subscription Form Handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscribeForm = document.getElementById('subscribeForm');
+            const errorDiv = document.querySelector('.mil-subscribe-error');
+            const successDiv = document.querySelector('.mil-subscribe-success');
+            const formContainer = document.querySelector('.mil-subscribe-form');
+
+            subscribeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = subscribeForm.email.value.trim();
+                
+                // Clear previous messages
+                errorDiv.style.display = 'none';
+                errorDiv.textContent = '';
+                
+                // Basic validation
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    errorDiv.textContent = 'Please enter a valid email address';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const data = await response.json();
+                    
+                    if (response.ok) {
+                        // Hide form and show success message
+                        formContainer.style.display = 'none';
+                        successDiv.style.display = 'block';
+                        
+                        // Optionally reset the form
+                        subscribeForm.reset();
+                    } else {
+                        // Show error above the input field
+                        errorDiv.textContent = data.message || 'Subscription failed. Please try again.';
+                        errorDiv.style.display = 'block';
+                    }
+                } catch (error) {
+                    errorDiv.textContent = 'Network error. Please try again.';
+                    errorDiv.style.display = 'block';
+                    console.error('Subscription error:', error);
+                }
+            });
+        });
+    </script>
+    <!-- Service Worker -->
+    <script>
+        if (navigator.serviceWorker) {
+            navigator.serviceWorker.register('/sw.js', { scope: '/' });
+        }
+    </script>
+    <script>
+        (function() {
+            function initMenu() {
+                var openBtn  = document.getElementById('shedMenuOpen');
+                var closeBtn = document.getElementById('shedMenuClose');
+                var frame    = document.getElementById('shedMenuFrame');
+                if (openBtn)  openBtn.onclick  = function() { frame.classList.add('mil-active'); };
+                if (closeBtn) closeBtn.onclick = function() { frame.classList.remove('mil-active'); };
+                if (frame) frame.addEventListener('click', function(e) {
+                    if (e.target === frame) frame.classList.remove('mil-active');
+                });
+            }
+            document.addEventListener('DOMContentLoaded', initMenu);
+            if (window.swup) window.swup.on('contentReplaced', initMenu);
+        })();
+    </script>
+</body>
+
+</html>

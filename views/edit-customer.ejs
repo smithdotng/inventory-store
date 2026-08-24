@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Edit Customer</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'customers', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Edit Customer</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Edit Customer</h1>
+        <p>Update contact details for <%= customer.name %></p>
+      </div>
+      <a href="/customers" class="btn-secondary-app">
+        <i class="fas fa-arrow-left"></i> Back to Customers
+      </a>
+    </div>
+
+    <div style="max-width:560px;">
+      <div class="app-card">
+        <div class="app-card-title">Customer Information</div>
+        <form action="/update-customer/<%= customer._id %>" method="POST">
+          <div class="form-group">
+            <label>Full Name <span style="color:#c0392b">*</span></label>
+            <input type="text" name="name" class="form-control"
+                   value="<%= customer.name %>" placeholder="Customer Name" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" class="form-control"
+                   value="<%= customer.phone || '' %>" placeholder="0803 xxx xxxx">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" class="form-control"
+                   value="<%= customer.email || '' %>" placeholder="customer@example.com">
+          </div>
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn-primary-app">
+              <i class="fas fa-save"></i> Update Customer
+            </button>
+            <a href="/customers" class="btn-secondary-app">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
+</body>
+</html>

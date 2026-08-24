@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Customer Details</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'customers', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Customer Details</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <div class="page-header">
+      <div>
+        <h1>Customer Details</h1>
+        <p>Full information for this customer</p>
+      </div>
+      <a href="/customers" class="btn-secondary-app">
+        <i class="fas fa-arrow-left"></i> Back to Customers
+      </a>
+    </div>
+
+    <% if (customer) { %>
+      <div style="display:grid; grid-template-columns:1fr 2fr; gap:24px;">
+
+        <!-- Customer identity card -->
+        <div class="app-card" style="text-align:center; padding:32px 24px;">
+          <div style="width:80px; height:80px; border-radius:50%; background:rgba(0,139,139,0.1); display:flex; align-items:center; justify-content:center; margin:0 auto 16px; font-size:2rem; font-weight:700; color:#008B8B;">
+            <%= customer.name[0].toUpperCase() %>
+          </div>
+          <h3 style="font-size:1.2rem; font-weight:700; color:#0d0d1a; margin:0 0 6px;"><%= customer.name %></h3>
+          <% if (customer.email) { %>
+            <p style="color:#888; font-size:0.88rem; margin:0 0 4px;"><i class="fas fa-envelope" style="color:#008B8B;"></i> <%= customer.email %></p>
+          <% } %>
+          <% if (customer.phone) { %>
+            <p style="color:#888; font-size:0.88rem;"><i class="fas fa-phone" style="color:#008B8B;"></i> <%= customer.phone %></p>
+          <% } %>
+          <div style="margin-top:20px; display:flex; flex-direction:column; gap:8px;">
+            <a href="/edit-customer/<%= customer._id %>" class="btn-primary-app" style="justify-content:center;">
+              <i class="fas fa-edit"></i> Edit Customer
+            </a>
+            <form action="/delete-customer/<%= customer._id %>" method="POST"
+                  onsubmit="return confirm('Delete <%= customer.name %>? This cannot be undone.')">
+              <button type="submit" class="btn-danger-app" style="width:100%; justify-content:center;">
+                <i class="fas fa-trash"></i> Delete
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Details -->
+        <div>
+          <div class="app-card">
+            <div class="app-card-title">Contact Information</div>
+            <table style="width:100%; font-size:0.92rem;">
+              <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:12px 0; color:#999; width:150px;">Customer ID</td>
+                <td style="padding:12px 0; color:#333; font-family:monospace; font-size:0.83rem;"><%= customer._id %></td>
+              </tr>
+              <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:12px 0; color:#999;">Full Name</td>
+                <td style="padding:12px 0; color:#0d0d1a; font-weight:600;"><%= customer.name %></td>
+              </tr>
+              <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:12px 0; color:#999;">Email</td>
+                <td style="padding:12px 0; color:#333;"><%= customer.email || '—' %></td>
+              </tr>
+              <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:12px 0; color:#999;">Phone</td>
+                <td style="padding:12px 0; color:#333;"><%= customer.phone || '—' %></td>
+              </tr>
+              <% if (customer.address) { %>
+              <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:12px 0; color:#999;">Address</td>
+                <td style="padding:12px 0; color:#333;"><%= customer.address %></td>
+              </tr>
+              <% } %>
+              <% if (customer.notes) { %>
+              <tr style="border-bottom:1px solid #f5f5f5;">
+                <td style="padding:12px 0; color:#999;">Notes</td>
+                <td style="padding:12px 0; color:#333;"><%= customer.notes %></td>
+              </tr>
+              <% } %>
+              <tr>
+                <td style="padding:12px 0; color:#999;">Member Since</td>
+                <td style="padding:12px 0; color:#333;">
+                  <%= customer.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-GB', {day:'2-digit',month:'long',year:'numeric'}) : '—' %>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <% if (customer.totalValue) { %>
+          <div class="app-card" style="display:flex; align-items:center; gap:20px;">
+            <div style="width:50px; height:50px; border-radius:12px; background:rgba(0,139,139,0.1); display:flex; align-items:center; justify-content:center;">
+              <i class="fas fa-dollar-sign" style="color:#008B8B; font-size:1.2rem;"></i>
+            </div>
+            <div>
+              <div style="font-size:0.78rem; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Total Spent</div>
+              <div style="font-size:1.8rem; font-weight:700; color:#008B8B;">
+                <%= admin.currency %><%= formatCurrency(Number(customer.totalValue)) %>
+              </div>
+            </div>
+            <% if (customer.lastPurchaseDate) { %>
+            <div style="margin-left:auto; text-align:right;">
+              <div style="font-size:0.78rem; color:#999; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;">Last Purchase</div>
+              <div style="font-size:0.9rem; color:#444;">
+                <%= new Date(customer.lastPurchaseDate).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) %>
+              </div>
+            </div>
+            <% } %>
+          </div>
+          <% } %>
+        </div>
+
+      </div>
+    <% } else { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> Customer not found.</div>
+      <a href="/customers" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Back to Customers</a>
+    <% } %>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
+</body>
+</html>

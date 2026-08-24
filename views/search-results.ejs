@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="zxx">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta property="og:title" content="<%= query ? `Search Results for "${query}" - Shed` : 'Search - Shed' %>" />
+    <meta property="og:description" content="<%= query ? `Search results for "${query}" on Shed` : 'Search stores and products on Shed' %>" />
+    <meta property="og:image" content="https://img.shed.ng/status.jpg" />
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="/css/plugins/font-awesome.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome CDN -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Favicon -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Inline CSS for Search Results Page -->
+    <style>
+        /* Ensure .row is visible */
+        .mil-banner-content .row {
+            display: flex;
+            visibility: visible;
+            opacity: 1;
+            max-height: none;
+            margin-top: 20px;
+        }
+        .mil-banner-content .col-md-7.col-lg-5 {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+        }
+        .mil-banner-content .col-md-7.col-lg-5 p {
+            display: block;
+            visibility: visible;
+            opacity: 1;
+            color: #fff;
+        }
+        /* Adjust .mil-frame-top to be fixed at top */
+        .mil-frame-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 15px;
+            background: #fff;
+            height: 70px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+        }
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+        }
+        .mil-main-menu {
+            display: flex;
+            position: relative;
+        }
+        .mil-main-menu ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        .mil-main-menu ul li {
+            position: relative;
+            margin: 0 10px;
+        }
+        .mil-main-menu ul li a {
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 8px;
+            display: block;
+        }
+        .mil-main-menu ul li.mil-has-children > a::after {
+            content: '\f078';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            margin-left: 5px;
+            font-size: 10px;
+        }
+        .mil-main-menu ul li ul {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 180px;
+            flex-direction: column;
+            z-index: 1000;
+        }
+        .mil-main-menu ul li ul li {
+            margin: 0;
+        }
+        .mil-main-menu ul li ul li a {
+            padding: 8px 12px;
+            color: #333;
+            font-size: 14px;
+        }
+        .mil-main-menu ul li:hover > ul {
+            display: flex;
+        }
+        .mil-main-menu ul li ul li:hover a {
+            background: #f5f5f5;
+        }
+        .mil-menu-btn {
+            display: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #333;
+        }
+        /* Style mil-frame-bottom to scroll with the page */
+        .mil-frame-bottom {
+            background: #1a1a1a;
+            padding: 10px;
+            text-align: center;
+            color: #fff;
+        }
+        .mil-frame-bottom .mil-back-to-top a {
+            color: #fff;
+            text-decoration: none;
+        }
+        /* Search form and results */
+        .mil-subscribe-form {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background-color: beige;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .mil-subscribe-form input {
+            flex: 1;
+            border: none;
+            background-color: beige;
+            padding: 8px;
+            font-size: 14px;
+            outline: none;
+        }
+        .mil-subscribe-form button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* Search Tabs - Updated to match second template */
+        .mil-search-tabs {
+            display: flex;
+            border-bottom: 1px solid #eee;
+            background: #f9f9f9;
+            margin-bottom: 30px;
+        }
+        .mil-search-tab {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            text-align: center;
+        }
+        .mil-search-tab:hover {
+            background: #f0f0f0;
+            text-decoration: none;
+        }
+        .mil-search-tab.active {
+            background: #fff;
+            color: #008B8B;
+            font-weight: 600;
+            border-bottom: 2px solid #008B8B;
+        }
+        .mil-search-tab .count {
+            background: #e0e0e0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-left: 5px;
+            color: #666;
+        }
+        .mil-search-tab.active .count {
+            background: #008B8B;
+            color: white;
+        }
+        
+        /* Results Grid - Updated to match Ashley style */
+        .mil-results-grid {
+            display: grid;
+            gap: 30px;
+            margin-bottom: 60px;
+        }
+        
+        /* Store Card - Updated style */
+        .mil-store-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 1px solid #eee;
+        }
+        .mil-store-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border-color: #008B8B;
+            text-decoration: none;
+        }
+        .mil-store-card-header {
+            display: flex;
+            align-items: center;
+            padding: 25px;
+            background-color: #f9f9f9;
+        }
+        .mil-store-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 20px;
+            border: 3px solid white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .mil-store-info {
+            flex: 1;
+        }
+        .mil-store-name {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        .mil-store-username {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .mil-store-description {
+            font-size: 14px;
+            color: #555;
+            line-height: 1.5;
+        }
+        .mil-store-footer {
+            padding: 15px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: #666;
+            background: #fcfcfc;
+        }
+        .mil-store-location {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .mil-store-join-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Product Card - Updated style */
+        .mil-product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            border: 1px solid #eee;
+        }
+        .mil-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+            border-color: #008B8B;
+            text-decoration: none;
+        }
+        .mil-product-image-container {
+            height: 200px;
+            overflow: hidden;
+            background-color: #f9f9f9;
+            position: relative;
+        }
+        .mil-product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+        .mil-product-card:hover .mil-product-image {
+            transform: scale(1.05);
+        }
+        .mil-product-content {
+            padding: 25px;
+        }
+        .mil-product-store {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .mil-product-store-logo {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 8px;
+            border: 1px solid #eee;
+        }
+        .mil-product-store-name {
+            font-size: 12px;
+            color: #666;
+        }
+        .mil-product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .mil-product-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .mil-product-price {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #008B8B;
+            margin-bottom: 5px;
+        }
+        .mil-product-stock {
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mil-product-stock.in-stock {
+            color: #22c55e;
+        }
+        .mil-product-stock.out-of-stock {
+            color: #ef4444;
+        }
+        .mil-product-stock.low-stock {
+            color: #f59e0b;
+        }
+        .mil-product-footer {
+            padding: 15px 25px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            background: #fcfcfc;
+        }
+        .mil-product-category {
+            background-color: #f0f0f0;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            border: 1px solid #e0e0e0;
+            color: #666;
+        }
+        
+        /* No Results */
+        .mil-no-results {
+            text-align: center;
+            padding: 80px 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            margin: 40px 0;
+            border: 1px solid #eee;
+        }
+        .mil-no-results-icon {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 25px;
+        }
+        .mil-no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #666;
+            font-weight: 600;
+        }
+        .mil-no-results p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 16px;
+        }
+        
+        /* Results Count */
+        .mil-results-count {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        .mil-results-count strong {
+            color: #008B8B;
+            font-weight: 600;
+        }
+        
+        /* Pagination - Updated style */
+        .mil-pagination {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        .mil-pagination-button {
+            padding: 10px 16px;
+            border: 1px solid #eee;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #333;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .mil-pagination-button:hover:not(.disabled) {
+            background-color: #f9f9f9;
+            text-decoration: none;
+            border-color: #008B8B;
+        }
+        .mil-pagination-button.active {
+            background-color: #008B8B;
+            color: white;
+            border-color: #008B8B;
+        }
+        .mil-pagination-button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #eee;
+        }
+        
+        /* Grid Layouts */
+        .mil-stores-grid {
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        }
+        .mil-products-grid {
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        }
+        .mil-all-results-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 40px;
+        }
+        .mil-results-section {
+            margin-bottom: 40px;
+        }
+        .mil-section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #eee;
+        }
+        .mil-section-title i {
+            font-size: 1.2rem;
+            color: #008B8B;
+        }
+        .mil-view-all-link {
+            display: inline-block;
+            margin-top: 15px;
+            color: #008B8B;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: color 0.3s ease;
+        }
+        .mil-view-all-link:hover {
+            text-decoration: underline;
+            color: #006666;
+        }
+        
+        /* Error Message */
+        .mil-error-message {
+            background-color: #fee2e2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        /* Loading */
+        .mil-loading {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1rem;
+            color: #666;
+        }
+        .mil-loading-spinner {
+            border: 3px solid #f0f0f0;
+            border-top: 3px solid #008B8B;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: mil-spin 1s linear infinite;
+            margin: 0 auto 25px;
+        }
+        @keyframes mil-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Content padding to avoid overlap with fixed header */
+        .mil-content {
+            padding-top: 80px;
+            padding-bottom: 30px;
+        }
+        
+        /* Search Tips Section */
+        .mil-search-tips {
+            max-width: 600px;
+            margin: 40px auto;
+            text-align: left;
+        }
+        .mil-search-tips h4 {
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        .mil-search-tips ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .mil-search-tips li {
+            margin-bottom: 15px;
+            padding-left: 30px;
+            position: relative;
+            font-size: 14px;
+            color: #555;
+        }
+        .mil-search-tips li i {
+            position: absolute;
+            left: 0;
+            color: #008B8B;
+            font-size: 16px;
+        }
+        
+        /* Popular Tags */
+        .mil-popular-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        .mil-popular-tags a {
+            background: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            text-decoration: none;
+            color: #333;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+        }
+        .mil-popular-tags a:hover {
+            background: #008B8B;
+            color: white;
+            border-color: #008B8B;
+            transform: translateY(-2px);
+        }
+        
+        /* Responsive Design */
+        @media screen and (max-width: 991px) {
+            .mil-main-menu {
+                display: none;
+                width: 100%;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: #fff;
+                z-index: 999;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+            .mil-main-menu.active {
+                display: block;
+            }
+            .mil-main-menu ul {
+                flex-direction: column;
+                padding: 10px;
+            }
+            .mil-main-menu ul li {
+                margin: 5px 0;
+            }
+            .mil-main-menu ul li ul {
+                position: static;
+                box-shadow: none;
+                display: none;
+            }
+            .mil-main-menu ul li.mil-has-children.active > ul {
+                display: flex;
+            }
+            .mil-menu-btn {
+                display: block;
+            }
+            .mil-subscribe-form {
+                width: 100%;
+            }
+            
+            .mil-stores-grid {
+                grid-template-columns: 1fr;
+            }
+            .mil-products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+            .mil-store-card-header {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+            .mil-store-logo {
+                margin-right: 0;
+                margin-bottom: 15px;
+                width: 70px;
+                height: 70px;
+            }
+            .mil-store-footer {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+                padding: 15px 20px;
+            }
+        }
+        
+        @media screen and (max-width: 768px) {
+            .mil-content {
+                padding-top: 70px;
+            }
+            
+            .mil-search-tabs {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+            .mil-search-tab {
+                white-space: nowrap;
+                padding: 12px 15px;
+                font-size: 13px;
+            }
+            
+            .mil-products-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mil-section-title {
+                font-size: 1.3rem;
+            }
+            
+            .mil-pagination {
+                gap: 5px;
+            }
+            .mil-pagination-button {
+                padding: 8px 12px;
+                font-size: 13px;
+            }
+        }
+        
+        @media screen and (max-width: 480px) {
+            .mil-search-tab {
+                padding: 10px 12px;
+                font-size: 12px;
+            }
+            
+            .mil-no-results {
+                padding: 60px 15px;
+            }
+            
+            .mil-no-results-icon {
+                font-size: 3rem;
+            }
+            
+            .mil-no-results h3 {
+                font-size: 1.3rem;
+            }
+        }
+        
+        /* Add tick to all <li> elements */
+        li {
+            position: relative;
+            padding-left: 25px;
+        }
+        li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            color: #008B8B;
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 14px;
+        }
+        .mil-main-menu ul li::before,
+        .mil-footer-menu ul li::before,
+        .mil-social-icons li::before {
+            content: none;
+        }
+        .mil-menu-list li::before {
+            color: #fff;
+        }
+        
+        @media screen and (max-width: 991px) {
+            .mil-main-menu ul li {
+                padding-left: 25px;
+            }
+            .mil-main-menu ul li::before {
+                content: '\f00c';
+                font-family: 'Font Awesome 6 Free';
+                font-weight: 900;
+                color: #008B8B;
+                position: absolute;
+                left: 5px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 14px;
+            }
+            .mil-main-menu ul li ul li::before {
+                left: 15px;
+            }
+        }
+        
+        /* Highlight search terms */
+        mark {
+            background-color: #e0f7fa;
+            padding: 0 2px;
+            border-radius: 2px;
+            color: #008B8B;
+            font-weight: 500;
+        }
+    </style>
+
+    <title><%= query ? `Search Results for "${query}" - Shed` : 'Search - Shed' %></title>
+</head>
+
+<body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
+    <!-- Initialize error variable if not passed -->
+    <% if (typeof error === 'undefined') { %>
+        <% error = null; %>
+    <% } %>
+    
+    <!-- Initialize safe defaults -->
+    <% 
+        const safeQuery = query || '';
+        const safeType = type || 'all';
+        const safePage = parseInt(page) || 1;
+        const safeTotalPages = parseInt(totalPages) || 1;
+        const safeTotalStores = parseInt(totalStores) || 0;
+        const safeTotalProducts = parseInt(totalProducts) || 0;
+        const safeTotalResults = parseInt(totalResults) || 0;
+        const safeStores = stores || [];
+        const safeProducts = products || [];
+        const safeCategory = typeof category !== 'undefined' ? category : '';
+        const safeClusterSlug = typeof clusterSlug !== 'undefined' ? clusterSlug : '';
+        const hasActiveSearch = (safeQuery && safeQuery.length > 0) || !!safeCategory || !!safeClusterSlug;
+        // Appended to internal tab/pagination links so switching tabs or
+        // pages never silently drops an active category/cluster filter.
+        const filterSuffix = (safeCategory ? '&category=' + encodeURIComponent(safeCategory) : '') +
+                              (safeClusterSlug ? '&cluster=' + encodeURIComponent(safeClusterSlug) : '');
+    %>
+
+    
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scrollbar progress end -->
+
+        <!-- frame top (header) -->
+        <div class="mil-frame-top">
+            <a href="/" class="mil-logo"><img src="/images/logo.png" alt="Logo"></a>
+            <nav class="mil-main-menu" id="swupMenu">
+                <form class="mil-subscribe-form mil-up" id="searchForm" action="/search" method="GET">
+                    <input type="text" name="q" placeholder="Search for a Shed or Product" size="50" value="<%= safeQuery %>">
+                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                </form>
+            </nav>
+            <div class="mil-menu-btn">
+                <i class="fas fa-search"></i>
+            </div>
+        </div>
+        <!-- frame top end -->
+
+        <!-- content -->
+        <div class="mil-content">
+            <div id="swupMain" class="mil-main-transition">
+                <!-- banner -->
+                <section class="mil-banner mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="mil-animation-frame">
+                            <div class="mil-animation mil-position-1 mil-scale" data-value-1="7" data-value-2="1.6"></div>
+                            <div class="mil-animation mil-position-2 mil-scale" data-value-1="4" data-value-2="1"></div>
+                            <div class="mil-animation mil-position-3 mil-scale" data-value-1="1.2" data-value-2=".1"></div>
+                        </div>
+                        <div class="mil-gradient"></div>
+                        <div class="container">
+                            <div class="mil-banner-content mil-up">
+                                <h1 class="mil-muted mil-mb-60">
+                                    <span class="mil-thin">
+                                        <% if (safeQuery && safeQuery.length > 0) { %>
+                                            Search Results for "<%= safeQuery %>"
+                                        <% } else { %>
+                                            Search Shed
+                                        <% } %>
+                                    </span>
+                                </h1>
+                                <div class="row">
+                                    <div class="col-md-7 col-lg-5">
+                                        <p class="mil-light-soft mil-mb-60">
+                                            <% if (safeQuery && safeQuery.length > 0) { %>
+                                                Discover stores and products matching your search
+                                            <% } else { %>
+                                                Find stores, products, and services across our platform
+                                            <% } %>
+                                        </p>
+                                    </div>
+                                </div>
+                                
+                                <!-- Search Form in Banner -->
+                                <div class="mil-search-form-container" style="max-width: 600px; margin: 0 auto 24px;">
+                                    <form class="mil-subscribe-form mil-up" style="background-color: beige;" action="/search" method="GET">
+                                        <% if (typeof safeType !== 'undefined') { %><input type="hidden" name="type" value="<%= safeType %>"><% } %>
+                                        <input type="text" name="q" placeholder="Search for stores or products..." value="<%= safeQuery %>">
+                                        <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                                    </form>
+                                </div>
+
+                                <!-- Category / Market Cluster Filters -->
+                                <div class="mil-up" style="max-width: 600px; margin: 0 auto 40px; display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; align-items: center;">
+                                    <form action="/search" method="GET" style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; align-items:center;">
+                                        <input type="hidden" name="q" value="<%= safeQuery %>">
+                                        <input type="hidden" name="type" value="<%= safeType %>">
+                                        <select name="category" onchange="this.form.submit()" style="padding:9px 12px;border-radius:6px;border:none;font-family:'Jost',sans-serif;font-size:0.85rem;">
+                                            <option value="">All Categories</option>
+                                            <% (typeof categories !== 'undefined' ? categories : []).forEach(function(cat) { %>
+                                                <option value="<%= cat %>" <%= (typeof category !== 'undefined' && category === cat) ? 'selected' : '' %>><%= cat %></option>
+                                            <% }) %>
+                                        </select>
+                                        <select name="cluster" onchange="this.form.submit()" style="padding:9px 12px;border-radius:6px;border:none;font-family:'Jost',sans-serif;font-size:0.85rem;">
+                                            <option value="">All Market Clusters</option>
+                                            <% (typeof clusters !== 'undefined' ? clusters : []).forEach(function(c) { %>
+                                                <option value="<%= c.slug %>" <%= (typeof clusterSlug !== 'undefined' && clusterSlug === c.slug) ? 'selected' : '' %>><%= c.name %></option>
+                                            <% }) %>
+                                        </select>
+                                        <% if ((typeof category !== 'undefined' && category) || (typeof clusterSlug !== 'undefined' && clusterSlug)) { %>
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>" style="color:rgba(255,255,255,0.7);font-size:0.8rem;text-decoration:underline;">Clear filters</a>
+                                        <% } %>
+                                    </form>
+                                    <a href="/clusters" style="color:#fff;font-size:0.82rem;text-decoration:none;background:rgba(255,255,255,0.12);padding:8px 14px;border-radius:20px;">
+                                        <i class="fas fa-map-marker-alt"></i> Browse Market Clusters
+                                    </a>
+                                </div>
+
+                                <% if (hasActiveSearch) { %>
+                                    <div class="mil-search-tabs">
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=all<%= filterSuffix %>"
+                                           class="mil-search-tab <%= safeType === 'all' ? 'active' : '' %>">
+                                            All Results
+                                            <% if (safeType === 'all') { %>
+                                                <span class="count"><%= safeTotalResults %></span>
+                                            <% } %>
+                                        </a>
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores<%= filterSuffix %>"
+                                           class="mil-search-tab <%= safeType === 'stores' ? 'active' : '' %>">
+                                            Stores
+                                            <% if (safeType === 'stores') { %>
+                                                <span class="count"><%= safeTotalStores %></span>
+                                            <% } %>
+                                        </a>
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products<%= filterSuffix %>"
+                                           class="mil-search-tab <%= safeType === 'products' ? 'active' : '' %>">
+                                            Products
+                                            <% if (safeType === 'products') { %>
+                                                <span class="count"><%= safeTotalProducts %></span>
+                                            <% } %>
+                                        </a>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- banner end -->
+
+                <!-- search results -->
+                <section>
+                    <div class="container mil-p-120-30">
+                        <% if (error && typeof error === 'string' && error.trim().length > 0) { %>
+                            <div class="mil-error-message mil-up">
+                                <i class="fas fa-exclamation-circle"></i> <%= error %>
+                            </div>
+                        <% } %>
+
+                        <% if (hasActiveSearch) { %>
+                            <!-- Results Count -->
+                            <% const forText = safeQuery ? ` for "${safeQuery}"` : (safeCategory || safeClusterSlug ? ' matching your filters' : ''); %>
+                            <div class="mil-results-count mil-up">
+                                <% if (safeType === 'all') { %>
+                                    Found <strong><%= safeTotalResults %></strong> results<%= forText %>
+                                    <% if (safeTotalStores > 0 && safeTotalProducts > 0) { %>
+                                        (<%= safeTotalStores %> stores and <%= safeTotalProducts %> products)
+                                    <% } else if (safeTotalStores > 0) { %>
+                                        (<%= safeTotalStores %> stores)
+                                    <% } else if (safeTotalProducts > 0) { %>
+                                        (<%= safeTotalProducts %> products)
+                                    <% } %>
+                                <% } else if (safeType === 'stores') { %>
+                                    Found <strong><%= safeTotalStores %></strong> stores<%= forText %>
+                                    <% if (safePage > 1) { %>
+                                        (Page <%= safePage %> of <%= safeTotalPages %>)
+                                    <% } %>
+                                <% } else if (safeType === 'products') { %>
+                                    Found <strong><%= safeTotalProducts %></strong> products<%= forText %>
+                                    <% if (safePage > 1) { %>
+                                        (Page <%= safePage %> of <%= safeTotalPages %>)
+                                    <% } %>
+                                <% } %>
+                            </div>
+
+                            <!-- Results Content -->
+                            <% if (safeType === 'all') { %>
+                                <!-- All Results View -->
+                                <div class="mil-all-results-grid">
+                                    <% if (safeStores.length > 0) { %>
+                                        <div class="mil-results-section">
+                                            <h2 class="mil-section-title mil-up">
+                                                <i class="fas fa-store"></i> Stores (<%= safeStores.length %>)
+                                            </h2>
+                                            <div class="mil-results-grid mil-stores-grid">
+                                                <% safeStores.forEach(store => { %>
+                                                    <% 
+                                                        const storeId = store._id ? (typeof store._id === 'object' ? store._id.toString() : store._id) : 'unknown';
+                                                        const storeName = store.businessName || store.name || 'Unnamed Store';
+                                                        const storeUsername = store.username || 'unknown';
+                                                        const storeDescription = store.description || 'No description available';
+                                                        const storeLogo = store.logo || store.image || '/images/logo.png';
+                                                        const storeLocation = store.location || store.address || 'Location not specified';
+                                                        const storeCreatedAt = store.createdAt || new Date();
+                                                    %>
+                                                    <a href="/store/<%= storeUsername %>" class="mil-store-card mil-up">
+                                                        <div class="mil-store-card-header">
+                                                            <img src="<%= storeLogo %>" 
+                                                                 alt="<%= storeName %>" 
+                                                                 class="mil-store-logo"
+                                                                 onerror="this.src='/images/logo.png'">
+                                                            <div class="mil-store-info">
+                                                                <h3 class="mil-store-name">
+                                                                    <%= storeName %>
+                                                                    <% if (store.isVerified) { %>
+                                                                        <i class="fas fa-badge-check" title="Verified by Shed" style="color:#1e8449;font-size:0.85rem;margin-left:4px;"></i>
+                                                                    <% } %>
+                                                                </h3>
+                                                                <p class="mil-store-username">@<%= storeUsername %></p>
+                                                                <p class="mil-store-description">
+                                                                    <%= typeof truncateText === 'function' ? truncateText(storeDescription, 120) : storeDescription.substring(0, 120) + '...' %>
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mil-store-footer">
+                                                            <div class="mil-store-location">
+                                                                <i class="fas fa-map-marker-alt"></i>
+                                                                <%= storeLocation %>
+                                                            </div>
+                                                            <div class="mil-store-join-date">
+                                                                <i class="far fa-calendar"></i>
+                                                                <% if (typeof formatDate === 'function') { %>
+                                                                    <%= formatDate(storeCreatedAt) %>
+                                                                <% } else { %>
+                                                                    <%= new Date(storeCreatedAt).toLocaleDateString() %>
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                <% }) %>
+                                            </div>
+                                            <% if (safeTotalStores > safeStores.length) { %>
+                                                <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores<%= filterSuffix %>" class="mil-view-all-link mil-up">
+                                                    View all <%= safeTotalStores %> stores <i class="fas fa-arrow-right"></i>
+                                                </a>
+                                            <% } %>
+                                        </div>
+                                    <% } %>
+
+                                    <% if (safeProducts.length > 0) { %>
+                                        <div class="mil-results-section">
+                                            <h2 class="mil-section-title mil-up">
+                                                <i class="fas fa-box"></i> Products (<%= safeProducts.length %>)
+                                            </h2>
+                                            <div class="mil-results-grid mil-products-grid">
+                                                <% safeProducts.forEach(product => { %>
+                                                    <% 
+                                                        const productId = product._id ? (typeof product._id === 'object' ? product._id.toString() : product._id) : 'unknown';
+                                                        const productName = product.name || 'Unnamed Product';
+                                                        const productDescription = product.description || 'No description available';
+                                                        const productCost = product.cost || product.price || 0;
+                                                        const productStock = product.stock || 0;
+                                                        const productImage = product.image || (Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : '/images/placeholder-product.png');
+                                                        const productCategory = product.category || 'Uncategorized';
+                                                        const productCreatedAt = product.createdAt || new Date();
+                                                        
+                                                        const storeName = product.storeName || product.store?.businessName || 'Unknown Store';
+                                                        const storeUsername = product.storeUsername || product.store?.username || 'unknown';
+                                                        const storeLogo = product.storeLogo || product.store?.logo || '/images/logo.png';
+                                                    %>
+                                                    <a href="/store/<%= storeUsername %>?product=<%= productId %>" class="mil-product-card mil-up">
+                                                        <div class="mil-product-image-container">
+                                                            <img src="<%= productImage %>" 
+                                                                 alt="<%= productName %>" 
+                                                                 class="mil-product-image"
+                                                                 onerror="this.src='/images/placeholder-product.png'">
+                                                        </div>
+                                                        <div class="mil-product-content">
+                                                            <div class="mil-product-store">
+                                                                <img src="<%= storeLogo %>" 
+                                                                     alt="<%= storeName %>" 
+                                                                     class="mil-product-store-logo"
+                                                                     onerror="this.src='/images/logo.png'">
+                                                                <span class="mil-product-store-name"><%= storeName %></span>
+                                                            </div>
+                                                            <h3 class="mil-product-name"><%= productName %></h3>
+                                                            <p class="mil-product-description">
+                                                                <%= typeof truncateText === 'function' ? truncateText(productDescription, 100) : productDescription.substring(0, 100) + '...' %>
+                                                            </p>
+                                                            <div class="mil-product-price">
+                                                                <% if (typeof formatCurrency === 'function') { %>
+                                                                    <%= formatCurrency(productCost) %>
+                                                                <% } else { %>
+                                                                    ₦<%= parseFloat(productCost).toFixed(2) %>
+                                                                <% } %>
+                                                            </div>
+                                                            <div class="mil-product-stock <%= productStock > 10 ? 'in-stock' : productStock > 0 ? 'low-stock' : 'out-of-stock' %>">
+                                                                <i class="fas <%= productStock > 10 ? 'fa-check-circle' : productStock > 0 ? 'fa-exclamation-circle' : 'fa-times-circle' %>"></i>
+                                                                <% if (productStock > 10) { %>
+                                                                    In stock
+                                                                <% } else if (productStock > 0) { %>
+                                                                    Low stock (<%= productStock %> left)
+                                                                <% } else { %>
+                                                                    Out of stock
+                                                                <% } %>
+                                                            </div>
+                                                        </div>
+                                                        <div class="mil-product-footer">
+                                                            <span class="mil-product-category">
+                                                                <%= productCategory %>
+                                                            </span>
+                                                            <span>
+                                                                <i class="far fa-calendar"></i>
+                                                                <% if (typeof formatDate === 'function') { %>
+                                                                    <%= formatDate(productCreatedAt) %>
+                                                                <% } else { %>
+                                                                    <%= new Date(productCreatedAt).toLocaleDateString() %>
+                                                                <% } %>
+                                                            </span>
+                                                        </div>
+                                                    </a>
+                                                <% }) %>
+                                            </div>
+                                            <% if (safeTotalProducts > safeProducts.length) { %>
+                                                <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products<%= filterSuffix %>" class="mil-view-all-link mil-up">
+                                                    View all <%= safeTotalProducts %> products <i class="fas fa-arrow-right"></i>
+                                                </a>
+                                            <% } %>
+                                        </div>
+                                    <% } %>
+                                    
+                                    <% if (safeStores.length === 0 && safeProducts.length === 0) { %>
+                                        <div class="mil-no-results mil-up">
+                                            <div class="mil-no-results-icon">
+                                                <i class="fas fa-search"></i>
+                                            </div>
+                                            <h3>No results found</h3>
+                                            <p>We couldn't find any stores or products matching "<%= safeQuery %>"</p>
+                                            <div style="margin-top: 25px;">
+                                                <a href="/" class="mil-button mil-arrow-place" style="margin: 5px; display: inline-block;">
+                                                    <span><i class="fas fa-home"></i> Go to Homepage</span>
+                                                </a>
+                                                <button onclick="document.querySelector('.mil-subscribe-form input').focus();" class="mil-button mil-arrow-place" style="margin: 5px; display: inline-block; background: darkcyan;">
+                                                    <span><i class="fas fa-redo"></i> Try another search</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                </div>
+
+                            <% } else if (safeType === 'stores') { %>
+                                <!-- Stores Only View -->
+                                <% if (safeStores.length > 0) { %>
+                                    <div class="mil-results-grid mil-stores-grid">
+                                        <% safeStores.forEach(store => { %>
+                                            <% 
+                                                const storeId = store._id ? (typeof store._id === 'object' ? store._id.toString() : store._id) : 'unknown';
+                                                const storeName = store.businessName || store.name || 'Unnamed Store';
+                                                const storeUsername = store.username || 'unknown';
+                                                const storeDescription = store.description || 'No description available';
+                                                const storeLogo = store.logo || store.image || '/images/logo.png';
+                                                const storeLocation = store.location || store.address || 'Location not specified';
+                                                const storeCreatedAt = store.createdAt || new Date();
+                                            %>
+                                            <a href="/store/<%= storeUsername %>" class="mil-store-card mil-up">
+                                                <div class="mil-store-card-header">
+                                                    <img src="<%= storeLogo %>" 
+                                                         alt="<%= storeName %>" 
+                                                         class="mil-store-logo"
+                                                         onerror="this.src='/images/logo.png'">
+                                                    <div class="mil-store-info">
+                                                        <h3 class="mil-store-name">
+                                                            <%= storeName %>
+                                                            <% if (store.isVerified) { %>
+                                                                <i class="fas fa-badge-check" title="Verified by Shed" style="color:#1e8449;font-size:0.85rem;margin-left:4px;"></i>
+                                                            <% } %>
+                                                        </h3>
+                                                        <p class="mil-store-username">@<%= storeUsername %></p>
+                                                        <p class="mil-store-description">
+                                                            <%= typeof truncateText === 'function' ? truncateText(storeDescription, 150) : storeDescription.substring(0, 150) + '...' %>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div class="mil-store-footer">
+                                                    <div class="mil-store-location">
+                                                        <i class="fas fa-map-marker-alt"></i>
+                                                        <%= storeLocation %>
+                                                    </div>
+                                                    <div class="mil-store-join-date">
+                                                        <i class="far fa-calendar"></i>
+                                                        <% if (typeof formatDate === 'function') { %>
+                                                            <%= formatDate(storeCreatedAt) %>
+                                                        <% } else { %>
+                                                            <%= new Date(storeCreatedAt).toLocaleDateString() %>
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="mil-no-results mil-up">
+                                        <div class="mil-no-results-icon">
+                                            <i class="fas fa-store-slash"></i>
+                                        </div>
+                                        <h3>No stores found</h3>
+                                        <p>We couldn't find any stores matching "<%= safeQuery %>"</p>
+                                        <div style="margin-top: 25px;">
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=all" class="mil-button mil-arrow-place" style="margin: 5px; display: inline-block;">
+                                                <span><i class="fas fa-search"></i> Search all results</span>
+                                            </a>
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=products" class="mil-button mil-arrow-place" style="margin: 5px; display: inline-block; background: darkcyan;">
+                                                <span><i class="fas fa-box"></i> Try products instead</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <% } %>
+
+                            <% } else if (safeType === 'products') { %>
+                                <!-- Products Only View -->
+                                <% if (safeProducts.length > 0) { %>
+                                    <div class="mil-results-grid mil-products-grid">
+                                        <% safeProducts.forEach(product => { %>
+                                            <% 
+                                                const productId = product._id ? (typeof product._id === 'object' ? product._id.toString() : product._id) : 'unknown';
+                                                const productName = product.name || 'Unnamed Product';
+                                                const productDescription = product.description || 'No description available';
+                                                const productCost = product.cost || product.price || 0;
+                                                const productStock = product.stock || 0;
+                                                const productImage = product.image || (Array.isArray(product.images) && product.images.length > 0 ? product.images[0] : '/images/placeholder-product.png');
+                                                const productCategory = product.category || 'Uncategorized';
+                                                const productCreatedAt = product.createdAt || new Date();
+                                                
+                                                const storeName = product.storeName || product.store?.businessName || 'Unknown Store';
+                                                const storeUsername = product.storeUsername || product.store?.username || 'unknown';
+                                                const storeLogo = product.storeLogo || product.store?.logo || '/images/logo.png';
+                                            %>
+                                            <a href="/store/<%= storeUsername %>?product=<%= productId %>" class="mil-product-card mil-up">
+                                                <div class="mil-product-image-container">
+                                                    <img src="<%= productImage %>" 
+                                                         alt="<%= productName %>" 
+                                                         class="mil-product-image"
+                                                         onerror="this.src='/images/placeholder-product.png'">
+                                                </div>
+                                                <div class="mil-product-content">
+                                                    <div class="mil-product-store">
+                                                        <img src="<%= storeLogo %>" 
+                                                             alt="<%= storeName %>" 
+                                                             class="mil-product-store-logo"
+                                                             onerror="this.src='/images/logo.png'">
+                                                        <span class="mil-product-store-name"><%= storeName %></span>
+                                                    </div>
+                                                    <h3 class="mil-product-name"><%= productName %></h3>
+                                                    <p class="mil-product-description">
+                                                        <%= typeof truncateText === 'function' ? truncateText(productDescription, 120) : productDescription.substring(0, 120) + '...' %>
+                                                    </p>
+                                                    <div class="mil-product-price">
+                                                        <% if (typeof formatCurrency === 'function') { %>
+                                                            <%= formatCurrency(productCost) %>
+                                                        <% } else { %>
+                                                            ₦<%= parseFloat(productCost).toFixed(2) %>
+                                                        <% } %>
+                                                    </div>
+                                                    <div class="mil-product-stock <%= productStock > 10 ? 'in-stock' : productStock > 0 ? 'low-stock' : 'out-of-stock' %>">
+                                                        <i class="fas <%= productStock > 10 ? 'fa-check-circle' : productStock > 0 ? 'fa-exclamation-circle' : 'fa-times-circle' %>"></i>
+                                                        <% if (productStock > 10) { %>
+                                                            In stock
+                                                        <% } else if (productStock > 0) { %>
+                                                            Low stock (<%= productStock %> left)
+                                                        <% } else { %>
+                                                            Out of stock
+                                                        <% } %>
+                                                    </div>
+                                                </div>
+                                                <div class="mil-product-footer">
+                                                    <span class="mil-product-category">
+                                                        <%= productCategory %>
+                                                    </span>
+                                                    <span>
+                                                        <i class="far fa-calendar"></i>
+                                                        <% if (typeof formatDate === 'function') { %>
+                                                            <%= formatDate(productCreatedAt) %>
+                                                        <% } else { %>
+                                                            <%= new Date(productCreatedAt).toLocaleDateString() %>
+                                                        <% } %>
+                                                    </span>
+                                                </div>
+                                            </a>
+                                        <% }) %>
+                                    </div>
+                                <% } else { %>
+                                    <div class="mil-no-results mil-up">
+                                        <div class="mil-no-results-icon">
+                                            <i class="fas fa-box-open"></i>
+                                        </div>
+                                        <h3>No products found</h3>
+                                        <p>We couldn't find any products matching "<%= safeQuery %>"</p>
+                                        <div style="margin-top: 25px;">
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=all" class="mil-button mil-arrow-place" style="margin: 5px; display: inline-block;">
+                                                <span><i class="fas fa-search"></i> Search all results</span>
+                                            </a>
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=stores" class="mil-button mil-arrow-place" style="margin: 5px; display: inline-block; background: darkcyan;">
+                                                <span><i class="fas fa-store"></i> Try stores instead</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            <% } %>
+
+                            <!-- Pagination (for single type views) -->
+                            <% if ((safeType === 'stores' && safeTotalPages > 1) || (safeType === 'products' && safeTotalPages > 1)) { %>
+                                <div class="mil-pagination">
+                                    <% if (safePage > 1) { %>
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= safePage - 1 %><%= filterSuffix %>" 
+                                           class="mil-pagination-button mil-up">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </a>
+                                    <% } else { %>
+                                        <span class="mil-pagination-button disabled mil-up">
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </span>
+                                    <% } %>
+
+                                    <% for (let i = 1; i <= safeTotalPages; i++) { %>
+                                        <% if (i === safePage) { %>
+                                            <span class="mil-pagination-button active mil-up"><%= i %></span>
+                                        <% } else if (i >= safePage - 2 && i <= safePage + 2) { %>
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= i %><%= filterSuffix %>" 
+                                               class="mil-pagination-button mil-up"><%= i %></a>
+                                        <% } else if (i === 1 || i === safeTotalPages) { %>
+                                            <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= i %><%= filterSuffix %>" 
+                                               class="mil-pagination-button mil-up"><%= i %></a>
+                                        <% } else if (i === safePage - 3 || i === safePage + 3) { %>
+                                            <span class="mil-pagination-button mil-up">...</span>
+                                        <% } %>
+                                    <% } %>
+
+                                    <% if (safePage < safeTotalPages) { %>
+                                        <a href="/search?q=<%= encodeURIComponent(safeQuery) %>&type=<%= safeType %>&page=<%= safePage + 1 %><%= filterSuffix %>" 
+                                           class="mil-pagination-button mil-up">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    <% } else { %>
+                                        <span class="mil-pagination-button disabled mil-up">
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </span>
+                                    <% } %>
+                                </div>
+                            <% } %>
+
+                        <% } else { %>
+                            <!-- Empty State (no query) -->
+                            <div class="mil-no-results mil-up">
+                                <div class="mil-no-results-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <h3>What are you looking for?</h3>
+                                <p>Enter a search term above to find stores and products on Shed</p>
+                                
+                                <div class="mil-search-tips">
+                                    <h4>Search Tips:</h4>
+                                    <ul>
+                                        <li>
+                                            <i class="fas fa-store"></i>
+                                            <strong>Search for stores:</strong> Enter store names, usernames, or locations
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-box"></i>
+                                            <strong>Search for products:</strong> Enter product names, categories, or descriptions
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-lightbulb"></i>
+                                            <strong>Use keywords:</strong> Try specific terms like "electronics", "clothing", or "services"
+                                        </li>
+                                        <li>
+                                            <i class="fas fa-filter"></i>
+                                            <strong>Filter results:</strong> Use the tabs to filter between stores and products
+                                        </li>
+                                    </ul>
+                                </div>
+                                
+                                <!-- Popular Searches -->
+                                <div style="max-width: 600px; margin: 25px auto;">
+                                    <h4 style="margin-bottom: 15px; color: #333; text-align: center;">Try searching for:</h4>
+                                    <div class="mil-popular-tags">
+                                        <a href="/search?q=electronics&type=all">electronics</a>
+                                        <a href="/search?q=clothing&type=all">clothing</a>
+                                        <a href="/search?q=food&type=all">food</a>
+                                        <a href="/search?q=books&type=all">books</a>
+                                        <a href="/search?q=furniture&type=all">furniture</a>
+                                        <a href="/search?q=services&type=all">services</a>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </section>
+                <!-- search results end -->
+
+                <!-- footer -->
+                <footer class="mil-dark-bg">
+                    <div class="mi-invert-fix">
+                        <div class="container mil-p-120-60">
+                            <div class="row justify-content-between">
+                                <div class="col-md-4 col-lg-4 mil-mb-60">
+                                    <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                                    <p class="mil-light-soft mil-up mil-mb-30">Subscribe to our newsletter:</p>
+                                    
+                                    <div class="mil-subscribe-container">
+                                        <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                            <input type="email" name="email" placeholder="What is your email address?" required>
+                                            <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place"></button>
+                                        </form>
+                                        <div class="mil-subscribe-success">
+                                            <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-7 col-lg-6">
+                                    <div class="row justify-content-end">
+                                        <div class="col-md-6 col-lg-9">
+                                            <div class="mil-vert-between">
+                                                <p class="mil-light-soft mil-up">© Copyright 2025 - Shed Factory Ltd. All Rights Reserved.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </footer>
+                <!-- footer end -->
+
+                <!-- hidden elements -->
+                <div class="mil-hidden-elements">
+                    <div class="mil-dodecahedron">
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                        <div class="mil-pentagon">
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                            <div></div>
+                        </div>
+                    </div>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="mil-arrow">
+                        <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z" />
+                    </svg>
+                    <svg width="250" viewBox="0 0 300 1404" fill="none" xmlns="http://www.w3.org/2000/svg" class="mil-lines">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M1 892L1 941H299V892C299 809.71 232.29 743 150 743C67.7096 743 1 809.71 1 892ZM0 942H300V892C300 809.157 232.843 742 150 742C67.1573 742 0 809.157 0 892L0 942Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 146V97L1 97V146C1 228.29 67.7096 295 150 295C232.29 295 299 228.29 299 146ZM300 96L0 96V146C0 228.843 67.1573 296 150 296C232.843 296 300 228.843 300 146V96Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 1H1V1403H299V1ZM0 0V1404H300V0H0Z" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 -4.37115e-08L150 1404L149 1404L149 0L150 -4.37115e-08Z" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 1324C232.29 1324 299 1257.29 299 1175C299 1092.71 232.29 1026 150 1026C67.7096 1026 1 1092.71 1 1175C1 1257.29 67.7096 1324 150 1324ZM150 1325C232.843 1325 300 1257.84 300 1175C300 1092.16 232.843 1025 150 1025C67.1573 1025 0 1092.16 0 1175C0 1257.84 67.1573 1325 150 1325Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M300 1175H0V1174H300V1175Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M150 678C232.29 678 299 611.29 299 529C299 446.71 232.29 380 150 380C67.7096 380 1 446.71 1 529C1 611.29 67.7096 678 150 678ZM150 679C232.843 679 300 611.843 300 529C300 446.157 232.843 379 150 379C67.1573 379 0 446.157 0 529C0 611.843 67.1573 679 150 679Z" class="mil-move" />
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M299 380H1V678H299V380ZM0 379V679H300V379H0Z" class="mil-move" />
+                    </svg>
+                </div>
+                <!-- hidden elements end -->
+            </div>
+        </div>
+        <!-- content end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="/js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
+
+    <!-- Fallback for .row visibility -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const row = document.querySelector('.mil-banner-content .row');
+            if (row) {
+                row.style.display = 'flex';
+                row.style.visibility = 'visible';
+                row.style.opacity = '1';
+            }
+        });
+    </script>
+    <!-- Mobile Menu Toggle -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const menuBtn = document.querySelector('.mil-menu-btn');
+            const menu = document.querySelector('.mil-main-menu');
+            const menuItems = document.querySelectorAll('.mil-has-children');
+
+            menuBtn.addEventListener('click', () => {
+                menu.classList.toggle('active');
+            });
+
+            // Toggle submenus on mobile
+            menuItems.forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (window.innerWidth < 992) {
+                        e.preventDefault();
+                        item.classList.toggle('active');
+                    }
+                });
+            });
+        });
+    </script>
+    <!-- Search Functionality -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchForm = document.getElementById('searchForm');
+            const searchInput = searchForm.querySelector('input[name="q"]');
+
+            // Auto-focus search input on page load
+            if (searchInput && (!searchInput.value || searchInput.value.trim() === '')) {
+                searchInput.focus();
+            }
+
+            // Add loading state to form submission
+            searchForm.addEventListener('submit', function() {
+                const button = this.querySelector('button[type="submit"]');
+                if (button) {
+                    const originalHtml = button.innerHTML;
+                    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                    button.disabled = true;
+                    
+                    // Reset button after 3 seconds in case form submission fails
+                    setTimeout(() => {
+                        button.innerHTML = originalHtml;
+                        button.disabled = false;
+                    }, 3000);
+                }
+            });
+
+            // Highlight search terms in results
+            function highlightText(text, query) {
+                if (!query || !text || query.length < 2) return text;
+                
+                try {
+                    const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+                    return text.replace(regex, '<mark>$1</mark>');
+                } catch (e) {
+                    return text;
+                }
+            }
+
+            // Apply highlighting on page load
+            const query = '<%= safeQuery %>';
+            if (query && query.length >= 2) {
+                // Store names
+                document.querySelectorAll('.mil-store-name').forEach(el => {
+                    el.innerHTML = highlightText(el.textContent, query);
+                });
+                // Product names
+                document.querySelectorAll('.mil-product-name').forEach(el => {
+                    el.innerHTML = highlightText(el.textContent, query);
+                });
+                // Store descriptions
+                document.querySelectorAll('.mil-store-description').forEach(el => {
+                    el.innerHTML = highlightText(el.textContent, query);
+                });
+                // Product descriptions
+                document.querySelectorAll('.mil-product-description').forEach(el => {
+                    el.innerHTML = highlightText(el.textContent, query);
+                });
+                // Store usernames
+                document.querySelectorAll('.mil-store-username').forEach(el => {
+                    el.innerHTML = highlightText(el.textContent, query);
+                });
+                // Store locations
+                document.querySelectorAll('.mil-store-location').forEach(el => {
+                    const text = el.textContent || el.innerText;
+                    el.innerHTML = highlightText(text, query);
+                });
+            }
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                // Focus search input when '/' is pressed
+                if (e.key === '/' && !e.target.matches('input, textarea, select')) {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                // Submit form with Ctrl+Enter
+                if (e.ctrlKey && e.key === 'Enter' && document.activeElement === searchInput) {
+                    e.preventDefault();
+                    searchInput.form.submit();
+                }
+            });
+            
+            // Image error handling
+            document.addEventListener('error', (e) => {
+                if (e.target.tagName === 'IMG') {
+                    if (e.target.classList.contains('mil-store-logo') || e.target.classList.contains('mil-product-store-logo')) {
+                        e.target.src = '/images/logo.png';
+                    } else if (e.target.classList.contains('mil-product-image')) {
+                        e.target.src = '/images/placeholder-product.png';
+                    }
+                }
+            }, true);
+            
+            // Add hover effects for cards
+            document.querySelectorAll('.mil-store-card, .mil-product-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    card.style.cursor = 'pointer';
+                });
+            });
+            
+            // Initialize tooltips for category tags
+            document.querySelectorAll('.mil-product-category').forEach(category => {
+                category.title = 'Category: ' + category.textContent;
+            });
+        });
+    </script>
+    <!-- Subscription Form Handling -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscribeForm = document.getElementById('subscribeForm');
+            const successDiv = document.querySelector('.mil-subscribe-success');
+
+            if (subscribeForm) {
+                subscribeForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const email = subscribeForm.email.value.trim();
+                    
+                    // Basic validation
+                    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('/api/subscribe', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ email })
+                        });
+
+                        if (response.ok) {
+                            // Hide form and show success message
+                            subscribeForm.style.display = 'none';
+                            successDiv.style.display = 'block';
+                            
+                            // Reset the form
+                            subscribeForm.reset();
+                        }
+                    } catch (error) {
+                        console.error('Subscription error:', error);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

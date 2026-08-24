@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Shopper Login</title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { min-height: 100%; font-family: 'Jost', sans-serif; }
+    body { display: flex; min-height: 100vh; background: #f5f5f5; align-items: center; justify-content: center; padding: 20px; }
+    .card { background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); width: 100%; max-width: 420px; padding: 44px 40px; }
+    .logo { text-align: center; margin-bottom: 20px; }
+    .logo img { width: 90px; }
+    h2 { text-align: center; font-size: 1.5rem; font-weight: 700; color: #0d0d1a; margin-bottom: 6px; }
+    .subtitle { text-align: center; color: #888; font-size: 0.9rem; margin-bottom: 28px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.8rem; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-control { width: 100%; padding: 12px 15px; border: 1.5px solid #e5e5e5; border-radius: 8px; font-size: 0.95rem; font-family: 'Jost', sans-serif; background: #fafafa; }
+    .form-control:focus { outline: none; border-color: #FF9800; background: #fff; }
+    .btn-auth { width: 100%; padding: 13px; background: #FF9800; color: #fff; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 6px; }
+    .btn-auth:hover { background: #e68900; }
+    .flash-error { background: #fff5f5; border: 1px solid #fcc; border-radius: 8px; padding: 10px 14px; color: #c0392b; font-size: 0.85rem; margin-bottom: 18px; }
+    .flash-success { background: #fff8ec; border: 1px solid #ffd699; border-radius: 8px; padding: 10px 14px; color: #b26a00; font-size: 0.85rem; margin-bottom: 18px; }
+    .links { text-align: center; margin-top: 20px; font-size: 0.88rem; color: #888; }
+    .links a { color: #FF9800; font-weight: 500; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo"><a href="/"><img src="/images/logo.png" alt="Shed"></a></div>
+    <h2>Welcome back</h2>
+    <p class="subtitle">Log in to your Shed shopper account</p>
+
+    <% if (error) { %><div class="flash-error"><%= error %></div><% } %>
+    <% if (message) { %><div class="flash-success"><%= message %></div><% } %>
+
+    <form action="/shopper/login<%= typeof next !== 'undefined' && next ? '?next=' + encodeURIComponent(next) : '' %>" method="POST">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input class="form-control" type="email" id="email" name="email" value="<%= email %>" required autofocus>
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input class="form-control" type="password" id="password" name="password" required>
+      </div>
+      <button type="submit" class="btn-auth">Log In</button>
+    </form>
+
+    <div class="links">New here? <a href="/shopper/register">Create a shopper account</a></div>
+  </div>
+</body>
+</html>

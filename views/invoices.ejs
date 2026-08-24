@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Invoices</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .invoices-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .invoice-card {
+      background: #fff; border-radius: 12px; overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: all 0.3s ease;
+    }
+    .invoice-card:hover { transform: translateY(-4px); box-shadow: 0 10px 28px rgba(0,0,0,0.11); }
+    .invoice-card-header {
+      background: #0d0d1a; color: #fff;
+      padding: 16px 22px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .invoice-card-header .inv-num { font-size: 1rem; font-weight: 700; }
+    .invoice-card-header .inv-date { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+    .invoice-card-body { padding: 20px 22px; }
+    .invoice-card-body h4 { font-size: 0.98rem; font-weight: 700; color: #0d0d1a; margin:0 0 4px; }
+    .invoice-total { font-size:1.4rem; font-weight:700; color:#008B8B; margin:12px 0 6px; }
+    .invoice-items { font-size:0.85rem; color:#888; margin-bottom:14px; }
+    .invoice-actions { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+    .create-form-box {
+      background:#fff; border-radius:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.07);
+      padding:30px; margin-bottom:26px; display:none;
+    }
+    .create-form-box.active { display:block; }
+    .form-two-col { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    @media(max-width:768px) { .form-two-col{grid-template-columns:1fr;} }
+    .item-row-wrapper {
+      background:#f9fbfc; border:1px solid #eef0f4;
+      border-radius:8px; padding:18px; margin-bottom:12px;
+    }
+    .item-row-grid { display:grid; grid-template-columns:1fr auto auto; gap:12px; align-items:end; }
+    @media(max-width:480px) { .item-row-grid{grid-template-columns:1fr;} }
+    .low-stock { color:#e67e22; font-size:0.8rem; }
+
+    /* ── Revised badge ── */
+    .badge-revised {
+      background: #FFF3E0; color: #FF9800; border: 1px solid #FFD0A0;
+      font-size: 0.68rem; font-weight: 700; padding: 2px 7px;
+      border-radius: 20px; letter-spacing: 0.04em; vertical-align: middle;
+    }
+
+    /* ── Edit Modal ── */
+    .edit-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      z-index: 1200; display: none; backdrop-filter: blur(4px);
+    }
+    .edit-overlay.active { display: block; }
+    .edit-modal {
+      position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0.97);
+      opacity: 0; pointer-events: none;
+      width: min(760px, 96vw); max-height: 88vh;
+      background: #fff; border-radius: 14px;
+      box-shadow: 0 28px 72px rgba(0,0,0,0.35);
+      z-index: 1201; display: flex; flex-direction: column;
+      transition: transform 0.24s cubic-bezier(.34,1.56,.64,1), opacity 0.18s ease;
+    }
+    .edit-modal.active { transform: translate(-50%, -50%) scale(1); opacity: 1; pointer-events: auto; }
+    .edit-modal-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: 22px 28px; border-bottom: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+    .edit-modal-title { font-size: 1.05rem; font-weight: 700; color: #0d0d1a; }
+    .edit-modal-sub   { font-size: 0.78rem; color: #999; margin-top: 3px; }
+    .edit-modal-close {
+      background: none; border: none; font-size: 22px; line-height: 1;
+      color: #bbb; cursor: pointer; padding: 2px 6px; transition: color 0.15s;
+    }
+    .edit-modal-close:hover { color: #333; }
+    .edit-modal-body { padding: 24px 28px; overflow-y: auto; }
+    .edit-section-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.08em; color: #aaa; margin: 0 0 14px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .edit-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:560px){ .edit-two-col{grid-template-columns:1fr;} }
+    .edit-item-row { background: #f9fbfc; border: 1px solid #eef0f4; border-radius: 8px; padding: 12px 14px; margin-bottom: 10px; }
+    .edit-item-grid { display: grid; grid-template-columns: 1fr 110px 80px 36px; gap: 10px; align-items: end; }
+    @media(max-width:480px){ .edit-item-grid{grid-template-columns:1fr 1fr;} }
+    .edit-modal-footer {
+      display: flex; gap: 12px; padding: 18px 28px; border-top: 1px solid #f0f0f0;
+      flex-shrink: 0; background: #fafafa; border-radius: 0 0 14px 14px;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'invoices', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Invoices</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Invoices</h1>
+        <p>Create, manage and download professional invoices</p>
+      </div>
+      <button class="btn-primary-app" id="createInvoiceBtn">
+        <i class="fas fa-plus"></i> Create Invoice
+      </button>
+    </div>
+
+    <!-- Create Invoice Form -->
+    <div class="create-form-box" id="createInvoiceForm">
+      <h3 style="margin:0 0 24px; font-size:1.1rem; font-weight:700; color:#0d0d1a;">New Invoice</h3>
+      <form action="/invoices/create" method="POST" id="invoiceForm">
+        <div class="form-two-col">
+          <!-- Left -->
+          <div>
+            <div class="form-group">
+              <label>Customer <span style="color:#c0392b">*</span></label>
+              <select name="customerId" id="customerSelect" class="form-control">
+                <option value="">Select Customer</option>
+                <% customers.forEach(c => { %>
+                  <option value="<%= c._id %>"><%= c.name %> (<%= c.phone || 'N/A' %>)</option>
+                <% }) %>
+                <option value="new">+ Create New Customer</option>
+              </select>
+            </div>
+            <div id="newCustomerFields" style="display:none;">
+              <div class="form-group">
+                <label>New Customer Name <span style="color:#c0392b">*</span></label>
+                <input type="text" name="newCustomerName" class="form-control" placeholder="Full name">
+              </div>
+              <div class="form-group">
+                <label>Phone <span style="color:#c0392b">*</span></label>
+                <input type="tel" name="newCustomerPhone" class="form-control" placeholder="e.g. 08031234567">
+              </div>
+              <div class="form-group">
+                <label>Email (optional)</label>
+                <input type="email" name="newCustomerEmail" class="form-control" placeholder="customer@example.com">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Payment Method <span style="color:#c0392b">*</span></label>
+              <select name="paymentMethod" id="paymentMethod" class="form-control">
+                <option value="">Choose method</option>
+                <option value="Cash">Cash</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+                <option value="POS">POS / Card</option>
+                <option value="Mobile Payment">Mobile Payment</option>
+              </select>
+            </div>
+            <div id="bankDetails" style="display:none;" class="app-card" style="background:#f9fbfc;">
+              <div class="app-card-title">Bank Details</div>
+              <div class="form-group">
+                <label>Bank Name <span style="color:#c0392b">*</span></label>
+                <input type="text" name="bankName" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Account Name <span style="color:#c0392b">*</span></label>
+                <input type="text" name="bankAccountName" class="form-control">
+              </div>
+              <div class="form-group">
+                <label>Account Number <span style="color:#c0392b">*</span></label>
+                <input type="text" name="accountNumber" class="form-control">
+              </div>
+            </div>
+          </div>
+          <!-- Right -->
+          <div>
+            <div class="form-group">
+              <label>Items <span style="color:#c0392b">*</span></label>
+              <div id="itemsContainer"></div>
+              <button type="button" id="addItemBtn" class="btn-secondary-app" style="margin-top:10px;">
+                <i class="fas fa-plus"></i> Add Item
+              </button>
+            </div>
+            <div class="form-group">
+              <label>Additional Notes</label>
+              <textarea name="additionalComments" class="form-control" rows="4" placeholder="Payment terms, delivery info, thank you message..."></textarea>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:16px;">
+          <button type="submit" class="btn-primary-app"><i class="fas fa-file-invoice"></i> Generate Invoice</button>
+          <button type="button" class="btn-secondary-app" id="cancelInvoiceBtn"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Invoices Grid -->
+    <% if (sales && sales.length > 0) { %>
+      <div class="invoices-grid">
+        <% sales.forEach((sale, i) => { %>
+          <div class="invoice-card">
+            <div class="invoice-card-header">
+              <div>
+                <div class="inv-num">
+                  INV-<%= String(i+1).padStart(4,'0') %>
+                  <% if (sale.isUpdated) { %><span class="badge-revised" style="margin-left:6px;">REVISED</span><% } %>
+                </div>
+                <div class="inv-date">
+                  <%= new Date(sale.date).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) %>
+                  <% if (sale.isUpdated && sale.updatedAt) { %> · Updated <%= new Date(sale.updatedAt).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) %><% } %>
+                </div>
+              </div>
+              <% const ps = sale.paymentStatus || 'Pending'; %>
+              <span class="badge <%= ps === 'Paid' ? 'badge-success' : 'badge-warning' %>"><%= ps %></span>
+            </div>
+            <div class="invoice-card-body">
+              <h4><%= sale.customerName %></h4>
+              <div style="font-size:0.82rem; color:#999; margin-bottom:10px;"><%= sale.phoneNumber || 'No phone' %></div>
+              <div class="invoice-items">
+                <% (sale.items||[]).slice(0,3).forEach(it => { %>
+                  <div>• <%= it.itemName %> × <%= it.quantity %></div>
+                <% }) %>
+                <% if ((sale.items||[]).length > 3) { %>
+                  <div style="color:#aaa;">+ <%= sale.items.length - 3 %> more...</div>
+                <% } %>
+              </div>
+              <div class="invoice-total"><%= admin.currency %><%= formatCurrency(Number(sale.totalAmount||0)) %></div>
+              <div class="invoice-actions">
+                <a href="/invoices/download/<%= sale._id %>" class="btn-primary-app btn-sm" title="Download PDF">
+                  <i class="fas fa-download"></i> PDF
+                </a>
+                <a href="/invoices/preview/<%= sale._id %>" target="_blank" class="btn-secondary-app btn-sm" title="Preview invoice in new tab">
+                  <i class="fas fa-eye"></i> Preview
+                </a>
+                <button type="button" class="btn-secondary-app btn-sm" title="Edit invoice"
+                        onclick="openEditModal('<%= sale._id %>')">
+                  <i class="fas fa-pen"></i> Edit
+                </button>
+                <% if (ps !== 'Paid') { %>
+                  <form action="/invoices/mark-paid/<%= sale._id %>" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-secondary-app btn-sm" style="background:#27ae60; color:#fff; border-color:#27ae60;">
+                      <i class="fas fa-check"></i> Paid
+                    </button>
+                  </form>
+                <% } %>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-file-invoice" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No invoices yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Create your first invoice to get started.</p>
+        <button class="btn-primary-app" id="createFirstInvoiceBtn"><i class="fas fa-plus"></i> Create First Invoice</button>
+      </div>
+    <% } %>
+
+  </main>
+</div>
+
+<!-- ─── Edit Invoice Modal ─── -->
+<div class="edit-overlay" id="editOverlay" onclick="closeEditModal()"></div>
+<div class="edit-modal" id="editModal">
+  <div class="edit-modal-header">
+    <div>
+      <div class="edit-modal-title" id="editModalTitle">Edit Invoice</div>
+      <div class="edit-modal-sub"   id="editModalSub"></div>
+    </div>
+    <button class="edit-modal-close" onclick="closeEditModal()" title="Close">&times;</button>
+  </div>
+
+  <div class="edit-modal-body">
+    <form id="editInvoiceForm" onsubmit="submitEditForm(event)">
+
+      <!-- Customer -->
+      <div class="edit-section-label">Customer Details</div>
+      <div class="edit-two-col" style="margin-bottom:14px;">
+        <div class="form-group" style="margin:0;">
+          <label>Name <span style="color:#c0392b">*</span></label>
+          <input type="text" name="customerName" id="editCustomerName" class="form-control" required>
+        </div>
+        <div class="form-group" style="margin:0;">
+          <label>Phone</label>
+          <input type="tel" name="phoneNumber" id="editPhoneNumber" class="form-control">
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:20px;">
+        <label>Email</label>
+        <input type="email" name="email" id="editEmail" class="form-control">
+      </div>
+
+      <!-- Items -->
+      <div class="edit-section-label">
+        Line Items
+        <button type="button" class="btn-secondary-app btn-sm" onclick="addEditItemRow()">
+          <i class="fas fa-plus"></i> Add Item
+        </button>
+      </div>
+      <div id="editItemsContainer"></div>
+
+      <!-- Payment -->
+      <div class="edit-section-label" style="margin-top:20px;">Payment</div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>Payment Method <span style="color:#c0392b">*</span></label>
+        <select name="paymentMethod" id="editPaymentMethod" class="form-control" onchange="toggleEditBankDetails()">
+          <option value="Cash">Cash</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="POS">POS / Card</option>
+          <option value="Mobile Payment">Mobile Payment</option>
+        </select>
+      </div>
+      <div id="editBankDetails" style="display:none;">
+        <div class="edit-two-col" style="margin-bottom:12px;">
+          <div class="form-group" style="margin:0;">
+            <label>Bank Name</label>
+            <input type="text" name="bankName" id="editBankName" class="form-control">
+          </div>
+          <div class="form-group" style="margin:0;">
+            <label>Account Name</label>
+            <input type="text" name="bankAccountName" id="editBankAccountName" class="form-control">
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px;">
+          <label>Account Number</label>
+          <input type="text" name="accountNumber" id="editAccountNumber" class="form-control">
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="form-group" style="margin-top:4px;">
+        <label>Additional Notes</label>
+        <textarea name="additionalComments" id="editNotes" class="form-control" rows="3"
+                  placeholder="Payment terms, delivery info, thank you message…"></textarea>
+      </div>
+
+    </form>
+  </div>
+
+  <div class="edit-modal-footer">
+    <button type="button" class="btn-primary-app" id="editSubmitBtn" onclick="submitEditForm(event)">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
+    <button type="button" class="btn-secondary-app" onclick="closeEditModal()">
+      <i class="fas fa-times"></i> Cancel
+    </button>
+  </div>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  // ── Sidebar ────────────────────────────────────────────────────────────────
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  // ── Create invoice form toggle ─────────────────────────────────────────────
+  const invForm = document.getElementById('createInvoiceForm');
+  function showInvForm() {
+    invForm.classList.add('active');
+    initializeItemsContainer();
+    invForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.getElementById('createInvoiceBtn').addEventListener('click', showInvForm);
+  const firstBtn = document.getElementById('createFirstInvoiceBtn');
+  if (firstBtn) firstBtn.addEventListener('click', showInvForm);
+  document.getElementById('cancelInvoiceBtn').addEventListener('click', function() {
+    invForm.classList.remove('active');
+    document.getElementById('itemsContainer').innerHTML = '';
+  });
+
+  document.getElementById('customerSelect').addEventListener('change', function() {
+    document.getElementById('newCustomerFields').style.display = this.value === 'new' ? 'block' : 'none';
+  });
+  document.getElementById('paymentMethod').addEventListener('change', function() {
+    document.getElementById('bankDetails').style.display = this.value === 'Bank Transfer' ? 'block' : 'none';
+  });
+  document.getElementById('addItemBtn').addEventListener('click', addItemRow);
+
+  let itemCount = 0;
+
+  async function loadProductsIntoSelect(sel) {
+    sel.innerHTML = '<option value="">Loading...</option>';
+    try {
+      const res  = await fetch('/api/inventory', { credentials: 'include' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const data = await res.json();
+      let html = '<option value="">Select product...</option>';
+      if (data.items) {
+        data.items.forEach(p => {
+          html += `<option value="${p._id}" data-stock="${p.stock}" data-price="${p.cost||0}">${p.name} (Stock: ${p.stock})${p.isVatable ? ' [VAT]' : ''}</option>`;
+        });
+      }
+      html += '<option value="new">+ New Product</option>';
+      sel.innerHTML = html;
+    } catch(e) { sel.innerHTML = '<option>Error loading products</option>'; }
+  }
+
+  function addItemRow() {
+    itemCount++;
+    const wrap = document.createElement('div');
+    wrap.className = 'item-row-wrapper';
+    wrap.innerHTML = `
+      <div class="item-row-grid">
+        <div class="form-group" style="margin-bottom:0;"><label>Product</label>
+          <select name="items[itemId][]" class="form-control" required></select>
+        </div>
+        <div class="form-group" style="margin-bottom:0;"><label>Qty</label>
+          <input type="number" name="items[quantity][]" class="form-control" min="1" value="1" style="width:80px;" required>
+        </div>
+        <div style="padding-top:24px;">
+          <button type="button" class="btn-danger-app btn-sm remove-item-btn"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>`;
+    document.getElementById('itemsContainer').appendChild(wrap);
+    loadProductsIntoSelect(wrap.querySelector('select'));
+    wrap.querySelector('.remove-item-btn').addEventListener('click', function() {
+      if (document.querySelectorAll('.item-row-wrapper').length > 1) wrap.remove();
+    });
+  }
+
+  function initializeItemsContainer() {
+    document.getElementById('itemsContainer').innerHTML = '';
+    itemCount = 0;
+    addItemRow();
+  }
+
+  document.getElementById('invoiceForm').addEventListener('submit', function(e) {
+    const errors = [];
+    if (!document.getElementById('customerSelect').value) errors.push('Please select or create a customer.');
+    if (!document.getElementById('paymentMethod').value)  errors.push('Please select a payment method.');
+    if (!document.querySelectorAll('.item-row-wrapper').length) errors.push('Add at least one item.');
+    if (errors.length) { e.preventDefault(); alert('Cannot generate invoice!\n\n' + errors.join('\n')); }
+  });
+
+  // ── Embedded sales data for edit form ─────────────────────────────────────
+  const SALES_DATA = <%- JSON.stringify(sales.map(s => ({
+    _id:                s._id.toString(),
+    customerName:       s.customerName  || '',
+    phoneNumber:        s.phoneNumber   || '',
+    email:              s.email         || '',
+    paymentMethod:      s.paymentMethod || 'Cash',
+    bankDetails:        s.bankDetails   || {},
+    additionalComments: s.additionalComments || '',
+    isUpdated:          !!s.isUpdated,
+    updateCount:        s.updateCount   || 0,
+    items: (s.items || []).map(it => ({
+      itemName: it.itemName || '',
+      unitCost: it.unitCost || 0,
+      quantity: it.quantity || 1
+    }))
+  }))) %>;
+
+  let editingSaleId = null;
+
+  // ── Open edit modal ────────────────────────────────────────────────────────
+  function openEditModal(saleId) {
+    editingSaleId = saleId;
+    const sale = SALES_DATA.find(s => s._id === saleId);
+    if (!sale) return alert('Sale data not found.');
+
+    const idx = SALES_DATA.indexOf(sale);
+    document.getElementById('editModalTitle').textContent = 'Edit Invoice';
+    document.getElementById('editModalSub').textContent   =
+      `INV-${String(idx + 1).padStart(4, '0')} · ${sale.customerName}` +
+      (sale.isUpdated ? ` · Revision #${sale.updateCount}` : '');
+
+    document.getElementById('editCustomerName').value = sale.customerName;
+    document.getElementById('editPhoneNumber').value  = sale.phoneNumber;
+    document.getElementById('editEmail').value        = sale.email;
+
+    document.getElementById('editPaymentMethod').value = sale.paymentMethod;
+    toggleEditBankDetails();
+
+    const bd = sale.bankDetails || {};
+    document.getElementById('editBankName').value         = bd.bankName         || '';
+    document.getElementById('editBankAccountName').value  = bd.bankAccountName  || '';
+    document.getElementById('editAccountNumber').value    = bd.accountNumber    || '';
+
+    document.getElementById('editNotes').value = sale.additionalComments;
+
+    // Populate items
+    const container = document.getElementById('editItemsContainer');
+    container.innerHTML = '';
+    (sale.items.length ? sale.items : [{ itemName: '', unitCost: 0, quantity: 1 }])
+      .forEach(it => addEditItemRow(it.itemName, it.unitCost, it.quantity));
+
+    document.getElementById('editOverlay').classList.add('active');
+    document.getElementById('editModal').classList.add('active');
+    document.getElementById('editModal').scrollTop = 0;
+  }
+
+  function closeEditModal() {
+    document.getElementById('editOverlay').classList.remove('active');
+    document.getElementById('editModal').classList.remove('active');
+    editingSaleId = null;
+  }
+
+  function toggleEditBankDetails() {
+    const isBT = document.getElementById('editPaymentMethod').value === 'Bank Transfer';
+    document.getElementById('editBankDetails').style.display = isBT ? 'block' : 'none';
+  }
+
+  function addEditItemRow(name = '', cost = '', qty = 1) {
+    const row = document.createElement('div');
+    row.className = 'edit-item-row';
+    const esc = v => String(v).replace(/"/g, '&quot;');
+    row.innerHTML = `
+      <div class="edit-item-grid">
+        <div class="form-group" style="margin:0;"><label style="font-size:0.75rem;color:#888;">Item Name</label>
+          <input type="text" name="items[itemName][]" class="form-control" value="${esc(name)}" placeholder="Description" required>
+        </div>
+        <div class="form-group" style="margin:0;"><label style="font-size:0.75rem;color:#888;">Unit Cost</label>
+          <input type="number" name="items[unitCost][]" class="form-control" value="${esc(cost)}" min="0" step="0.01" placeholder="0.00" required>
+        </div>
+        <div class="form-group" style="margin:0;"><label style="font-size:0.75rem;color:#888;">Qty</label>
+          <input type="number" name="items[quantity][]" class="form-control" value="${esc(qty)}" min="1" required>
+        </div>
+        <div style="padding-top:20px;">
+          <button type="button" class="btn-danger-app btn-sm"
+            onclick="if(document.querySelectorAll('#editItemsContainer .edit-item-row').length>1)this.closest('.edit-item-row').remove()">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>`;
+    document.getElementById('editItemsContainer').appendChild(row);
+  }
+
+  // ── Submit edit form via AJAX ──────────────────────────────────────────────
+  async function submitEditForm(e) {
+    if (e) e.preventDefault();
+    if (!editingSaleId) return;
+
+    const btn = document.getElementById('editSubmitBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+
+    try {
+      const form = document.getElementById('editInvoiceForm');
+      const fd   = new FormData(form);
+
+      const body = {
+        customerName:       fd.get('customerName')       || '',
+        phoneNumber:        fd.get('phoneNumber')        || '',
+        email:              fd.get('email')              || '',
+        paymentMethod:      fd.get('paymentMethod')      || 'Cash',
+        bankName:           fd.get('bankName')           || '',
+        bankAccountName:    fd.get('bankAccountName')    || '',
+        accountNumber:      fd.get('accountNumber')      || '',
+        additionalComments: fd.get('additionalComments') || '',
+        items: {
+          itemName: fd.getAll('items[itemName][]'),
+          unitCost: fd.getAll('items[unitCost][]'),
+          quantity: fd.getAll('items[quantity][]')
+        }
+      };
+
+      const resp   = await fetch(`/invoices/update/${editingSaleId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const result = await resp.json();
+
+      if (!resp.ok || !result.success) throw new Error(result.error || 'Update failed');
+
+      closeEditModal();
+      window.location.reload();
+    } catch (err) {
+      alert('Error saving: ' + err.message);
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-save"></i> Save Changes';
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Admin Details — <%= escapeEjs(admin.username) %></title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    .detail-item .detail-label { font-size:0.75rem; color:#999; text-transform:uppercase; letter-spacing:.05em; font-weight:700; margin-bottom:4px; }
+    .detail-item .detail-value { font-size:0.95rem; color:#0d0d1a; font-weight:600; }
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9999; align-items:center; justify-content:center; }
+    .modal-overlay.active { display:flex; }
+    .modal-box { background:#fff; border-radius:12px; padding:28px; max-width:440px; width:92%; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .modal-box h4 { margin:0 0 12px; font-size:1.1rem; font-weight:700; }
+    .modal-actions { display:flex; gap:10px; margin-top:20px; }
+    textarea.form-control { height:auto; resize:vertical; }
+  </style>
+</head>
+<body>
+
+<!-- Superadmin Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo"><img src="/images/logo.png" alt="Shed"></div>
+  <nav class="sidebar-nav">
+    <a href="/superadmin/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/superadmin/create-admin"><i class="fas fa-user-plus"></i> Create Admin</a>
+    <a href="/superadmin/affiliates"><i class="fas fa-handshake"></i> Affiliates</a>
+    <a href="/superadmin/outlets"><i class="fas fa-store"></i> All Outlets</a>
+    <a href="/superadmin/ads"><i class="fas fa-ad"></i> Featured Ads</a>
+    <a href="/superadmin/clusters"><i class="fas fa-map-marker-alt"></i> Market Clusters</a>
+    <a href="/superadmin/sent-messages"><i class="fas fa-envelope"></i> Sent Messages</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="/admin-logout"><i class="fas fa-power-off"></i> Log Out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Admin Details</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business">Superadmin</span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (currentAdmin ? currentAdmin.username : 'S')[0].toUpperCase() %></div>
+          <%= currentAdmin ? currentAdmin.username : 'Superadmin' %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (Array.isArray(success) && success.length > 0) { %>
+      <% success.forEach(msg => { %><div class="flash-success"><i class="fas fa-check-circle"></i> <%= escapeEjs(msg) %></div><% }) %>
+    <% } %>
+    <% if (Array.isArray(error) && error.length > 0) { %>
+      <% error.forEach(msg => { %><div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= escapeEjs(msg) %></div><% }) %>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1><%= escapeEjs(admin.username) %></h1>
+        <p><%= escapeEjs(admin.businessName || 'N/A') %></p>
+      </div>
+      <a href="/superadmin/dashboard" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Dashboard</a>
+    </div>
+
+    <!-- Verification -->
+    <div class="app-card" style="margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;">
+      <div style="display:flex; align-items:center; gap:14px;">
+        <div style="width:46px; height:46px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.2rem; background:<%= admin.isVerified ? 'rgba(30,132,73,0.12)' : 'rgba(0,0,0,0.06)' %>; color:<%= admin.isVerified ? '#1e8449' : '#999' %>;">
+          <i class="fas <%= admin.isVerified ? 'fa-badge-check' : 'fa-shield-halved' %>"></i>
+        </div>
+        <div>
+          <div style="font-weight:700; color:#0d0d1a;">
+            <%= admin.isVerified ? 'Verified store' : 'Not yet verified' %>
+          </div>
+          <div style="font-size:0.82rem; color:#888;">
+            <% if (admin.isVerified) { %>
+              Eligible to appear in its market cluster<% if (admin.verifiedAt) { %> · verified <%= new Date(admin.verifiedAt).toLocaleDateString() %><% } %>
+            <% } else { %>
+              Won't appear on public market cluster pages until verified, even if a cluster is selected on their profile.
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <form action="/superadmin/admin/<%= encodeURIComponent(admin.username) %>/verify" method="POST">
+        <button type="submit" class="<%= admin.isVerified ? 'btn-secondary-app' : 'btn-primary-app' %>">
+          <i class="fas <%= admin.isVerified ? 'fa-times' : 'fa-check' %>"></i>
+          <%= admin.isVerified ? 'Revoke Verification' : 'Verify Store' %>
+        </button>
+      </form>
+    </div>
+
+    <!-- Admin info -->
+    <div class="app-card" style="margin-bottom:20px;">
+      <div class="app-card-title">Account Information</div>
+      <div class="detail-grid">
+        <div class="detail-item"><div class="detail-label">Username</div><div class="detail-value"><%= escapeEjs(admin.username) %></div></div>
+        <div class="detail-item"><div class="detail-label">Business Name</div><div class="detail-value"><%= escapeEjs(admin.businessName || 'N/A') %></div></div>
+        <div class="detail-item"><div class="detail-label">Email</div><div class="detail-value"><%= escapeEjs(admin.email || 'N/A') %></div></div>
+        <div class="detail-item"><div class="detail-label">Phone</div><div class="detail-value"><%= escapeEjs(admin.phone || 'N/A') %></div></div>
+        <div class="detail-item"><div class="detail-label">Currency</div><div class="detail-value"><%= escapeEjs(admin.currency || 'N/A') %></div></div>
+        <div class="detail-item"><div class="detail-label">Role</div><div class="detail-value" style="text-transform:capitalize;"><%= escapeEjs(admin.role) %></div></div>
+        <div class="detail-item"><div class="detail-label">Has Logged In</div><div class="detail-value"><%= admin.hasLoggedIn ? 'Yes' : 'No' %></div></div>
+        <div class="detail-item"><div class="detail-label">Login Count</div><div class="detail-value"><%= admin.loginCount || 0 %></div></div>
+        <div class="detail-item"><div class="detail-label">Last Login</div><div class="detail-value" style="font-size:0.88rem;"><%= admin.lastLogin ? new Date(admin.lastLogin).toLocaleString() : 'Never' %></div></div>
+        <div class="detail-item"><div class="detail-label">Address</div><div class="detail-value"><%= escapeEjs(admin.address || 'N/A') %></div></div>
+        <div class="detail-item"><div class="detail-label">Country</div><div class="detail-value"><%= escapeEjs(admin.country || 'N/A') %></div></div>
+        <div class="detail-item">
+          <div class="detail-label">Social Links</div>
+          <div class="detail-value" style="font-size:0.85rem;">
+            <% if (admin.facebook) { %><a href="<%= escapeEjs(admin.facebook) %>" target="_blank" style="color:#008B8B; display:block;"><i class="fab fa-facebook"></i> Facebook</a><% } %>
+            <% if (admin.instagram) { %><a href="<%= escapeEjs(admin.instagram) %>" target="_blank" style="color:#008B8B; display:block;"><i class="fab fa-instagram"></i> Instagram</a><% } %>
+            <% if (admin.twitter) { %><a href="<%= escapeEjs(admin.twitter) %>" target="_blank" style="color:#008B8B; display:block;"><i class="fab fa-twitter"></i> Twitter</a><% } %>
+            <% if (!admin.facebook && !admin.instagram && !admin.twitter) { %>N/A<% } %>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
+        <a href="/superadmin/edit-admin/<%= admin._id %>" class="btn-primary-app"><i class="fas fa-edit"></i> Edit</a>
+        <button type="button" class="btn-secondary-app" id="msgBtn" data-id="<%= admin._id %>" data-username="<%= escapeEjs(admin.username) %>">
+          <i class="fas fa-envelope"></i> Message
+        </button>
+        <% if (admin._id.toString() !== currentAdminId) { %>
+          <button type="button" class="btn-danger-app" id="delBtn" data-id="<%= admin._id %>" data-username="<%= escapeEjs(admin.username) %>">
+            <i class="fas fa-trash"></i> Delete
+          </button>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Bank accounts -->
+    <% if (admin.primaryAccount?.accountNumber || admin.secondaryAccount?.accountNumber) { %>
+    <div class="app-card" style="margin-bottom:20px;">
+      <div class="app-card-title">Bank Accounts</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+        <% if (admin.primaryAccount?.accountNumber) { %>
+          <div>
+            <div style="font-size:0.75rem; color:#008B8B; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Primary Account</div>
+            <p style="margin:4px 0; font-size:0.88rem;"><strong>Name:</strong> <%= escapeEjs(admin.primaryAccount.bankAccountName || 'N/A') %></p>
+            <p style="margin:4px 0; font-size:0.88rem;"><strong>Number:</strong> <code><%= escapeEjs(admin.primaryAccount.accountNumber) %></code></p>
+            <p style="margin:4px 0; font-size:0.88rem;"><strong>Bank:</strong> <%= escapeEjs(admin.primaryAccount.bankName || 'N/A') %></p>
+          </div>
+        <% } %>
+        <% if (admin.secondaryAccount?.accountNumber) { %>
+          <div>
+            <div style="font-size:0.75rem; color:#888; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:10px;">Secondary Account</div>
+            <p style="margin:4px 0; font-size:0.88rem;"><strong>Name:</strong> <%= escapeEjs(admin.secondaryAccount.bankAccountName || 'N/A') %></p>
+            <p style="margin:4px 0; font-size:0.88rem;"><strong>Number:</strong> <code><%= escapeEjs(admin.secondaryAccount.accountNumber) %></code></p>
+            <p style="margin:4px 0; font-size:0.88rem;"><strong>Bank:</strong> <%= escapeEjs(admin.secondaryAccount.bankName || 'N/A') %></p>
+          </div>
+        <% } %>
+      </div>
+    </div>
+    <% } %>
+
+    <!-- Transactions -->
+    <% if (transactions && transactions.length > 0) { %>
+    <div class="app-card">
+      <div class="app-card-title">Transactions</div>
+      <div style="overflow-x:auto;">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>Reference</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach(t => { %>
+              <tr>
+                <td style="font-family:monospace; font-size:0.83rem;"><%= escapeEjs(t.reference || 'N/A') %></td>
+                <td style="font-weight:600; color:#008B8B;"><%= admin.currency || '₦' %><%= (t.amount || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %></td>
+                <td><%= escapeEjs(t.type || 'N/A') %></td>
+                <td><%= escapeEjs(t.status || 'N/A') %></td>
+                <td style="font-size:0.83rem; color:#888; white-space:nowrap;"><%= t.date ? new Date(t.date).toLocaleString() : 'N/A' %></td>
+                <td style="font-size:0.83rem;"><%= escapeEjs(t.description || 'N/A') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <% } %>
+
+  </main>
+</div>
+
+<!-- Message Modal -->
+<div class="modal-overlay" id="msgModal">
+  <div class="modal-box">
+    <h4>Send Message to <span id="msgRecipientName"></span></h4>
+    <form action="/superadmin/send-message" method="POST">
+      <input type="hidden" name="recipientId" id="msgRecipientId">
+      <div class="form-group">
+        <label>Message</label>
+        <textarea name="content" class="form-control" rows="4" required placeholder="Enter your message…"></textarea>
+      </div>
+      <div class="modal-actions">
+        <button type="submit" class="btn-primary-app"><i class="fas fa-paper-plane"></i> Send</button>
+        <button type="button" class="btn-secondary-app" id="closeMsgModal">Cancel</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h4>Delete Admin</h4>
+    <p style="color:#666;">Are you sure you want to delete <strong id="delUsername"></strong>? This cannot be undone.</p>
+    <div class="modal-actions">
+      <form id="deleteForm" action="" method="POST" style="display:contents;">
+        <button type="submit" class="btn-danger-app"><i class="fas fa-trash"></i> Delete</button>
+      </form>
+      <button type="button" class="btn-secondary-app" id="cancelDelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  // Message modal
+  const msgBtn = document.getElementById('msgBtn');
+  if (msgBtn) {
+    msgBtn.addEventListener('click', function() {
+      document.getElementById('msgRecipientId').value = this.dataset.id;
+      document.getElementById('msgRecipientName').textContent = this.dataset.username;
+      document.getElementById('msgModal').classList.add('active');
+    });
+  }
+  document.getElementById('closeMsgModal').addEventListener('click', function() {
+    document.getElementById('msgModal').classList.remove('active');
+  });
+
+  // Delete modal
+  const delBtn = document.getElementById('delBtn');
+  if (delBtn) {
+    delBtn.addEventListener('click', function() {
+      document.getElementById('delUsername').textContent = this.dataset.username;
+      document.getElementById('deleteForm').action = '/superadmin/delete-admin/' + this.dataset.id;
+      document.getElementById('deleteModal').classList.add('active');
+    });
+  }
+  document.getElementById('cancelDelBtn').addEventListener('click', function() {
+    document.getElementById('deleteModal').classList.remove('active');
+  });
+
+  document.querySelectorAll('.modal-overlay').forEach(function(m) {
+    m.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active'); });
+  });
+</script>
+</body>
+</html>

@@ -1,222 +1,582 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Update Stock</title>
-  <link rel="stylesheet" href="/css/consult.css"> <!-- Assuming the stylesheet is in public/css/consult.css -->
-  <style>
-    /* Centralized layout styles */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 60px;
-    }
-    .container {
-      text-align: center;
-      max-width: 800px;
-      width: 100%;
-      padding: 20px;
-    }
-    /* Header styles */
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: white;
-      padding: 10px 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    .logo-container img {
-      max-height: 50px;
-      vertical-align: middle;
-    }
-    .menu {
-      display: flex;
-      gap: 15px;
-    }
-    .menu a {
-      color: #0066cc;
-      text-decoration: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-    }
-    .menu a:hover {
-      background-color: #e0e0e0;
-      text-decoration: none;
-    }
-    /* Logo and heading styles */
-    .content-logo-container img {
-      max-height: 100px;
-      margin-bottom: 20px;
-    }
-    h1 {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-    }
-    /* Form and table styles */
-    .form-section, .table-section {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
-    }
-    h2 {
-      font-size: 18px;
-      font-weight: bold;
-      margin-bottom: 15px;
-    }
-    .form-group {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    input[type="text"], input[type="number"] {
-      padding: 8px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      width: 200px;
-    }
-    input[type="number"].small {
-      width: 100px;
-    }
-    button {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-    }
-    .reset-btn {
-      background-color: #ff4444;
-    }
-    .reset-btn:hover {
-      background-color: #cc0000;
-    }
-    .add-btn {
-      background-color: #4CAF50;
-    }
-    .add-btn:hover {
-      background-color: #45a049;
-    }
-    .update-btn {
-      background-color: #008CBA;
-    }
-    .update-btn:hover {
-      background-color: #007B9A;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin: 0 auto;
-    }
-    th, td {
-      padding: 10px;
-      text-align: left;
-    }
-    th {
-      background-color: #e0e0e0;
-    }
-    tr {
-      border-bottom: 1px solid #ddd;
-    }
-    /* Link styles */
-    a {
-      color: #0066cc;
-      text-decoration: none;
-      display: block;
-      margin-top: 20px;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shed | Update Stock – Inventory Management</title>
+    <meta name="description" content="Manage your inventory, update stock levels, costs and commissions">
+
+    <!-- favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,100..900;1,100..900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- vendor css -->
+    <link rel="stylesheet" href="asset1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="asset1/css/fontawesome-all.min.css">
+    <link rel="stylesheet" href="asset1/css/swiper.min.css">
+    <link rel="stylesheet" href="asset1/css/animate.min.css">
+    <link rel="stylesheet" href="asset1/css/magnific-popup.css">
+    <link rel="stylesheet" href="asset1/css/bootstrap-select.min.css">
+
+    <!-- template styles -->
+    <link rel="stylesheet" href="asset1/css/main.css">
+    <link rel="stylesheet" href="asset1/css/rtl.css">
+
+    <style>
+        :root {
+            --primary: #e74c3c;
+            --secondary: #2c3e50;
+            --light: #f8f9fa;
+        }
+
+        .main-header__two { position: relative; z-index: 91; }
+
+        .sidebar-nav {
+            position: fixed;
+            left: -280px;
+            top: 0;
+            bottom: 0;
+            width: 280px;
+            background: var(--secondary);
+            color: white;
+            transition: left .35s ease;
+            z-index: 9999;
+            padding-top: 100px;
+        }
+
+        .sidebar-nav.active { left: 0; }
+
+        .sidebar-nav a {
+            color: white;
+            display: block;
+            padding: 14px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active { background: rgba(255,255,255,0.08); }
+
+        .mobile-nav__toggler {
+            font-size: 28px;
+            color: white;
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.08);
+            transition: all 0.35s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+        }
+
+        .product-image-container {
+            height: 220px;
+            background: #f5f5f5;
+            position: relative;
+        }
+
+        .product-main-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .product-content { padding: 24px; }
+
+        .vat-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: #27ae60;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .edit-form, #addProductForm {
+            display: none;
+            background: #f9fbfc;
+            padding: 35px 30px;
+            border-radius: 8px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.06);
+            margin: 40px 0;
+        }
+
+        .edit-form.active, #addProductForm.active {
+            display: block;
+        }
+
+        .form-group { margin-bottom: 25px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+        }
+
+        .mil-button, .thm-btn {
+            padding: 12px 36px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .thm-btn.cancel {
+            background: #95a5a6;
+        }
+
+        .thm-btn.cancel:hover { background: #7f8c8d; }
+
+        .char-count {
+            font-size: 0.85rem;
+            color: #666;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .char-count.over { color: var(--danger); }
+
+        @media (max-width: 991px) {
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }
+        }
+    </style>
 </head>
 <body>
-  <!-- Header with Logo and Menu -->
-  <div class="header">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
-    </div>
-    <div class="menu">
-      <a href="/home">Home <span class="icon-business"></span></a>
-      <a href="/update-stock">Update Stock <span class="icon-analysis"></span></a>
-      <a href="/store-view">Store View <span class="icon-shopping-cart"></span></a>
-      <a href="/create-outlet">Create Outlet <span class="icon-group"></span></a>
-      <a href="/admin-logout">Logout <span class="icon-right-arrow"></span></a>
-    </div>
-  </div>
 
-  <div class="container">
-    <!-- Add Logo at the Top (Optional decorative logo below header) -->
-    <div class="content-logo-container">
-      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo">
+<div class="page-wrapper">
+
+    <!-- header -->
+    <div class="main-header__two">
+        <div class="header-upper">
+            <div class="container">
+                <div class="logo-box">
+                    <a href="/home">
+                        <img src="/images/logo.png" width="140" alt="Shed">
+                    </a>
+                    <button type="button" class="mobile-nav__toggler">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                </div>
+
+                <div class="header-info">
+                    <div class="header-info__box">
+                        <i class="azino-icon-email1"></i>
+                        <div class="header-info__box-content">
+                            <h3>Email</h3>
+                            <p><a href="mailto:<%= admin.email %>"><%= admin.email || 'hello@shed.ng' %></a></p>
+                        </div>
+                    </div>
+                    <div class="header-info__box">
+                        <i class="azino-icon-calling"></i>
+                        <div class="header-info__box-content">
+                            <h3>Business</h3>
+                            <p><%= admin.businessName || 'Your Business' %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="main-menu">
+            <div class="container">
+                <ul class="main-menu__list">
+                    <li><a href="/pos">Point of Sale</a></li>
+                    <li class="active"><a href="/update-stock">Inventory</a></li>
+                    <li><a href="/invoices">Invoices</a></li>
+                    <li><a href="/transactions">Transactions</a></li>
+                    <li><a href="/customers">Customers</a></li>
+                    <li><a href="/home">Outlets</a></li>
+                    <li><a href="/profile">Profile</a></li>
+                </ul>
+                <a href="/admin-logout" class="thm-btn dynamic-radius">Logout</a>
+            </div>
+        </nav>
     </div>
 
-    <h1>Update Stock <span class="icon-shopping-cart" style="margin-left: 10px;"></span></h1>
+    <!-- mobile sidebar -->
+    <div class="sidebar-nav" id="sidebarNav">
+        <button type="button" class="mobile-nav__close mobile-nav__toggler" style="position:absolute;top:20px;right:20px;font-size:28px;color:white;">
+            <i class="fa fa-times"></i>
+        </button>
 
-    <!-- Reset Inventory Button -->
-    <div class="form-section">
-      <form action="/reset-inventory" method="POST" onsubmit="return confirm('Are you sure you want to reset all inventory to 0?');">
-        <button type="submit" class="reset-btn">Reset All Inventory to 0 <span class="icon-verification"></span></button>
-      </form>
+        <div style="padding: 0 30px;">
+            <h3 style="color:white;margin-bottom:30px;">Menu</h3>
+        </div>
+
+        <a href="/pos"><i class="fas fa-shopping-bag mr-2"></i> Point of Sale</a>
+        <a href="/update-stock" class="active"><i class="fas fa-boxes mr-2"></i> Manage Inventory</a>
+        <a href="/invoices"><i class="fas fa-file-invoice mr-2"></i> Generate Invoice</a>
+        <a href="/transactions"><i class="fas fa-chart-bar mr-2"></i> Transactions</a>
+        <a href="/customers"><i class="fas fa-users mr-2"></i> Customers</a>
+        <a href="/home"><i class="fas fa-store mr-2"></i> Manage Outlets</a>
+        <a href="/profile"><i class="fas fa-user mr-2"></i> Profile</a>
+        <a href="/admin-logout"><i class="fas fa-power-off mr-2"></i> Log Out</a>
     </div>
 
-    <!-- Add New Product Form -->
-    <div class="form-section">
-      <h2>Add New Product <span class="icon-point-of-sale"></span></h2>
-      <div class="form-group">
-        <form action="/add-product" method="POST">
-          <input type="text" name="name" placeholder="Product Name" required>
-          <input type="number" name="stock" placeholder="Initial Stock" min="0" class="small" required>
-          <button type="submit" class="add-btn">Add Product <span class="icon-right-arrow"></span></button>
-        </form>
-      </div>
-    </div>
+    <!-- banner -->
+    <section class="main-slider main-slider__two">
+        <div class="swiper-container thm-swiper__slider" data-swiper-options='{"slidesPerView": 1, "loop": true, "effect": "fade", "autoplay": {"delay": 6000}}'>
+            <div class="swiper-wrapper">
+                <div class="swiper-slide">
+                    <div class="image-layer" style="background-image: url(asset1/images/main-slider/slider-1-1.jpg);"></div>
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-xl-7">
+                                <h2>Manage <span>Inventory</span></h2>
+                                <p>Keep track of stock levels, costs, commissions and product information</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <!-- Inventory Table -->
-    <div class="table-section">
-      <table>
-        <thead>
-          <tr class="bg-gray-200">
-            <th>Product <span class="icon-consumer-behavior"></span></th>
-            <th>Stock <span class="icon-analysis"></span></th>
-            <th>Action <span class="icon-strategy"></span></th>
-          </tr>
-        </thead>
-        <tbody>
-          <% inventory.forEach(item => { %>
-            <tr class="border-b">
-              <td><%= item.name %></td>
-              <td><%= item.stock %></td>
-              <td>
-                <form action="/update-stock" method="POST" class="form-group">
-                  <input type="hidden" name="id" value="<%= item.id %>">
-                  <input type="number" name="stock" value="<%= item.stock %>" class="small">
-                  <button type="submit" class="update-btn">Update <span class="icon-right-arrow"></span></button>
+    <!-- main content -->
+    <section class="service-two pt-120 pb-120">
+        <div class="container">
+
+            <!-- Quick actions -->
+            <div class="row mb-50">
+                <div class="col-lg-12 text-center">
+                    <div class="block-title">
+                        <p><img src="asset1/images/shapes/heart-2-1.png" width="15" alt=""> Inventory Tools</p>
+                        <h3>Manage Your Products</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="row justify-content-center mb-60">
+                <div class="col-auto">
+                    <button id="addProductBtn" class="thm-btn dynamic-radius">Add New Product</button>
+                </div>
+                <div class="col-auto">
+                    <button id="shareStoreBtn" class="thm-btn dynamic-radius" style="background:#27ae60;">
+                        Share Store Link <i class="fas fa-share-alt ms-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- === ADD NEW PRODUCT FORM === -->
+            <div id="addProductForm" class="wow fadeInUp" data-wow-duration="1200ms">
+                <div class="block-title text-center mb-40">
+                    <h3>Add New Product</h3>
+                </div>
+
+                <form action="/add-product" method="POST" enctype="multipart/form-data">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Product Name <span style="color:#e74c3c;">*</span></label>
+                                <input type="text" name="name" class="form-control" placeholder="e.g. Wireless Headphones" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="description" class="form-control" rows="4" placeholder="Short product description (max 400 characters)" maxlength="400"></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Initial Stock <span style="color:#e74c3c;">*</span></label>
+                                <input type="number" name="stock" class="form-control" min="0" placeholder="0" required>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="form-group">
+                                <label>Cost (<%= admin.currency || '₦' %>) <span style="color:#e74c3c;">*</span></label>
+                                <input type="number" name="cost" class="form-control" min="0" step="0.01" placeholder="0.00" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Commission (%)</label>
+                                <input type="number" name="commission" class="form-control" min="0" max="100" step="0.01" placeholder="0" value="0">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Product Images (up to 4)</label>
+                                <input type="file" name="productImages" class="form-control" accept="image/*" multiple>
+                                <small class="form-text text-muted">PNG, JPG, max 4 images</small>
+                            </div>
+
+                            <% if (admin.applyVat) { %>
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="isVatable" id="isVatable" checked>
+                                    <label class="form-check-label" for="isVatable">
+                                        This product is subject to VAT (<%= admin.vatRate %>%)
+                                    </label>
+                                </div>
+                            </div>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-40">
+                        <button type="submit" class="thm-btn dynamic-radius">Add Product</button>
+                        <button type="button" id="cancelAddBtn" class="thm-btn dynamic-radius cancel ml-3">Cancel</button>
+                    </div>
                 </form>
-              </td>
-            </tr>
-          <% }) %>
-        </tbody>
-      </table>
-    </div>
+            </div>
 
-    <a href="/store-view">Go to Store View <span class="icon-right-arrow"></span></a>
-  </div>
+            <!-- Products grid -->
+            <div class="products-grid">
+                <% if (inventory && inventory.length > 0) { %>
+                    <% inventory.forEach(item => { %>
+                        <div class="product-card wow fadeInUp" data-wow-duration="1000ms">
+                            <% if (admin.applyVat && item.isVatable) { %>
+                                <div class="vat-badge">VAT <%= admin.vatRate %>%</div>
+                            <% } %>
+
+                            <div class="product-image-container">
+                                <% if (item.images && item.images.length > 0) { %>
+                                    <img src="<%= item.images[0] %>" alt="<%= item.name %>" class="product-main-image">
+                                <% } else { %>
+                                    <div style="height:100%;display:flex;align-items:center;justify-content:center;color:#aaa;">
+                                        <i class="fas fa-box-open fa-4x"></i>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <div class="product-content">
+                                <h3><%= item.name || 'Unnamed Product' %></h3>
+                                <p style="color:#666; font-size:0.95rem; line-height:1.5; min-height:60px;">
+                                    <%= (item.description || 'No description').substring(0,110) %><%= item.description?.length > 110 ? '...' : '' %>
+                                </p>
+
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div><strong>Stock:</strong> <%= item.stock || 0 %></div>
+                                    <div><strong>Cost:</strong> <%= admin.currency %><%= Number(item.cost||0).toFixed(2) %></div>
+                                </div>
+
+                                <div class="d-flex gap-3">
+                                    <button class="thm-btn dynamic-radius btn-sm" onclick="toggleEditMode('<%= item._id %>')">
+                                        Edit
+                                    </button>
+                                    <button class="thm-btn dynamic-radius btn-sm" style="background:#e74c3c;" onclick="showDeleteModal('<%= item._id %>','<%= item.name?.replace(/'/g,"\\'") || 'this product' %>')">
+                                        Delete
+                                    </button>
+                                </div>
+
+                                <!-- Quick Edit Form – NOW INCLUDES DESCRIPTION -->
+                                <form class="edit-form" id="edit-form-<%= item._id %>" action="/update-stock" method="POST">
+                                    <input type="hidden" name="_id" value="<%= item._id %>">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Stock</label>
+                                                <input type="number" name="stock" value="<%= item.stock %>" min="0" class="form-control">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label>Cost (<%= admin.currency %>)</label>
+                                                <input type="number" name="cost" value="<%= item.cost %>" min="0" step="0.01" class="form-control">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- New: Description edit field -->
+                                    <div class="form-group">
+                                        <label>Description (max 400 characters)</label>
+                                        <textarea 
+                                            name="description" 
+                                            class="form-control" 
+                                            rows="3" 
+                                            maxlength="400"
+                                            placeholder="Enter product description..."
+                                        ><%= item.description || '' %></textarea>
+                                        <div class="char-count">
+                                            <span class="current">0</span>/400
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center mt-3">
+                                        <button type="submit" class="thm-btn dynamic-radius btn-sm">Save Changes</button>
+                                        <button type="button" class="thm-btn dynamic-radius btn-sm cancel" onclick="toggleEditMode('<%= item._id %>')">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="col-12 text-center py-5">
+                        <i class="fas fa-box-open fa-5x text-muted mb-4"></i>
+                        <h4>No products in inventory yet</h4>
+                        <p class="text-muted mb-4">Start building your catalog by adding your first product</p>
+                        <button id="addFirstProductBtn" class="thm-btn dynamic-radius">Add First Product</button>
+                    </div>
+                <% } %>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- footer -->
+    <section class="site-footer">
+        <div class="main-footer pt-120 pb-80">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-widget mb-40">
+                            <a href="/home">
+                                <img src="/images/logo.png" width="140" alt="">
+                            </a>
+                            <p class="mt-3">Smart inventory & sales management for growing businesses.</p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-widget mb-40">
+                            <h3>Quick Links</h3>
+                            <ul class="list-unstyled">
+                                <li><a href="/pos">Point of Sale</a></li>
+                                <li><a href="/update-stock">Inventory</a></li>
+                                <li><a href="/invoices">Invoices</a></li>
+                                <li><a href="/profile">Settings</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="footer-widget mb-40">
+                            <h3>Contact</h3>
+                            <p><strong><%= admin.businessName || 'Your Business' %></strong><br>
+                            <%= admin.email || 'No email set' %></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div class="container">
+                <p>© <%= new Date().getFullYear() %> Shed – All Rights Reserved</p>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<!-- mobile overlay -->
+<div class="mobile-nav__overlay mobile-nav__toggler"></div>
+
+<script src="asset1/js/jquery-3.5.1.min.js"></script>
+<script src="asset1/js/bootstrap.bundle.min.js"></script>
+<script src="asset1/js/swiper.min.js"></script>
+<script src="asset1/js/wow.js"></script>
+<script src="asset1/js/bootstrap-select.min.js"></script>
+<script src="asset1/js/theme.js"></script>
+
+<script>
+$(document).ready(function(){
+    // Mobile menu
+    $('.mobile-nav__toggler').click(function(e){
+        e.preventDefault();
+        $('#sidebarNav').toggleClass('active');
+        $('.mobile-nav__overlay').toggleClass('active');
+    });
+
+    $('.mobile-nav__close, .mobile-nav__overlay').click(function(){
+        $('#sidebarNav').removeClass('active');
+        $('.mobile-nav__overlay').removeClass('active');
+    });
+
+    // Add product form toggle
+    const addForm = $('#addProductForm');
+    $('#addProductBtn, #addFirstProductBtn').click(function(){
+        addForm.addClass('active');
+        $('html, body').animate({
+            scrollTop: addForm.offset().top - 100
+        }, 600);
+    });
+
+    $('#cancelAddBtn').click(function(){
+        addForm.removeClass('active');
+    });
+
+    // Edit toggle
+    window.toggleEditMode = function(id) {
+        $('#edit-form-' + id).toggleClass('active');
+    };
+
+    // Live character count for description in edit forms
+    $('.edit-form textarea[name="description"]').on('input', function(){
+        const len = this.value.length;
+        const counter = $(this).siblings('.char-count').find('.current');
+        counter.text(len);
+        if (len > 400) counter.closest('.char-count').addClass('over');
+        else counter.closest('.char-count').removeClass('over');
+    });
+
+    // Simple delete confirmation
+    window.showDeleteModal = function(id, name) {
+        if(confirm("Delete product '" + name + "'?\nThis cannot be undone.")) {
+            window.location = "/delete-stock?_id=" + id;
+        }
+    };
+
+    // Share Store Link
+    $('#shareStoreBtn').click(function(){
+        const storeUrl = "<%= storeUrl %>";
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(storeUrl)
+                .then(() => alert("Store link copied!\n\n" + storeUrl))
+                .catch(() => fallbackCopy());
+        } else {
+            fallbackCopy();
+        }
+
+        function fallbackCopy() {
+            const ta = document.createElement("textarea");
+            ta.value = storeUrl;
+            ta.style.position = "fixed";
+            ta.style.opacity = "0";
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                document.execCommand('copy');
+                alert("Link copied!\n\n" + storeUrl);
+            } catch (err) {
+                prompt("Copy manually (Ctrl+C):", storeUrl);
+            }
+            document.body.removeChild(ta);
+        }
+    });
+});
+</script>
+
 </body>
 </html>

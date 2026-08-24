@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Sale Confirmed</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .success-card {
+      max-width: 560px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .success-icon {
+      width: 80px; height: 80px;
+      background: rgba(0,139,139,0.1);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+    }
+    .success-icon i { font-size: 2.2rem; color: #008B8B; }
+    .send-options { display: none; margin-top: 20px; }
+    .send-options.active { display: block; }
+  </style>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'pos', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Sale Confirmed</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <div class="success-card">
+      <div class="app-card">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 style="font-size:1.6rem; font-weight:700; color:#0d0d1a; margin-bottom:8px;">Sale Recorded!</h2>
+        <p style="color:#888; margin-bottom:28px;">Your sale has been successfully posted for <%= admin.businessName || 'your business' %>.</p>
+
+        <div style="display:flex; flex-direction:column; gap:10px; align-items:stretch;">
+          <a href="/public-invoice/<%= saleId %>" class="btn-primary-app" style="justify-content:center;">
+            <i class="fas fa-download"></i> Download Receipt
+          </a>
+          <button type="button" id="sendReceiptBtn" class="btn-secondary-app" style="justify-content:center;">
+            <i class="fas fa-share-alt"></i> Send Receipt
+          </button>
+        </div>
+
+        <!-- Send options panel -->
+        <div id="sendOptions" class="send-options">
+          <div class="app-card" style="margin-top:16px; text-align:left;">
+            <div class="app-card-title">Send Receipt</div>
+            <form action="/send-receipt-email/<%= sale._id %>" method="POST">
+              <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" name="email" class="form-control"
+                       placeholder="customer@example.com"
+                       value="<%= sale.email !== 'N/A' ? sale.email : '' %>" required>
+              </div>
+              <button type="submit" class="btn-primary-app" style="width:100%; justify-content:center; margin-bottom:10px;">
+                <i class="fas fa-envelope"></i> Send via Email
+              </button>
+            </form>
+            <a href="https://wa.me/?text=Please%20find%20your%20receipt%20here:%20http://shed.ng/receipt/<%= sale._id %>"
+               target="_blank" class="btn-secondary-app" style="width:100%; justify-content:center;">
+              <i class="fab fa-whatsapp"></i> Send via WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; border-top:1px solid #f0f0f0; padding-top:20px;">
+          <a href="/pos" class="btn-secondary-app" style="justify-content:center;">
+            <i class="fas fa-plus"></i> New Sale
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+  document.getElementById('sendReceiptBtn').addEventListener('click', function() {
+    document.getElementById('sendOptions').classList.toggle('active');
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Point of Sale</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .pos-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.07);
+      padding: 32px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .item-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 14px;
+      padding: 14px;
+      background: #f9fbfc;
+      border: 1px solid #eef0f4;
+      border-radius: 8px;
+    }
+    .product-search-wrapper {
+      flex: 2;
+      min-width: 200px;
+      position: relative;
+    }
+    .quantity-input { width: 100px; }
+    .search-results {
+      position: absolute; top: 100%; left: 0; right: 0;
+      max-height: 240px; overflow-y: auto;
+      background: #fff;
+      border: 1px solid #dee2e6;
+      border-radius: 0 0 8px 8px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+      z-index: 100; display: none;
+    }
+    .search-result-item {
+      padding: 11px 14px; cursor: pointer;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9rem; transition: background 0.15s;
+    }
+    .search-result-item:hover, .search-result-item.highlighted { background: #f0f7ff; }
+    .search-result-item:last-child { border-bottom: none; }
+    .total-box {
+      background: #0d0d1a; color: #fff;
+      padding: 20px 24px; border-radius: 10px;
+      margin: 24px 0; text-align: right;
+      font-size: 1.4rem; font-weight: 700;
+    }
+    .total-box span { color: #008B8B; }
+    .section-label {
+      font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #999; margin-bottom: 14px;
+    }
+    .remove-btn {
+      width: 38px; height: 38px; border-radius: 8px;
+      background: #fff0f0; border: 1px solid #ffd0d0;
+      color: #c0392b; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 0.9rem; flex-shrink: 0;
+    }
+    .remove-btn:hover { background: #c0392b; color: #fff; }
+    @media(max-width:640px) {
+      .item-row { flex-direction: column; align-items: stretch; }
+      .quantity-input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'pos', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Point of Sale</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Record New Sale</h1>
+        <p>Fast, accurate sales recording right at your fingertips</p>
+      </div>
+    </div>
+
+    <div class="pos-card">
+      <form id="salesForm" action="/admin/sales-form" method="POST">
+
+        <!-- Products -->
+        <div style="margin-bottom:28px;">
+          <div class="section-label">Products</div>
+          <div id="itemsContainer">
+            <div class="item-row" data-index="0">
+              <div class="product-search-wrapper">
+                <input type="text" class="form-control mil-product-search" placeholder="Search product..." autocomplete="off">
+                <div class="search-results"></div>
+                <select name="items[itemId][]" class="mil-product-select" style="display:none;" required>
+                  <option value="">Select Product</option>
+                  <% inventory.forEach(item => { %>
+                    <% if (item.stock > 0) { %>
+                      <option value="<%= item._id %>"
+                              data-stock="<%= item.stock %>"
+                              data-price="<%= item.cost %>"
+                              data-name="<%= item.name %>">
+                        <%= item.name %> (Stock: <%= item.stock %>) – <%= admin.currency %><%= formatCurrency(Number(item.cost)) %>
+                      </option>
+                    <% } %>
+                  <% }) %>
+                </select>
+              </div>
+              <input type="number" name="items[quantity][]" class="form-control quantity-input" placeholder="Qty" min="1" required>
+              <button type="button" class="remove-btn" style="display:none;"><i class="fas fa-trash"></i></button>
+            </div>
+          </div>
+          <button type="button" id="addItemBtn" class="btn-secondary-app" style="margin-top:12px;">
+            <i class="fas fa-plus"></i> Add Another Item
+          </button>
+        </div>
+
+        <!-- Customer -->
+        <div class="section-label">Customer</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Customer Name <span style="color:#c0392b">*</span></label>
+            <input type="text" name="customerName" class="form-control" placeholder="Walk-in / Customer name" required>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label>Phone Number</label>
+            <input type="tel" name="phoneNumber" class="form-control" placeholder="0803 xxx xxxx">
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="form-group">
+          <label>Payment Method <span style="color:#c0392b">*</span></label>
+          <select name="paymentMethod" class="form-control" required>
+            <option value="">Choose payment method</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Card">Card</option>
+            <option value="POS">POS Terminal</option>
+            <option value="Transfer">Instant Transfer</option>
+          </select>
+        </div>
+
+        <!-- Total -->
+        <div class="total-box" id="totalSection">
+          Total: <span><%= admin.currency %>0.00</span>
+        </div>
+
+        <!-- Submit -->
+        <div style="text-align:center;">
+          <button type="submit" class="btn-primary-app" style="padding:14px 48px; font-size:1.05rem;">
+            <i class="fas fa-check-circle"></i> Record Sale
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  // Sidebar toggle
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  // POS functionality
+  (function($){
+    let itemIndex = 1;
+    const container = $('#itemsContainer');
+    const currency = '<%= admin.currency || "₦" %>';
+
+    function buildRow(idx) {
+      return $(`<div class="item-row" data-index="${idx}">
+        <div class="product-search-wrapper">
+          <input type="text" class="form-control mil-product-search" placeholder="Search product..." autocomplete="off">
+          <div class="search-results"></div>
+          <select name="items[itemId][]" class="mil-product-select" style="display:none;" required>
+            <option value="">Select Product</option>
+            <% inventory.forEach(function(item) { if (item.stock > 0) { %>
+              <option value="<%= item._id %>" data-stock="<%= item.stock %>" data-price="<%= item.cost %>" data-name="<%= item.name %>">
+                <%= item.name %> (Stock: <%= item.stock %>) – <%= admin.currency %><%= formatCurrency(Number(item.cost)) %>
+              </option>
+            <% }}); %>
+          </select>
+        </div>
+        <input type="number" name="items[quantity][]" class="form-control quantity-input" placeholder="Qty" min="1" required>
+        <button type="button" class="remove-btn"><i class="fas fa-trash"></i></button>
+      </div>`);
+    }
+
+    function initSearch(row) {
+      const input = row.find('.mil-product-search');
+      const sel = row.find('.mil-product-select');
+      const res = row.find('.search-results');
+      const opts = Array.from(sel[0].options);
+
+      input.on('focus input', function() {
+        const term = $(this).val().toLowerCase();
+        res.empty().show();
+        const filtered = opts.filter(o => o.value && o.textContent.toLowerCase().includes(term));
+        if (!filtered.length) { res.append('<div class="search-result-item">No products found</div>'); return; }
+        filtered.forEach(function(o) {
+          $('<div class="search-result-item">').text(o.textContent).appendTo(res).on('click', function() {
+            sel.val(o.value);
+            input.val(o.getAttribute('data-name'));
+            res.hide();
+            calcTotal();
+          });
+        });
+      });
+
+      $(document).on('click.posSearch', function(e) {
+        if (!$(e.target).closest('.product-search-wrapper').length) res.hide();
+      });
+    }
+
+    function updateRemove() {
+      const rows = $('.item-row');
+      rows.find('.remove-btn').toggle(rows.length > 1);
+    }
+
+    function calcTotal() {
+      let total = 0;
+      $('.item-row').each(function() {
+        const sel = $(this).find('.mil-product-select');
+        const qty = parseInt($(this).find('input[type="number"]').val()) || 0;
+        if (sel.val()) total += (parseFloat($(sel).find('option:selected').data('price')) || 0) * qty;
+      });
+      $('#totalSection span').text(currency + total.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}));
+    }
+
+    // Init first row
+    $('.item-row').each(function() { initSearch($(this)); });
+    updateRemove();
+
+    $('#addItemBtn').on('click', function() {
+      const row = buildRow(itemIndex++);
+      container.append(row);
+      initSearch(row);
+      updateRemove();
+      calcTotal();
+    });
+
+    container.on('click', '.remove-btn', function() {
+      if ($('.item-row').length > 1) { $(this).closest('.item-row').remove(); updateRemove(); calcTotal(); }
+    });
+
+    container.on('change input', 'select, input[type="number"]', calcTotal);
+    calcTotal();
+  })(jQuery);
+</script>
+</body>
+</html>

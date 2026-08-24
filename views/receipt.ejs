@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Receipt — <%= sale.customerName || 'Sale' %> #<%= sale._id.toString().slice(-6) %></title>
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Jost', sans-serif; background: #f4f6f9; color: #222; }
+
+    .receipt-wrapper {
+      max-width: 560px; margin: 32px auto; background: #fff;
+      border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* Top bar */
+    .receipt-topbar {
+      background: #0d0d1a; padding: 16px 24px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .receipt-topbar .logo { font-size: 1.4rem; font-weight: 700; color: #fff; }
+    .receipt-topbar .actions { display: flex; gap: 10px; }
+    .btn-print {
+      background: #008B8B; color: #fff; border: none; border-radius: 6px;
+      padding: 8px 16px; font-size: 0.85rem; font-family: 'Jost', sans-serif;
+      font-weight: 600; cursor: pointer; transition: background .2s;
+    }
+    .btn-print:hover { background: #006f6f; }
+    .btn-back {
+      background: rgba(255,255,255,0.1); color: #fff; border: none; border-radius: 6px;
+      padding: 8px 16px; font-size: 0.85rem; font-family: 'Jost', sans-serif;
+      font-weight: 600; cursor: pointer; text-decoration: none;
+    }
+    .btn-back:hover { background: rgba(255,255,255,0.2); }
+
+    /* Receipt body */
+    .receipt-body { padding: 32px 28px; }
+
+    .biz-header { text-align: center; margin-bottom: 28px; }
+    .biz-logo { width: 72px; height: 72px; object-fit: contain; margin-bottom: 12px; border-radius: 8px; }
+    .biz-name { font-size: 1.3rem; font-weight: 700; color: #0d0d1a; margin-bottom: 4px; }
+    .biz-info { font-size: 0.82rem; color: #888; line-height: 1.6; }
+
+    .receipt-divider { border: none; border-top: 1px dashed #e0e0e0; margin: 20px 0; }
+
+    .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 4px; }
+    .meta-block .meta-label { font-size: 0.72rem; color: #999; text-transform: uppercase; letter-spacing: .06em; font-weight: 700; margin-bottom: 3px; }
+    .meta-block .meta-value { font-size: 0.9rem; color: #333; line-height: 1.5; }
+
+    /* Items table */
+    .items-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.88rem; }
+    .items-table thead th {
+      background: #f8f9fa; padding: 9px 10px; text-align: left;
+      font-size: 0.75rem; font-weight: 700; color: #999;
+      text-transform: uppercase; letter-spacing: .05em;
+      border-bottom: 1px solid #eee;
+    }
+    .items-table thead th:last-child, .items-table tbody td:last-child { text-align: right; }
+    .items-table tbody td { padding: 10px; border-bottom: 1px solid #f5f5f5; color: #333; }
+    .items-table tbody tr:last-child td { border-bottom: none; }
+    .items-table tfoot td { padding: 12px 10px; font-weight: 700; }
+    .items-table tfoot td:first-child { font-size: 0.82rem; color: #999; text-transform: uppercase; }
+    .items-table tfoot td:last-child { font-size: 1.1rem; color: #008B8B; text-align: right; }
+
+    .receipt-footer {
+      background: #f8f9fa; border-top: 1px solid #eee;
+      padding: 16px 28px; text-align: center;
+      font-size: 0.82rem; color: #999;
+    }
+
+    /* Print styles */
+    @media print {
+      body { background: #fff; }
+      .receipt-wrapper { box-shadow: none; margin: 0; border-radius: 0; max-width: 100%; }
+      .receipt-topbar .actions { display: none; }
+      .receipt-topbar { background: #0d0d1a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="receipt-wrapper">
+
+  <!-- Top bar -->
+  <div class="receipt-topbar">
+    <div class="logo">Shed.</div>
+    <div class="actions">
+      <a href="/transactions" class="btn-back"><i class="fas fa-arrow-left"></i> Back</a>
+      <button class="btn-print" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
+    </div>
+  </div>
+
+  <!-- Body -->
+  <div class="receipt-body">
+
+    <!-- Business header -->
+    <div class="biz-header">
+      <% if (admin.logo) { %>
+        <img src="<%= admin.logo %>" alt="Business Logo" class="biz-logo">
+      <% } else { %>
+        <div style="width:72px; height:72px; border-radius:8px; background:#0d0d1a; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:1.6rem; font-weight:700; color:#fff;">
+          <%= (admin.businessName || 'S')[0].toUpperCase() %>
+        </div>
+      <% } %>
+      <div class="biz-name"><%= admin.businessName || 'Your Business' %></div>
+      <div class="biz-info">
+        <%= admin.address || '' %><% if (admin.address && admin.phone) { %><br><% } %>
+        <%= admin.phone || '' %><% if (admin.phone) { %> &bull; <% } %><%= admin.email %>
+      </div>
+    </div>
+
+    <hr class="receipt-divider">
+
+    <!-- Receipt meta -->
+    <div class="meta-grid">
+      <div class="meta-block">
+        <div class="meta-label">Receipt #</div>
+        <div class="meta-value"><%= sale._id.toString().slice(-8).toUpperCase() %></div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Date</div>
+        <div class="meta-value"><%= new Date(sale.date).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' }) %></div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Cashier</div>
+        <div class="meta-value"><%= username || 'Admin' %></div>
+      </div>
+      <div class="meta-block">
+        <div class="meta-label">Customer</div>
+        <div class="meta-value">
+          <%= sale.customerName || 'Walk-in' %>
+          <% if (sale.phoneNumber) { %><br><%= sale.phoneNumber %><% } %>
+        </div>
+      </div>
+    </div>
+
+    <hr class="receipt-divider">
+
+    <!-- Items -->
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th style="text-align:center;">Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% sale.items.forEach(item => { %>
+          <tr>
+            <td><%= item.itemName %></td>
+            <td style="text-align:center;"><%= item.quantity %></td>
+            <td><%= admin.currency %> <%= formatCurrency(Number(item.unitCost || item.price || 0)) %></td>
+            <td><%= admin.currency %> <%= formatCurrency(Number(item.totalCost || (item.quantity * (item.unitCost || item.price || 0)))) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Grand Total</td>
+          <td><%= admin.currency %> <%= formatCurrency(Number(sale.totalAmount || 0)) %></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <hr class="receipt-divider">
+
+    <p style="text-align:center; color:#008B8B; font-weight:600; font-size:0.9rem;">
+      Thank you for your purchase!
+    </p>
+    <p style="text-align:center; color:#aaa; font-size:0.8rem; margin-top:6px;">
+      Come again soon &bull; <%= admin.businessName || 'Your Business' %>
+    </p>
+
+  </div>
+
+  <!-- Footer -->
+  <div class="receipt-footer">
+    Powered by <strong style="color:#008B8B;">Shed</strong> &bull;
+    &copy; <%= new Date().getFullYear() %> — All Rights Reserved
+  </div>
+
+</div>
+
+</body>
+</html>

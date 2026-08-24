@@ -3,152 +3,100 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Create Outlet</title>
-  <link rel="stylesheet" href="/css/consult.css">
-  <style>
-    /* Centralized layout styles */
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
-      margin: 0;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 60px; /* Space for the fixed header */
-    }
-    .container {
-      text-align: center;
-      max-width: 800px;
-      width: 100%;
-      padding: 20px;
-    }
-    /* Header styles */
-    .header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background-color: white;
-      padding: 10px 20px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 1000;
-    }
-    .logo-container img {
-      max-height: 50px;
-      vertical-align: middle;
-    }
-    .menu {
-      display: flex;
-      gap: 15px;
-    }
-    .menu a {
-      color: #0066cc;
-      text-decoration: none;
-      padding: 5px 10px;
-      border-radius: 4px;
-      transition: background-color 0.3s;
-    }
-    .menu a:hover {
-      background-color: #e0e0e0;
-      text-decoration: none;
-    }
-    /* Logo and heading styles */
-    .content-logo-container img {
-      max-height: 100px;
-      margin-bottom: 20px;
-    }
-    h2 {
-      font-size: 24px;
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    /* Form styles */
-    .form-section {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-    .error {
-      color: red;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    input[type="text"], input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      box-sizing: border-box;
-    }
-    button {
-      width: 100%;
-      padding: 10px;
-      background-color: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #45a049;
-    }
-    /* Link styles */
-    a {
-      color: #0066cc;
-      text-decoration: none;
-      display: block;
-      margin-top: 15px;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <title>Shed | Create Outlet</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
 </head>
 <body>
-  <!-- Header with Logo and Menu -->
-  <div class="header">
-    <div class="logo-container">
-      <img src="/images/logo.png" alt="Yearnings Custom Store Logo">
-    </div>
-    <div class="menu">
-      <a href="/home">Home <span class="icon-business"></span></a>
-      <a href="/update-stock">Update Stock <span class="icon-analysis"></span></a>
-      <a href="/store-view">Store View <span class="icon-shopping-cart"></span></a>
-      <a href="/create-outlet">Create Outlet <span class="icon-group"></span></a>
-      <a href="/admin-logout">Logout <span class="icon-right-arrow"></span></a>
-    </div>
-  </div>
 
-  <div class="container">
-    <!-- Add Logo at the Top (Optional decorative logo below header) -->
-    <div class="content-logo-container">
-      <img src="/images/logo.jpg" alt="Yearnings Custom Store Logo">
+<%- include('partials/app-sidebar', { currentPage: 'home', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Create Outlet</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Create Outlet</h1>
+        <p>Add a new outlet location for your business</p>
+      </div>
+      <a href="/home" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Back to Outlets</a>
     </div>
 
-    <div class="form-section">
-      <h2>Create Outlet <span class="icon-group" style="margin-left: 10px;"></span></h2>
-      <% if (error) { %>
-        <div class="error"><%= error %></div>
-      <% } %>
-      <form action="/create-outlet" method="POST">
-        <input type="text" name="name" placeholder="Outlet Name" required>
-        <input type="text" name="location" placeholder="Location/Address" required>
-        <input type="text" name="mobile" placeholder="Mobile Number" required>
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Create Outlet <span class="icon-right-arrow"></span></button>
-      </form>
-      <a href="/home">Back to Home <span class="icon-right-arrow"></span></a>
+    <div style="max-width:560px;">
+      <div class="app-card">
+        <div class="app-card-title">Outlet Details</div>
+        <form action="/create-outlet" method="POST">
+          <div class="form-group">
+            <label>Outlet Name <span style="color:#c0392b">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Downtown Branch" required>
+          </div>
+          <div class="form-group">
+            <label>Location / Address <span style="color:#c0392b">*</span></label>
+            <input type="text" name="location" class="form-control" placeholder="Street, City" required>
+          </div>
+          <div class="form-group">
+            <label>Mobile Number <span style="color:#c0392b">*</span></label>
+            <input type="text" name="mobile" class="form-control" placeholder="0803 xxx xxxx" required>
+          </div>
+          <div class="form-group">
+            <label>Login Username <span style="color:#c0392b">*</span></label>
+            <input type="text" name="username" class="form-control" placeholder="outlet_username" required>
+          </div>
+          <div class="form-group">
+            <label>Password <span style="color:#c0392b">*</span></label>
+            <input type="password" name="password" class="form-control" placeholder="Choose a password" required>
+          </div>
+          <div style="display:flex; gap:12px; margin-top:8px;">
+            <button type="submit" class="btn-primary-app">
+              <i class="fas fa-plus"></i> Create Outlet
+            </button>
+            <a href="/home" class="btn-secondary-app">
+              <i class="fas fa-times"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
 </body>
 </html>

@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Inventory</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 22px;
+    }
+    .product-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: all 0.3s ease;
+      position: relative;
+    }
+    .product-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,0.12); }
+    .product-image-container {
+      height: 200px;
+      background: #f5f5f5;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .product-image-container img { width:100%; height:100%; object-fit:cover; }
+    .product-content { padding: 20px; }
+    .product-content h3 { font-size:1rem; font-weight:700; color:#0d0d1a; margin:0 0 6px; }
+    .vat-badge {
+      position:absolute; top:12px; left:12px;
+      background:#27ae60; color:#fff;
+      padding:3px 10px; border-radius:30px;
+      font-size:0.75rem; font-weight:600;
+    }
+    .product-meta {
+      display: flex; justify-content: space-between; margin:10px 0 14px;
+      font-size:0.88rem; color:#666;
+    }
+    .product-meta strong { color:#333; }
+    .product-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .edit-form {
+      display:none; margin-top:16px; background:#f9fbfc;
+      border:1px solid #eef0f4; border-radius:8px; padding:18px;
+    }
+    .edit-form.active { display:block; }
+    .char-count { font-size:0.8rem; color:#999; text-align:right; margin-top:3px; }
+    .char-count.over { color:#c0392b; }
+    .add-product-box {
+      background:#fff; border-radius:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,0.07);
+      padding:28px; margin-bottom:24px; display:none;
+    }
+    .add-product-box.active { display:block; }
+    .form-two-col { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+    @media(max-width:640px) { .form-two-col{grid-template-columns:1fr;} }
+    .action-bar { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:24px; }
+
+    /* Share modal */
+    .share-modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45); z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .share-modal-overlay.open { display: flex; }
+    .share-modal {
+      background: #fff; border-radius: 16px;
+      padding: 32px 28px; width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+      position: relative;
+    }
+    .share-modal h3 { font-size: 1.15rem; font-weight: 700; color: #0d0d1a; margin-bottom: 6px; }
+    .share-modal .share-url {
+      display: flex; align-items: center; gap: 8px;
+      background: #f4f6f9; border: 1px solid #e5e7ec; border-radius: 8px;
+      padding: 9px 12px; margin: 16px 0 22px;
+    }
+    .share-modal .share-url span {
+      flex: 1; font-size: 0.82rem; color: #555;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .share-modal .share-url button {
+      background: none; border: none; cursor: pointer;
+      color: #008B8B; font-size: 0.82rem; font-weight: 600; white-space: nowrap;
+      font-family: inherit; padding: 0;
+    }
+    .share-options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+    .share-option {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; border-radius: 10px; border: 1px solid #eee;
+      text-decoration: none; font-size: 0.88rem; font-weight: 600;
+      cursor: pointer; transition: background 0.15s, border-color 0.15s;
+      color: #333; background: #fafafa;
+    }
+    .share-option:hover { border-color: #ccc; background: #f0f0f0; }
+    .share-option .so-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0; }
+    .so-whatsapp .so-icon { background: #25D366; color: #fff; }
+    .so-facebook .so-icon { background: #1877F2; color: #fff; }
+    .so-twitter .so-icon  { background: #000; color: #fff; }
+    .so-copy .so-icon     { background: #008B8B; color: #fff; }
+    .share-qr { text-align: center; padding-top: 16px; border-top: 1px solid #f0f0f0; }
+    .share-qr p { font-size: 0.78rem; color: #aaa; margin-bottom: 10px; }
+    .share-qr canvas, .share-qr img { border-radius: 8px; }
+    .share-close-btn {
+      position: absolute; top: 14px; right: 16px;
+      background: none; border: none; font-size: 1.3rem; color: #bbb;
+      cursor: pointer; line-height: 1;
+    }
+    .share-close-btn:hover { color: #555; }
+  </style>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'inventory', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Inventory</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Inventory</h1>
+        <p>Manage products, stock levels and pricing</p>
+      </div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn-primary-app" id="addProductBtn">
+        <i class="fas fa-plus"></i> Add Product
+      </button>
+      <button class="btn-secondary-app" id="shareStoreBtn">
+        <i class="fas fa-share-alt"></i> Share Store Link
+      </button>
+    </div>
+
+    <!-- Add Product Form -->
+    <div class="add-product-box" id="addProductForm">
+      <h3 style="margin:0 0 22px; font-size:1.1rem; font-weight:700; color:#0d0d1a;">Add New Product</h3>
+      <form action="/add-product" method="POST" enctype="multipart/form-data">
+        <div class="form-two-col">
+          <div>
+            <div class="form-group">
+              <label>Product Name <span style="color:#c0392b">*</span></label>
+              <input type="text" name="name" class="form-control" placeholder="e.g. Wireless Headphones" required>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea name="description" class="form-control" rows="4" placeholder="Short description (max 400 chars)" maxlength="400"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Initial Stock <span style="color:#c0392b">*</span></label>
+              <input type="number" name="stock" class="form-control" min="0" placeholder="0" required>
+            </div>
+          </div>
+          <div>
+            <div class="form-group">
+              <label>Cost (<%= admin.currency || '₦' %>) <span style="color:#c0392b">*</span></label>
+              <input type="number" name="cost" class="form-control" min="0" step="0.01" placeholder="0.00" required>
+            </div>
+            <div class="form-group">
+              <label>Commission (%)</label>
+              <input type="number" name="commission" class="form-control" min="0" max="100" step="0.01" placeholder="0" value="0">
+            </div>
+            <div class="form-group">
+              <label>Product Images (up to 4)</label>
+              <input type="file" name="productImages" class="form-control" accept="image/*" multiple>
+              <small style="color:#999; font-size:0.8rem;">PNG, JPG, max 4 images</small>
+            </div>
+            <% if (admin.applyVat) { %>
+            <div class="form-group">
+              <label style="display:flex; align-items:center; gap:8px; text-transform:none; letter-spacing:0; font-size:0.9rem; font-weight:500;">
+                <input type="checkbox" name="isVatable" id="isVatable" checked style="width:16px; height:16px;">
+                Subject to VAT (<%= admin.vatRate %>%)
+              </label>
+            </div>
+            <% } %>
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="submit" class="btn-primary-app"><i class="fas fa-plus"></i> Add Product</button>
+          <button type="button" class="btn-secondary-app" id="cancelAddBtn"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Products Grid -->
+    <% if (inventory && inventory.length > 0) { %>
+      <div class="products-grid">
+        <% inventory.forEach(item => { %>
+          <div class="product-card">
+            <% if (admin.applyVat && item.isVatable) { %>
+              <div class="vat-badge">VAT <%= admin.vatRate %>%</div>
+            <% } %>
+            <div class="product-image-container">
+              <% if (item.images && item.images.length > 0) { %>
+                <img src="<%= item.images[0] %>" alt="<%= item.name %>">
+              <% } else { %>
+                <i class="fas fa-box-open" style="font-size:3rem; color:#ccc;"></i>
+              <% } %>
+            </div>
+            <div class="product-content">
+              <h3><%= item.name || 'Unnamed Product' %></h3>
+              <p style="color:#888; font-size:0.85rem; line-height:1.5; min-height:48px;">
+                <%= (item.description || 'No description').substring(0,100) %><%= item.description?.length > 100 ? '…' : '' %>
+              </p>
+              <div class="product-meta">
+                <span><strong>Stock:</strong> <%= item.stock || 0 %></span>
+                <span><strong>Cost:</strong> <%= admin.currency %><%= formatCurrency(Number(item.cost||0)) %></span>
+              </div>
+              <div class="product-actions">
+                <button class="btn-secondary-app btn-sm" onclick="toggleEditMode('<%= item._id %>')">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+                <button class="btn-danger-app btn-sm" onclick="showDeleteModal('<%= item._id %>','<%= (item.name || 'this product').replace(/'/g, "\\'") %>')">
+                  <i class="fas fa-trash"></i> Delete
+                </button>
+              </div>
+
+              <form class="edit-form" id="edit-form-<%= item._id %>" action="/inventory" method="POST">
+                <input type="hidden" name="_id" value="<%= item._id %>">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                  <div class="form-group" style="margin-bottom:12px;">
+                    <label>Stock</label>
+                    <input type="number" name="stock" value="<%= item.stock %>" min="0" class="form-control">
+                  </div>
+                  <div class="form-group" style="margin-bottom:12px;">
+                    <label>Cost (<%= admin.currency %>)</label>
+                    <input type="number" name="cost" value="<%= item.cost %>" min="0" step="0.01" class="form-control">
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                  <label>Description (max 400 chars)</label>
+                  <textarea name="description" class="form-control" rows="3" maxlength="400"><%= item.description || '' %></textarea>
+                  <div class="char-count"><span class="current"><%= (item.description || '').length %></span>/400</div>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="submit" class="btn-primary-app btn-sm">Save</button>
+                  <button type="button" class="btn-secondary-app btn-sm" onclick="toggleEditMode('<%= item._id %>')">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-box-open" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No products yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Start building your catalog by adding your first product.</p>
+        <button class="btn-primary-app" id="addFirstProductBtn"><i class="fas fa-plus"></i> Add First Product</button>
+      </div>
+    <% } %>
+
+  </main>
+</div>
+
+<!-- Share Modal -->
+<div class="share-modal-overlay" id="shareModalOverlay">
+  <div class="share-modal">
+    <button class="share-close-btn" id="shareCloseBtn" aria-label="Close">&times;</button>
+    <h3><i class="fas fa-share-alt" style="color:#008B8B;margin-right:8px;"></i>Share Your Store</h3>
+    <div class="share-url">
+      <span id="shareUrlDisplay"></span>
+      <button id="copyUrlBtn"><i class="fas fa-copy"></i> Copy</button>
+    </div>
+    <div class="share-options">
+      <a class="share-option so-whatsapp" id="shareWhatsApp" target="_blank" rel="noopener">
+        <span class="so-icon"><i class="fab fa-whatsapp"></i></span> WhatsApp
+      </a>
+      <a class="share-option so-facebook" id="shareFacebook" target="_blank" rel="noopener">
+        <span class="so-icon"><i class="fab fa-facebook-f"></i></span> Facebook
+      </a>
+      <a class="share-option so-twitter" id="shareTwitter" target="_blank" rel="noopener">
+        <span class="so-icon"><i class="fab fa-x-twitter"></i></span> X
+      </a>
+      <button class="share-option so-copy" id="shareNative">
+        <span class="so-icon"><i class="fas fa-ellipsis-h"></i></span> More
+      </button>
+    </div>
+    <div class="share-qr">
+      <p>Scan to open store</p>
+      <div id="qrContainer" style="display:inline-block;"></div>
+      <div style="margin-top:10px;">
+        <button id="qrDownloadBtn" style="background:none;border:1px solid #e0e0e0;border-radius:8px;padding:6px 16px;font-size:0.8rem;color:#555;cursor:pointer;font-family:inherit;transition:background 0.15s;" onmouseover="this.style.background='#f5f5f5'" onmouseout="this.style.background='none'">
+          <i class="fas fa-download" style="margin-right:5px;"></i>Download QR
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+  // Sidebar toggle
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  // Add product form toggle
+  const addForm = document.getElementById('addProductForm');
+  function showAddForm() {
+    addForm.classList.add('active');
+    addForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.getElementById('addProductBtn').addEventListener('click', showAddForm);
+  const firstBtn = document.getElementById('addFirstProductBtn');
+  if (firstBtn) firstBtn.addEventListener('click', showAddForm);
+  document.getElementById('cancelAddBtn').addEventListener('click', function() {
+    addForm.classList.remove('active');
+  });
+
+  // Edit form toggle
+  window.toggleEditMode = function(id) {
+    const f = document.getElementById('edit-form-' + id);
+    f.classList.toggle('active');
+  };
+
+  // Char count for description edit fields
+  document.querySelectorAll('.edit-form textarea[name="description"]').forEach(function(ta) {
+    ta.addEventListener('input', function() {
+      const len = this.value.length;
+      const counter = this.nextElementSibling.querySelector('.current');
+      if (counter) {
+        counter.textContent = len;
+        this.nextElementSibling.classList.toggle('over', len > 400);
+      }
+    });
+  });
+
+  // Delete confirmation
+  window.showDeleteModal = function(id, name) {
+    if (confirm("Delete product '" + name + "'?\nThis cannot be undone.")) {
+      window.location = "/delete-stock?_id=" + id;
+    }
+  };
+
+  // Share modal
+  (function () {
+    const STORE_URL = "<%= storeUrl %>";
+    const STORE_NAME = "<%= admin.businessName ? admin.businessName.replace(/"/g, '&quot;') : 'My Store' %>";
+    const overlay  = document.getElementById('shareModalOverlay');
+    const closeBtn = document.getElementById('shareCloseBtn');
+    const urlDisplay = document.getElementById('shareUrlDisplay');
+    let qrGenerated = false;
+
+    function openModal() {
+      urlDisplay.textContent = STORE_URL;
+      overlay.classList.add('open');
+
+      // Set share links
+      const msg = encodeURIComponent('Check out ' + STORE_NAME + ': ' + STORE_URL);
+      document.getElementById('shareWhatsApp').href  = 'https://wa.me/?text=' + msg;
+      document.getElementById('shareFacebook').href  = 'https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(STORE_URL);
+      document.getElementById('shareTwitter').href   = 'https://twitter.com/intent/tweet?text=' + msg;
+
+      // Generate QR once
+      if (!qrGenerated) {
+        const container = document.getElementById('qrContainer');
+        container.innerHTML = '';
+        new QRCode(container, {
+          text: STORE_URL,
+          width: 140,
+          height: 140,
+          colorDark: '#0d0d1a',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+        qrGenerated = true;
+      }
+    }
+
+    function downloadQR() {
+      const container = document.getElementById('qrContainer');
+      // qrcodejs renders an <img> (visible) and a <canvas> (hidden)
+      // The img src is already a data URL — use it directly
+      const img = container.querySelector('img');
+      const canvas = container.querySelector('canvas');
+      let dataUrl;
+      if (img && img.src && img.src.startsWith('data:')) {
+        dataUrl = img.src;
+      } else if (canvas) {
+        dataUrl = canvas.toDataURL('image/png');
+      } else {
+        return;
+      }
+      const link = document.createElement('a');
+      link.download = 'store-qr.png';
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    function closeModal() { overlay.classList.remove('open'); }
+
+    document.getElementById('shareStoreBtn').addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+    document.getElementById('qrDownloadBtn').addEventListener('click', downloadQR);
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+    // Copy URL
+    document.getElementById('copyUrlBtn').addEventListener('click', function() {
+      navigator.clipboard.writeText(STORE_URL).then(function() {
+        const btn = document.getElementById('copyUrlBtn');
+        btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+        setTimeout(function() { btn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 2000);
+      }).catch(function() {
+        prompt('Copy manually (Ctrl+C):', STORE_URL);
+      });
+    });
+
+    // Native share (Android/iOS)
+    document.getElementById('shareNative').addEventListener('click', function() {
+      if (navigator.share) {
+        navigator.share({ title: STORE_NAME, url: STORE_URL });
+      } else {
+        navigator.clipboard.writeText(STORE_URL);
+        alert('Link copied to clipboard!');
+      }
+    });
+  })();
+</script>
+</body>
+</html>
