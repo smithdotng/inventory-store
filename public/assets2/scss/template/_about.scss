@@ -1,0 +1,39 @@
+/*====================
+    About Area 
+======================*/
+
+.about-content{
+    h2{
+        color: #262626;
+        font-size: 36px;
+        font-weight: 500;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        @media #{$sm-layout} {
+            font-size: 28px;
+        }
+    }
+    .content{
+        p{
+            color: #262626;
+            font-size: 16px;
+            line-height: 32px;
+            font-weight: 400;
+        }
+    }
+}
+
+.section-title--3{
+    .title{
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: 4px;
+        margin-bottom: 0;
+        text-transform: uppercase;
+        font-weight: 500;
+        @media #{$sm-layout} {
+            font-size: 28px;
+        }
+    }
+}
+

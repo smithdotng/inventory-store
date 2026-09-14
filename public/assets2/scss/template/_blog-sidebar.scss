@@ -1,0 +1,128 @@
+// Sidebar Style
+.sidebar_widget {
+    .sidebar_title {
+        font-size: 22px;
+        font-weight: 500;
+        line-height: 1;
+        margin-bottom: 25px;
+        margin-top: 0;
+        position: relative;
+        text-transform: capitalize;
+    }
+    .sidebar_search {
+        form {
+            position: relative;
+            input {
+                background: #f1f1f1 none repeat scroll 0 0;
+                border: medium none;
+                box-shadow: none;
+                color: #8e8d8d;
+                font-size: 13px;
+                height: 45px;
+                padding-left: 15px;
+                padding-right: 55px;
+            }
+            button {
+                background-color: #dedede;
+                border: medium none;
+                color: #050035;
+                cursor: pointer;
+                font-size: 18px;
+                height: 100%;
+                line-height: 49px;
+                padding: 0 16px;
+                position: absolute;
+                right: 0;
+                top: 0;
+                transition: all 0.3s ease 0s;
+                &:hover {
+                    background: $theme-color none repeat scroll 0 0;
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+    & .sidebar_categories {
+        list-style: outside none none;
+        padding: 0;
+        margin: 0;
+        li {
+            margin-bottom: 13px;
+            a {
+                color: #252525;
+                font-size: 16px;
+                font-weight: 400;
+                &:hover {
+                    color: #777777;
+                }
+                span {
+                    float: right;
+                    font-size: 14px;
+                }
+            }
+        }
+    }
+
+    & .sidebar_tag {
+        list-style: outside none none;
+        padding: 0;
+        margin: 0;
+        li {
+            display: inline-block;
+            a {
+                border: 1px solid #cbcbcb;
+                color: #383838;
+                display: inline-block;
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 1;
+                margin: 0 5px 10px 0;
+                padding: 13px 19px;
+                text-align: center;
+                text-transform: capitalize;
+                transition: all 0.3s ease 0s;
+                &:hover {
+                    background-color: $theme-color;
+                    border-color: $theme-color;
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+    & .sidebar_post {
+        padding: 0;
+        margin: 0;
+        li {
+            margin-bottom: 30px;
+            overflow: hidden;
+            &:last-child {
+                margin-bottom: 0;
+            }
+            .post_img {
+                float: left;
+                margin-right: 20px;
+                max-width: 86px;
+            }
+            .post_text {
+                overflow: hidden;
+                h4 {
+                    margin: 0;
+                    font-size: 15px;
+                    font-weight: 400;
+                    a {
+                        color: #252525;
+                        transition: 0.3s;
+                        &:hover {
+                            color: $theme-color;
+                        }
+                    }
+                }
+                span {
+                    display: inline-block;
+                    font-weight: 600;
+                    margin-top: 5px;
+                }
+            }
+        }
+    }
+}

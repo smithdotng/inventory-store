@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="Order Confirmation - <%= admin.businessName %>" />
+    <meta property="og:description" content="Your order confirmation from <%= admin.businessName %>" />
+    <meta property="og:image" content="<%= admin.logo || '/android-chrome-512x512.png' %>" />
+    <title>Order Confirmation - <%= admin.businessName %></title>
+    
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        /* Header Styles */
+        .mil-frame-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 20px;
+            background: #fff;
+            height: 70px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            flex-wrap: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .mil-logo {
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+        
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .mil-logo img:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Search Field */
+        .mil-header-search {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .mil-search-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .mil-search-input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 280px;
+            font-size: 14px;
+            text-transform: none !important;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .mil-search-input:focus {
+            border-color: darkcyan;
+            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
+        }
+        
+        .mil-search-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: -35px;
+            transition: color 0.3s ease;
+        }
+        
+        .mil-search-button:hover {
+            color: darkcyan;
+        }
+        
+        /* Cart Button */
+        .mil-cart-container {
+            flex-shrink: 0;
+            position: relative;
+            margin-left: 20px;
+        }
+        
+        .mil-cart-button {
+            background: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            height: 36px;
+        }
+        
+        .mil-cart-button:hover {
+            background: rgb(245, 176, 27);
+            transform: translateY(-1px);
+        }
+        
+        .mil-cart-button i {
+            font-size: 16px;
+        }
+        
+        .mil-cart-count {
+            background: #333;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* Main Content */
+        .mil-confirmation-content {
+            padding-top: 100px;
+            padding-bottom: 60px;
+            min-height: calc(100vh - 200px);
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+        
+        /* Confirmation Container */
+        .mil-confirmation-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mil-confirmation-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, darkcyan, rgb(235, 166, 17));
+        }
+        
+        .mil-confirmation-icon {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .mil-confirmation-icon i {
+            font-size: 80px;
+            color: darkcyan;
+            background: rgba(0, 139, 139, 0.1);
+            width: 120px;
+            height: 120px;
+            line-height: 120px;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .mil-confirmation-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .mil-confirmation-header h1 {
+            font-size: 2.5rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        
+        .mil-confirmation-header p {
+            font-size: 1.2rem;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+        
+        /* Order Details */
+        .mil-order-details {
+            margin-bottom: 40px;
+        }
+        
+        .mil-order-details h2 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+        
+        .mil-customer-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+        
+        .mil-customer-info h3 {
+            font-size: 1.4rem;
+            color: #444;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mil-customer-info h3 i {
+            color: darkcyan;
+        }
+        
+        .mil-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .mil-info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .mil-info-item strong {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .mil-info-item span {
+            font-size: 1.1rem;
+            color: #333;
+            font-weight: 500;
+        }
+        
+        /* Order Summary */
+        .mil-order-summary {
+            background: white;
+            border-radius: 8px;
+            padding: 25px;
+            border: 1px solid #f0f0f0;
+        }
+        
+        .mil-order-summary h3 {
+            font-size: 1.4rem;
+            color: #444;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mil-order-summary h3 i {
+            color: rgb(235, 166, 17);
+        }
+        
+        .mil-order-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+        }
+        
+        .mil-order-table th {
+            background: #f8f9fa;
+            color: #333;
+            font-weight: 600;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+        
+        .mil-order-table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .mil-order-table tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .mil-order-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .mil-order-total {
+            text-align: right;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+        
+        .mil-order-total strong {
+            font-size: 1.4rem;
+            color: #333;
+        }
+        
+        /* Payment Instructions */
+        .mil-payment-instructions {
+            background: #fff8e1;
+            border-left: 4px solid rgb(235, 166, 17);
+            padding: 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 30px 0;
+        }
+        
+        .mil-payment-instructions h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .mil-payment-instructions h3 i {
+            color: rgb(235, 166, 17);
+        }
+        
+        .mil-payment-instructions p {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        /* Action Buttons */
+        .mil-action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+        
+        .mil-button {
+            padding: 14px 28px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            min-width: 180px;
+        }
+        
+        .mil-button-primary {
+            background: darkcyan;
+            color: white;
+        }
+        
+        .mil-button-primary:hover {
+            background: #006969;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 139, 139, 0.2);
+        }
+        
+        .mil-button-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .mil-button-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(108, 117, 125, 0.2);
+        }
+        
+        /* WhatsApp Widget */
+        .mil-whatsapp-widget {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .mil-whatsapp-button {
+            background-color: #25D366;
+            color: white;
+            border-radius: 50px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            text-decoration: none;
+        }
+        
+        .mil-whatsapp-button:hover {
+            background-color: #20b354;
+            transform: scale(1.1);
+        }
+        
+        .mil-whatsapp-button i {
+            font-size: 30px;
+        }
+        
+        /* Footer */
+        footer.mil-dark-bg {
+            background: #333;
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        .mil-contact-info {
+            color: #ddd;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .mil-contact-info a {
+            color: #ddd;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .mil-contact-info a:hover {
+            color: rgb(235, 166, 17);
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .mil-frame-top {
+                padding: 5px 15px;
+                height: 60px;
+            }
+            
+            .mil-logo img {
+                width: 80px;
+            }
+            
+            .mil-header-search {
+                max-width: 300px;
+            }
+            
+            .mil-search-input {
+                max-width: 220px;
+                padding: 8px 12px;
+            }
+            
+            .mil-confirmation-content {
+                padding-top: 80px;
+                padding-bottom: 40px;
+            }
+            
+            .mil-confirmation-container {
+                padding: 25px;
+                margin: 0 15px;
+            }
+            
+            .mil-confirmation-header h1 {
+                font-size: 2rem;
+            }
+            
+            .mil-confirmation-header p {
+                font-size: 1.1rem;
+            }
+            
+            .mil-info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .mil-action-buttons {
+                flex-direction: column;
+            }
+            
+            .mil-button {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .mil-order-table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .mil-frame-top {
+                padding: 8px 12px;
+            }
+            
+            .mil-logo img {
+                width: 70px;
+            }
+            
+            .mil-header-search {
+                max-width: 200px;
+            }
+            
+            .mil-search-input {
+                max-width: 160px;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            .mil-confirmation-container {
+                padding: 20px 15px;
+            }
+            
+            .mil-confirmation-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .mil-confirmation-icon i {
+                width: 100px;
+                height: 100px;
+                line-height: 100px;
+                font-size: 60px;
+            }
+            
+            .mil-customer-info,
+            .mil-order-summary {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .mil-header-search {
+                max-width: 160px;
+            }
+            
+            .mil-search-input {
+                max-width: 140px;
+            }
+            
+            .mil-logo img {
+                width: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="mil-wrapper" id="top">
+        <!-- Header -->
+        <div class="mil-frame-top">
+            <a href="/" class="mil-logo"><img src="<%= admin.logo || '/images/logo.png' %>" alt="<%= admin.businessName %> Logo"></a>
+            
+            <div class="mil-header-search">
+                <div class="mil-search-form">
+                    <input type="text" placeholder="Search products..." class="mil-search-input" disabled>
+                    <button type="submit" class="mil-search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mil-cart-container">
+                <button class="mil-cart-button" title="Cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="mil-cart-count">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Confirmation Content -->
+        <div class="mil-content mil-confirmation-content">
+            <div id="swupMain" class="mil-main-transition">
+                <div class="mil-confirmation-container mil-up">
+                    <div class="mil-confirmation-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    
+                    <div class="mil-confirmation-header">
+                        <h1>Thank You For Your Order!</h1>
+                        <p>Your order has been received and is being processed. You'll receive a confirmation email shortly.</p>
+                    </div>
+                    
+                    <div class="mil-order-details">
+                        <h2>Order Details</h2>
+                        
+                        <div class="mil-customer-info">
+                            <h3><i class="fas fa-user-circle"></i> Customer Information</h3>
+                            <div class="mil-info-grid">
+                                <div class="mil-info-item">
+                                    <strong>Order Number</strong>
+                                    <span>#<%= saleId %></span>
+                                </div>
+                                <div class="mil-info-item">
+                                    <strong>Date</strong>
+                                    <span><%= new Date().toLocaleDateString() %></span>
+                                </div>
+                                <div class="mil-info-item">
+                                    <strong>Name</strong>
+                                    <span><%= customerName %></span>
+                                </div>
+                                <div class="mil-info-item">
+                                    <strong>Email</strong>
+                                    <span><%= email %></span>
+                                </div>
+                                <div class="mil-info-item">
+                                    <strong>Phone</strong>
+                                    <span><%= phoneNumber %></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mil-order-summary">
+                            <h3><i class="fas fa-shopping-bag"></i> Order Summary</h3>
+                            <table class="mil-order-table">
+                                <thead>
+                                    <tr>
+                                        <th>Item</th>
+                                        <th>Quantity</th>
+                                        <th>Price</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% saleItems.forEach(item => { %>
+                                        <tr>
+                                            <td><%= item.itemName %></td>
+                                            <td><%= item.quantity %></td>
+                                            <td><%= currency %><%= formatCurrency(item.unitCost) %></td>
+                                            <td><%= currency %><%= formatCurrency(item.totalCost) %></td>
+                                        </tr>
+                                    <% }) %>
+                                </tbody>
+                            </table>
+                            <div class="mil-order-total">
+                                <strong>Total: <%= currency %><%= formatCurrency(totalAmount) %></strong>
+                            </div>
+                        </div>
+                        
+                        <% if (admin.paymentInstructions) { %>
+                            <div class="mil-payment-instructions">
+                                <h3><i class="fas fa-credit-card"></i> Payment Instructions</h3>
+                                <p><%= admin.paymentInstructions %></p>
+                            </div>
+                        <% } %>
+                        
+                        <div class="mil-action-buttons">
+                            <% if (invoiceUrl) { %>
+                                <a href="<%= invoiceUrl %>" class="mil-button mil-button-primary">
+                                    <i class="fas fa-file-download"></i> Download Invoice
+                                </a>
+                            <% } %>
+                            <a href="/store/<%= admin.username %>" class="mil-button mil-button-secondary">
+                                <i class="fas fa-shopping-bag"></i> Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                            <div class="mil-contact-info mil-up mil-mb-30">
+                                <p><i class="fas fa-store mil-mr-5"></i> Business: <%= admin.businessName %></p>
+                                <% if (admin.publicPhone && admin.phone) { %>
+                                    <p><i class="fas fa-phone mil-mr-5"></i> Phone: <%= admin.phone %></p>
+                                <% } %>
+                                <% if (admin.publicEmail && admin.email) { %>
+                                    <p><i class="fas fa-envelope mil-mr-5"></i> Email: <a href="mailto:<%= admin.email %>"><%= admin.email %></a></p>
+                                <% } %>
+                                <% if (admin.publicAddress && admin.address) { %>
+                                    <p><i class="fas fa-map-marker-alt mil-mr-5"></i> Address: <%= admin.address %></p>
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-7">
+                                    <nav class="mil-footer-menu mil-mb-60">
+                                        <ul>
+                                            <li class="mil-up mil-active">
+                                                <a href="/admin-register" data-swup-link>New? Create a Shed</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/admin-login" data-swup-link>Have a Shed? Sign in</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/" data-swup-link>Learn More about Shed</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="mil-text-center mil-light-soft mil-mt-30">
+                                © 2025 Shedfactory Limited. <a href="mailto:hello@shed.ng">Contact Us</a>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- WhatsApp Widget -->
+        <% if (admin.publicPhone && admin.phone) { %>
+            <div class="mil-whatsapp-widget">
+                <a href="https://wa.me/<%= admin.phone.replace(/[^\d]/g, '') %>?text=Hello%20<%= encodeURIComponent(admin.businessName) %>,%20I%20just%20placed%20an%20order%20(%23<%= saleId %>)%20and%20have%20a%20question!"
+                   class="mil-whatsapp-button" 
+                   target="_blank">
+                    <i class="fab fa-whatsapp"></i>
+                </a>
+            </div>
+        <% } %>
+    </div>
+
+    <!-- JavaScript Dependencies -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <script src="/js/plugins/gsap.min.js"></script>
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <script src="/js/main.js"></script>
+
+    <script>
+        // Animate elements on load
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof gsap !== 'undefined') {
+                gsap.from('.mil-confirmation-container', {
+                    duration: 0.8,
+                    opacity: 0,
+                    y: 30,
+                    ease: 'power3.out'
+                });
+                
+                gsap.from('.mil-confirmation-icon', {
+                    duration: 0.8,
+                    scale: 0,
+                    rotation: 360,
+                    ease: 'back.out(1.7)',
+                    delay: 0.3
+                });
+                
+                gsap.from('.mil-info-item', {
+                    duration: 0.5,
+                    opacity: 0,
+                    y: 20,
+                    stagger: 0.1,
+                    delay: 0.6
+                });
+                
+                gsap.from('.mil-action-buttons', {
+                    duration: 0.5,
+                    opacity: 0,
+                    y: 20,
+                    delay: 1
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#4CAF50">
+  <meta name="description" content="Inventory management system for small businesses">
+  <meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Shed">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+  <title>Shed - <%= title || 'Inventory Management' %></title>
+  <link rel="stylesheet" href="/styles.css">
+  <style>
+    .error-message {
+      color: red;
+      margin-bottom: 10px;
+      font-weight: bold;
+      padding: 5px;
+      background-color: #ffe6e6;
+      border: 1px solid red;
+    }
+    .hidden {
+      display: none;
+    }
+    .profile-details p {
+      margin: 10px 0;
+    }
+    .edit-form input, .edit-form select {
+      display: block;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .form-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .cancel-btn {
+      background-color: #ccc;
+      color: #333;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    .cancel-btn:hover {
+      background-color: #bbb;
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <div class="sidebar" id="sidebar">
+    <div class="logo-container">
+      <img src="/images/logo.png" alt="Shedfactory Business Solutions">
+    </div>
+    <h2>Welcome, <%= username %>!</h2>
+    <a href="/admin/sales-form">Sell</a>
+    <a href="/store-view">View Store</a>
+    <a href="/update-stock">Update Stock</a>
+    <a href="/create-outlet">Create Outlet</a>
+    <a href="/invoices">Invoices</a>
+    <a href="/transactions">Transactions</a>
+    <a href="/customers">Customers</a>
+    <a href="/profile">Profile</a>
+    <a href="/admin-logout">Log Out</a>
+  </div>
+
+  <!-- Toggle Button -->
+  <button class="toggle-btn" id="toggleBtn">☰</button>
+  
+  <!-- Add install button (optional) -->
+  <button id="install-button" style="display: none;">Install App</button>
+  
+  <!-- Load service worker registration script -->
+  <script src="/scripts/main.js"></script>
+</body>
+</html>

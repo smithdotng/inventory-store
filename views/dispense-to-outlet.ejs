@@ -3,72 +3,146 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dispense to Outlet</title>
-  <link rel="stylesheet" href="/css/consult.css">
-  <style>
-    body { font-family: Arial, sans-serif; background-color: #f5f5f5; }
-    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
-    h1 { font-size: 24px; font-weight: bold; text-align: center; margin-bottom: 20px; }
-    table { border-collapse: collapse; width: 100%; }
-    th, td { padding: 10px; text-align: left; }
-    th { background-color: #e0e0e0; }
-    tr { border-bottom: 1px solid #ddd; }
-    input[type="number"] { padding: 5px; border: 1px solid #ccc; border-radius: 4px; }
-    button { padding: 5px 10px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
-    button:hover { background-color: #45a049; }
-    a { color: #0066cc; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-  </style>
+  <title>Shed | Dispense to Outlet</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
 </head>
 <body>
-  <div class="container">
-    <h1>Dispense to Outlet: <%= outlet.name %> <span class="icon-point-of-sale"></span></h1>
-    <h2 style="font-size: 18px; margin-bottom: 15px;">Main Inventory</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Stock</th>
-          <th>Dispense Quantity</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% inventory.forEach(item => { %>
-          <tr>
-            <td><%= item.name %></td>
-            <td><%= item.stock %></td>
-            <td>
-              <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" style="display: flex; gap: 10px;">
-                <input type="hidden" name="itemId" value="<%= item.id %>">
-                <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required style="width: 100px; padding: 8px;">
-            </td>
-            <td>
-                <button type="submit">Dispense <span class="icon-right-arrow"></span></button>
-              </form>
-            </td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-    <h2 style="font-size: 18px; margin: 20px 0 15px;">Outlet Inventory</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Product</th>
-          <th>Stock</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% outlet.inventory.forEach(item => { %>
-          <tr>
-            <td><%= item.name %></td>
-            <td><%= item.stock %></td>
-          </tr>
-        <% }) %>
-      </tbody>
-    </table>
-    <a href="/home" class="block mt-4 text-center">Back to Home <span class="icon-right-arrow"></span></a>
-  </div>
+
+<%- include('partials/app-sidebar', { currentPage: 'home', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Dispense to Outlet</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Dispense Stock</h1>
+        <p>Transfer inventory items to <strong><%= outlet.name %></strong></p>
+      </div>
+      <a href="/outlet-details/<%= outlet._id %>" class="btn-secondary-app"><i class="fas fa-arrow-left"></i> Back to Outlet</a>
+    </div>
+
+    <!-- Main Inventory -->
+    <div class="app-card" style="margin-bottom:24px;">
+      <div class="app-card-title" style="background:#0d0d1a; color:#fff; margin:-20px -20px 20px; padding:16px 20px; border-radius:12px 12px 0 0;">
+        <i class="fas fa-warehouse" style="color:#008B8B;"></i> Main Inventory — Select Items to Dispense
+      </div>
+      <% if (inventory && inventory.length > 0) { %>
+        <div style="overflow-x:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Available Stock</th>
+                <th>Quantity to Dispense</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% inventory.forEach(item => { %>
+                <tr>
+                  <td style="font-weight:500;"><%= item.name %></td>
+                  <td>
+                    <span style="background:<%= item.stock <= 5 ? 'rgba(192,57,43,0.1)' : 'rgba(0,139,139,0.1)' %>; color:<%= item.stock <= 5 ? '#c0392b' : '#008B8B' %>; padding:3px 10px; border-radius:20px; font-size:0.83rem; font-weight:600;">
+                      <%= item.stock %>
+                    </span>
+                  </td>
+                  <td>
+                    <form action="/dispense-to-outlet/<%= outlet._id %>" method="POST" style="display:flex; align-items:center; gap:10px;">
+                      <input type="hidden" name="itemId" value="<%= item._id %>">
+                      <input type="number" name="quantity" min="1" max="<%= item.stock %>" value="1" required
+                             class="form-control" style="width:90px;">
+                  </td>
+                  <td>
+                      <button type="submit" class="btn-primary-app btn-sm">
+                        <i class="fas fa-truck"></i> Dispense
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div style="text-align:center; padding:48px; color:#999;">
+          <i class="fas fa-box-open" style="font-size:2.5rem; margin-bottom:12px; display:block; color:#ddd;"></i>
+          No inventory available to dispense.
+        </div>
+      <% } %>
+    </div>
+
+    <!-- Outlet Current Inventory -->
+    <div class="app-card">
+      <div class="app-card-title" style="background:#0d0d1a; color:#fff; margin:-20px -20px 20px; padding:16px 20px; border-radius:12px 12px 0 0;">
+        <i class="fas fa-store" style="color:#008B8B;"></i> <%= outlet.name %> — Current Inventory
+      </div>
+      <% if (outlet.inventory && outlet.inventory.length > 0) { %>
+        <div style="overflow-x:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Stock at Outlet</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% outlet.inventory.forEach(item => { %>
+                <tr>
+                  <td style="font-weight:500;"><%= item.name %></td>
+                  <td><%= item.stock %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p style="color:#999; text-align:center; padding:32px;">No inventory in this outlet yet.</p>
+      <% } %>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
 </body>
 </html>

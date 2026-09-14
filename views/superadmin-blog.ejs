@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Blog Management</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .blog-table { width: 100%; border-collapse: collapse; }
+    .blog-table th { background: #f4f6f9; padding: 11px 14px; text-align: left; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #888; border-bottom: 1px solid #e8e8e8; }
+    .blog-table td { padding: 14px; border-bottom: 1px solid #f0f0f0; vertical-align: middle; font-size: 0.88rem; color: #333; }
+    .blog-table tr:last-child td { border-bottom: none; }
+    .blog-table tr:hover td { background: #fafafa; }
+    .post-thumb { width: 56px; height: 42px; object-fit: cover; border-radius: 6px; background: #e8ecf0; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 1.1rem; }
+    .post-thumb img { width: 56px; height: 42px; object-fit: cover; border-radius: 6px; }
+    .badge-published { background: rgba(46,204,113,0.12); color: #27ae60; border-radius: 20px; padding: 3px 12px; font-size: 0.72rem; font-weight: 700; }
+    .badge-draft { background: rgba(149,165,166,0.12); color: #7f8c8d; border-radius: 20px; padding: 3px 12px; font-size: 0.72rem; font-weight: 700; }
+    .tag-chip { background: rgba(0,139,139,0.08); color: #008B8B; border-radius: 4px; padding: 2px 8px; font-size: 0.7rem; font-weight: 600; margin-right: 4px; }
+    .btn-action { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: none; text-decoration: none; font-family: inherit; transition: all 0.2s; }
+    .btn-edit  { background: rgba(52,152,219,0.1); color: #2980b9; }
+    .btn-edit:hover { background: #2980b9; color: #fff; }
+    .btn-delete { background: rgba(231,76,60,0.1); color: #c0392b; }
+    .btn-delete:hover { background: #c0392b; color: #fff; }
+    .btn-toggle { background: rgba(0,139,139,0.1); color: #008B8B; }
+    .btn-toggle:hover { background: #008B8B; color: #fff; }
+
+    /* Editor form */
+    .editor-card { background: #fff; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .editor-header { padding: 20px 28px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: space-between; }
+    .editor-header h2 { font-size: 1.1rem; font-weight: 700; color: #0d0d1a; }
+    .editor-body { padding: 28px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: #555; margin-bottom: 7px; }
+    .form-group input[type="text"],
+    .form-group input[type="file"],
+    .form-group textarea,
+    .form-group select {
+      width: 100%; padding: 10px 13px;
+      border: 1.5px solid #e8e8e8; border-radius: 8px;
+      font-size: 0.88rem; font-family: inherit; color: #1a1a2e;
+      background: #fafafa; outline: none; transition: border-color 0.2s;
+    }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus { border-color: #008B8B; background: #fff; }
+    .form-group textarea { min-height: 360px; resize: vertical; font-family: 'Courier New', monospace; font-size: 0.85rem; }
+    .form-group .hint { font-size: 0.75rem; color: #aaa; margin-top: 5px; }
+    .publish-toggle { display: flex; align-items: center; gap: 10px; }
+    .publish-toggle input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; }
+
+    .btn-primary { background: #008B8B; color: #fff; border: none; border-radius: 8px; padding: 11px 24px; font-size: 0.88rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+    .btn-primary:hover { background: #006f6f; }
+    .btn-secondary { background: #f4f6f9; color: #555; border: none; border-radius: 8px; padding: 11px 24px; font-size: 0.88rem; font-weight: 600; cursor: pointer; font-family: inherit; text-decoration: none; transition: background 0.2s; }
+    .btn-secondary:hover { background: #e8e8e8; }
+
+    .cover-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; margin-top: 10px; display: none; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .stat-card .stat-val { font-size: 1.8rem; font-weight: 800; color: #0d0d1a; }
+    .stat-card .stat-label { font-size: 0.78rem; color: #888; margin-top: 4px; }
+
+    @media (max-width: 768px) {
+      .form-row { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Superadmin Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo"><img src="/images/logo.png" alt="Shed"></div>
+  <nav class="sidebar-nav">
+    <a href="/superadmin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/superadmin/create-admin"><i class="fas fa-user-plus"></i> Create Admin</a>
+    <a href="/superadmin/affiliates"><i class="fas fa-handshake"></i> Affiliates</a>
+    <a href="/superadmin/outlets"><i class="fas fa-store"></i> All Outlets</a>
+    <a href="/superadmin/ads"><i class="fas fa-ad"></i> Featured Ads</a>
+    <a href="/superadmin/clusters"><i class="fas fa-map-marker-alt"></i> Market Clusters</a>
+    <a href="/superadmin/blog" class="active"><i class="fas fa-blog"></i> Blog</a>
+    <a href="/superadmin/sent-messages"><i class="fas fa-envelope"></i> Sent Messages</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="/admin-logout"><i class="fas fa-power-off"></i> Log Out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Blog Management</span>
+    </div>
+    <div class="topbar-right">
+      <% if (mode === 'list') { %>
+        <a href="/superadmin/blog/new" class="topbar-btn" style="background:#008B8B;color:#fff;border-radius:8px;padding:8px 18px;text-decoration:none;font-size:0.85rem;font-weight:700;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-plus"></i> New Post
+        </a>
+      <% } else { %>
+        <a href="/superadmin/blog" class="topbar-btn" style="background:#f4f6f9;color:#555;border-radius:8px;padding:8px 18px;text-decoration:none;font-size:0.85rem;font-weight:600;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-arrow-left"></i> Back to list
+        </a>
+      <% } %>
+    </div>
+  </header>
+
+  <div class="app-content">
+
+    <!-- ── FLASH ── -->
+    <% if (success) { %>
+    <div style="background:rgba(46,204,113,0.1);border:1px solid rgba(46,204,113,0.3);border-radius:10px;padding:14px 18px;margin-bottom:20px;color:#27ae60;font-size:0.88rem;display:flex;align-items:center;gap:10px;">
+      <i class="fas fa-check-circle"></i> <%= success %>
+    </div>
+    <% } %>
+    <% if (error) { %>
+    <div style="background:rgba(231,76,60,0.1);border:1px solid rgba(231,76,60,0.2);border-radius:10px;padding:14px 18px;margin-bottom:20px;color:#c0392b;font-size:0.88rem;display:flex;align-items:center;gap:10px;">
+      <i class="fas fa-exclamation-circle"></i> <%= error %>
+    </div>
+    <% } %>
+
+    <!-- ══ LIST MODE ══ -->
+    <% if (mode === 'list') { %>
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-val"><%= posts.length %></div>
+        <div class="stat-label">Total Posts</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val"><%= posts.filter(p => p.published).length %></div>
+        <div class="stat-label">Published</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-val"><%= posts.reduce((a, p) => a + (p.views || 0), 0) %></div>
+        <div class="stat-label">Total Views</div>
+      </div>
+    </div>
+
+    <div class="page-card">
+      <div style="padding:20px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:1rem;font-weight:700;color:#0d0d1a;">All Posts</div>
+        <a href="/blog" target="_blank" style="color:#008B8B;font-size:0.82rem;text-decoration:none;display:flex;align-items:center;gap:5px;"><i class="fas fa-external-link-alt"></i> View public blog</a>
+      </div>
+
+      <% if (posts.length === 0) { %>
+      <div style="text-align:center;padding:60px 20px;color:#aaa;">
+        <i class="fas fa-blog" style="font-size:2.5rem;margin-bottom:16px;color:#ddd;"></i>
+        <p style="font-size:0.95rem;margin-bottom:16px;">No blog posts yet.</p>
+        <a href="/superadmin/blog/new" style="background:#008B8B;color:#fff;border-radius:8px;padding:10px 20px;text-decoration:none;font-size:0.88rem;font-weight:700;">Write your first post</a>
+      </div>
+      <% } else { %>
+      <div style="overflow-x:auto;">
+        <table class="blog-table">
+          <thead>
+            <tr>
+              <th style="width:60px;"></th>
+              <th>Title</th>
+              <th>Tags</th>
+              <th>Status</th>
+              <th>Views</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% posts.forEach(p => { %>
+            <tr>
+              <td>
+                <div class="post-thumb">
+                  <% if (p.coverImage && !p.coverImage.includes('default-blog')) { %>
+                    <img src="<%= p.coverImage %>" alt="">
+                  <% } else { %>
+                    <i class="fas fa-image"></i>
+                  <% } %>
+                </div>
+              </td>
+              <td>
+                <div style="font-weight:600;color:#0d0d1a;max-width:260px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><%= p.title %></div>
+                <div style="font-size:0.75rem;color:#aaa;margin-top:2px;"><%= p.slug %></div>
+              </td>
+              <td>
+                <% (p.tags || []).slice(0, 2).forEach(t => { %>
+                  <span class="tag-chip"><%= t %></span>
+                <% }) %>
+              </td>
+              <td>
+                <% if (p.published) { %>
+                  <span class="badge-published"><i class="fas fa-circle" style="font-size:0.5rem;vertical-align:middle;"></i> Published</span>
+                <% } else { %>
+                  <span class="badge-draft">Draft</span>
+                <% } %>
+              </td>
+              <td style="color:#888;"><%= p.views || 0 %></td>
+              <td style="color:#aaa;font-size:0.8rem;white-space:nowrap;"><%= new Date(p.createdAt).toLocaleDateString('en-NG', { day:'numeric', month:'short', year:'numeric' }) %></td>
+              <td>
+                <div style="display:flex;gap:6px;align-items:center;">
+                  <a href="/superadmin/blog/<%= p._id %>/edit" class="btn-action btn-edit"><i class="fas fa-pen"></i></a>
+                  <button class="btn-action btn-toggle" onclick="togglePublish('<%= p._id %>', this)" title="<%= p.published ? 'Unpublish' : 'Publish' %>">
+                    <i class="fas fa-<%= p.published ? 'eye-slash' : 'eye' %>"></i>
+                  </button>
+                  <form method="POST" action="/superadmin/blog/<%= p._id %>/delete" style="display:inline;" onsubmit="return confirm('Delete this post? This cannot be undone.')">
+                    <button type="submit" class="btn-action btn-delete"><i class="fas fa-trash"></i></button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- ══ NEW POST ══ -->
+    <% } else if (mode === 'new') { %>
+    <div class="editor-card">
+      <div class="editor-header">
+        <h2><i class="fas fa-plus" style="color:#008B8B;margin-right:8px;"></i> New Post</h2>
+      </div>
+      <div class="editor-body">
+        <form method="POST" action="/superadmin/blog" enctype="multipart/form-data">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Post Title *</label>
+              <input type="text" name="title" placeholder="e.g. How to manage stock efficiently" required>
+            </div>
+            <div class="form-group">
+              <label>Tags <span style="font-weight:400;color:#aaa;">(comma-separated)</span></label>
+              <input type="text" name="tags" placeholder="inventory, tips, business">
+              <div class="hint">e.g. inventory, invoicing, how-to</div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Excerpt <span style="font-weight:400;color:#aaa;">(short summary shown on blog list)</span></label>
+            <input type="text" name="excerpt" placeholder="A short compelling summary of this post...">
+          </div>
+          <div class="form-group">
+            <label>Cover Image</label>
+            <input type="file" name="coverImage" accept="image/*" id="coverInput" onchange="previewCover(this)">
+            <img id="coverPreview" class="cover-preview" alt="Cover preview">
+          </div>
+          <div class="form-group">
+            <label>Content <span style="font-weight:400;color:#aaa;">(HTML supported)</span></label>
+            <textarea name="content" placeholder="Write your post content here. HTML is supported — use &lt;h2&gt;, &lt;p&gt;, &lt;ul&gt;, &lt;blockquote&gt; etc." required></textarea>
+            <div class="hint">Tip: wrap paragraphs in &lt;p&gt; tags. Use &lt;h2&gt; for subheadings, &lt;blockquote&gt; for callouts.</div>
+          </div>
+          <div class="form-group">
+            <div class="publish-toggle">
+              <input type="checkbox" name="published" id="published" checked>
+              <label for="published" style="margin-bottom:0;cursor:pointer;">Publish immediately</label>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Post</button>
+            <a href="/superadmin/blog" class="btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ EDIT POST ══ -->
+    <% } else if (mode === 'edit' && post) { %>
+    <div class="editor-card">
+      <div class="editor-header">
+        <h2><i class="fas fa-pen" style="color:#008B8B;margin-right:8px;"></i> Edit Post</h2>
+        <a href="/blog/<%= post.slug %>" target="_blank" style="color:#008B8B;font-size:0.82rem;text-decoration:none;display:flex;align-items:center;gap:5px;"><i class="fas fa-external-link-alt"></i> View post</a>
+      </div>
+      <div class="editor-body">
+        <form method="POST" action="/superadmin/blog/<%= post._id %>/update" enctype="multipart/form-data">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Post Title *</label>
+              <input type="text" name="title" value="<%= post.title %>" required>
+            </div>
+            <div class="form-group">
+              <label>Tags <span style="font-weight:400;color:#aaa;">(comma-separated)</span></label>
+              <input type="text" name="tags" value="<%= (post.tags || []).join(', ') %>">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Excerpt</label>
+            <input type="text" name="excerpt" value="<%= post.excerpt || '' %>">
+          </div>
+          <div class="form-group">
+            <label>Cover Image <span style="font-weight:400;color:#aaa;">(leave empty to keep current)</span></label>
+            <% if (post.coverImage && !post.coverImage.includes('default-blog')) { %>
+              <img src="<%= post.coverImage %>" style="display:block;max-height:120px;border-radius:8px;margin-bottom:10px;object-fit:cover;">
+            <% } %>
+            <input type="file" name="coverImage" accept="image/*" id="coverInput" onchange="previewCover(this)">
+            <img id="coverPreview" class="cover-preview" alt="Cover preview">
+          </div>
+          <div class="form-group">
+            <label>Content <span style="font-weight:400;color:#aaa;">(HTML supported)</span></label>
+            <textarea name="content" required><%- post.content %></textarea>
+          </div>
+          <div class="form-group">
+            <div class="publish-toggle">
+              <input type="checkbox" name="published" id="published" <%= post.published ? 'checked' : '' %>>
+              <label for="published" style="margin-bottom:0;cursor:pointer;">Published</label>
+            </div>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Update Post</button>
+            <a href="/superadmin/blog" class="btn-secondary">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+    <% } %>
+
+  </div><!-- .app-content -->
+</div><!-- .app-main -->
+
+<script>
+  // Sidebar toggle
+  document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  // Cover image preview
+  function previewCover(input) {
+    const preview = document.getElementById('coverPreview');
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = e => { preview.src = e.target.result; preview.style.display = 'block'; };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Toggle publish via AJAX
+  function togglePublish(id, btn) {
+    fetch(`/superadmin/blog/${id}/toggle`, { method: 'POST', headers: { 'Content-Type': 'application/json' } })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          const icon = btn.querySelector('i');
+          icon.className = data.published ? 'fas fa-eye-slash' : 'fas fa-eye';
+          // Update status badge in the same row
+          const row = btn.closest('tr');
+          const badge = row.querySelector('.badge-published, .badge-draft');
+          if (data.published) {
+            badge.className = 'badge-published';
+            badge.innerHTML = '<i class="fas fa-circle" style="font-size:0.5rem;vertical-align:middle;"></i> Published';
+          } else {
+            badge.className = 'badge-draft';
+            badge.textContent = 'Draft';
+          }
+        }
+      });
+  }
+</script>
+</body>
+</html>

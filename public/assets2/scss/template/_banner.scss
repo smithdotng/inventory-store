@@ -1,0 +1,51 @@
+/*======================
+    Banner Area 
+========================*/
+
+.banner{
+    position: relative;
+    .thumbnail {
+        img {
+            @media #{$sm-layout} {
+                width: 100%;
+            }
+        }
+    }
+    .content{
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 57%;
+        text-align: center;
+        padding: 0 20px;
+        @media #{$sm-layout} {
+            width: 83%;
+        }
+        h4{
+            color: #000000;
+            line-height: 30px;
+            font-size: 24px;
+            margin: 0;
+            @media #{$lg-layout} {
+                font-size: 20px;
+            }
+            span{
+                color: #960000;
+            }
+        }
+        h3{
+            color: #bd7a4c;
+            line-height: 50px;
+            font-size: 40px;
+            font-weight: 400;
+            @media #{$lg-layout} {
+                line-height: 40px;
+                font-size: 32px;
+            }
+        }
+        &.text-left{
+            text-align: left;
+        }
+    }
+}
+

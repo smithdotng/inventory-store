@@ -1,0 +1,101 @@
+/*=====================
+ * Banner
+=======================*/
+
+.slide-content{
+    p{
+        font-size: 18px;
+        line-height: 30px;
+        margin-top: 23px;
+        margin-bottom: 30px;
+        @extend %fontWeight400;
+    }
+   
+}
+
+/*======================
+    Slider Style Two 
+=======================*/
+.slider--2{
+    .slide-content {
+        min-height: 570px;
+        .slide-text{
+            p {
+                @media #{$sm-layout} {
+                    br{
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.fullscreen {
+    min-height: 100vh;
+    width: 100%;
+
+    @media #{$md-layout} {
+        min-height: auto;
+        padding: 150px 0;
+    }
+
+    @media #{$sm-layout} {
+        min-height: auto;
+        padding: 150px 0;
+    }
+
+}
+
+/*=========================
+Slider Animation 
+===========================*/
+
+.slider-activation {
+    .slick-active{
+        .slide-content{
+            img {
+                -webkit-animation: 1500ms ease-in-out 0s normal none 1 running fadeInLeft;
+                animation: 1500ms ease-in-out 0s normal none 1 running fadeInLeft;
+            }
+            p {
+                -webkit-animation: 2200ms ease-in-out 0s normal none 1 running bounceInDown;
+                animation: 2200ms ease-in-out 0s normal none 1 running bounceInDown;
+            }
+            .shop-now-btn {
+                -webkit-animation: 1800ms ease-in-out 0s normal none 1 running bounceInDown;
+                animation: 1800ms ease-in-out 0s normal none 1 running bounceInDown;
+            }
+        } 
+    }
+    .slider-navigation {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 50px;
+        border: 2px solid #222;
+        height: 50px;
+        line-height: 50px;
+        text-align: center;
+        font-size: 27px;
+        border-radius: 100%;
+        outline: none;
+        background: transparent;
+        left: 30px;
+        z-index: 2;
+        opacity: 0;
+        transition: 0.4s;
+        cursor: pointer;
+        &.slider-navigation-next {
+            left: auto;
+            right: 30px;
+        }
+        @media #{$lg-layout, $md-layout, $sm-layout} {
+            display: none !important;
+        }
+    }
+    &:hover .slider-navigation{
+        opacity: 1;
+    }
+
+}

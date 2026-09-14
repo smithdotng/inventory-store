@@ -1,0 +1,79 @@
+/*====================
+    Video Area 
+=======================*/
+
+.video-with-thumb{
+    position: relative;
+    .position--center{
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        -webkit-transform: translate(-50%,-50%);
+        -ms-transform: translate(-50%,-50%);
+        transform: translate(-50%,-50%);
+    }
+}
+// Video Button
+
+.video-btn {
+    text-align: center;
+    a {
+        &.video-icon ,
+        .video-icon {
+            display: block;
+            position: relative;
+            margin: 0 auto;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: $theme-color;
+            -webkit-transition: all 1s cubic-bezier(0, 0, .2, 1);
+            transition: all 1s cubic-bezier(0, 0, .2, 1);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, .2);
+            
+            &::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                width: 0;
+                height: 0;
+                -webkit-transform: translate(-6px, -9px);
+                -ms-transform: translate(-6px, -9px);
+                transform: translate(-6px, -9px);
+                border-top: 9px solid transparent;
+                border-bottom: 9px solid transparent;
+                border-left: 15px solid #fff;
+            }
+
+            
+
+
+
+            &:hover {
+                -webkit-transform: scale3d(1.15, 1.15, 1.15);
+                transform: scale3d(1.15, 1.15, 1.15);
+            }
+        }
+
+    }
+    a{
+        &.watch-text ,
+        .watch-text{
+            color: $body-color;
+            margin: 32px 0 0;
+            font-size: 14px;
+            border: 0 none;
+            padding: 0;
+            display: block;
+            font-weight: 600;
+            -webkit-transition: all 1s cubic-bezier(0, 0, .2, 1);
+            transition: all 1s cubic-bezier(0, 0, .2, 1);
+            &:hover{
+                color: $theme-color;
+            }
+
+        }
+    }
+}
+

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | All Outlets</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+</head>
+<body>
+
+<!-- Superadmin Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo"><img src="/images/logo.png" alt="Shed"></div>
+  <nav class="sidebar-nav">
+    <a href="/superadmin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/superadmin/create-admin"><i class="fas fa-user-plus"></i> Create Admin</a>
+    <a href="/superadmin/affiliates"><i class="fas fa-handshake"></i> Affiliates</a>
+    <a href="/superadmin/outlets" class="active"><i class="fas fa-store"></i> All Outlets</a>
+    <a href="/superadmin/ads"><i class="fas fa-ad"></i> Featured Ads</a>
+    <a href="/superadmin/clusters"><i class="fas fa-map-marker-alt"></i> Market Clusters</a>
+    <a href="/superadmin/sent-messages"><i class="fas fa-envelope"></i> Sent Messages</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="/admin-logout"><i class="fas fa-power-off"></i> Log Out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">All Outlets</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business">Superadmin</span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar">S</div>
+          Superadmin
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <div class="page-header">
+      <div><h1>All Outlets</h1><p>Every outlet across all admin accounts</p></div>
+    </div>
+
+    <div class="app-card">
+      <% if (outlets && outlets.length > 0) { %>
+        <div style="overflow-x:auto;">
+          <table class="app-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Location</th>
+                <th>Mobile</th>
+                <th>Admin Business</th>
+                <th>Admin Email</th>
+                <th>Inventory</th>
+                <th>Login Count</th>
+                <th>Last Login</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% outlets.forEach(outlet => { %>
+                <tr>
+                  <td style="font-weight:600;"><%= outlet.name || 'N/A' %></td>
+                  <td><%= outlet.username || 'N/A' %></td>
+                  <td><%= outlet.location || 'N/A' %></td>
+                  <td><%= outlet.mobile || 'N/A' %></td>
+                  <td><%= outlet.adminBusinessName %></td>
+                  <td style="font-size:0.83rem;"><%= outlet.adminEmail %></td>
+                  <td style="font-size:0.83rem; max-width:200px;">
+                    <% if (outlet.inventory && outlet.inventory.length) { %>
+                      <% outlet.inventory.forEach(item => { %>
+                        <div><%= item.name %>: <%= outlet.adminCurrency %><%= (item.cost || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %> (Qty: <%= item.stock %>)</div>
+                      <% }) %>
+                    <% } else { %>
+                      <span style="color:#ccc;">—</span>
+                    <% } %>
+                  </td>
+                  <td><%= outlet.loginCount %></td>
+                  <td style="font-size:0.78rem; white-space:nowrap; color:#888;">
+                    <%= outlet.lastLogin ? new Date(outlet.lastLogin).toLocaleString() : 'Never' %>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div style="text-align:center; padding:80px; color:#999;">
+          <i class="fas fa-store" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+          <h3 style="color:#0d0d1a; margin-bottom:8px;">No outlets found</h3>
+        </div>
+      <% } %>
+    </div>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
+</body>
+</html>

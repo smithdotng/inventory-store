@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Customers</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .customers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 20px;
+    }
+    .customer-card {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      transition: all 0.3s ease;
+    }
+    .customer-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
+    .customer-card-header {
+      background: #0d0d1a; color: #fff;
+      padding: 18px 22px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .customer-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(0,139,139,0.2);
+      display: flex; align-items: center; justify-content: center;
+      color: #008B8B; font-weight: 700; font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .customer-card-header h3 { margin: 0; font-size: 1rem; font-weight: 700; }
+    .customer-card-body { padding: 18px 22px; }
+    .customer-meta { font-size: 0.86rem; color: #666; line-height: 1.9; margin-bottom: 12px; }
+    .customer-total {
+      font-size: 1.4rem; font-weight: 700; color: #008B8B; margin: 8px 0 4px;
+    }
+    .customer-total-label { font-size: 0.78rem; color: #999; margin-bottom: 14px; }
+    .customer-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .add-form-box {
+      background: #fff; border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      padding: 28px; margin-bottom: 24px; display: none;
+    }
+    .add-form-box.active { display: block; }
+    .form-two-col { display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+    @media(max-width:640px) { .form-two-col{grid-template-columns:1fr;} }
+  </style>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'customers', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Customers</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="flash-success"><i class="fas fa-check-circle"></i> <%= success %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Customers</h1>
+        <p>Build relationships, track purchases and manage contacts</p>
+      </div>
+      <button class="btn-primary-app" id="addCustomerBtn">
+        <i class="fas fa-plus"></i> Add Customer
+      </button>
+    </div>
+
+    <!-- Add Customer Form -->
+    <div class="add-form-box" id="addCustomerForm">
+      <h3 style="margin:0 0 22px; font-size:1.1rem; font-weight:700; color:#0d0d1a;">Add New Customer</h3>
+      <form action="/add-customer" method="POST">
+        <div class="form-two-col">
+          <div class="form-group">
+            <label>Full Name <span style="color:#c0392b">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" class="form-control" placeholder="0803 xxx xxxx">
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" class="form-control" placeholder="customer@example.com">
+          </div>
+          <div class="form-group">
+            <label>Notes / Tags</label>
+            <input type="text" name="notes" class="form-control" placeholder="VIP, Wholesale, Regular...">
+          </div>
+        </div>
+        <div style="display:flex; gap:12px; margin-top:8px;">
+          <button type="submit" class="btn-primary-app"><i class="fas fa-user-plus"></i> Save Customer</button>
+          <button type="button" class="btn-secondary-app" id="cancelAddBtn"><i class="fas fa-times"></i> Cancel</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Customers Grid -->
+    <% if (customers && customers.length > 0) { %>
+      <div class="customers-grid">
+        <% customers.forEach(customer => { %>
+          <div class="customer-card">
+            <div class="customer-card-header">
+              <div class="customer-avatar"><%= customer.name[0].toUpperCase() %></div>
+              <div>
+                <h3><%= customer.name %></h3>
+                <% if (customer.lastPurchaseDate) { %>
+                  <div style="font-size:0.78rem; color:rgba(255,255,255,0.45); margin-top:1px;">
+                    Last purchase: <%= new Date(customer.lastPurchaseDate).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) %>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+            <div class="customer-card-body">
+              <div class="customer-meta">
+                <% if (customer.phone) { %><i class="fas fa-phone" style="color:#008B8B; width:16px;"></i> <%= customer.phone %><br><% } %>
+                <% if (customer.email) { %><i class="fas fa-envelope" style="color:#008B8B; width:16px;"></i> <%= customer.email %><br><% } %>
+                <% if (!customer.phone && !customer.email) { %><span style="color:#ccc;">No contact info</span><% } %>
+              </div>
+              <% if (customer.totalValue) { %>
+                <div class="customer-total"><%= admin.currency %><%= formatCurrency(Number(customer.totalValue)) %></div>
+                <div class="customer-total-label">Total Spent</div>
+              <% } %>
+              <div class="customer-actions">
+                <a href="/customer-details/<%= customer._id %>" class="btn-secondary-app btn-sm">
+                  <i class="fas fa-eye"></i> Details
+                </a>
+                <a href="/edit-customer/<%= customer._id %>" class="btn-secondary-app btn-sm">
+                  <i class="fas fa-edit"></i> Edit
+                </a>
+                <form action="/delete-customer/<%= customer._id %>" method="POST" style="display:inline;"
+                      onsubmit="return confirm('Delete <%= customer.name %>? This cannot be undone.')">
+                  <button type="submit" class="btn-danger-app btn-sm">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-users" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No customers yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Start building your customer base today.</p>
+        <button class="btn-primary-app" id="addFirstCustomerBtn"><i class="fas fa-plus"></i> Add First Customer</button>
+      </div>
+    <% } %>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+  const form = document.getElementById('addCustomerForm');
+  function showForm() {
+    form.classList.add('active');
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  document.getElementById('addCustomerBtn').addEventListener('click', showForm);
+  const firstBtn = document.getElementById('addFirstCustomerBtn');
+  if (firstBtn) firstBtn.addEventListener('click', showForm);
+  document.getElementById('cancelAddBtn').addEventListener('click', function() {
+    form.classList.remove('active');
+  });
+</script>
+</body>
+</html>

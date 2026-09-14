@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Transactions</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .transactions-table-wrap {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+    }
+    .txn-amount { font-size:1rem; font-weight:700; color:#008B8B; }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+
+<%- include('partials/app-sidebar', { currentPage: 'transactions', admin: admin }) %>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Transactions</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business"><%= admin.businessName || 'Your Business' %></span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (admin.firstName || admin.username || 'A')[0].toUpperCase() %></div>
+          <%= admin.firstName || admin.username %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/profile"><i class="fas fa-user-circle"></i> Profile &amp; Settings</a>
+          <a href="/admin-messages"><i class="fas fa-envelope"></i> Messages</a>
+          <div class="dropdown-divider"></div>
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= error %></div>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>All Transactions</h1>
+        <p>Track every sale, payment and business movement</p>
+      </div>
+    </div>
+
+    <% if (transactions && transactions.length > 0) { %>
+
+      <!-- Stats summary -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-receipt"></i></div>
+          <div class="stat-label">Total Transactions</div>
+          <div class="stat-value"><%= transactions.length %></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+          <div class="stat-label">Paid</div>
+          <div class="stat-value"><%= transactions.filter(t => t.paymentStatus === 'Paid').length %></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="stat-label">Total Revenue</div>
+          <div class="stat-value" style="font-size:1.3rem;">
+            <%= admin.currency %><%= formatCurrency(transactions.reduce((s,t)=>s+Number(t.totalAmount||(t.cost*t.quantity)||0),0)) %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="transactions-table-wrap">
+        <table class="app-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Amount</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% transactions.forEach((t, i) => { %>
+              <tr>
+                <td style="color:#999; font-size:0.8rem;">TXN-<%= String(i+1).padStart(5,'0') %></td>
+                <td style="font-weight:600; color:#0d0d1a;"><%= t.customerName || 'Walk-in' %></td>
+                <td style="color:#666; font-size:0.88rem;">
+                  <% if (t.items && t.items.length) { %>
+                    <%= t.items.length %> item<%= t.items.length > 1 ? 's' : '' %>
+                  <% } else { %>
+                    <%= t.itemName || '—' %>
+                  <% } %>
+                </td>
+                <td class="txn-amount"><%= admin.currency %><%= formatCurrency(Number(t.totalAmount||(t.cost*t.quantity)||0)) %></td>
+                <td style="font-size:0.88rem;"><%= t.paymentMethod || '—' %></td>
+                <td>
+                  <% const st = t.paymentStatus || 'Pending'; %>
+                  <span class="badge <%= st === 'Paid' ? 'badge-success' : 'badge-warning' %>"><%= st %></span>
+                </td>
+                <td style="font-size:0.85rem; color:#888;">
+                  <%= t.date ? new Date(t.date).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}) : '—' %>
+                </td>
+                <td>
+                  <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                    <% if (st !== 'Paid') { %>
+                      <form action="/transactions/mark-paid/<%= t._id %>" method="POST" style="display:inline;">
+                        <button type="submit" class="btn-primary-app btn-sm" style="background:#27ae60;">
+                          Mark Paid
+                        </button>
+                      </form>
+                    <% } %>
+                    <a href="/receipt/<%= t._id %>" class="btn-secondary-app btn-sm">
+                      <i class="fas fa-receipt"></i> Receipt
+                    </a>
+                    <% if (t.outletName) { %>
+                      <span class="badge badge-info" style="align-self:center;"><i class="fas fa-store"></i> <%= t.outletName %></span>
+                    <% } %>
+                  </div>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+    <% } else { %>
+      <div style="text-align:center; padding:80px 20px; background:#fff; border-radius:12px; box-shadow:0 2px 12px rgba(0,0,0,0.06);">
+        <i class="fas fa-history" style="font-size:3.5rem; color:#ddd; margin-bottom:20px; display:block;"></i>
+        <h3 style="color:#0d0d1a; margin-bottom:8px;">No transactions yet</h3>
+        <p style="color:#999; margin-bottom:24px;">Every sale will appear here automatically.</p>
+        <a href="/pos" class="btn-primary-app"><i class="fas fa-shopping-cart"></i> Go to POS</a>
+      </div>
+    <% } %>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+</script>
+</body>
+</html>

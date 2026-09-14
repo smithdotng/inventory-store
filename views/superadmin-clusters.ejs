@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Market Clusters</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .cluster-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    .cluster-card { background: #fff; border-radius: 10px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); overflow: hidden; }
+    .cluster-card-img { width: 100%; height: 130px; object-fit: cover; background: #f4f6f9; display: flex; align-items: center; justify-content: center; color: #ccc; font-size: 2.2rem; }
+    .cluster-card-img img { width: 100%; height: 130px; object-fit: cover; }
+    .cluster-card-body { padding: 16px; }
+    .cluster-card-name { font-size: 1.05rem; font-weight: 700; color: #0d0d1a; margin-bottom: 4px; }
+    .cluster-card-slug { font-size: 0.78rem; color: #008B8B; margin-bottom: 8px; }
+    .cluster-card-desc { font-size: 0.83rem; color: #888; margin-bottom: 10px; min-height: 32px; }
+    .cluster-tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .cluster-tag { background: #f0f0f0; padding: 2px 9px; border-radius: 20px; font-size: 0.72rem; color: #666; }
+    .cluster-card-stats { font-size: 0.8rem; color: #666; margin-bottom: 12px; }
+    .cluster-card-actions { display: flex; gap: 8px; }
+    .cluster-inactive { opacity: 0.55; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width:600px) { .form-row { grid-template-columns: 1fr; } }
+    .checkbox-pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .checkbox-pill { display: inline-flex; align-items: center; gap: 6px; background: #f4f6f9; border: 1px solid #e5e7ec; border-radius: 20px; padding: 6px 12px; font-size: 0.8rem; color: #444; cursor: pointer; }
+    .checkbox-pill input { margin: 0; }
+    .edit-cluster-form { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px dashed #eee; }
+  </style>
+</head>
+<body>
+
+<!-- Superadmin Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo"><img src="/images/logo.png" alt="Shed"></div>
+  <nav class="sidebar-nav">
+    <a href="/superadmin/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/superadmin/create-admin"><i class="fas fa-user-plus"></i> Create Admin</a>
+    <a href="/superadmin/affiliates"><i class="fas fa-handshake"></i> Affiliates</a>
+    <a href="/superadmin/outlets"><i class="fas fa-store"></i> All Outlets</a>
+    <a href="/superadmin/ads"><i class="fas fa-ad"></i> Featured Ads</a>
+    <a href="/superadmin/clusters" class="active"><i class="fas fa-map-marker-alt"></i> Market Clusters</a>
+    <a href="/superadmin/sent-messages"><i class="fas fa-envelope"></i> Sent Messages</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="/admin-logout"><i class="fas fa-power-off"></i> Log Out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Market Clusters</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business">Superadmin</span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (currentAdmin ? currentAdmin.username : 'S')[0].toUpperCase() %></div>
+          <%= currentAdmin ? currentAdmin.username : 'Superadmin' %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (Array.isArray(success) && success.length > 0) { %>
+      <% success.forEach(msg => { %><div class="flash-success"><i class="fas fa-check-circle"></i> <%= msg %></div><% }) %>
+    <% } %>
+    <% if (Array.isArray(error) && error.length > 0) { %>
+      <% error.forEach(msg => { %><div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= msg %></div><% }) %>
+    <% } %>
+
+    <div class="page-header">
+      <div>
+        <h1>Market Clusters</h1>
+        <p>Established market areas (e.g. Alaba International) that shoppers can browse — group stores by physical location and category.</p>
+      </div>
+    </div>
+
+    <!-- Create Cluster Form -->
+    <div class="app-card" style="margin-bottom:32px;">
+      <div class="app-card-title"><i class="fas fa-plus-circle" style="color:#008B8B;margin-right:8px;"></i>Add New Market Cluster</div>
+      <form action="/superadmin/clusters/create" method="POST">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cluster Name <span style="color:#c0392b;">*</span></label>
+            <input type="text" name="name" class="form-control" placeholder="e.g. Alaba International" required>
+          </div>
+          <div class="form-group">
+            <label>Image URL <span style="font-weight:400;text-transform:none;color:#aaa;">(optional)</span></label>
+            <input type="text" name="image" class="form-control" placeholder="https://example.com/alaba.jpg">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" name="description" class="form-control" placeholder="e.g. Nigeria's biggest electricals and electronics market">
+        </div>
+
+        <div class="form-group">
+          <label>Category Focus <span style="font-weight:400;text-transform:none;color:#aaa;">(optional, helps shoppers know what to expect)</span></label>
+          <div class="checkbox-pill-row">
+            <% categories.forEach(cat => { %>
+              <label class="checkbox-pill">
+                <input type="checkbox" name="focusCategories" value="<%= cat %>"> <%= cat %>
+              </label>
+            <% }) %>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary-app" style="margin-top:8px;">
+          <i class="fas fa-plus"></i> Create Cluster
+        </button>
+      </form>
+    </div>
+
+    <!-- Clusters List -->
+    <div class="page-header" style="margin-bottom:16px;">
+      <div><h2 style="font-size:1.15rem;font-weight:700;color:#0d0d1a;margin:0;">All Clusters</h2></div>
+      <span style="font-size:0.85rem;color:#888;"><%= clusters.length %> total</span>
+    </div>
+
+    <% if (clusters.length === 0) { %>
+      <div class="app-card" style="text-align:center;padding:60px;">
+        <i class="fas fa-map-marker-alt" style="font-size:3rem;color:#ddd;display:block;margin-bottom:16px;"></i>
+        <p style="color:#999;">No market clusters yet. Create one above.</p>
+      </div>
+    <% } else { %>
+      <div class="cluster-grid">
+        <% clusters.forEach(cluster => { %>
+          <div class="cluster-card <%= cluster.isActive ? '' : 'cluster-inactive' %>">
+            <div class="cluster-card-img">
+              <% if (cluster.image) { %>
+                <img src="<%= cluster.image %>" alt="<%= cluster.name %>" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;"><i class="fas fa-map-marker-alt"></i></div>
+              <% } else { %>
+                <i class="fas fa-map-marker-alt"></i>
+              <% } %>
+            </div>
+            <div class="cluster-card-body">
+              <div class="cluster-card-name"><%= cluster.name %></div>
+              <div class="cluster-card-slug">/cluster/<%= cluster.slug %></div>
+              <% if (cluster.description) { %>
+                <div class="cluster-card-desc"><%= cluster.description %></div>
+              <% } %>
+              <% if (cluster.focusCategories && cluster.focusCategories.length) { %>
+                <div class="cluster-tag-row">
+                  <% cluster.focusCategories.forEach(cat => { %><span class="cluster-tag"><%= cat %></span><% }) %>
+                </div>
+              <% } %>
+              <div class="cluster-card-stats">
+                <i class="fas fa-store" style="margin-right:4px;color:#008B8B;"></i><%= cluster.storeCount %> store<%= cluster.storeCount === 1 ? '' : 's' %>
+                &nbsp;·&nbsp;
+                <span class="badge <%= cluster.isActive ? 'badge-success' : 'badge-secondary' %>"><%= cluster.isActive ? 'Active' : 'Inactive' %></span>
+              </div>
+              <div class="cluster-card-stats" style="margin-top:-4px;">
+                <span class="badge badge-success"><i class="fas fa-badge-check"></i> <%= cluster.verifiedCount || 0 %> verified</span>
+                <% if (cluster.pendingCount > 0) { %>
+                  &nbsp;<span class="badge badge-warning"><i class="fas fa-hourglass-half"></i> <%= cluster.pendingCount %> pending</span>
+                <% } %>
+              </div>
+              <div class="cluster-card-actions">
+                <button type="button" class="btn-secondary-app btn-sm" onclick="toggleEditForm('<%= cluster._id %>')">
+                  <i class="fas fa-pen"></i> Edit
+                </button>
+                <form action="/superadmin/clusters/toggle/<%= cluster._id %>" method="POST" style="flex:1;">
+                  <button type="submit" class="btn-secondary-app btn-sm" style="width:100%;">
+                    <i class="fas fa-<%= cluster.isActive ? 'pause' : 'play' %>"></i>
+                    <%= cluster.isActive ? 'Deactivate' : 'Activate' %>
+                  </button>
+                </form>
+                <form action="/superadmin/clusters/delete/<%= cluster._id %>" method="POST" onsubmit="return confirm('Delete this cluster? Stores in it will be unassigned, not deleted.')">
+                  <button type="submit" class="btn-danger-app btn-sm">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </form>
+              </div>
+
+              <!-- Edit form (hidden by default) -->
+              <form class="edit-cluster-form" id="edit-form-<%= cluster._id %>" action="/superadmin/clusters/edit/<%= cluster._id %>" method="POST">
+                <div class="form-group">
+                  <label>Cluster Name</label>
+                  <input type="text" name="name" class="form-control" value="<%= cluster.name %>" required>
+                </div>
+                <div class="form-group">
+                  <label>Image URL</label>
+                  <input type="text" name="image" class="form-control" value="<%= cluster.image || '' %>">
+                </div>
+                <div class="form-group">
+                  <label>Description</label>
+                  <input type="text" name="description" class="form-control" value="<%= cluster.description || '' %>">
+                </div>
+                <div class="form-group">
+                  <label>Category Focus</label>
+                  <div class="checkbox-pill-row">
+                    <% categories.forEach(cat => { %>
+                      <label class="checkbox-pill">
+                        <input type="checkbox" name="focusCategories" value="<%= cat %>" <%= (cluster.focusCategories || []).includes(cat) ? 'checked' : '' %>> <%= cat %>
+                      </label>
+                    <% }) %>
+                  </div>
+                </div>
+                <button type="submit" class="btn-primary-app btn-sm"><i class="fas fa-check"></i> Save Changes</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+
+  </main>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  function toggleEditForm(id) {
+    const form = document.getElementById('edit-form-' + id);
+    if (form) form.style.display = form.style.display === 'block' ? 'none' : 'block';
+  }
+</script>
+</body>
+</html>

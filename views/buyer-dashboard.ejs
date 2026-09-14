@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders — Shed</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0d0d0d; color: #e8e8e8; min-height: 100vh; }
+
+    /* ── Topbar ── */
+    .bd-topbar {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,13,13,0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #1e1e1e;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 64px;
+    }
+    .bd-logo { font-size: 22px; font-weight: 800; color: #fff; text-decoration: none; letter-spacing: -0.5px; }
+    .bd-logo span { color: #FF9800; }
+    .bd-topbar-right { display: flex; align-items: center; gap: 20px; }
+    .bd-email-chip {
+      font-size: 0.82rem; color: #aaa;
+      background: #1a1a1a; border: 1px solid #2a2a2a;
+      padding: 6px 14px; border-radius: 20px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .bd-email-chip i { color: #FF9800; }
+    .bd-logout {
+      font-size: 0.82rem; color: #888;
+      text-decoration: none; padding: 6px 14px;
+      border-radius: 20px; border: 1px solid #2a2a2a;
+      transition: all 0.2s;
+    }
+    .bd-logout:hover { color: #fff; border-color: #555; }
+
+    /* ── Hero stats bar ── */
+    .bd-hero {
+      background: linear-gradient(135deg, #1a1a1a 0%, #111 100%);
+      border-bottom: 1px solid #1e1e1e;
+      padding: 40px;
+    }
+    .bd-hero-inner { max-width: 1100px; margin: 0 auto; }
+    .bd-welcome { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
+    .bd-welcome span { color: #FF9800; }
+    .bd-sub { font-size: 0.9rem; color: #666; margin-bottom: 32px; }
+    .bd-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+    .bd-stat {
+      background: #0d0d0d; border: 1px solid #1e1e1e;
+      border-radius: 12px; padding: 20px 28px;
+      min-width: 140px;
+    }
+    .bd-stat-val { font-size: 1.8rem; font-weight: 800; color: #fff; line-height: 1; margin-bottom: 4px; }
+    .bd-stat-val.orange { color: #FF9800; }
+    .bd-stat-label { font-size: 0.78rem; color: #555; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* ── Main layout ── */
+    .bd-main { max-width: 1100px; margin: 0 auto; padding: 40px; }
+    .bd-grid { display: grid; grid-template-columns: 1fr 320px; gap: 32px; align-items: start; }
+    @media (max-width: 900px) { .bd-grid { grid-template-columns: 1fr; } }
+
+    /* ── Section headings ── */
+    .bd-section-title {
+      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #555; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .bd-section-title::after { content: ''; flex: 1; height: 1px; background: #1e1e1e; }
+
+    /* ── Orders list ── */
+    .bd-orders { display: flex; flex-direction: column; gap: 12px; }
+    .bd-order-card {
+      background: #131313; border: 1px solid #1e1e1e;
+      border-radius: 12px; padding: 20px 24px;
+      transition: border-color 0.2s;
+    }
+    .bd-order-card:hover { border-color: #333; }
+    .bd-order-header {
+      display: flex; align-items: flex-start; justify-content: space-between;
+      margin-bottom: 14px; gap: 12px;
+    }
+    .bd-order-store {
+      display: flex; align-items: center; gap: 10px;
+    }
+    .bd-store-avatar {
+      width: 36px; height: 36px; border-radius: 8px;
+      background: #FF9800; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 800; color: #000; overflow: hidden; flex-shrink: 0;
+    }
+    .bd-store-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .bd-store-name { font-size: 0.95rem; font-weight: 600; color: #fff; }
+    .bd-order-date { font-size: 0.78rem; color: #555; margin-top: 2px; }
+    .bd-order-meta { text-align: right; }
+    .bd-order-total { font-size: 1.1rem; font-weight: 700; color: #FF9800; }
+    .bd-order-status {
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      padding: 3px 8px; border-radius: 12px; margin-top: 4px; display: inline-block;
+    }
+    .bd-status-pending  { background: rgba(255,152,0,0.12); color: #FF9800; }
+    .bd-status-paid     { background: rgba(76,175,80,0.12); color: #4caf50; }
+    .bd-status-cancelled{ background: rgba(244,67,54,0.12);  color: #f44336; }
+    .bd-order-items {
+      display: flex; flex-direction: column; gap: 6px;
+      padding-top: 14px; border-top: 1px solid #1a1a1a;
+    }
+    .bd-order-item {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.85rem; color: #aaa;
+    }
+    .bd-order-item-name { flex: 1; }
+    .bd-order-item-qty  { color: #555; font-size: 0.78rem; }
+    .bd-order-item-price{ color: #ddd; font-weight: 500; }
+    .bd-order-actions {
+      display: flex; gap: 10px; margin-top: 14px;
+      padding-top: 14px; border-top: 1px solid #1a1a1a;
+    }
+    .bd-btn-sm {
+      padding: 7px 14px; border-radius: 6px; font-size: 0.78rem; font-weight: 600;
+      text-decoration: none; cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .bd-btn-orange { background: #FF9800; color: #000; }
+    .bd-btn-orange:hover { background: #e68900; }
+    .bd-btn-ghost { background: transparent; color: #888; border: 1px solid #2a2a2a; }
+    .bd-btn-ghost:hover { color: #fff; border-color: #555; }
+
+    .bd-empty {
+      text-align: center; padding: 60px 24px;
+      background: #131313; border: 1px dashed #2a2a2a; border-radius: 12px;
+    }
+    .bd-empty i { font-size: 2.5rem; color: #333; margin-bottom: 16px; display: block; }
+    .bd-empty h3 { font-size: 1.1rem; color: #555; margin-bottom: 8px; }
+    .bd-empty p { font-size: 0.85rem; color: #3a3a3a; }
+
+    /* ── Suggested stores sidebar ── */
+    .bd-sidebar-section { margin-bottom: 32px; }
+    .bd-store-cards { display: flex; flex-direction: column; gap: 10px; }
+    .bd-store-suggest {
+      display: flex; align-items: center; gap: 12px;
+      background: #131313; border: 1px solid #1e1e1e;
+      border-radius: 10px; padding: 14px 16px;
+      text-decoration: none; transition: border-color 0.2s;
+    }
+    .bd-store-suggest:hover { border-color: #FF9800; }
+    .bd-suggest-avatar {
+      width: 40px; height: 40px; border-radius: 8px;
+      background: #FF9800; display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800; color: #000; flex-shrink: 0; overflow: hidden;
+    }
+    .bd-suggest-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .bd-suggest-info { flex: 1; min-width: 0; }
+    .bd-suggest-name { font-size: 0.88rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bd-suggest-cta  { font-size: 0.75rem; color: #FF9800; margin-top: 2px; }
+    .bd-suggest-arrow { color: #555; font-size: 12px; }
+
+    .bd-profile-card {
+      background: #131313; border: 1px solid #1e1e1e;
+      border-radius: 12px; padding: 20px;
+      margin-bottom: 24px;
+    }
+    .bd-profile-email { font-size: 0.85rem; color: #aaa; word-break: break-all; }
+    .bd-profile-since { font-size: 0.75rem; color: #555; margin-top: 4px; }
+
+    @media (max-width: 640px) {
+      .bd-topbar { padding: 0 20px; }
+      .bd-hero, .bd-main { padding: 24px 20px; }
+      .bd-stats { gap: 12px; }
+      .bd-stat { padding: 16px 20px; }
+      .bd-email-chip span { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar -->
+  <div class="bd-topbar">
+    <a href="/" class="bd-logo">Shed<span>.</span></a>
+    <div class="bd-topbar-right">
+      <div class="bd-email-chip">
+        <i class="fas fa-user-circle"></i>
+        <span><%= buyer.email %></span>
+      </div>
+      <a href="/buyer/logout" class="bd-logout"><i class="fas fa-sign-out-alt"></i> Sign out</a>
+    </div>
+  </div>
+
+  <!-- Hero stats -->
+  <div class="bd-hero">
+    <div class="bd-hero-inner">
+      <div class="bd-welcome">
+        My Orders <% if (buyer.name) { %><span>· <%= buyer.name %></span><% } %>
+      </div>
+      <div class="bd-sub">All your purchases across every Shed store, in one place.</div>
+
+      <%
+        const totalSpend = orders.reduce((s, o) => s + (o.totalAmount || 0), 0);
+        const storeCount = new Set(orders.map(o => o.adminId?.toString())).size;
+        const fmt = n => n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      %>
+      <div class="bd-stats">
+        <div class="bd-stat">
+          <div class="bd-stat-val"><%= orders.length %></div>
+          <div class="bd-stat-label">Total Orders</div>
+        </div>
+        <div class="bd-stat">
+          <div class="bd-stat-val orange">₦<%= fmt(totalSpend) %></div>
+          <div class="bd-stat-label">Total Spent</div>
+        </div>
+        <div class="bd-stat">
+          <div class="bd-stat-val"><%= storeCount %></div>
+          <div class="bd-stat-label">Stores Visited</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content -->
+  <div class="bd-main">
+    <div class="bd-grid">
+
+      <!-- Orders column -->
+      <div>
+        <div class="bd-section-title">Order History</div>
+
+        <% if (orders.length === 0) { %>
+          <div class="bd-empty">
+            <i class="fas fa-shopping-bag"></i>
+            <h3>No orders yet</h3>
+            <p>When you buy from a Shed store, your orders will appear here.</p>
+          </div>
+        <% } else { %>
+          <div class="bd-orders">
+            <% orders.forEach(order => { %>
+              <%
+                const statusClass = order.paymentStatus === 'Paid' ? 'bd-status-paid'
+                  : order.paymentStatus === 'Cancelled' ? 'bd-status-cancelled'
+                  : 'bd-status-pending';
+                const statusLabel = order.paymentStatus || 'Pending';
+                const orderDate   = new Date(order.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+                const initials    = (order.storeName || '?').slice(0,2).toUpperCase();
+              %>
+              <div class="bd-order-card">
+                <div class="bd-order-header">
+                  <div class="bd-order-store">
+                    <div class="bd-store-avatar">
+                      <% if (order.storeLogo) { %>
+                        <img src="<%= order.storeLogo %>" alt="<%= order.storeName %>" onerror="this.style.display='none'">
+                      <% } else { %>
+                        <%= initials %>
+                      <% } %>
+                    </div>
+                    <div>
+                      <div class="bd-store-name"><%= order.storeName %></div>
+                      <div class="bd-order-date"><%= orderDate %></div>
+                    </div>
+                  </div>
+                  <div class="bd-order-meta">
+                    <div class="bd-order-total"><%= order.currency || '₦' %><%= fmt(order.totalAmount || 0) %></div>
+                    <span class="bd-order-status <%= statusClass %>"><%= statusLabel %></span>
+                  </div>
+                </div>
+
+                <div class="bd-order-items">
+                  <% (order.items || []).slice(0, 3).forEach(item => { %>
+                    <div class="bd-order-item">
+                      <span class="bd-order-item-name"><%= item.itemName || 'Item' %></span>
+                      <span class="bd-order-item-qty">×<%= item.quantity %></span>
+                      <span class="bd-order-item-price"><%= order.currency || '₦' %><%= fmt(item.totalCost || 0) %></span>
+                    </div>
+                  <% }) %>
+                  <% if ((order.items || []).length > 3) { %>
+                    <div class="bd-order-item" style="color:#555;font-size:0.78rem">
+                      +<%= order.items.length - 3 %> more item<%= order.items.length - 3 > 1 ? 's' : '' %>
+                    </div>
+                  <% } %>
+                </div>
+
+                <div class="bd-order-actions">
+                  <% if (order.storeSlug) { %>
+                    <a href="/store/<%= order.storeSlug %>" class="bd-btn-sm bd-btn-ghost">
+                      <i class="fas fa-store"></i> Visit store
+                    </a>
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+
+      <!-- Sidebar -->
+      <div>
+
+        <!-- Profile card -->
+        <div class="bd-sidebar-section">
+          <div class="bd-section-title">Profile</div>
+          <div class="bd-profile-card">
+            <div style="font-size:2rem;margin-bottom:10px">👤</div>
+            <div class="bd-profile-email"><i class="fas fa-envelope" style="color:#FF9800;margin-right:6px"></i><%= buyer.email %></div>
+            <% if (buyer.createdAt) { %>
+              <div class="bd-profile-since">Member since <%= new Date(buyer.createdAt).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' }) %></div>
+            <% } %>
+          </div>
+        </div>
+
+        <!-- Suggested stores -->
+        <% if (suggestedStores.length > 0) { %>
+          <div class="bd-sidebar-section">
+            <div class="bd-section-title">Discover Stores</div>
+            <div class="bd-store-cards">
+              <% suggestedStores.forEach(store => { %>
+                <%
+                  const storeInitials = (store.businessName || store.username || '?').slice(0,2).toUpperCase();
+                %>
+                <a href="/store/<%= store.username %>" class="bd-store-suggest">
+                  <div class="bd-suggest-avatar">
+                    <% if (store.logo) { %>
+                      <img src="<%= store.logo %>" alt="<%= store.businessName %>" onerror="this.style.display='none'">
+                    <% } else { %>
+                      <%= storeInitials %>
+                    <% } %>
+                  </div>
+                  <div class="bd-suggest-info">
+                    <div class="bd-suggest-name"><%= store.businessName || store.username %></div>
+                    <div class="bd-suggest-cta">Visit store →</div>
+                  </div>
+                  <i class="fas fa-chevron-right bd-suggest-arrow"></i>
+                </a>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Back to Shed -->
+        <a href="/" class="bd-store-suggest" style="margin-top:8px;justify-content:center;gap:8px;color:#555;font-size:0.82rem">
+          <i class="fas fa-home"></i> Back to Shed home
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

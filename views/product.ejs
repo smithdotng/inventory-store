@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GJRGT3KCZ7"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-GJRGT3KCZ7');
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="<%= product && product.name ? product.name + ' - ' + (admin && admin.businessName || 'Shed Store') : 'Product - Shed Store' %>"/>
+    <meta property="og:description" content="<%= product && product.name ? 'View details for ' + product.name + ' at ' + (admin && admin.businessName || 'Shed Store') : 'View product details at Shed Store.' %>"/>
+    <meta property="og:image" content="<%= product && product.images && product.images.length > 0 ? product.images[0] : '/android-chrome-512x512.png' %>"/>
+    <title><%= product && product.name ? product.name + ' - ' + (admin && admin.businessName || 'Shed Store') : 'Product - Shed Store' %></title>
+
+    <!-- Bootstrap Grid CSS -->
+    <link rel="stylesheet" href="/css/plugins/bootstrap-grid.css">
+    <!-- Font Awesome CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Swiper CSS -->
+    <link rel="stylesheet" href="/css/plugins/swiper.min.css">
+    <!-- Fancybox CSS -->
+    <link rel="stylesheet" href="/css/plugins/fancybox.min.css">
+    <!-- Ashley SCSS -->
+    <link rel="stylesheet" href="/css/style.css">
+
+    <!-- Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <style>
+        /* ==================== HEADER STYLES ==================== */
+        .mil-frame-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 5px 20px;
+            background: #fff;
+            height: 70px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+            flex-wrap: nowrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .mil-logo {
+            flex-shrink: 0;
+            margin-right: 20px;
+        }
+        
+        .mil-logo img {
+            width: 100px;
+            height: auto;
+            transition: transform 0.3s ease;
+        }
+        
+        .mil-logo img:hover {
+            transform: scale(1.05);
+        }
+        
+        /* Search Field */
+        .mil-header-search {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .mil-search-form {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        
+        .mil-search-input {
+            padding: 8px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 280px;
+            font-size: 14px;
+            text-transform: none !important;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .mil-search-input:focus {
+            border-color: darkcyan;
+            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
+        }
+        
+        .mil-search-button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: -35px;
+            transition: color 0.3s ease;
+        }
+        
+        .mil-search-button:hover {
+            color: darkcyan;
+        }
+        
+        /* Cart Button */
+        .mil-cart-container {
+            flex-shrink: 0;
+            position: relative;
+            margin-left: 20px;
+        }
+        
+        .mil-cart-button {
+            background: rgb(235, 166, 17);
+            color: #333;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            min-width: 44px;
+            height: 36px;
+        }
+        
+        .mil-cart-button:hover {
+            background: rgb(245, 176, 27);
+            transform: translateY(-1px);
+        }
+        
+        .mil-cart-button i {
+            font-size: 16px;
+        }
+        
+        .mil-cart-count {
+            background: #333;
+            color: white;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 600;
+            min-width: 18px;
+            text-align: center;
+        }
+        
+        /* ==================== PRODUCT CONTENT STYLES ==================== */
+        .mil-product-content {
+            padding-top: 100px;
+            padding-bottom: 60px;
+        }
+        
+        .mil-back-to-store {
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+        
+        .mil-button {
+            padding: 10px 20px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .mil-button.mil-border {
+            background: white;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+        
+        .mil-button.mil-border:hover {
+            background: #f8f9fa;
+        }
+        
+        /* Product Slider */
+        .mil-product-slider {
+            width: 100%;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .mil-product-image {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            position: absolute;
+            top: 0;
+            left: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease, left 0.3s ease;
+        }
+        
+        .mil-product-image.active {
+            left: 0;
+            opacity: 1;
+        }
+        
+        .mil-prev, .mil-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 30px;
+            color: white;
+            cursor: pointer;
+            user-select: none;
+            background: rgba(0,0,0,0.5);
+            padding: 8px;
+            border-radius: 50%;
+            z-index: 10;
+            transition: background 0.3s ease;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .mil-prev:hover, .mil-next:hover {
+            background: rgba(0,0,0,0.8);
+        }
+        
+        .mil-prev {
+            left: 10px;
+        }
+        
+        .mil-next {
+            right: 10px;
+        }
+        
+        .mil-no-image {
+            color: #666;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .mil-no-image i {
+            font-size: 50px;
+            opacity: 0.5;
+        }
+        
+        /* Thumbnails */
+        .mil-thumbnail-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
+        .mil-thumbnail {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border 0.3s ease, opacity 0.3s ease;
+            opacity: 0.7;
+        }
+        
+        .mil-thumbnail.active {
+            border: 2px solid darkcyan;
+            opacity: 1;
+        }
+        
+        .mil-thumbnail:hover {
+            border: 2px solid darkcyan;
+            opacity: 1;
+        }
+        
+        /* Product Details */
+        .mil-product-details {
+            padding: 20px;
+        }
+        
+        .mil-product-title {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        
+        .mil-product-price {
+            font-weight: 600;
+            color: darkcyan;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .mil-product-stock {
+            font-size: 0.95rem;
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .mil-product-description {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .mil-quantity-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            font-size: 0.95rem;
+        }
+        
+        .mil-add-to-cart {
+            background: darkcyan;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .mil-add-to-cart:hover {
+            background: #006969;
+        }
+        
+        .mil-add-to-cart.mil-added {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .mil-add-to-cart.mil-added:hover {
+            background: #c82333;
+        }
+        
+        /* Error Message */
+        .mil-error-message {
+            color: #dc3545;
+            font-size: 1.1rem;
+            text-align: center;
+            padding: 40px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .mil-error-message i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        /* ==================== CHECKOUT MODAL STYLES ==================== */
+        .mil-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            display: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .mil-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        .mil-checkout-form {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            max-width: 450px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            display: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .mil-checkout-form.active {
+            display: block;
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        .mil-checkout-form h2 {
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            color: #333;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .mil-cart-summary {
+            margin-bottom: 15px;
+        }
+        
+        .mil-cart-summary h3 {
+            font-size: 1.1rem;
+            color: #444;
+            margin-bottom: 10px;
+        }
+        
+        .mil-cart-summary table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        .mil-cart-summary th, .mil-cart-summary td {
+            padding: 6px 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .mil-cart-summary th {
+            background: #f8f9fa;
+            font-weight: 500;
+        }
+        
+        .mil-total {
+            font-weight: 600;
+            margin-top: 8px;
+            text-align: right;
+            font-size: 0.9rem;
+        }
+        
+        .mil-form-group {
+            margin-bottom: 12px;
+        }
+        
+        .mil-form-group label {
+            display: block;
+            margin-bottom: 4px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .mil-form-control {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .mil-form-control:focus {
+            border-color: darkcyan;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0, 139, 139, 0.1);
+        }
+        
+        .mil-flex {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .mil-flex-1 {
+            flex: 1;
+        }
+        
+        .mil-delete-item {
+            background: none;
+            border: none;
+            color: #dc3545;
+            cursor: pointer;
+            padding: 2px;
+            font-size: 0.8rem;
+        }
+        
+        .mil-delete-item:hover {
+            transform: scale(1.1);
+        }
+        
+        .mil-checkout-form .mil-button {
+            padding: 10px 15px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            flex: 1;
+        }
+        
+        .mil-checkout-form .mil-button-primary {
+            background: darkcyan;
+            color: white;
+        }
+        
+        .mil-checkout-form .mil-button-primary:hover {
+            background: #006969;
+            transform: translateY(-1px);
+        }
+        
+        .mil-checkout-form .mil-button-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .mil-checkout-form .mil-button-secondary:hover {
+            background: #5a6268;
+            transform: translateY(-1px);
+        }
+        
+        /* ==================== FOOTER STYLES ==================== */
+        footer.mil-dark-bg {
+            background: #000000 !important;
+            color: white;
+            padding: 60px 0 30px;
+        }
+        
+        footer.mil-dark-bg .mi-invert-fix {
+            background: #000000;
+        }
+        
+        footer.mil-dark-bg .mil-light-soft {
+            color: #fff !important;
+        }
+        
+        footer.mil-dark-bg .mil-muted {
+            color: rgba(255, 255, 255, 0.7) !important;
+        }
+        
+        footer.mil-dark-bg a {
+            color: rgb(235, 166, 17);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        footer.mil-dark-bg a:hover {
+            color: #ffcc00;
+        }
+        
+        footer.mil-dark-bg .mil-contact-info {
+            color: #ddd;
+        }
+        
+        footer.mil-dark-bg .mil-contact-info a {
+            color: #ddd;
+        }
+        
+        footer.mil-dark-bg .mil-contact-info a:hover {
+            color: rgb(235, 166, 17);
+        }
+        
+        footer.mil-dark-bg .mil-footer-menu ul li a {
+            color: #fff;
+        }
+        
+        footer.mil-dark-bg .mil-footer-menu ul li a:hover {
+            color: rgb(235, 166, 17);
+        }
+        
+        footer.mil-dark-bg .mil-text-center {
+            color: #fff;
+        }
+        
+        footer.mil-dark-bg .mil-text-center a {
+            color: rgb(235, 166, 17);
+        }
+        
+        /* Subscribe Form */
+        .mil-subscribe-container {
+            position: relative;
+            max-width: 300px;
+        }
+        
+        .mil-subscribe-error, .mil-subscribe-success {
+            display: none;
+            opacity: 0;
+            margin-bottom: 10px;
+            font-size: 0.85rem;
+        }
+        
+        .mil-subscribe-error.active, .mil-subscribe-success.active {
+            display: block;
+        }
+        
+        .mil-subscribe-error {
+            color: #dc3545;
+        }
+        
+        .mil-subscribe-success {
+            color: #28a745;
+        }
+        
+        .mil-subscribe-form {
+            position: relative;
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        
+        .mil-subscribe-form input {
+            flex: 1;
+            border: none;
+            background-color: beige;
+            padding: 8px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        
+        .mil-subscribe-form button {
+            background: transparent;
+            border: none;
+            cursor: pointer;
+        }
+        
+        /* ==================== RESPONSIVE STYLES ==================== */
+        @media (max-width: 768px) {
+            /* Header */
+            .mil-frame-top {
+                padding: 5px 15px;
+            }
+            
+            .mil-logo img {
+                width: 80px;
+            }
+            
+            .mil-header-search {
+                max-width: 300px;
+            }
+            
+            .mil-search-input {
+                max-width: 220px;
+                padding: 8px 12px;
+            }
+            
+            .mil-cart-container {
+                margin-left: 15px;
+            }
+            
+            .mil-cart-button {
+                padding: 8px;
+                min-width: 40px;
+            }
+            
+            /* Product */
+            .mil-product-slider {
+                height: 300px;
+            }
+            
+            .mil-product-title {
+                font-size: 1.6rem;
+            }
+            
+            .mil-product-price {
+                font-size: 1.3rem;
+            }
+            
+            .mil-thumbnail {
+                width: 50px;
+                height: 50px;
+            }
+            
+            /* Checkout Modal */
+            .mil-checkout-form {
+                max-width: 400px;
+                padding: 15px;
+            }
+            
+            .mil-checkout-form h2 {
+                font-size: 1.3rem;
+            }
+            
+            .mil-cart-summary table {
+                font-size: 0.8rem;
+            }
+            
+            .mil-form-control {
+                padding: 7px 9px;
+                font-size: 0.85rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            /* Header */
+            .mil-frame-top {
+                flex-direction: column;
+                height: auto;
+                padding: 10px 15px;
+            }
+            
+            .mil-logo {
+                margin-right: 10px;
+                margin-bottom: 10px;
+            }
+            
+            .mil-logo img {
+                width: 70px;
+            }
+            
+            .mil-header-search {
+                max-width: 200px;
+                margin: 10px 0;
+            }
+            
+            .mil-search-input {
+                width: 100%;
+                max-width: 160px;
+                padding: 6px 10px;
+                font-size: 13px;
+            }
+            
+            .mil-cart-container {
+                margin-left: 10px;
+            }
+            
+            .mil-cart-button {
+                padding: 6px;
+                min-width: 36px;
+                height: 32px;
+            }
+            
+            .mil-cart-count {
+                font-size: 10px;
+                padding: 1px 4px;
+                min-width: 16px;
+            }
+            
+            /* Product */
+            .mil-product-content {
+                padding-top: 140px;
+                padding-bottom: 40px;
+            }
+            
+            .mil-product-slider {
+                height: 250px;
+            }
+            
+            .mil-prev, .mil-next {
+                font-size: 24px;
+                padding: 5px;
+                width: 35px;
+                height: 35px;
+            }
+            
+            .mil-thumbnail {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .mil-product-title {
+                font-size: 1.4rem;
+            }
+            
+            .mil-product-price {
+                font-size: 1.2rem;
+            }
+            
+            /* Checkout Modal */
+            .mil-checkout-form {
+                max-width: 350px;
+                padding: 12px;
+            }
+            
+            .mil-checkout-form h2 {
+                font-size: 1.2rem;
+            }
+            
+            .mil-cart-summary h3 {
+                font-size: 1rem;
+            }
+            
+            .mil-cart-summary th, .mil-cart-summary td {
+                padding: 5px 6px;
+                font-size: 0.75rem;
+            }
+            
+            .mil-form-group label {
+                font-size: 0.8rem;
+            }
+            
+            .mil-flex {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .mil-header-search {
+                max-width: 160px;
+            }
+            
+            .mil-search-input {
+                max-width: 140px;
+            }
+            
+            .mil-logo img {
+                width: 60px;
+            }
+            
+            .mil-product-slider {
+                height: 200px;
+            }
+            
+            .mil-checkout-form {
+                max-width: 320px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<%- include('partials/shopper-bar', { shopper: typeof shopper !== 'undefined' ? shopper : null }) %>
+    <!-- wrapper -->
+    <div class="mil-wrapper" id="top">
+        <!-- cursor -->
+        <div class="mil-ball">
+            <span class="mil-icon-1">
+                <svg viewBox="0 0 128 128">
+                    <path d="M106.1,41.9c-1.2-1.2-3.1-1.2-4.2,0c-1.2,1.2-1.2,3.1,0,4.2L116.8,61H11.2l14.9-14.9c1.2-1.2,1.2-3.1,0-4.2 c-1.2-1.2-3.1-1.2-4.2,0l-20,20c-1.2,1.2-1.2,3.1,0,4.2l20,20c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9c1.2-1.2,1.2-3.1,0-4.2 L11.2,67h105.5l-14.9,14.9c-1.2,1.2-1.2,3.1,0,4.2c0.6,0.6,1.4,0.9,2.1,0.9s1.5-0.3,2.1-0.9l20-20c1.2,1.2-1.2-3.1,0-4.2L106.1,41.9 z" />
+                </svg>
+            </span>
+            <div class="mil-more-text">More</div>
+            <div class="mil-choose-text">Сhoose</div>
+        </div>
+        <!-- cursor end -->
+
+        <!-- scrollbar progress -->
+        <div class="mil-progress-track">
+            <div class="mil-progress"></div>
+        </div>
+        <!-- scrollbar progress end -->
+
+        <!-- Updated Header to Match Storefront -->
+        <div class="mil-frame-top">
+            <a href="/" class="mil-logo"><img src="<%= admin && admin.logo || '/images/logo.png' %>" alt="<%= admin && admin.businessName || 'Shed Store' %> Logo"></a>
+            
+            <div class="mil-header-search">
+                <div class="mil-search-form">
+                    <input type="text" placeholder="Search products..." class="mil-search-input">
+                    <button type="submit" class="mil-search-button">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            
+        </div>
+        <!-- frame top end -->
+
+        <!-- content -->
+        <div class="mil-content mil-product-content">
+            <div id="swupMain" class="mil-main-transition">
+                <section class="mil-product">
+                    <div class="container mil-p-60-30">
+                        <!-- Back to Store Button -->
+                        <div class="mil-back-to-store" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                            <a href="/store/<%= admin && admin.username || '' %>" class="mil-button mil-border">
+                                <i class="fas fa-arrow-left mil-mr-5"></i> Back to Store
+                            </a>
+                            <% if (admin && admin.isVerified) { %>
+                                <span title="Verified by Shed" style="display:inline-flex;align-items:center;gap:5px;background:rgba(30,132,73,0.12);color:#1e8449;font-size:0.72rem;font-weight:700;padding:5px 12px;border-radius:20px;letter-spacing:.03em;">
+                                    <i class="fas fa-badge-check"></i> VERIFIED STORE
+                                </span>
+                            <% } %>
+                        </div>
+                        <% if (!product) { %>
+                            <div class="mil-error-message">
+                                <i class="fas fa-exclamation-circle mil-mr-5"></i> Product not found. Please return to the store.
+                            </div>
+                        <% } else { %>
+                            <div class="row">
+                                <!-- Product Images -->
+                                <div class="col-lg-6 mil-mb-30">
+                                    <div class="mil-product-slider">
+                                        <% if (product.images && product.images.length > 0) { %>
+                                            <% product.images.forEach((image, index) => { %>
+                                                <img src="<%= image %>" class="mil-product-image <%= index === 0 ? 'active' : '' %>" alt="<%= product.name %> Image <%= index + 1 %>">
+                                            <% }) %>
+                                        <% } else { %>
+                                            <div class="mil-no-image">
+                                                <i class="fas fa-image mil-mr-5"></i> No Image
+                                            </div>
+                                        <% } %>
+                                        <% if (product.images && product.images.length > 0) { %>
+                                            <div class="mil-prev" onclick="changeSlide(-1)">‹</div>
+                                            <div class="mil-next" onclick="changeSlide(1)">›</div>
+                                        <% } %>
+                                    </div>
+                                    <!-- Thumbnail Gallery (only shown if multiple images) -->
+                                    <% if (product.images && product.images.length > 1) { %>
+                                        <div class="mil-thumbnail-container">
+                                            <% product.images.forEach((image, index) => { %>
+                                                <img src="<%= image %>" class="mil-thumbnail <%= index === 0 ? 'active' : '' %>" alt="Thumbnail <%= index + 1 %>" onclick="goToSlide(<%= index %>)">
+                                            <% }) %>
+                                        </div>
+                                    <% } %>
+                                </div>
+                                <!-- Product Details -->
+                                <div class="col-lg-6 mil-mb-30">
+                                    <div class="mil-product-details">
+                                        <h1 class="mil-product-title mil-mb-20"><%= product.name %></h1>
+                                        <div class="mil-product-price"><%= currency %><%= formatCurrency(product.cost) %></div>
+                                        <div class="mil-product-stock">Stock: <%= product.stock %></div>
+                                        <% if (product.description) { %>
+                                            <div class="mil-product-description"><%= product.description %></div>
+                                        <% } %>
+                                        <input type="number" class="mil-quantity-input" min="1" max="<%= product.stock %>" value="1">
+                                        <button class="mil-add-to-cart" onclick="addToShopperCart('<%= admin._id %>', '<%= product._id %>', this)">
+                                            <i class="fas fa-cart-plus mil-mr-5"></i> Add to Cart
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="mil-dark-bg">
+            <div class="mi-invert-fix">
+                <div class="container mil-p-120-60">
+                    <div class="row justify-content-between">
+                        <div class="col-md-4 col-lg-4 mil-mb-60">
+                            <div class="mil-muted mil-logo mil-up mil-mb-30">Shed.</div>
+                            <p class="mil-light-soft mil-up mil-mb-30">Subscribe our newsletter:</p>
+                            <div class="mil-subscribe-container">
+                                <div class="mil-subscribe-error"></div>
+                                <form class="mil-subscribe-form mil-up" id="subscribeForm">
+                                    <input type="email" name="email" placeholder="What is your email address?" required>
+                                    <button type="submit" class="mil-button mil-icon-button-sm mil-arrow-place" aria-label="Subscribe to newsletter">
+                                        <svg class="mil-arrow" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M 14 5.3417969 C 13.744125 5.3417969 13.487969 5.4412187 13.292969 5.6367188 L 13.207031 5.7226562 C 12.816031 6.1136563 12.816031 6.7467188 13.207031 7.1367188 L 17.070312 11 L 4 11 C 3.448 11 3 11.448 3 12 C 3 12.552 3.448 13 4 13 L 17.070312 13 L 13.207031 16.863281 C 12.816031 17.254281 12.816031 17.887344 13.207031 18.277344 L 13.292969 18.363281 C 13.683969 18.754281 14.317031 18.754281 14.707031 18.363281 L 20.363281 12.707031 C 20.754281 12.316031 20.754281 11.682969 20.363281 11.292969 L 14.707031 5.6367188 C 14.511531 5.4412187 14.255875 5.3417969 14 5.3417969 z"/>
+                                        </svg>
+                                    </button>
+                                </form>
+                                <div class="mil-subscribe-success">
+                                    <i class="fas fa-check-circle"></i> Thank you for subscribing!
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-7 col-lg-6">
+                            <div class="row justify-content-end">
+                                <div class="col-md-6 col-lg-7">
+                                    <nav class="mil-footer-menu mil-mb-60">
+                                        <ul>
+                                            <li class="mil-up mil-active">
+                                                <a href="/admin-login">New? Create a Shed</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/admin-login">Have a Shed? Sign in</a>
+                                            </li>
+                                            <li class="mil-up">
+                                                <a href="/">Learn More about Shed</a>
+                                            </li>
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+        <!-- footer end -->
+    </div>
+    <!-- wrapper end -->
+
+    <!-- jQuery js -->
+    <script src="/js/plugins/jquery.min.js"></script>
+    <!-- swup js -->
+    <script src="/js/plugins/swup.min.js"></script>
+    <!-- swiper js -->
+    <script src="/js/plugins/swiper.min.js"></script>
+    <!-- fancybox js -->
+    <script src="/js/plugins/fancybox.min.js"></script>
+    <!-- gsap js -->
+    <script src="/js/plugins/gsap.min.js"></script>
+    <!-- scroll smoother -->
+    <script src="/js/plugins/smooth-scroll.js"></script>
+    <!-- scroll trigger js -->
+    <script src="/js/plugins/ScrollTrigger.min.js"></script>
+    <!-- scroll to js -->
+    <script src="/js/plugins/ScrollTo.min.js"></script>
+    <!-- ashley js -->
+    <script src="/js/main.js"></script>
+
+    <script>
+        let currentSlide = 0;
+        const currency = '<%= currency %>';
+        const images = <%- product && product.images ? JSON.stringify(product.images) : '[]' %>;
+
+        const SHED_SHOPPER_LOGGED_IN = <%= (typeof shopper !== 'undefined' && shopper) ? 'true' : 'false' %>;
+
+        // Add to the account-based, cross-store cart (server-side). Anonymous
+        // visitors are sent to sign in first — the cart lives on the account.
+        async function addToShopperCart(adminId, itemId, button) {
+            if (!SHED_SHOPPER_LOGGED_IN) {
+                window.location.href = '/shopper/login?next=' + encodeURIComponent(window.location.pathname);
+                return;
+            }
+            const original = button.innerHTML;
+            button.disabled = true;
+            button.innerHTML = 'Adding…';
+            try {
+                const res = await fetch('/cart/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ adminId, itemId, quantity: 1 })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    button.innerHTML = '<i class="fas fa-check mil-mr-5"></i> Added!';
+                    const badge = document.getElementById('shedCartCount');
+                    if (badge) { badge.textContent = data.count; badge.style.display = 'flex'; }
+                    setTimeout(() => { button.innerHTML = original; button.disabled = false; }, 1500);
+                } else {
+                    alert(data.error || 'Could not add item.');
+                    button.innerHTML = original; button.disabled = false;
+                }
+            } catch (err) {
+                alert('Could not add item. Please try again.');
+                button.innerHTML = original; button.disabled = false;
+            }
+        }
+
+
+        function changeSlide(direction) {
+            const images = document.querySelectorAll('.mil-product-image');
+            if (images.length === 0) return;
+
+            const prevSlide = currentSlide;
+            currentSlide = (currentSlide + direction + images.length) % images.length;
+
+            gsap.to(images[prevSlide], {
+                left: direction > 0 ? '-100%' : '100%',
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+
+            gsap.fromTo(images[currentSlide], {
+                left: direction > 0 ? '100%' : '-100%',
+                opacity: 0
+            }, {
+                left: '0%',
+                opacity: 1,
+                duration: 0.3,
+                ease: 'power2.out',
+                onStart: () => {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('active', index === currentSlide);
+                    });
+                    updateThumbnailState();
+                }
+            });
+        }
+
+        function goToSlide(index) {
+            const images = document.querySelectorAll('.mil-product-image');
+            if (images.length === 0 || index < 0 || index >= images.length) return;
+
+            const prevSlide = currentSlide;
+            currentSlide = index;
+
+            gsap.to(images[prevSlide], {
+                left: prevSlide < currentSlide ? '-100%' : '100%',
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.out'
+            });
+
+            gsap.fromTo(images[currentSlide], {
+                left: prevSlide < currentSlide ? '100%' : '-100%',
+                opacity: 0
+            }, {
+                left: '0%',
+                opacity: 1,
+                duration: 0.3,
+                ease: 'power2.out',
+                onStart: () => {
+                    images.forEach((img, index) => {
+                        img.classList.toggle('active', index === currentSlide);
+                    });
+                    updateThumbnailState();
+                }
+            });
+        }
+
+        function updateThumbnailState() {
+            const thumbnails = document.querySelectorAll('.mil-thumbnail');
+            thumbnails.forEach((thumb, index) => {
+                thumb.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        window.addEventListener('load', () => {
+            updateThumbnailState();
+        });
+
+        // Subscription Form Handling
+        document.addEventListener('DOMContentLoaded', () => {
+            const subscribeForm = document.getElementById('subscribeForm');
+            const errorDiv = document.querySelector('.mil-subscribe-error');
+            const successDiv = document.querySelector('.mil-subscribe-success');
+            const formContainer = document.querySelector('.mil-subscribe-container');
+
+            if (!subscribeForm || !errorDiv || !successDiv || !formContainer) {
+                console.warn('Subscription form elements not found');
+                return;
+            }
+
+            // Initialize message visibility
+            errorDiv.classList.remove('active');
+            successDiv.classList.remove('active');
+
+            subscribeForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = subscribeForm.querySelector('input[name="email"]').value.trim();
+
+                // Reset messages
+                gsap.to([errorDiv, successDiv], {
+                    opacity: 0,
+                    duration: 0.3,
+                    onComplete: () => {
+                        errorDiv.classList.remove('active');
+                        successDiv.classList.remove('active');
+                        errorDiv.textContent = '';
+                    }
+                });
+
+                // Validate email
+                if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    errorDiv.textContent = 'Please enter a valid email address';
+                    errorDiv.classList.add('active');
+                    gsap.fromTo(errorDiv, 
+                        { opacity: 0, y: -10 }, 
+                        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                    );
+                    return;
+                }
+
+                try {
+                    const response = await fetch('/api/subscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ email })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // Show success message without hiding form
+                        successDiv.classList.add('active');
+                        gsap.fromTo(successDiv, 
+                            { opacity: 0, y: -10 }, 
+                            { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                        );
+                        subscribeForm.reset();
+                    } else {
+                        errorDiv.textContent = data.message || 'Subscription failed. Please try again.';
+                        errorDiv.classList.add('active');
+                        gsap.fromTo(errorDiv, 
+                            { opacity: 0, y: -10 }, 
+                            { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                        );
+                    }
+                } catch (error) {
+                    errorDiv.textContent = 'Network error. Please try again later.';
+                    errorDiv.classList.add('active');
+                    gsap.fromTo(errorDiv, 
+                        { opacity: 0, y: -10 }, 
+                        { opacity: 1, y: 0, duration: 0.3, ease: 'power2.out' }
+                    );
+                    console.error('Subscription error:', error);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

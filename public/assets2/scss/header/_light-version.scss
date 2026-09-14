@@ -1,0 +1,43 @@
+/*===========================
+    Header Color Version 
+============================*/
+
+// Light Logo Vertion
+.light-logo-version {
+    .mainmenu__nav {
+        .primary-menu {
+            li {
+                a {
+                    color: #ffffff;
+                }
+            }
+        }
+    }
+    .header-icon {
+        a {
+            color: #ffffff;
+            i {
+                color: #ffffff;
+            }
+        }
+    }
+}
+
+// Black Logo Version
+.black-logo-version {
+    .mainmenu__nav {
+        .primary-menu {
+            li {
+                a {
+                    @extend %textBlack22;
+                }
+            }
+        }
+    }
+
+    .header-icon {
+        a {
+            @extend %textBlack22;
+        }
+    }
+}

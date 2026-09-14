@@ -1,0 +1,30 @@
+/*=================
+    Team Area 
+===================*/
+.team {
+    .content {
+        padding-top: 20px;
+        text-align: center;
+        padding-bottom: 20px;
+
+        h5 {
+            margin-bottom: 5px;
+        }
+        p {
+            color: #252323;
+            font-size: 14px;
+        }
+        .team-social {
+            a {
+                color: #252323;
+                font-size: 22px;
+                display: inline-block;
+                margin: 0 10px;
+                transition: 0.5s;
+                &:hover {
+                    color: $theme-color;
+                }
+            }
+        }
+    }
+}

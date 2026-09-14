@@ -1,0 +1,146 @@
+/*********************************************************************************
+
+	Template Name: Lanes Bootstrap5 Ecommerce Template
+	Note: This is Style Css Here.
+
+**********************************************************************************/
+
+/**************************************************************
+	
+	STYLESHEET INDEXING
+	|
+	|
+	|___ Default Styles
+	|	|
+	|	|___ variables
+	|	|___ mixins
+	|	|___ reset
+	|	|___ typography
+	|	|___ extend
+	|	|___ animations
+	|	|___ shortcode
+	|	|___ spacing
+	|
+	|
+	|___Header Styles
+	|	|___ header
+	|	|___ light-version
+	|	|___ navigation
+	|	|___ cart-flyover
+	|	|___ mobilemenu
+	|	|___ megamenu
+	|
+	|
+	|___Elememts Styles
+	|	|___ button 
+	|	|___ section-title
+	|	|___ countdown
+	|	|___ login
+	|	|___ cart
+	|	|___ checkout
+	|	|___ compare
+	|	|___ contact
+	|	|___ blog
+	|	|___ pagination
+	|	|___ service
+	|	|___ video
+	|	|___ team
+	|	|___ my-account
+	|
+	|___Product Styles
+	|	|___ product 
+	|	|___ best-rating 
+	|	|___ tab 
+	|	|___ quickview 
+	|	|___ product-details 
+	|	|___ shop-sidebar
+	|
+	|___Template Styles
+	|	|___ slider 
+	|	|___ banner 
+	|	|___ blog-details 
+	|	|___ about 
+	|	|___ blog-sidebar 
+	|
+	|___Footer Styles
+	|	|___ footer 
+	|
+	|
+	|
+	|___ END STYLESHEET INDEXING
+
+***************************************************************/
+
+
+/**************************************
+    Default Styles
+***************************************/
+@import 'default/variables';
+@import 'default/mixins';
+@import 'default/reset';
+@import 'default/typography';
+@import 'default/extend';
+@import 'default/animations';
+@import 'default/shortcode';
+@import 'default/spacing';
+
+
+/**************************************
+	Header Styles
+***************************************/
+@import 'header/header';
+@import 'header/light-version';
+@import 'header/navigation';
+@import 'header/cart-flyover';
+@import 'header/mobilemenu';
+@import 'header/megamenu';
+
+
+
+
+
+/**************************************
+	Elements Styles
+***************************************/
+@import 'elements/button';
+@import 'elements/section-title';
+@import 'elements/countdown';
+@import 'elements/login';
+@import 'elements/cart';
+@import 'elements/checkout';
+@import 'elements/compare';
+@import 'elements/contact';
+@import 'elements/blog';
+@import 'elements/pagination';
+@import 'elements/service';
+@import 'elements/video';
+@import 'elements/team';
+@import 'elements/my-account';
+
+
+
+/**************************************
+	Product Styles
+***************************************/
+@import 'product/product';
+@import 'product/best-rating';
+@import 'product/tab';
+@import 'product/quickview';
+@import 'product/product-details';
+@import 'product/shop-sidebar';
+
+
+/**************************************
+	Template Styles
+***************************************/
+@import 'template/slider';
+@import 'template/banner';
+@import 'template/blog-details';
+@import 'template/about';
+@import 'template/blog-sidebar';
+
+
+/**************************************
+	Footer Styles
+***************************************/
+@import 'footer/footer';

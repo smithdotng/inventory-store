@@ -1,0 +1,42 @@
+<!--
+  Usage: include('partials/app-sidebar', { currentPage: 'home', admin: admin })
+  currentPage values: home, inventory, pos, transactions, customers, invoices, profile, messages
+-->
+<% const cp = typeof currentPage !== 'undefined' ? currentPage : ''; %>
+
+<!-- Sidebar overlay (mobile) -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo">
+    <a href="/home">
+      <img src="/images/logo.png" alt="Shed">
+    </a>
+  </div>
+
+  <div class="sidebar-section-label">Main Menu</div>
+
+  <nav class="sidebar-nav">
+    <a href="/pos" class="<%= cp === 'pos' ? 'active' : '' %>">
+      <i class="fas fa-shopping-cart"></i> Point of Sale
+    </a>
+    <a href="/inventory" class="<%= cp === 'inventory' ? 'active' : '' %>">
+      <i class="fas fa-boxes"></i> Inventory
+    </a>
+    <a href="/transactions" class="<%= cp === 'transactions' ? 'active' : '' %>">
+      <i class="fas fa-chart-bar"></i> Transactions
+    </a>
+    <a href="/invoices" class="<%= cp === 'invoices' ? 'active' : '' %>">
+      <i class="fas fa-file-invoice"></i> Invoices
+    </a>
+    <a href="/customers" class="<%= cp === 'customers' ? 'active' : '' %>">
+      <i class="fas fa-users"></i> Customers
+    </a>
+    <a href="/home" class="<%= cp === 'home' ? 'active' : '' %>">
+      <i class="fas fa-store"></i> Outlets
+    </a>
+  </nav>
+
+  <div class="sidebar-bottom"></div>
+</aside>

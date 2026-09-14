@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shed | Superadmin Dashboard</title>
+  <%- include('partials/app-head', { extraCssUrl: '' }) %>
+  <style>
+    .sa-table { width:100%; border-collapse:collapse; font-size:0.85rem; }
+    .sa-table th { background:#0d0d1a; color:#fff; padding:11px 14px; text-align:left; font-weight:600; font-size:0.78rem; text-transform:uppercase; letter-spacing:.04em; }
+    .sa-table td { padding:11px 14px; border-bottom:1px solid #f0f0f0; color:#444; vertical-align:middle; }
+    .sa-table tbody tr:hover { background:#fafafa; }
+    .sa-table tbody tr.editing td { background:#fffef5; }
+    .display-value { }
+    .edit-input { display:none; }
+    .edit-input.active { display:block; }
+    .table-overflow { overflow-x:auto; }
+    .btn-xs { padding:5px 10px; font-size:0.78rem; border-radius:5px; border:none; cursor:pointer; font-weight:600; transition:all .15s; display:inline-flex; align-items:center; gap:4px; }
+    .btn-edit { background:rgba(0,139,139,0.1); color:#008B8B; }
+    .btn-edit:hover { background:#008B8B; color:#fff; }
+    .btn-update { background:rgba(39,174,96,0.1); color:#27ae60; }
+    .btn-update:hover { background:#27ae60; color:#fff; }
+    .btn-cancel-edit { background:rgba(108,117,125,0.1); color:#6c757d; }
+    .btn-cancel-edit:hover { background:#6c757d; color:#fff; }
+    .btn-reset { background:rgba(235,166,17,0.1); color:#b8830a; }
+    .btn-reset:hover { background:#b8830a; color:#fff; }
+    .btn-del { background:rgba(192,57,43,0.1); color:#c0392b; }
+    .btn-del:hover { background:#c0392b; color:#fff; }
+    .btn-msg { background:rgba(52,152,219,0.1); color:#2980b9; }
+    .btn-msg:hover { background:#2980b9; color:#fff; }
+    .hidden { display:none !important; }
+    .action-group { display:flex; flex-wrap:wrap; gap:5px; }
+    /* Sales accordion */
+    .sales-section { padding:12px 0; }
+    .sales-toggle { cursor:pointer; color:#008B8B; font-size:0.82rem; font-weight:600; display:flex; align-items:center; gap:6px; padding:6px 0; user-select:none; }
+    .sales-toggle i { transition:transform .2s; }
+    .sales-toggle.collapsed i { transform:rotate(-90deg); }
+    .sales-content { display:none; padding:10px 0 4px; }
+    .sales-content.show { display:block; }
+    .sales-content table { font-size:0.8rem; }
+    .sales-content table th { background:#f0f0f0; color:#666; }
+    /* Modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:9999; align-items:center; justify-content:center; }
+    .modal-overlay.active { display:flex; }
+    .modal-box { background:#fff; border-radius:12px; padding:28px; max-width:440px; width:92%; box-shadow:0 20px 60px rgba(0,0,0,.2); }
+    .modal-box h4 { margin:0 0 12px; font-size:1.1rem; font-weight:700; }
+    .modal-actions { display:flex; gap:10px; margin-top:20px; }
+    /* Message form */
+    textarea.form-control { height:auto; resize:vertical; }
+  </style>
+</head>
+<body>
+
+<!-- Superadmin Sidebar -->
+<aside class="app-sidebar" id="appSidebar">
+  <div class="sidebar-logo">
+    <img src="/images/logo.png" alt="Shed">
+  </div>
+  <nav class="sidebar-nav">
+    <a href="/superadmin/dashboard" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+    <a href="/superadmin/create-admin"><i class="fas fa-user-plus"></i> Create Admin</a>
+    <a href="/superadmin/affiliates"><i class="fas fa-handshake"></i> Affiliates</a>
+    <a href="/superadmin/outlets"><i class="fas fa-store"></i> All Outlets</a>
+    <a href="/superadmin/ads"><i class="fas fa-ad"></i> Featured Ads</a>
+    <a href="/superadmin/clusters"><i class="fas fa-map-marker-alt"></i> Market Clusters</a>
+    <a href="/superadmin/sent-messages"><i class="fas fa-envelope"></i> Sent Messages</a>
+  </nav>
+  <div class="sidebar-bottom">
+    <a href="/admin-logout"><i class="fas fa-power-off"></i> Log Out</a>
+  </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-main">
+  <header class="app-topbar">
+    <div class="topbar-left">
+      <button class="hamburger-btn" id="hamburgerBtn"><i class="fas fa-bars"></i></button>
+      <span class="page-title">Superadmin Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-business">Superadmin</span>
+      <div class="user-dropdown" id="userDropdown">
+        <button class="topbar-user-chip user-dropdown-btn" id="userDropdownBtn">
+          <div class="avatar"><%= (currentAdmin ? currentAdmin.username : 'S')[0].toUpperCase() %></div>
+          <%= currentAdmin ? currentAdmin.username : 'Superadmin' %>
+          <i class="fas fa-chevron-down user-dropdown-chevron"></i>
+        </button>
+        <div class="user-dropdown-menu" id="userDropdownMenu">
+          <a href="/admin-logout" class="dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-content">
+
+    <% if (Array.isArray(success) && success.length > 0) { %>
+      <% success.forEach(function(msg) { %><div class="flash-success"><i class="fas fa-check-circle"></i> <%= msg %></div><% }) %>
+    <% } %>
+    <% if (Array.isArray(error) && error.length > 0) { %>
+      <% error.forEach(function(msg) { %><div class="flash-error"><i class="fas fa-exclamation-circle"></i> <%= msg %></div><% }) %>
+    <% } %>
+
+    <div class="page-header">
+      <div><h1>Admin Management</h1><p>Manage all admin accounts and their sales</p></div>
+      <a href="/superadmin/create-admin" class="btn-primary-app"><i class="fas fa-user-plus"></i> Create Admin</a>
+    </div>
+
+    <!-- Admin Table -->
+    <div class="app-card" style="margin-bottom:24px;">
+      <% if (adminItems && adminItems.length > 0) { %>
+        <div class="table-overflow">
+          <table class="sa-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Business</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Currency</th>
+                <th>Role</th>
+                <th>Subscription</th>
+                <th>Logged In?</th>
+                <th>Login Count</th>
+                <th>Last Login</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% adminItems.forEach(item => { %>
+                <tr id="row-<%= item._id %>">
+                  <td>
+                    <span class="display-value"><%= escapeEjs(item.username) %></span>
+                    <input type="text" class="edit-input form-control" name="username" value="<%= escapeEjs(item.username || '') %>" disabled required>
+                  </td>
+                  <td>
+                    <span class="display-value"><%= escapeEjs(item.businessName || 'N/A') %></span>
+                    <input type="text" class="edit-input form-control" name="businessName" value="<%= escapeEjs(item.businessName || '') %>" disabled>
+                  </td>
+                  <td><%= escapeEjs(item.email || 'N/A') %></td>
+                  <td>
+                    <span class="display-value"><%= escapeEjs(item.phone || 'N/A') %></span>
+                    <input type="text" class="edit-input form-control" name="phone" value="<%= escapeEjs(item.phone || '') %>" disabled>
+                  </td>
+                  <td>
+                    <span class="display-value"><%= escapeEjs(item.currency || 'N/A') %></span>
+                    <input type="text" class="edit-input form-control" name="currency" value="<%= escapeEjs(item.currency || '') %>" disabled>
+                  </td>
+                  <td>
+                    <span class="display-value"><%= escapeEjs(item.role) %></span>
+                    <select class="edit-input form-control" name="role" disabled>
+                      <option value="admin" <%= item.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                      <option value="superadmin" <%= item.role === 'superadmin' ? 'selected' : '' %>>Superadmin</option>
+                    </select>
+                  </td>
+                  <td style="white-space:nowrap;">
+                    <% if (!item.subscription) { %>
+                      <span class="btn-xs" style="background:#eee;color:#555;">N/A</span>
+                    <% } else if (item.subscription.legacyAccount) { %>
+                      <span class="btn-xs" style="background:#eee;color:#555;">Legacy</span>
+                    <% } else { %>
+                      <span class="btn-xs" style="background:<%= ['active','comped'].includes(item.subscription.status) ? '#eafaf1' : (item.subscription.status === 'trial' ? '#fff8ec' : '#fdecea') %>;color:<%= ['active','comped'].includes(item.subscription.status) ? '#1e8449' : (item.subscription.status === 'trial' ? '#b26a00' : '#c0392b') %>;">
+                        <%= item.subscription.status %>
+                      </span>
+                      <form action="/superadmin/subscription/<%= item._id %>/comp" method="POST" style="display:inline;">
+                        <input type="hidden" name="undo" value="<%= item.subscription.status === 'comped' ? '1' : '' %>">
+                        <button type="submit" class="btn-xs btn-edit" style="margin-left:4px;">
+                          <%= item.subscription.status === 'comped' ? 'Un-comp' : 'Comp' %>
+                        </button>
+                      </form>
+                    <% } %>
+                  </td>
+                  <td><%= item.hasLoggedIn ? 'Yes' : 'No' %></td>
+                  <td><%= item.loginCount || 0 %></td>
+                  <td style="font-size:0.78rem; white-space:nowrap;"><%= item.lastLogin ? new Date(item.lastLogin).toLocaleString() : 'Never' %></td>
+                  <td>
+                    <div class="action-group">
+                      <button class="btn-xs btn-edit edit-btn" data-id="<%= item._id %>"><i class="fas fa-edit"></i> Edit</button>
+                      <form action="/superadmin/update-admin/<%= item._id %>" method="POST" class="update-form" style="display:contents;">
+                        <input type="hidden" name="username" class="hidden-username">
+                        <input type="hidden" name="businessName" class="hidden-businessName">
+                        <input type="hidden" name="phone" class="hidden-phone">
+                        <input type="hidden" name="currency" class="hidden-currency">
+                        <input type="hidden" name="role" class="hidden-role">
+                        <button type="submit" class="btn-xs btn-update update-btn hidden"><i class="fas fa-check"></i> Save</button>
+                        <button type="button" class="btn-xs btn-cancel-edit cancel-btn hidden"
+                                data-username="<%= escapeEjs(item.username || '') %>"
+                                data-businessname="<%= escapeEjs(item.businessName || 'N/A') %>"
+                                data-phone="<%= escapeEjs(item.phone || 'N/A') %>"
+                                data-currency="<%= escapeEjs(item.currency || 'N/A') %>"
+                                data-role="<%= escapeEjs(item.role) %>">
+                          <i class="fas fa-times"></i> Cancel
+                        </button>
+                      </form>
+                      <form action="/superadmin/reset-password/<%= item._id %>" method="POST" style="display:contents;">
+                        <button type="submit" class="btn-xs btn-reset"><i class="fas fa-key"></i> Reset PW</button>
+                      </form>
+                      <a href="/superadmin/admin-details/<%= item._id %>" class="btn-xs btn-msg"><i class="fas fa-eye"></i> View</a>
+                      <% if (item._id.toString() !== currentAdminId) { %>
+                        <button class="btn-xs btn-del delete-btn" data-id="<%= item._id %>" data-username="<%= escapeEjs(item.username || 'Admin') %>">
+                          <i class="fas fa-trash"></i> Delete
+                        </button>
+                      <% } %>
+                    </div>
+                  </td>
+                </tr>
+                <!-- POS Sales row -->
+                <tr>
+                  <td colspan="11" style="padding:0 14px; background:#fafafa;">
+                    <div class="sales-section">
+                      <div class="sales-toggle" data-target="pos-sales-<%= item._id %>">
+                        <i class="fas fa-chevron-down"></i>
+                        POS Sales (<%= item.posSales.count %>) — Total: <%= item.posSales.revenue.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %> <%= item.currency || '₦' %>
+                      </div>
+                      <div class="sales-content" id="pos-sales-<%= item._id %>">
+                        <% if (item.posSales.sales.length > 0) { %>
+                          <table class="sa-table">
+                            <thead><tr><th>Sale ID</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Items</th></tr></thead>
+                            <tbody>
+                              <% item.posSales.sales.forEach(sale => { %>
+                                <tr>
+                                  <td style="font-family:monospace;"><%= escapeEjs(sale.saleId) %></td>
+                                  <td><%= escapeEjs(sale.customerName || 'N/A') %></td>
+                                  <td><%= item.currency || '₦' %><%= (sale.totalAmount || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %></td>
+                                  <td><%= escapeEjs(sale.paymentMethod || 'N/A') %></td>
+                                  <td><%= escapeEjs(sale.paymentStatus || 'N/A') %></td>
+                                  <td style="font-size:0.78rem; white-space:nowrap;"><%= sale.date ? new Date(sale.date).toLocaleString() : 'N/A' %></td>
+                                  <td style="font-size:0.78rem;">
+                                    <% sale.items.forEach(si => { %><div><%= escapeEjs(si.itemName||'N/A') %>: <%= si.quantity %> × <%= (si.unitCost||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div><% }) %>
+                                  </td>
+                                </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        <% } else { %><p style="color:#999; font-size:0.83rem; padding:8px 0;">No POS sales recorded.</p><% } %>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+                <!-- Online Sales row -->
+                <tr>
+                  <td colspan="11" style="padding:0 14px; background:#fafafa; border-bottom:4px solid #f0f0f0;">
+                    <div class="sales-section">
+                      <div class="sales-toggle" data-target="online-sales-<%= item._id %>">
+                        <i class="fas fa-chevron-down"></i>
+                        Online Sales (<%= item.onlineSales.count %>) — Total: <%= item.onlineSales.revenue.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %> <%= item.currency || '₦' %>
+                      </div>
+                      <div class="sales-content" id="online-sales-<%= item._id %>">
+                        <% if (item.onlineSales.sales.length > 0) { %>
+                          <table class="sa-table">
+                            <thead><tr><th>Sale ID</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th><th>Items</th></tr></thead>
+                            <tbody>
+                              <% item.onlineSales.sales.forEach(sale => { %>
+                                <tr>
+                                  <td style="font-family:monospace;"><%= escapeEjs(sale.saleId) %></td>
+                                  <td><%= escapeEjs(sale.customerName || 'N/A') %></td>
+                                  <td><%= item.currency || '₦' %><%= (sale.totalAmount || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %></td>
+                                  <td><%= escapeEjs(sale.paymentMethod || 'N/A') %></td>
+                                  <td><%= escapeEjs(sale.paymentStatus || 'N/A') %></td>
+                                  <td style="font-size:0.78rem; white-space:nowrap;"><%= sale.date ? new Date(sale.date).toLocaleString() : 'N/A' %></td>
+                                  <td style="font-size:0.78rem;">
+                                    <% sale.items.forEach(si => { %><div><%= escapeEjs(si.itemName||'N/A') %>: <%= si.quantity %> × <%= (si.unitCost||0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) %></div><% }) %>
+                                  </td>
+                                </tr>
+                              <% }) %>
+                            </tbody>
+                          </table>
+                        <% } else { %><p style="color:#999; font-size:0.83rem; padding:8px 0;">No online sales recorded.</p><% } %>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <p style="text-align:center; color:#999; padding:48px;">No admins found.</p>
+      <% } %>
+    </div>
+
+    <!-- Send Message -->
+    <div class="app-card" style="max-width:560px;">
+      <div class="app-card-title">Send Message to Admins</div>
+      <form action="/superadmin/send-message" method="POST">
+        <div class="form-group">
+          <label>Recipient</label>
+          <select name="recipientId" class="form-control">
+            <option value="">All Admins</option>
+            <% adminItems.forEach(item => { %>
+              <option value="<%= item._id %>"><%= escapeEjs(item.username) %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea name="content" class="form-control" rows="4" required placeholder="Enter your message…"></textarea>
+        </div>
+        <button type="submit" class="btn-primary-app">
+          <i class="fas fa-paper-plane"></i> Send Message
+        </button>
+      </form>
+    </div>
+
+  </main>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal-box">
+    <h4>Delete Admin</h4>
+    <p style="color:#666;">Are you sure you want to delete <strong id="deleteUsername"></strong>? This cannot be undone.</p>
+    <div class="modal-actions">
+      <button type="button" class="btn-danger-app" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Delete</button>
+      <button type="button" class="btn-secondary-app" id="cancelDeleteBtn">Cancel</button>
+    </div>
+    <form id="deleteForm" action="" method="POST" style="display:none;">
+      <input type="hidden" name="adminId" id="deleteAdminId">
+    </form>
+  </div>
+</div>
+
+<script src="/js/plugins/jquery.min.js"></script>
+<script>
+  // Sidebar
+  document.getElementById('hamburgerBtn').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.toggle('open');
+    document.getElementById('sidebarOverlay').classList.toggle('active');
+  });
+  document.getElementById('sidebarOverlay').addEventListener('click', function() {
+    document.getElementById('appSidebar').classList.remove('open');
+    this.classList.remove('active');
+  });
+
+  // Sales accordion
+  document.querySelectorAll('.sales-toggle').forEach(function(toggle) {
+    toggle.addEventListener('click', function() {
+      const id = this.dataset.target;
+      const content = document.getElementById(id);
+      if (content) {
+        content.classList.toggle('show');
+        this.classList.toggle('collapsed');
+      }
+    });
+  });
+
+  // Inline editing
+  function editRow(id) {
+    const row = document.getElementById('row-' + id);
+    row.querySelectorAll('.display-value').forEach(s => s.style.display = 'none');
+    row.querySelectorAll('.edit-input').forEach(i => { i.disabled = false; i.classList.add('active'); i.style.display = 'block'; });
+    row.querySelector('.edit-btn').classList.add('hidden');
+    row.querySelector('.update-btn').classList.remove('hidden');
+    row.querySelector('.cancel-btn').classList.remove('hidden');
+    syncHidden(id);
+  }
+
+  function syncHidden(id) {
+    const row = document.getElementById('row-' + id);
+    ['username','businessName','phone','currency'].forEach(function(f) {
+      const inp = row.querySelector('input[name="' + f + '"]');
+      const hid = row.querySelector('.hidden-' + f);
+      if (inp && hid) hid.value = inp.value;
+    });
+    const sel = row.querySelector('select[name="role"]');
+    const hidRole = row.querySelector('.hidden-role');
+    if (sel && hidRole) hidRole.value = sel.value;
+  }
+
+  function cancelRow(btn) {
+    const row = btn.closest('tr');
+    const id = row.id.replace('row-', '');
+    const d = btn.dataset;
+    const inputs = row.querySelectorAll('.edit-input');
+    inputs[0].value = d.username || '';
+    inputs[1].value = d.businessname === 'N/A' ? '' : d.businessname;
+    inputs[2].value = d.phone === 'N/A' ? '' : d.phone;
+    inputs[3].value = d.currency === 'N/A' ? '' : d.currency;
+    if (inputs[4]) inputs[4].value = d.role;
+    row.querySelectorAll('.display-value').forEach(s => s.style.display = '');
+    inputs.forEach(i => { i.disabled = true; i.classList.remove('active'); i.style.display = 'none'; });
+    row.querySelector('.edit-btn').classList.remove('hidden');
+    row.querySelector('.update-btn').classList.add('hidden');
+    btn.classList.add('hidden');
+  }
+
+  document.querySelectorAll('.edit-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { editRow(this.dataset.id); });
+  });
+  document.querySelectorAll('.cancel-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() { cancelRow(this); });
+  });
+  document.querySelectorAll('.update-form').forEach(function(form) {
+    form.addEventListener('submit', function() {
+      const row = this.closest('tr');
+      const id = row.id.replace('row-', '');
+      syncHidden(id);
+    });
+  });
+  document.querySelectorAll('.edit-input').forEach(function(inp) {
+    inp.addEventListener('input', function() {
+      const id = this.closest('tr').id.replace('row-', '');
+      syncHidden(id);
+    });
+  });
+
+  // Delete modal
+  let deleteId = null;
+  document.querySelectorAll('.delete-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      deleteId = this.dataset.id;
+      document.getElementById('deleteUsername').textContent = this.dataset.username;
+      document.getElementById('deleteAdminId').value = deleteId;
+      document.getElementById('deleteForm').action = '/superadmin/delete-admin/' + deleteId;
+      document.getElementById('deleteModal').classList.add('active');
+    });
+  });
+  document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
+    document.getElementById('deleteModal').classList.remove('active');
+  });
+  document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+    document.getElementById('deleteForm').submit();
+  });
+  document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('active');
+  });
+</script>
+</body>
+</html>
