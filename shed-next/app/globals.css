@@ -1,0 +1,56 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { scroll-behavior: smooth; -webkit-tap-highlight-color: transparent; }
+  body { @apply bg-canvas text-ink font-sans antialiased; }
+  h1, h2, h3, h4 { @apply font-semibold tracking-tight; }
+  :focus-visible { @apply outline-none ring-2 ring-brand ring-offset-2 ring-offset-surface; }
+  /* Text fields show focus with their border (or their wrapper's), not a ring. */
+  input:not([type=checkbox]):not([type=radio]):focus-visible, select:focus-visible, textarea:focus-visible { @apply ring-0 ring-offset-0; }
+  .input:focus-visible { @apply border-ink; }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold
+           transition-colors duration-150 select-none disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-brand   { @apply bg-brand text-ink hover:bg-brand-hover; }
+  .btn-dark    { @apply bg-ink text-white hover:bg-black; }
+  .btn-outline { @apply border border-line bg-surface text-ink hover:border-ink; }
+  .btn-ghost   { @apply text-ink hover:bg-canvas; }
+  .btn-lg      { @apply min-h-[52px] px-6 text-base; }
+
+  .input {
+    @apply w-full rounded-xl border border-line bg-surface px-4 py-3 text-[15px] outline-none transition
+           placeholder:text-subtle/70 focus:border-ink;
+  }
+  .chip {
+    @apply inline-flex h-9 shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-line bg-surface px-4 text-sm font-medium
+           text-ink/80 transition-colors hover:border-ink;
+  }
+  .chip-active { @apply border-ink bg-ink text-white hover:border-ink; }
+  .card { @apply rounded-card border border-line bg-surface; }
+  .skeleton { @apply relative overflow-hidden bg-canvas; }
+}
+
+@layer utilities {
+  .no-scrollbar { scrollbar-width: none; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .pb-safe { padding-bottom: env(safe-area-inset-bottom); }
+}
+
+/* Long-form content (blog posts). */
+.prose-shed { @apply text-[17px] leading-8 text-ink/85; }
+.prose-shed h2 { @apply mt-10 mb-3 text-2xl font-bold text-ink; }
+.prose-shed h3 { @apply mt-8 mb-2 text-xl font-bold text-ink; }
+.prose-shed p { @apply my-4; }
+.prose-shed a { @apply font-medium text-brand-dark underline; }
+.prose-shed ul { @apply my-4 list-disc pl-6; }
+.prose-shed ol { @apply my-4 list-decimal pl-6; }
+.prose-shed li { @apply my-1; }
+.prose-shed blockquote { @apply my-6 border-l-4 border-brand pl-4 italic text-ink/70; }
+.prose-shed img { @apply my-6 rounded-xl; }
+.prose-shed pre { @apply my-6 overflow-x-auto rounded-xl bg-ink p-4 text-sm text-white; }

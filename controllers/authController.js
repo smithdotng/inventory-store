@@ -6,6 +6,8 @@ const { transporter } = require('../config/mailer');
 const { uploadLogo } = require('../config/multer');
 const { getDashboardUrl } = require('../utils/helpers');
 const { sendWelcomeEmailToUser } = require('../utils/emailHelpers');
+const { newTrialSubscription } = require('../utils/subscription');
+const { BUSINESS_CATEGORIES } = require('../utils/categories');
 
 // GET /admin-login
 exports.getLogin = (req, res) => {
@@ -136,11 +138,15 @@ exports.getRegister = async (req, res) => {
       }
     }
 
+    const clusters = await db.collection('market_clusters').find({ isActive: true }).sort({ name: 1 }).toArray();
+
     res.render('register', {
       error: null,
       referralCode: referralCode,
       message: null,
-      admin: null
+      admin: null,
+      categories: BUSINESS_CATEGORIES,
+      clusters
     });
 
   } catch (err) {
@@ -149,7 +155,9 @@ exports.getRegister = async (req, res) => {
       error: 'An error occurred while loading the registration page',
       referralCode: null,
       message: null,
-      admin: null
+      admin: null,
+      categories: BUSINESS_CATEGORIES,
+      clusters: []
     });
   }
 };
@@ -157,14 +165,18 @@ exports.getRegister = async (req, res) => {
 // POST /admin-register — validate, store pending data, send OTP
 exports.postRegister = async (req, res) => {
   const db = getDb();
-  const { businessName, email, currency, username, password, country, firstName, lastName } = req.body;
+  const { businessName, email, currency, username, password, country, firstName, lastName, category, clusterId } = req.body;
   const referralCode = req.query.ref;
   const logoPath = req.file ? `/uploads/${req.file.filename}` : '/images/default-logo.png';
 
-  const renderError = (error) => res.render('register', {
-    error, businessName, email, currency, username, country,
-    firstName, lastName, referralCode, message: null, admin: null
-  });
+  const renderError = async (error) => {
+    const clusters = await db.collection('market_clusters').find({ isActive: true }).sort({ name: 1 }).toArray();
+    return res.render('register', {
+      error, businessName, email, currency, username, country,
+      firstName, lastName, referralCode, message: null, admin: null,
+      category, clusterId, categories: BUSINESS_CATEGORIES, clusters
+    });
+  };
 
   try {
     if (!firstName || !lastName) return renderError('First name and last name are required.');
@@ -178,6 +190,15 @@ exports.postRegister = async (req, res) => {
     const existingAdmin = await db.collection('admins').findOne({ $or: [{ username }, { email }] });
     if (existingAdmin) return renderError('Username or email already exists.');
 
+    // Business category + market cluster are both optional at signup —
+    // validate against the known lists so we never store junk values.
+    const safeCategory = (category && BUSINESS_CATEGORIES.includes(category)) ? category : null;
+    let safeClusterId = null;
+    if (clusterId && ObjectId.isValid(clusterId)) {
+      const cluster = await db.collection('market_clusters').findOne({ _id: new ObjectId(clusterId), isActive: true });
+      if (cluster) safeClusterId = cluster._id;
+    }
+
     // Generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -188,7 +209,10 @@ exports.postRegister = async (req, res) => {
       {
         $set: {
           otp,
-          pendingAdmin: { businessName, email, currency, country, username, password: hashedPassword, firstName, lastName, logo: logoPath, role: 'admin', createdAt: new Date() },
+          pendingAdmin: {
+            businessName, email, currency, country, username, password: hashedPassword, firstName, lastName,
+            logo: logoPath, role: 'admin', category: safeCategory, clusterId: safeClusterId, createdAt: new Date()
+          },
           referralCode: referralCode || null,
           expiresAt: new Date(Date.now() + 15 * 60 * 1000)
         }
@@ -279,8 +303,11 @@ exports.postVerifyEmail = async (req, res) => {
     }
     if (record.otp !== otp.trim()) return renderError('Incorrect code. Please try again.');
 
-    // Create the account
+    // Create the account — new self-registered store owners start a 14-day
+    // free trial; the ₦7,200/month subscription kicks in once it ends.
+    // (Pre-existing admins are untouched — see scripts/grandfatherExistingAdmins.js.)
     const newAdmin = record.pendingAdmin;
+    newAdmin.subscription = newTrialSubscription();
     await db.collection('admins').insertOne(newAdmin);
 
     // Send welcome email

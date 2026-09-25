@@ -4,6 +4,7 @@ const fs = require('fs');
 const { getDb } = require('../config/db');
 const { uploadsDir } = require('../config/multer');
 const { getOutletsWithCommission, formatCurrency } = require('../utils/helpers');
+const { BUSINESS_CATEGORIES } = require('../utils/categories');
 
 // GET /home
 exports.getHome = async (req, res) => {
@@ -59,7 +60,12 @@ exports.getProfile = async (req, res) => {
     req.session.error = null;
     req.session.success = null;
 
-    res.render('profile', { username: req.session.admin, admin, error, success });
+    const clusters = await db.collection('market_clusters').find({ isActive: true }).sort({ name: 1 }).toArray();
+
+    res.render('profile', {
+      username: req.session.admin, admin, error, success,
+      categories: BUSINESS_CATEGORIES, clusters
+    });
   } catch (error) {
     console.error('Error fetching profile:', error);
     req.session.error = 'Failed to load profile. Please try again.';
@@ -85,7 +91,8 @@ exports.postProfileUpdate = async (req, res) => {
       secondaryBankAccountName, secondaryAccountNumber, secondaryBankName,
       facebook, instagram, twitter,
       publicPhone, publicEmail, publicAddress,
-      applyVat, vatRate, croppedImageData
+      applyVat, vatRate, croppedImageData,
+      category, clusterId
     } = req.body;
 
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -124,6 +131,15 @@ exports.postProfileUpdate = async (req, res) => {
       return res.redirect('/profile');
     }
 
+    // Business category + market cluster — both optional, validated against
+    // the known lists so a tampered form value can't store junk.
+    const safeCategory = (category && BUSINESS_CATEGORIES.includes(category)) ? category : null;
+    let safeClusterId = null;
+    if (clusterId && ObjectId.isValid(clusterId)) {
+      const cluster = await db.collection('market_clusters').findOne({ _id: new ObjectId(clusterId), isActive: true });
+      if (cluster) safeClusterId = cluster._id;
+    }
+
     const updateData = {
       firstName: firstName || admin.firstName,
       lastName: lastName || admin.lastName,
@@ -141,6 +157,8 @@ exports.postProfileUpdate = async (req, res) => {
       publicAddress: publicAddress === 'on',
       applyVat: applyVat === 'on',
       vatRate: applyVat === 'on' ? parseFloat(vatRate) : (admin.vatRate || 0),
+      category: safeCategory,
+      clusterId: safeClusterId,
       updatedAt: new Date()
     };
 

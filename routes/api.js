@@ -30,6 +30,7 @@ router.get('/api/admin/team', isAuthenticated, requireRole('admin', 'superadmin'
 router.post('/api/admin/team/:id/:action', isAuthenticated, requireRole('admin', 'superadmin'), apiController.postAdminTeamAction);
 
 // Public store API
+router.get('/api/public/products', apiController.getPublicProducts);
 router.get('/api/public/store/:username', apiController.getPublicStore);
 router.get('/api/public/store/:username/product/:id', apiController.getPublicStoreProduct);
 router.get('/api/public/store/:username/order/:saleId', apiController.getPublicOrder);

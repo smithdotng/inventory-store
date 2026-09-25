@@ -1,0 +1,21 @@
+// Mirrors utils/categories.js in the Express app.
+export const CATEGORIES = [
+  { name: 'Electronics', icon: 'bolt' },
+  { name: 'Phones & Accessories', icon: 'phone' },
+  { name: 'Computers & IT', icon: 'laptop' },
+  { name: 'Fashion & Apparel', icon: 'shirt' },
+  { name: 'Health & Beauty', icon: 'sparkle' },
+  { name: 'Food & Groceries', icon: 'basket' },
+  { name: 'Furniture & Home Decor', icon: 'sofa' },
+  { name: 'Kitchen & Household', icon: 'pot' },
+  { name: 'Electricals', icon: 'plug' },
+  { name: 'Building Materials', icon: 'brick' },
+  { name: 'Automotive Parts', icon: 'car' },
+  { name: 'Industrial Equipment', icon: 'gear' },
+  { name: 'Agriculture & Farm Supplies', icon: 'leaf' },
+  { name: 'Jewelry & Accessories', icon: 'gem' },
+  { name: 'Sports & Outdoor', icon: 'ball' },
+  { name: 'Toys & Kids', icon: 'toy' },
+  { name: 'Books & Media', icon: 'book' },
+  { name: 'Stationery', icon: 'pen' },
+] as const;

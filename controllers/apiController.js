@@ -609,12 +609,12 @@ exports.getSearchSuggestions = async (req, res) => {
           { $match: { $or: [{ name: { $regex: query, $options: 'i' } }, { description: { $regex: query, $options: 'i' } }] } },
           { $lookup: { from: 'admins', localField: 'adminId', foreignField: '_id', as: 'store' } },
           { $unwind: { path: '$store', preserveNullAndEmptyArrays: true } },
-          { $project: { _id: 1, name: 1, cost: 1, image: 1, storeName: '$store.businessName', storeUsername: '$store.username', storeLogo: '$store.logo' } },
+          { $project: { _id: 1, name: 1, cost: 1, image: 1, images: 1, storeName: '$store.businessName', storeUsername: '$store.username', storeLogo: '$store.logo', storeCurrency: '$store.currency' } },
           { $limit: 5 }
         ]).toArray();
 
         products.forEach(product => {
-          suggestions.push({ type: 'product', id: product._id.toString(), name: product.name, price: product.cost, image: product.image, storeName: product.storeName, storeUsername: product.storeUsername, storeLogo: product.storeLogo, url: `/store/${product.storeUsername}?product=${product._id.toString()}` });
+          suggestions.push({ type: 'product', id: product._id.toString(), name: product.name, price: product.cost, image: product.image || (Array.isArray(product.images) ? product.images[0] : undefined), currency: product.storeCurrency || '₦', storeName: product.storeName, storeUsername: product.storeUsername, storeLogo: product.storeLogo, url: `/store/${product.storeUsername}?product=${product._id.toString()}` });
         });
       } catch (productError) {
         console.error('Error fetching product suggestions:', productError.message);
@@ -711,7 +711,7 @@ exports.getProductsSearch = async (req, res) => {
       { $lookup: { from: 'admins', localField: 'adminId', foreignField: '_id', as: 'store' } },
       { $unwind: { path: '$store', preserveNullAndEmptyArrays: false } },
       { $match: { 'store.active': true } },
-      { $project: { _id: 1, name: 1, description: 1, cost: 1, image: { $ifNull: ['$images', []] }, stock: 1, category: 1, commission: 1, createdAt: 1, storeName: '$store.businessName', storeUsername: '$store.username', storeLogo: '$store.logo', storeLocation: '$store.location', storeEmail: '$store.email', storePhone: '$store.phone' } },
+      { $project: { _id: 1, name: 1, description: 1, cost: 1, image: { $ifNull: ['$images', []] }, stock: 1, category: 1, commission: 1, createdAt: 1, storeName: '$store.businessName', storeUsername: '$store.username', storeLogo: '$store.logo', storeLocation: '$store.location', storeEmail: '$store.email', storePhone: '$store.phone', storeCurrency: '$store.currency' } },
       { $sort: { createdAt: -1 } },
       { $skip: skip },
       { $limit: limit }
@@ -725,7 +725,7 @@ exports.getProductsSearch = async (req, res) => {
       image: Array.isArray(product.image) && product.image.length > 0 ? product.image[0] : '/images/default-product.png',
       stock: product.stock || 0,
       category: product.category || '',
-      store: { id: product._id.toString(), name: product.storeName, username: product.storeUsername, logo: product.storeLogo || '/images/logo.png', location: product.storeLocation || '', email: product.storeEmail || '', phone: product.storePhone || '' }
+      store: { id: product._id.toString(), name: product.storeName, username: product.storeUsername, logo: product.storeLogo || '/images/logo.png', location: product.storeLocation || '', email: product.storeEmail || '', phone: product.storePhone || '', currency: product.storeCurrency || '₦' }
     }));
 
     res.json({ success: true, results, total, page, pages: Math.ceil(total / limit), limit });
@@ -760,5 +760,93 @@ exports.getStoresSearch = async (req, res) => {
   } catch (error) {
     console.error('Error in store search API:', error);
     res.status(500).json({ success: false, error: 'Internal server error', results: [], total: 0 });
+  }
+};
+
+// GET /api/public/products — marketplace-wide product listing for the Next.js
+// storefront (browse / category pages). Unlike /api/products/search, `q` is
+// optional, sold-out items and locked stores are excluded, and it supports sorting.
+//   ?q=        optional text (name / description)
+//   ?category= optional exact category (case-insensitive)
+//   ?sort=     newest (default) | price_asc | price_desc | name
+//   ?page=, ?limit= (max 60)
+const escapeRegex = (str) => String(str).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+exports.getPublicProducts = async (req, res) => {
+  try {
+    const db = getDb();
+    const q = req.query.q ? String(req.query.q).trim() : '';
+    const category = req.query.category ? String(req.query.category).trim() : '';
+    const page = Math.max(parseInt(req.query.page) || 1, 1);
+    const limit = Math.min(Math.max(parseInt(req.query.limit) || 24, 1), 60);
+    const sorts = {
+      newest: { createdAt: -1, _id: -1 },
+      price_asc: { cost: 1, _id: 1 },
+      price_desc: { cost: -1, _id: -1 },
+      name: { name: 1, _id: 1 },
+    };
+    const sort = sorts[req.query.sort] || sorts.newest;
+
+    const match = { stock: { $gt: 0 } };
+    if (q) {
+      const rx = { $regex: escapeRegex(q), $options: 'i' };
+      match.$or = [{ name: rx }, { description: rx }, { category: rx }];
+    }
+    if (category) match.category = { $regex: `^${escapeRegex(category)}$`, $options: 'i' };
+
+    // Same rule as utils/subscription.isAccountLocked, expressed as a query:
+    // only active stores whose subscription isn't lapsed.
+    const now = new Date();
+    const storeOpen = {
+      'store.active': true,
+      $or: [
+        { 'store.subscription': { $exists: false } },
+        { 'store.subscription': null },
+        { 'store.subscription.legacyAccount': true },
+        { 'store.subscription.status': { $in: ['active', 'comped'] } },
+        { 'store.subscription.status': 'trial', 'store.subscription.trialEndsAt': { $in: [null] } },
+        { 'store.subscription.status': 'trial', 'store.subscription.trialEndsAt': { $gte: now } },
+      ],
+    };
+
+    const [out] = await db.collection('inventory').aggregate([
+      { $match: match },
+      { $lookup: { from: 'admins', localField: 'adminId', foreignField: '_id', as: 'store' } },
+      { $unwind: '$store' },
+      { $match: storeOpen },
+      { $facet: {
+        total: [{ $count: 'n' }],
+        items: [
+          { $sort: sort },
+          { $skip: (page - 1) * limit },
+          { $limit: limit },
+          { $project: { name: 1, description: 1, cost: 1, stock: 1, category: 1, images: 1,
+            'store.businessName': 1, 'store.username': 1, 'store.logo': 1, 'store.location': 1, 'store.currency': 1 } },
+        ],
+      } },
+    ]).toArray();
+
+    const total = out && out.total[0] ? out.total[0].n : 0;
+    const results = (out ? out.items : []).map((p) => ({
+      id: p._id.toString(),
+      name: p.name,
+      description: p.description || '',
+      price: Number(p.cost) || 0,
+      image: Array.isArray(p.images) && p.images.length ? p.images[0] : '',
+      stock: Number(p.stock) || 0,
+      category: p.category || '',
+      store: {
+        name: p.store.businessName || p.store.username,
+        username: p.store.username,
+        logo: p.store.logo || '',
+        location: p.store.location || '',
+        currency: p.store.currency || '₦',
+      },
+    }));
+
+    res.json({ success: true, results, total, page, pages: Math.ceil(total / limit), limit });
+  } catch (error) {
+    console.error('Error in public products API:', error);
+    res.status(500).json({ success: false, error: 'Internal server error', results: [], total: 0, page: 1, pages: 0 });
   }
 };

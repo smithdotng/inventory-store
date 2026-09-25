@@ -82,6 +82,15 @@ async function connectToMongo() {
       console.warn('Inventory indexes:', error.message);
     }
 
+    // Market clusters (e.g. "Alaba International") + business category live
+    // on the admins collection, one of each per store owner.
+    try {
+      await adminCollection.createIndex({ clusterId: 1 });
+      await adminCollection.createIndex({ category: 1 });
+    } catch (error) {
+      console.warn('Admin cluster/category indexes:', error.message);
+    }
+
     // Create indexes for other collections
     const collections = [
       { name: 'outlets', indexes: [
@@ -131,6 +140,30 @@ async function connectToMongo() {
         { key: { initiatedBy: 1 } },
         { key: { startTime: -1 } },
         { key: { status: 1 } }
+      ]},
+      { name: 'shoppers', indexes: [
+        { key: { email: 1 }, options: { unique: true } }
+      ]},
+      { name: 'shopper_verifications', indexes: [
+        { key: { email: 1 }, options: { unique: true } },
+        { key: { expiresAt: 1 } }
+      ]},
+      { name: 'carts', indexes: [
+        { key: { shopperId: 1 }, options: { unique: true } }
+      ]},
+      { name: 'subscription_charges', indexes: [
+        { key: { adminId: 1 } },
+        { key: { createdAt: -1 } },
+        { key: { flwRef: 1 } }
+      ]},
+      { name: 'pending_cart_orders', indexes: [
+        { key: { txRef: 1 }, options: { unique: true } },
+        { key: { shopperId: 1 } },
+        { key: { createdAt: 1 } }
+      ]},
+      { name: 'market_clusters', indexes: [
+        { key: { slug: 1 }, options: { unique: true } },
+        { key: { isActive: 1 } }
       ]}
     ];
 
