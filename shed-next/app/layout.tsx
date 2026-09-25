@@ -1,7 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
-import { ServiceWorker } from '@/components/ServiceWorker';
+import { PwaProvider } from '@/components/pwa/PwaProvider';
+import { InstallPrompt, UpdateBanner } from '@/components/pwa/PwaBanners';
 import { SITE, pageMeta } from '@/lib/seo';
 
 const outfit = Outfit({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], variable: '--font-outfit', display: 'swap' });
@@ -24,18 +25,22 @@ export const metadata: Metadata = {
     apple: '/apple-touch-icon.png',
   },
   manifest: '/manifest.json',
-  appleWebApp: { title: 'Shed', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'Shed', statusBarStyle: 'default' },
+  other: { 'mobile-web-app-capable': 'yes' },
   formatDetection: { telephone: false },
 };
 
-export const viewport: Viewport = { themeColor: '#141414', width: 'device-width', initialScale: 1 };
+export const viewport: Viewport = { themeColor: '#FFFFFF', width: 'device-width', initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={outfit.variable}>
       <body className="min-h-screen">
-        {children}
-        <ServiceWorker />
+        <PwaProvider>
+          {children}
+          <InstallPrompt />
+          <UpdateBanner />
+        </PwaProvider>
       </body>
     </html>
   );

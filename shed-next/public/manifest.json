@@ -1,7 +1,32 @@
 {
-  "name": "Shed - Inventory, Invoices and More",
+  "id": "/",
+  "name": "Shed — Shop local, sell anywhere",
   "short_name": "Shed",
-  "description": "Inventory, point of sale, invoices and a free online store for your business.",
+  "description": "Shop trusted local stores, and run your own: inventory, point of sale, invoices and a free online store.",
+  "start_url": "/launch?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": [
+    "standalone",
+    "minimal-ui"
+  ],
+  "orientation": "any",
+  "theme_color": "#FFFFFF",
+  "background_color": "#F6F5F2",
+  "lang": "en-NG",
+  "dir": "ltr",
+  "categories": [
+    "shopping",
+    "business",
+    "productivity"
+  ],
+  "launch_handler": {
+    "client_mode": [
+      "navigate-existing",
+      "auto"
+    ]
+  },
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/android-chrome-192x192.png",
@@ -28,62 +53,87 @@
       "purpose": "maskable"
     }
   ],
-  "start_url": "/dashboard?utm_source=pwa&utm_medium=homescreen",
-  "scope": "/",
-  "display": "standalone",
-  "display_override": [
-    "standalone",
-    "minimal-ui",
-    "browser"
-  ],
-  "theme_color": "#141414",
-  "background_color": "#141414",
-  "orientation": "any",
-  "lang": "en-US",
-  "dir": "ltr",
-  "id": "/dashboard",
-  "categories": [
-    "business",
-    "finance",
-    "productivity"
-  ],
   "shortcuts": [
     {
-      "name": "Point of sale",
-      "short_name": "POS",
-      "url": "/dashboard/pos?utm_source=pwa_shortcut",
-      "description": "Record a sale",
+      "name": "Search products",
+      "short_name": "Search",
+      "url": "/search?source=pwa_shortcut",
       "icons": [
         {
           "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Point of sale",
+      "short_name": "POS",
+      "description": "Record a sale",
+      "url": "/dashboard/pos?source=pwa_shortcut",
+      "icons": [
+        {
+          "src": "/android-chrome-192x192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
       "name": "Inventory",
       "short_name": "Inventory",
-      "url": "/dashboard/inventory?utm_source=pwa_shortcut",
       "description": "View and update stock",
+      "url": "/dashboard/inventory?source=pwa_shortcut",
       "icons": [
         {
           "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
       "name": "New invoice",
       "short_name": "Invoice",
-      "url": "/dashboard/invoices/new?utm_source=pwa_shortcut",
       "description": "Create an invoice",
+      "url": "/dashboard/invoices/new?source=pwa_shortcut",
       "icons": [
         {
           "src": "/android-chrome-192x192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
   ],
-  "prefer_related_applications": false
+  "screenshots": [
+    {
+      "src": "/screenshots/shop-mobile.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Shop trusted local stores"
+    },
+    {
+      "src": "/screenshots/pos-mobile.png",
+      "sizes": "780x1688",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Sell in seconds with the point of sale"
+    },
+    {
+      "src": "/screenshots/shop-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "The Shed marketplace"
+    },
+    {
+      "src": "/screenshots/dashboard-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Your store dashboard"
+    }
+  ]
 }

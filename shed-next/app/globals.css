@@ -54,3 +54,17 @@
 .prose-shed blockquote { @apply my-6 border-l-4 border-brand pl-4 italic text-ink/70; }
 .prose-shed img { @apply my-6 rounded-xl; }
 .prose-shed pre { @apply my-6 overflow-x-auto rounded-xl bg-ink p-4 text-sm text-white; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  [class*='animate-['] { animation: none !important; }
+}
+
+/* Installed app (standalone): no pull-to-refresh bounce on the chrome, no tap flash. */
+@media (display-mode: standalone) {
+  html, body { overscroll-behavior-y: none; }
+  * { -webkit-tap-highlight-color: transparent; }
+}

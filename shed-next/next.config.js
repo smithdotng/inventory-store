@@ -17,6 +17,14 @@ const nextConfig = {
     serverActions: { bodySizeLimit: '12mb' }, // product photos / logos
     instrumentationHook: true, // daily subscription sweep (instrumentation.ts)
   },
+  async headers() {
+    return [
+      // The service worker must always be re-checked so updates reach installed apps quickly.
+      { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }, { key: 'Service-Worker-Allowed', value: '/' }] },
+      { source: '/manifest.json', headers: [{ key: 'Cache-Control', value: 'public, max-age=3600' }, { key: 'Content-Type', value: 'application/manifest+json' }] },
+      { source: '/offline.html', headers: [{ key: 'Cache-Control', value: 'no-cache' }] },
+    ];
+  },
   async redirects() {
     // Old Express/EJS URLs → new routes, so bookmarks, QR codes, WhatsApp shares and emails keep working.
     return [

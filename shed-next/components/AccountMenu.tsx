@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/format';
 import { Icon } from './Icon';
+import { InstallAppItem } from './pwa/PwaBanners';
 import type { Viewer } from '@/lib/server/viewer';
 
 const item = 'flex items-center gap-3 px-4 py-2.5 text-sm hover:bg-canvas focus-visible:bg-canvas focus-visible:outline-none';
@@ -107,6 +108,8 @@ export function AccountMenu({ viewer }: { viewer: Viewer | null }) {
               <a role="menuitem" href="/admin-logout" className={cn(item, 'text-danger')}><Icon name="arrowRight" size={18} /> Sign out{shopper ? ' of your store' : ''}</a>
             </>
           )}
+
+          <InstallAppItem className={cn(item, 'border-t border-line')} />
 
           {viewer && (!shopper || !seller) && (
             <p className="border-t border-line px-4 py-2.5 text-xs text-subtle">

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { BrandLogo } from '../Brand';
+import { InstallAppItem } from '../pwa/PwaBanners';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { cn } from '@/lib/format';
@@ -109,6 +110,7 @@ export function DashboardShell({ user, children }: { user: ShellUser; children: 
               <Link href="/dashboard/settings" className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-canvas"><Icon name="gear" size={16} /> {['admin', 'superadmin'].includes(user.role) ? 'Settings' : 'Change password'}</Link>
               <a href={`/store/${user.username}`} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-canvas"><Icon name="globe" size={16} /> My online store</a>
               <Link href="/" className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-canvas"><Icon name="cart" size={16} /> Shop on Shed</Link>
+              <InstallAppItem className="flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-canvas" />
               <a href="/admin-logout" className="flex items-center gap-2 border-t border-line px-4 py-2.5 text-sm text-danger hover:bg-canvas"><Icon name="arrowRight" size={16} /> Sign out</a>
             </div>
           </details>

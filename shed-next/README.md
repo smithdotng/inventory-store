@@ -69,6 +69,33 @@ Access rules come from `lib/server/auth.ts`:
   - **Seller:** dashboard, point of sale, inventory, sales, their store, settings and sign out. The links depend on the person's role, so a cashier only sees what they can open.
 - One browser can be signed in as a shopper and as a seller at the same time. Signing in or out as one keeps the other.
 
+### Installable app (PWA)
+
+Shed can be installed from the browser on Android, iPhone/iPad and desktop, and then opens full-screen like a native app.
+
+| Piece | Where |
+|---|---|
+| Manifest: name, icons, screenshots, shortcuts (POS, inventory, new invoice, search) | `public/manifest.json` |
+| Start page: opens the dashboard for sellers (the POS for cashiers) and the marketplace for everyone else | `app/launch/route.ts` |
+| Service worker | `public/sw.js` |
+| Offline page | `public/offline.html` |
+| Install prompt and "new version" banner | `components/pwa/` |
+
+How the service worker handles requests:
+
+- **Public marketplace pages** (home, search, store pages) are saved as people visit them, so they still open offline.
+- **Private pages** (dashboard, account, cart, checkout, outlet portal) are never saved. Nor are API calls or PDFs.
+- **Signing out** clears the saved pages.
+- **Build files** load from the cache first. Images use a size-capped cache that refreshes in the background.
+
+The install prompt appears after the second page view, on the home, search, store and dashboard overview pages. On iPhone it shows the "Share → Add to Home Screen" steps instead. "Not now" hides it for 14 days. Both account menus also have an **Install the app** item.
+
+When a new version is deployed, installed apps show **"A new version of Shed is ready → Update"**. They don't reload in the middle of a sale.
+
+**To ship a service worker change**, bump `VERSION` in `public/sw.js`, for example to `shed-v5`. That makes browsers pick up the new worker and clear the old caches.
+
+**Screenshots:** the install screenshots in `public/screenshots/` were taken with demo data. Replace them with shots of the live site, keeping the same pixel sizes or updating `sizes` in the manifest.
+
 ## What replaced what
 
 | Old (Express/EJS) | New |
