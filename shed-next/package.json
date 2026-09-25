@@ -1,0 +1,42 @@
+{
+  "name": "shed-next",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Shed \u2014 inventory, POS, invoices and marketplace. Unified Next.js app (replaces the Express/EJS server).",
+  "scripts": {
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "grandfather-admins": "node --env-file=.env.local scripts/grandfather-existing-admins.mjs"
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "country-code-lookup": "^0.1.3",
+    "mongodb": "^6.14.2",
+    "next": "14.2.35",
+    "nodemailer": "^6.10.0",
+    "pdfkit": "^0.16.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "sanitize-html": "^2.17.7",
+    "server-only": "^0.0.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/node": "20.14.10",
+    "@types/nodemailer": "^6.4.15",
+    "@types/pdfkit": "^0.13.5",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "@types/sanitize-html": "^2.16.1",
+    "autoprefixer": "10.4.19",
+    "postcss": "8.4.39",
+    "tailwindcss": "3.4.6",
+    "typescript": "5.5.3"
+  }
+}
